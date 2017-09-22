@@ -2,11 +2,12 @@
 
 iNav flight status screen for Taranis transmitters
 
-![sample](http://www.leethost.com/link_pics/iNav1.png "Taranis Q X7 showing launch-based orientation and location")
-![sample](http://www.leethost.com/link_pics/iNav2.png "Taranis Q X7 showing compass-based direction")
-![sample](http://www.leethost.com/link_pics/iNav3.png "Taranis X9D, X9D+ & X9E view")
+### Taranis Q X7
+![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based orientation and model location indicators")
+![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
 
-## Requirements
+### Taranis X9D, X9D+ & X9E
+![sample](http://www.leethost.com/link_pics/iNav3.png "View on Taranis X9D, X9D+ & X9E")
 
 * [OpenTX v2.2.0](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
 * A FrSky receiver that supports telemetry, such as X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc.

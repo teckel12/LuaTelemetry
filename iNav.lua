@@ -322,15 +322,13 @@ local function background()
     data.rssiMin = getValue(data.rssiMin_id)
     data.txBatt = getValue(data.txBatt_id)
     data.rssiLast = data.rssi
+    -- *** Stuff for testing ***
+    --data.distance = 237
+    --data.gpsLatLon["lat"] = math.deg(data.gpsLatLon["lat"])
+    --data.gpsLatLon["lon"] = math.deg(data.gpsLatLon["lon"] * 2.2)
     if (data.distance > 0) then
       data.distLastPositive = data.distance
     end
-
-    -- *** Stuff for testing ***
-    data.distLastPositive = 237
-    data.gpsLatLon["lat"] = math.deg(data.gpsLatLon["lat"])
-    data.gpsLatLon["lon"] = math.deg(data.gpsLatLon["lon"] * 2.2)
-
     gpsFix = (type(data.gpsLatLon) == "table" and data.satellites > 3900)
     telemFlags = 0
   else
