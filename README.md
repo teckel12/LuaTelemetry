@@ -9,6 +9,8 @@ iNav flight status screen for Taranis transmitters
 ### Taranis X9D, X9D+ & X9E
 ![sample](http://www.leethost.com/link_pics/iNav3.png "View on Taranis X9D, X9D+ & X9E")
 
+## Requirements
+
 * [OpenTX v2.2.0](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
 * A FrSky receiver that supports telemetry, such as X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc.
 * [iNav v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
@@ -45,8 +47,8 @@ iNav flight status screen for Taranis transmitters
 
 From the Taranis main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav.
 Flashing values are either because there's no telemetry or a warning.
-To flip between max/min values and current values, use the dial or enter key.
-To flip between compass-based direction and launch-based orientation and location, use the dial or enter key.
+To flip between max/min values and current values, use the dial or +/- buttons.
+To flip between compass-based direction and launch-based orientation and location, use the dial or +/- buttons.
 If model is further than 25 feet away, the launch direction view will show the direction of the model based upon launch position and orientation.
 This can be used to locate a lost model, using the launch-based model location indicator and distance.
 The launch-based orientation view is useful if model orientation is unknown.

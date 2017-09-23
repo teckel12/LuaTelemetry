@@ -426,7 +426,7 @@ local function run(event)
   lcd.drawText(pos, 9, value, SMLSIZE + telemFlags)
 
   -- *** Directional indicator ***
-  if (event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_ENTER_BREAK) then
+  if (event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK) then
     showDir = not showDir
   end
   if (data.telemetry) then
@@ -475,7 +475,7 @@ local function run(event)
 
   -- *** Data ***
   if (not armed) then
-    if (event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_ENTER_BREAK) then
+    if (event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK) then
       showMax = not showMax
     end
   end
