@@ -1,4 +1,4 @@
-# Lua Telemetry Flight Status Screen for iNav/Taranis
+# Lua Telemetry Flight Status Screen for INAV/Taranis
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
@@ -23,7 +23,7 @@
 
 * [OpenTX v2.2.0](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
 * A FrSky receiver that supports telemetry, such as X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc.
-* [iNav v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
+* [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
 
 #### Notes
@@ -36,9 +36,9 @@
 
 ## Setup
 
-#### In iNav Configurator
+#### In INAV Configurator
 
-1. Setup telemetry to send to your transmitter - [iNav telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
+1. Setup telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
 2. If you have an amperage sensor, configure `battery_capacity` and set `smartport_fuel_percent = ON` in CLI settings
 
 #### From Transmitter
@@ -47,7 +47,7 @@
 2. Telemetry distance sensor name must be changed from `0420` to `Dist`
 3. Sensors must be changed to US measurements (m to ft, km/h to mph, etc) for proper calibration
 
-#### iNav Lua Script Setup
+#### INAV Lua Script Setup
 
 1. Copy `iNav.lua` file to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
 2. Copy `iNav` folder to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
@@ -66,12 +66,12 @@ If model is further than 25 feet away, the launch direction view will show the d
 This can be used to locate a lost model, using the launch-based model location indicator and distance.
 The launch-based orientation view is useful if model orientation is unknown.
 The script gives audio feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
-Audio feedback will play in background even if iNav Lua Script screen is not displayed.
+Audio feedback will play in background even if iNav LuaTelemetry screen is not displayed.
 
 ## Release History
 
 #### v1.1 - 09/22/2017
-* Repo moved to iNav
+* Repo moved to INAVFlight
 * Screen formatting for Taranis X9D, X9D+ & X9E
 #### v1.0 - 09/19/2017
 * Initial release

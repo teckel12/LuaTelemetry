@@ -1,4 +1,4 @@
--- Lua Telemetry Flight Status Screen for iNav/Taranis - v1.1
+-- Lua Telemetry Flight Status Screen for INAV/Taranis - v1.1
 --
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
