@@ -2,11 +2,11 @@
 
 iNav flight status screen for Taranis transmitters
 
-### Taranis Q X7
+#### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based orientation and model location indicators")
 ![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
 
-### Taranis X9D, X9D+ & X9E
+#### Taranis X9D, X9D+ & X9E
 ![sample](http://www.leethost.com/link_pics/iNav3.png "View on Taranis X9D, X9D+ & X9E")
 
 ## Features
@@ -28,7 +28,7 @@ iNav flight status screen for Taranis transmitters
 * [iNav v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
 
-### Notes
+#### Notes
 
 * Designed to work on a Taranis Q X7, X9D, X9D+ & X9E (currently only tested on Q X7)
 * Designed for a multirotor model, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
@@ -38,18 +38,18 @@ iNav flight status screen for Taranis transmitters
 
 ## Setup
 
-### In iNav Configurator
+#### In iNav Configurator
 
 * Setup telemetry to send to your transmitter - [iNav telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
 * If you have an amperage sensor, configure `battery_capacity` and set `smartport_fuel_percent = ON` in CLI settings
 
-### From Transmitter
+#### From Transmitter
 
 * Discover telemetry sensors once GPS locked on model so all telemetry sensors are discovered
 * Telemetry distance sensor name must be changed from `0420` to `Dist`
 * Sensors must be changed to US measurements (m to ft, km/h to mph, etc)
 
-### iNav Lua Script Setup
+#### iNav Lua Script Setup
 
 1. Copy `iNav.lua` file to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
 2. Copy `iNav` folder to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
@@ -69,10 +69,10 @@ Audio feedback will play in background even if iNav Lua Script screen is not dis
 
 ## Release History
 
-### v1.1 - 09/22/2017
+#### v1.1 - 09/22/2017
 * Repo moved to iNav
 * Screen formatting for Taranis X9D, X9D+ & X9E
-### v1.0 - 09/19/2017
+#### v1.0 - 09/19/2017
 * Initial release
 
 ## Todo
