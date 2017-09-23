@@ -9,15 +9,15 @@
 
 ## Features
 
-* Launch-based model orientation and location indicators
+* Launch-based model orientation and location indicators (great for lost orientation or if you lose site of your model)
 * Compass-based direction indicator
 * Bar graphs for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Tx battery (and Altitude for X9D, X9D+ & X9E transmitters)
 * Display and speech notifications of flight modes and other flight status information (altitude hold, heading hold, etc.)
-* Speech notifications for battery current levels, voltage, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
+* Speech notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS information: Satellites locked, GPS altitude, GPS coordinates
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
-* Display of current Fuel (% battery mAh capacity remaining), Rx voltage, flight time
+* Display of current Fuel (% battery mAh capacity remaining), Rx voltage and automatic flight timer
 
 ## Requirements
 
