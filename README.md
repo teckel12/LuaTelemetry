@@ -9,18 +9,30 @@ iNav flight status screen for Taranis transmitters
 ### Taranis X9D, X9D+ & X9E
 ![sample](http://www.leethost.com/link_pics/iNav3.png "View on Taranis X9D, X9D+ & X9E")
 
+## Features
+
+* Launch-based orientation and model location indicators
+* Compass-based direction indicator
+* Bar graphs for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Tx battery (and Altitude for X9D, X9D+ & X9E transmitters)
+* Display and speech notifications of flight modes and other flight status information (altitude hold, heading hold, etc.)
+* Speech notifications for battery current levels, voltage, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
+* GPS information: Satellites locked, GPS altitude, GPS coordinates
+* Display of current/maximum: Altitude, Distance, Speed and Current
+* Display of current/minimum: Battery voltage, RSSI strength
+* Display of current Fuel (% battery mAh capacity remaining), Rx voltage, flight time
+
 ## Requirements
 
 * [OpenTX v2.2.0](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
 * A FrSky receiver that supports telemetry, such as X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc.
 * [iNav v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
-* Optional amperage sensor needed for fuel and current displays
 
-## Notes
+### Notes
 
 * Designed to work on a Taranis Q X7, X9D, X9D+ & X9E (currently only tested on Q X7)
 * Designed for a multirotor model, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
+* Optional amperage sensor needed for fuel and current displays
 * Uses Taranis settings for RSSI warning/critical levels for graph and warnings
 * Uses Taranis settings for transmitter voltage min/max for battery graphic in screen title
 
