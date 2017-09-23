@@ -1,9 +1,7 @@
-# Taranis Lua Telemetry Screen for iNav
-
-iNav flight status screen for Taranis transmitters
+# Lua Telemetry Flight Status Screen for iNav/Taranis
 
 #### Taranis Q X7
-![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based orientation and model location indicators")
+![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
 ![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
 
 #### Taranis X9D, X9D+ & X9E
@@ -11,7 +9,7 @@ iNav flight status screen for Taranis transmitters
 
 ## Features
 
-* Launch-based orientation and model location indicators
+* Launch-based model orientation and location indicators
 * Compass-based direction indicator
 * Bar graphs for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Tx battery (and Altitude for X9D, X9D+ & X9E transmitters)
 * Display and speech notifications of flight modes and other flight status information (altitude hold, heading hold, etc.)
@@ -33,7 +31,7 @@ iNav flight status screen for Taranis transmitters
 * Designed to work on a Taranis Q X7, X9D, X9D+ & X9E (currently only tested on Q X7)
 * Designed for a multirotor model, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
 * Optional amperage sensor needed for fuel and current displays
-* Uses Taranis settings for RSSI warning/critical levels for graph and warnings
+* Uses Taranis settings for RSSI warning/critical levels for graph and audio/vibration warnings
 * Uses Taranis settings for transmitter voltage min/max for battery graphic in screen title
 
 ## Setup
@@ -45,9 +43,9 @@ iNav flight status screen for Taranis transmitters
 
 #### From Transmitter
 
-* Discover telemetry sensors once GPS locked on model so all telemetry sensors are discovered
+* Discover telemetry sensors after GPS fix so all telemetry sensors are discovered
 * Telemetry distance sensor name must be changed from `0420` to `Dist`
-* Sensors must be changed to US measurements (m to ft, km/h to mph, etc)
+* Sensors must be changed to US measurements (m to ft, km/h to mph, etc) for proper calibration
 
 #### iNav Lua Script Setup
 
@@ -56,6 +54,9 @@ iNav flight status screen for Taranis transmitters
 3. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
 
 ## Usage
+
+#### Screen Description
+![sample](http://www.leethost.com/link_pics/iNav4.png "Screen description")
 
 From the Taranis main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav.
 Flashing values are either because there's no telemetry or a warning.
@@ -79,4 +80,4 @@ Audio feedback will play in background even if iNav Lua Script screen is not dis
 
 * Automatically switch between metric and imperial (currently fixed to imperial)
 * Possible option to display value of timer instead of automatic flight timer built into script
-* Options for when sound files play
+* Options for when speech/sound files play (may be too chatty for some)
