@@ -38,14 +38,14 @@
 
 #### In iNav Configurator
 
-* Setup telemetry to send to your transmitter - [iNav telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
-* If you have an amperage sensor, configure `battery_capacity` and set `smartport_fuel_percent = ON` in CLI settings
+1. Setup telemetry to send to your transmitter - [iNav telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
+2. If you have an amperage sensor, configure `battery_capacity` and set `smartport_fuel_percent = ON` in CLI settings
 
 #### From Transmitter
 
-* Discover telemetry sensors after GPS fix so all telemetry sensors are discovered
-* Telemetry distance sensor name must be changed from `0420` to `Dist`
-* Sensors must be changed to US measurements (m to ft, km/h to mph, etc) for proper calibration
+1. Discover telemetry sensors after GPS fix so all telemetry sensors are discovered
+2. Telemetry distance sensor name must be changed from `0420` to `Dist`
+3. Sensors must be changed to US measurements (m to ft, km/h to mph, etc) for proper calibration
 
 #### iNav Lua Script Setup
 
