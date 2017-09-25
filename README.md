@@ -1,5 +1,7 @@
 # Lua Telemetry Flight Status Screen for INAV/Taranis
 
+> Note: Currently only tested on Q X7, feedback on X9D, X9D+ & X9E appreciated.
+
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
 ![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
@@ -28,7 +30,7 @@
 
 #### Notes
 
-* Designed to work on a Taranis Q X7, X9D, X9D+ & X9E (currently only tested on Q X7)
+* Designed to work on a Taranis Q X7, X9D, X9D+ & X9E **(currently only tested on Q X7)**
 * Designed for a multirotor model, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
 * Optional amperage sensor needed for fuel and current displays
 * Uses Taranis settings for RSSI warning/critical levels for graph and audio/vibration warnings
@@ -43,11 +45,11 @@
 
 #### From Transmitter
 
-1. Discover telemetry sensors after GPS fix so all telemetry sensors are discovered
+1. [Discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) with battery connected and **after GPS fix** so all telemetry sensors are discovered
 2. Telemetry distance sensor name must be changed from `0420` to `Dist`
 3. Sensors must be changed to US measurements (m to ft, km/h to mph, etc) for proper calibration
 
-#### INAV Lua Script Setup
+#### INAV Lua Telemetry Screen Setup
 
 1. Copy `iNav.lua` file to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
 2. Copy `iNav` folder to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
