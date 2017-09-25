@@ -1,5 +1,7 @@
 # Lua Telemetry Flight Status Screen for INAV/Taranis
 
+> Note: Currently only tested on Q X7, feedback on X9D, X9D+ & X9E appreciated.
+
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
 ![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
@@ -28,7 +30,7 @@
 
 #### Notes
 
-* Designed to work on a Taranis Q X7, X9D, X9D+ & X9E (currently only tested on Q X7)
+* Designed to work on a Taranis Q X7, X9D, X9D+ & X9E **(currently only tested on Q X7)**
 * Designed for a multirotor model, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
 * Optional amperage sensor needed for fuel and current displays
 * Uses Taranis settings for RSSI warning/critical levels for graph and audio/vibration warnings
