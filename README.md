@@ -43,11 +43,11 @@
 
 #### From Transmitter
 
-1. Discover telemetry sensors after GPS fix so all telemetry sensors are discovered
+1. [Discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) with battery connected and **after GPS fix** so all telemetry sensors are discovered
 2. Telemetry distance sensor name must be changed from `0420` to `Dist`
 3. Sensors must be changed to US measurements (m to ft, km/h to mph, etc) for proper calibration
 
-#### INAV Lua Script Setup
+#### INAV Lua Telemetry Screen Setup
 
 1. Copy `iNav.lua` file to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
 2. Copy `iNav` folder to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
