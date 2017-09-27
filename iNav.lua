@@ -16,10 +16,8 @@ local X_CNTR_3=QX7 and 67 or 110
 
 local modeIdPrev,armedPrev,headingHoldPrev,altHoldPrev,gpsFixPrev,gpsFix,battlow,showMax=false,false,false,false,false,false,false,false
 local showDir,showCurr=true,true
-local headingRef,telemFlags=-1,-1
-local altNextPlay,battNextPlay=0,0
-local battPos1,battPos2=49,49
-local battPercentPlayed=100
+local headingRef,telemFlags,altNextPlay,battNextPlay=-1,-1,0,0
+local battPos1,battPos2,battPercentPlayed=49,49,100
 
 local modes={
 {t="NO TELEM",f=FLASH,a=false,w=false},
