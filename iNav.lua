@@ -1,5 +1,4 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis-v1.1
---
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
@@ -15,23 +14,12 @@ local X_CNTR_1=QX7 and 67 or 70
 local X_CNTR_2=QX7 and 67 or 140
 local X_CNTR_3=QX7 and 67 or 110
 
-local modeIdPrev=false
-local armedPrev=false
-local headingHoldPrev=false
-local altHoldPrev=false
-local gpsFixPrev=false
-local gpsFix=false
-local headingRef=-1
-local altNextPlay=0
-local battNextPlay=0
+local modeIdPrev,armedPrev,headingHoldPrev,altHoldPrev,gpsFixPrev,gpsFix,battlow,showMax=false,false,false,false,false,false,false,false
+local showDir,showCurr=true,true
+local headingRef,telemFlags=-1,-1
+local altNextPlay,battNextPlay=0,0
+local battPos1,battPos2=49,49
 local battPercentPlayed=100
-local telemFlags=-1
-local battlow=false
-local showMax=false
-local showDir=true
-local showCurr=true
-local battPos1=49
-local battPos2=49
 
 local modes={
 {t="NO TELEM",f=FLASH,a=false,w=false},
@@ -242,14 +230,14 @@ end
 
 local function init()
   local rssi,low,crit=getRSSI()
-  local ver,radio,maj,minor,rev=getVersion()
+  --local ver,radio,maj,minor,rev=getVersion()
   local general=getGeneralSettings()
   data.rssiLow=low
   data.rssiCrit=crit
-  data.version=maj+minor/10
+  --data.version=maj+minor/10
   data.txBattMin=general["battMin"]
   data.txBattMax=general["battMax"]
-  data.units=general["imperial"]
+  --data.units=general["imperial"]
   data.modelName=model.getInfo()["name"]
   data.mode_id=getTelemetryId("Tmp1")
   data.rxBatt_id=getTelemetryId("RxBt")
@@ -335,33 +323,78 @@ local function background()
   end
 end
 
-local function drawDirection(headingDisplay,width,size,centerx,centery)
-    local rad1=math.rad(headingDisplay)
-    local rad2=math.rad(headingDisplay+width)
-    local rad3=math.rad(headingDisplay-width)
-    local x1=math.floor(math.sin(rad1)*size+0.5)+centerx
-    local y1=centery-math.floor(math.cos(rad1)*size+0.5)
-    local x2=math.floor(math.sin(rad2)*size+0.5)+centerx
-    local y2=centery-math.floor(math.cos(rad2)*size+0.5)
-    local x3=math.floor(math.sin(rad3)*size+0.5)+centerx
-    local y3=centery-math.floor(math.cos(rad3)*size+0.5)
-    lcd.drawLine(x1,y1,x2,y2,SOLID,FORCE)
-    lcd.drawLine(x1,y1,x3,y3,SOLID,FORCE)
-    if headingHold and armed then
-      lcd.drawFilledRectangle((x2+x3)/2-1.5,(y2+y3)/2-1.5,4,4,SOLID)
-    else
-      lcd.drawLine(x2,y2,x3,y3,DOTTED,FORCE)
-    end
+local function gpsData(t,y,f)
+  lcd.drawText(85,9,t,SMLSIZE)
+  local x=85+(RIGHT_POS-lcd.getLastPos())
+  lcd.drawText(x,y,t,SMLSIZE+f)
+end
+
+local function drawDirection(h,w,s,x,y)
+  local rad1=math.rad(h)
+  local rad2=math.rad(h+w)
+  local rad3=math.rad(h-w)
+  local x1=math.floor(math.sin(rad1)*s+0.5)+x
+  local y1=y-math.floor(math.cos(rad1)*s+0.5)
+  local x2=math.floor(math.sin(rad2)*s+0.5)+x
+  local y2=y-math.floor(math.cos(rad2)*s+0.5)
+  local x3=math.floor(math.sin(rad3)*s+0.5)+x
+  local y3=y-math.floor(math.cos(rad3)*s+0.5)
+  lcd.drawLine(x1,y1,x2,y2,SOLID,FORCE)
+  lcd.drawLine(x1,y1,x3,y3,SOLID,FORCE)
+  if headingHold and armed then
+    lcd.drawFilledRectangle((x2+x3)/2-1.5,(y2+y3)/2-1.5,4,4,SOLID)
+  else
+    lcd.drawLine(x2,y2,x3,y3,DOTTED,FORCE)
+  end
+end
+
+local function drawLocation()
+  local o1=math.rad(data.gpsHome["lat"])
+  local a1=math.rad(data.gpsHome["lon"])
+  local o2=math.rad(data.gpsLatLon["lat"])
+  local a2=math.rad(data.gpsLatLon["lon"])
+  local y=math.sin(a2-a1)*math.cos(o2)
+  local x=(math.cos(o1)*math.sin(o2))-(math.sin(o1)*math.cos(o2)*math.cos(a2-a1))
+  local bearing=math.deg(math.atan2(y,x))-headingRef
+  local rad1=math.rad(bearing)
+  local x1=math.floor(math.sin(rad1)*10+0.5)+X_CNTR_3
+  local y1=19-math.floor(math.cos(rad1)*10+0.5)
+  lcd.drawLine(X_CNTR_3,19,x1,y1,DOTTED,FORCE)
+  lcd.drawFilledRectangle(x1-1,y1-1,3,3,ERASE)
+  lcd.drawFilledRectangle(x1-1,y1-1,3,3,SOLID)
+end
+
+local function drawData(t,y,d,v,m,e,p,f)
+  lcd.drawText(0,y,t,SMLSIZE)
+  if d==1 then
+    lcd.drawText(15,y,"\192",SMLSIZE)
+  elseif d==2 then
+    lcd.drawText(15,y,"\193",SMLSIZE)
+  end
+  if p then
+    lcd.drawNumber(22,y,v*10.05,SMLSIZE+PREC1+f)
+  else
+    lcd.drawText(22,y,math.floor(v+0.5),SMLSIZE+f)
+  end
+  if v<m then
+    lcd.drawText(lcd.getLastPos(),y,e,SMLSIZE+f)
+  end
+end
+
+local function drawAltHold()
+  if armed and altHold and modes[modeId].a then
+    lcd.drawText(lcd.getLastPos()+1,9,"\192",SMLSIZE+INVERS)
+  end
 end
 
 local function run(event)
   lcd.clear()
   background()
 
-  if data.version<2.2 then
-    lcd.drawText(QX7 and 5 or 47,27,"OpenTX v2.2.0+ Required")
-    return
-  end
+  --if data.version<2.2 then
+  --  lcd.drawText(QX7 and 5 or 47,27,"OpenTX v2.2.0+ Required")
+  --  return
+  --end
 
   -- Title
   if armed then
@@ -385,37 +418,20 @@ local function run(event)
     lcd.drawText(lcd.getLastPos(),1,"V",SMLSIZE+INVERS)
   end
 
-  -- GPS Coords
+  -- GPS
   if type(data.gpsLatLon)=="table" then
-    gpsFlags=(telemFlags>0 or not gpsFix) and FLASH or 0
-    value=math.floor(data.gpsAlt+0.5).."ft"
-    lcd.drawText(85,9,value,SMLSIZE)
-    pos=85+(RIGHT_POS-lcd.getLastPos())
-    lcd.drawText(pos,17,value,SMLSIZE+gpsFlags)
-
-    value=string.format("%.4f",data.gpsLatLon["lat"])
-    lcd.drawText(85,9,value,SMLSIZE)
-    pos=85+(RIGHT_POS-lcd.getLastPos())
-    lcd.drawText(pos,25,value,SMLSIZE+gpsFlags)
-
-    value=string.format("%.4f",data.gpsLatLon["lon"])
-    lcd.drawText(85,9,value,SMLSIZE)
-    pos=85+(RIGHT_POS-lcd.getLastPos())
-    lcd.drawText(pos,33,value,SMLSIZE+gpsFlags)
+    local gpsFlags=(telemFlags>0 or not gpsFix) and FLASH or 0
+    gpsData(math.floor(data.gpsAlt+0.5).."ft",17,gpsFlags)
+    gpsData(string.format("%.4f",data.gpsLatLon["lat"]),25,gpsFlags)
+    gpsData(string.format("%.4f",data.gpsLatLon["lon"]),33,gpsFlags)
   else
     lcd.drawFilledRectangle(RIGHT_POS-41,17,41,23,INVERS)
     lcd.drawText(RIGHT_POS-37,20,"No GPS",INVERS)
     lcd.drawText(RIGHT_POS-28,30,"Fix",INVERS)
   end
+  gpsData("   Sats "..tonumber(string.sub(data.satellites,-2)),9,telemFlags)
 
-  -- Satellites
-  value="Sats "..tonumber(string.sub(data.satellites,-2))
-  lcd.drawText(85,9,value,SMLSIZE)
-  pos=85+(RIGHT_POS-lcd.getLastPos())
-  lcd.drawText(85,9,"            ",SMLSIZE)
-  lcd.drawText(pos,9,value,SMLSIZE+telemFlags)
-
-  -- Directional indicator
+  -- Directionals
   if event==EVT_ROT_LEFT or event==EVT_ROT_RIGHT or event==EVT_PLUS_BREAK or event==EVT_MINUS_BREAK then
     showDir=not showDir
   end
@@ -434,34 +450,20 @@ local function run(event)
       end
     end
   end
-  if type(data.gpsLatLon)=="table" and type(data.gpsHome)=="table" and data.distLastPositive >= 25 then
+  if type(data.gpsLatLon)=="table" and type(data.gpsHome)=="table" and data.distLastPositive>=25 then
     if not showDir or not QX7 then
-      local o1=math.rad(data.gpsHome["lat"])
-      local a1=math.rad(data.gpsHome["lon"])
-      local o2=math.rad(data.gpsLatLon["lat"])
-      local a2=math.rad(data.gpsLatLon["lon"])
-      local y=math.sin(a2-a1)*math.cos(o2)
-      local x=(math.cos(o1)*math.sin(o2))-(math.sin(o1)*math.cos(o2)*math.cos(a2-a1))
-      local bearing=math.deg(math.atan2(y,x))-headingRef
-      local rad1=math.rad(bearing)
-      local x1=math.floor(math.sin(rad1)*10+0.5)+X_CNTR_3
-      local y1=19-math.floor(math.cos(rad1)*10+0.5)
-      lcd.drawLine(X_CNTR_3,19,x1,y1,DOTTED,FORCE)
-      lcd.drawFilledRectangle(x1-1,y1-1,3,3,ERASE)
-      lcd.drawFilledRectangle(x1-1,y1-1,3,3,SOLID)
+      drawLocation()
     end
   end
 
-  -- Head free warning
-  if armed and headFree then
-    lcd.drawText(85,9,"HF",SMLSIZE+FLASH)
-  end
-
-  -- Display flight mode
+  -- Flight mode
   lcd.drawText(48,34,modes[modeId].t,SMLSIZE+modes[modeId].f)
   pos=MODE_POS+(87-lcd.getLastPos())/2
   lcd.drawFilledRectangle(46,33,40,10,ERASE)
   lcd.drawText(pos,33,modes[modeId].t,SMLSIZE+modes[modeId].f)
+  if armed and headFree then
+    lcd.drawText(85,9,"HF",SMLSIZE+FLASH)
+  end
 
   -- Data
   if not armed then
@@ -469,69 +471,34 @@ local function run(event)
       showMax=not showMax
     end
   end
+  local battFlags=(telemFlags>0 or battlow) and FLASH or 0
+  local rssiFlags=(telemFlags>0 or data.rssi<data.rssiLow) and FLASH or 0
   if showMax then
-    altd=data.altitudeMax
-    dist=math.floor(data.distanceMax*3.28084+0.5)
-    sped=data.speedMax
-    curr=data.currentMax
-    batt=data.battMin
-    rssi=data.rssiMin
-    lcd.drawText(0, 9,"Alt",SMLSIZE)
-    lcd.drawText(15,9,"\192",SMLSIZE)
-    lcd.drawText(0,17,"Dst\192",SMLSIZE)
-    lcd.drawText(0,25,"Spd\192",SMLSIZE)
+    drawData("Alt",9,1,data.altitudeMax,1000,"ft",false,telemFlags)
+    drawAltHold()
+    drawData("Dst",17,1,data.distanceMax*3.28084,1000,"ft",false,telemFlags)
+    drawData("Spd",25,1,data.speedMax,100,"mph",false,telemFlags)
     if showCurr then
-      lcd.drawText(0,33,"Cur\192",SMLSIZE)
+      drawData("Cur",33,1,data.currentMax,100,"A",true,telemFlags)
     end
-    lcd.drawText(0,battPos1,"Bat\193",SMLSIZE)
-    lcd.drawText(0,57,"RSI",SMLSIZE)
-    lcd.drawText(15,57,"\193",SMLSIZE)
+    drawData("Bat",battPos1,2,data.battMin,100,"V",true,battFlags)
+    drawData("RSI",57,2,data.rssiMin,100,"dB",false,rssiFlags)
   else
-    altd=data.altitude
-    dist=data.distLastPositive
-    sped=data.speed
-    curr=data.current
-    batt=data.batt
-    rssi=data.rssiLast
-    lcd.drawText(0, 9,"Altd ",SMLSIZE)
-    lcd.drawText(0,17,"Dist",SMLSIZE)
-    lcd.drawText(0,25,"Sped",SMLSIZE)
+    drawData("Altd",9,0,data.altitude,1000,"ft",false,telemFlags)
+    drawAltHold()
+    drawData("Dist",17,0,data.distLastPositive*3.28084,1000,"ft",false,telemFlags)
+    drawData("Sped",25,0,data.speed,100,"mph",false,telemFlags)
     if showCurr then
-      lcd.drawText(0,33,"Curr",SMLSIZE)
+      drawData("Curr",33,0,data.current,100,"A",true,telemFlags)
     end
-    lcd.drawText(0,battPos1,"Batt",SMLSIZE)
-    lcd.drawText(0,57,"RSSI",SMLSIZE)
+    drawData("Batt",battPos1,0,data.batt,100,"V",true,battFlags)
+    drawData("RSSI",57,0,data.rssiLast,100,"dB",false,rssiFlags)
   end
-  lcd.drawText(22,9,math.floor(altd+0.5),SMLSIZE+telemFlags)
-  if altd<1000 then
-    lcd.drawText(lcd.getLastPos(),9,"ft",SMLSIZE+telemFlags)
-  end
-  if armed and altHold and modes[modeId].a then
-    lcd.drawText(lcd.getLastPos()+1,9,"\192",SMLSIZE+INVERS)
-  end
-  lcd.drawText(22,17,dist,SMLSIZE+telemFlags)
-  if dist<1000 then
-    lcd.drawText(lcd.getLastPos(),17,"ft",SMLSIZE+telemFlags)
-  end
-  lcd.drawText(22,25,math.floor(sped+0.5),SMLSIZE+telemFlags)
-  if sped<100 then
-    lcd.drawText(lcd.getLastPos(),25,"mph",SMLSIZE+telemFlags)
-  end
-  battFlags=(telemFlags>0 or battlow) and FLASH or 0
   if showCurr then
-    lcd.drawNumber(22,33,curr*10.05,SMLSIZE+PREC1+telemFlags)
-    if curr<100 then
-      lcd.drawText(lcd.getLastPos(),33,"A",SMLSIZE+telemFlags)
-    end
-    lcd.drawText(0,41,"Fuel",SMLSIZE)
-    lcd.drawText(22,41,data.fuel.."%",SMLSIZE+battFlags)
+    drawData("Fuel",41,0,data.fuel,100,"%",false,battFlags)
   end
-  lcd.drawNumber(22,battPos1,batt*10.05,SMLSIZE+PREC1+battFlags)
-  lcd.drawText(lcd.getLastPos(),battPos1,"V",SMLSIZE+battFlags)
-  rssiFlags=(telemFlags>0 or data.rssi<data.rssiLow) and FLASH or 0
-  lcd.drawText(22,57,rssi.."dB",SMLSIZE+rssiFlags)
 
-  -- Bar graphs
+  -- Graphs
   if showCurr then
     lcd.drawGauge(46,41,GAUGE_WIDTH,7,math.min(data.fuel,98),100)
     if data.fuel==0 then
@@ -545,14 +512,14 @@ local function run(event)
   lcd.drawGauge(46,57,GAUGE_WIDTH,7,rssiGauge,100)
   min=(GAUGE_WIDTH-2)*(math.max(math.min((data.rssiMin-data.rssiCrit)/(100-data.rssiCrit)*100,99),0)/100)+47
   lcd.drawLine(min,58,min,62,SOLID,ERASE)
-  if not QX7 then
-    lcd.drawRectangle(199,9,13,48,SOLID)
-    height=math.max(math.min(math.ceil(data.altitude/400*46),46),0)
-    lcd.drawFilledRectangle(200,56-height,11,height,INVERS)
-    local max=56-math.max(math.min(math.ceil(data.altitudeMax/400*46),46),0)
-    lcd.drawLine(200,max,210,max,DOTTED,FORCE)
-    lcd.drawText(199,58,"Alt",SMLSIZE)
-  end
+  --if not QX7 then
+  --  lcd.drawRectangle(199,9,13,48,SOLID)
+  --  local height=math.max(math.min(math.ceil(data.altitude/400*46),46),0)
+  --  lcd.drawFilledRectangle(200,56-height,11,height,INVERS)
+  --  local max=56-math.max(math.min(math.ceil(data.altitudeMax/400*46),46),0)
+  --  lcd.drawLine(200,max,210,max,DOTTED,FORCE)
+  --  lcd.drawText(199,58,"Alt",SMLSIZE)
+  --end
 
   return 1
 end
