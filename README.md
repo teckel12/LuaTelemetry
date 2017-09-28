@@ -75,6 +75,8 @@ Audio feedback will play in background even if iNav LuaTelemetry screen is not d
 
 ## Release History
 
+#### v1.1.1 - 09/28/2017
+* Refactored code to reduce memory
 #### v1.1.0 - 09/22/2017
 * Repo moved to INAVFlight
 * Screen formatting for Taranis X9D, X9D+ & X9E
