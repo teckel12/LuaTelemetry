@@ -3,6 +3,7 @@
 > **Notice** If you get the message `Script Panic not enough memory` you've run out of memory on your transmitter.
 > This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
 > It's also possible that you have less memory to work with when running firmware that uses more memory (for example, firmware that includes multimodule support).
+> Using firmware with `luac` included should reduce memory usage and increase the telemetry screen speed.
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
