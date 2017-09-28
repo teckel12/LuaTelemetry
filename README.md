@@ -1,6 +1,8 @@
 # Lua Telemetry Flight Status Screen for INAV/Taranis
 
-> Note: Currently only tested on Q X7, feedback on X9D, X9D+ & X9E appreciated.
+> **Notice** If you get the message `Script Panic not enough memory` you've run out of memory on your transmitter.
+> This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
+> It's also possible that you have less memory to work with when running firmware that uses more memory (for example, firmware that includes multimodule support).
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
@@ -30,10 +32,10 @@
 
 #### Notes
 
-* Designed to work on a Taranis Q X7, X9D, X9D+ & X9E **(currently only tested on Q X7)**
-* Designed for a multirotor model, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
+* Designed for the Taranis Q X7, X9D, X9D+ & X9E
+* Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
 * Optional amperage sensor needed for fuel and current displays
-* Uses Taranis settings for RSSI warning/critical levels for graph and audio/vibration warnings
+* Uses Taranis settings for RSSI warning/critical levels for graph range and audio/haptic warnings
 * Uses Taranis settings for transmitter voltage min/max for battery graphic in screen title
 
 ## Setup
@@ -72,10 +74,10 @@ Audio feedback will play in background even if iNav LuaTelemetry screen is not d
 
 ## Release History
 
-#### v1.1 - 09/22/2017
+#### v1.1.0 - 09/22/2017
 * Repo moved to INAVFlight
 * Screen formatting for Taranis X9D, X9D+ & X9E
-#### v1.0 - 09/19/2017
+#### v1.0.0 - 09/19/2017
 * Initial release
 
 ## Todo
