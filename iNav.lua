@@ -5,15 +5,15 @@
 
 local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = INVERS + BLINK
-local QX7 = (LCD_W<212)
-local TIMER_POS = (QX7) and 60 or 150
+local QX7 = LCD_W < 212
+local TIMER_POS = QX7 and 60 or 150
 local RXBATT_POS = LCD_W-17
-local RIGHT_POS = (QX7) and 129 or 195
-local GAUGE_WIDTH = (QX7) and 82 or 149
-local MODE_POS = (QX7) and 48 or 90
-local X_CNTR_1 = QX7 and 67 or 70
-local X_CNTR_2 = QX7 and 67 or 140
-local X_CNTR_3 = QX7 and 67 or 110
+local RIGHT_POS = QX7 and 129 or 213 -- 195 if alt
+local GAUGE_WIDTH = QX7 and 82 or 166 -- 149 if alt
+local MODE_POS = QX7 and 48 or 100 -- 90 if alt
+local X_CNTR_1 = QX7 and 67 or 75 -- 70 if alt
+local X_CNTR_2 = QX7 and 67 or 160 -- 140 if alt
+local X_CNTR_3 = QX7 and 67 or 120 -- 110 if alt
 
 local modeIdPrev = false
 local armedPrev = false
@@ -341,8 +341,8 @@ local function background()
 end
 
 local function gpsData(t, y, f)
-  lcd.drawText(85, 9, t, SMLSIZE)
-  local x = 85 + (RIGHT_POS-lcd.getLastPos())
+  lcd.drawText(RIGHT_POS - 44, 9, t, SMLSIZE)
+  local x = RIGHT_POS - 44 + (RIGHT_POS-lcd.getLastPos())
   lcd.drawText(x, y, t, SMLSIZE + f)
 end
 

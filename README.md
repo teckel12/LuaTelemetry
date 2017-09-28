@@ -16,7 +16,7 @@
 
 * Launch-based model orientation and location indicators (great for lost orientation or if you lose site of your model)
 * Compass-based direction indicator
-* Bar graphs for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Tx battery (and Altitude for X9D, X9D+ & X9E transmitters)
+* Bar graphs for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Tx battery ~~(and Altitude for X9D, X9D+ & X9E transmitters)~~
 * Display and speech notifications of flight modes and other flight status information (altitude hold, heading hold, etc.)
 * Speech notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS information: Satellites locked, GPS altitude, GPS coordinates
@@ -77,6 +77,7 @@ Audio feedback will play in background even if iNav LuaTelemetry screen is not d
 
 #### v1.1.1 - 09/28/2017
 * Refactored code to reduce memory
+* Removed alititude graph for X9D, X9D+ & X9E transmitters (used too much memory?)
 #### v1.1.0 - 09/22/2017
 * Repo moved to INAVFlight
 * Screen formatting for Taranis X9D, X9D+ & X9E
