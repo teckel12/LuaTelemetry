@@ -3,7 +3,7 @@
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/"
-local FLASH = INVERS+BLINK
+local FLASH = INVERS + BLINK
 local QX7 = (LCD_W<212)
 local TIMER_POS = (QX7) and 60 or 150
 local RXBATT_POS = LCD_W-17
@@ -14,23 +14,41 @@ local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 140
 local X_CNTR_3 = QX7 and 67 or 110
 
-local modeIdPrev, armedPrev, headingHoldPrev, altHoldPrev, gpsFixPrev, gpsFix, battlow, showMax = false, false, false, false, false, false, false, false
-local showDir, showCurr = true, true
-local headingRef, telemFlags, altNextPlay, battNextPlay = -1, -1, 0, 0
-local battPos1, battPos2, battPercentPlayed = 49, 49, 100
+local modeIdPrev = false
+local armedPrev = false
+local headingHoldPrev = false
+local altHoldPrev = false
+local gpsFixPrev = false
+local gpsFix = false
+local headingRef = -1
+local altNextPlay = 0
+local battNextPlay = 0
+local battPercentPlayed = 100
+local telemFlags = -1
+local battlow = false
+local showMax = false
+local showDir = true
+local showCurr = true
+local battPos1 = 49
+local battPos2 = 49
 
+-- Modes
+--  t = text
+--  f = flags for text
+--  a = show alititude hold
+--  w = wave file
 local modes = {
-  {t = "NO TELEM",  f = FLASH, a = false, w = false},
-  {t = "HORIZON",   f = 0,     a = true,  w = "hrznmd.wav"},
-  {t = "ANGLE",     f = 0,     a = true,  w = "anglmd.wav"},
-  {t = "ACRO",      f = 0,     a = true,  w = "acromd.wav"},
-  {t = " NOT OK ",  f = FLASH, a = false, w = false},
-  {t = "READY",     f = 0,     a = false, w = "ready.wav"},
-  {t = "POS HOLD",  f = 0,     a = true,  w = "poshld.wav"},
-  {t = "3D HOLD",   f = 0,     a = true,  w = "3dhold.wav"},
-  {t = "WAYPOINT",  f = 0,     a = false, w = "waypt.wav"},
-  {t = "   RTH   ", f = FLASH, a = false, w = "rtl.wav"},
-  {t = "FAILSAFE",  f = FLASH, a = false, w = "fson.wav"}
+  { t="NO TELEM",  f=FLASH, a=false, w=false },
+  { t="HORIZON",   f=0,     a=true,  w="hrznmd.wav" },
+  { t="ANGLE",     f=0,     a=true,  w="anglmd.wav" },
+  { t="ACRO",      f=0,     a=true,  w="acromd.wav" },
+  { t=" NOT OK ",  f=FLASH, a=false, w=false },
+  { t="READY",     f=0,     a=false, w="ready.wav" },
+  { t="POS HOLD",  f=0,     a=true,  w="poshld.wav" },
+  { t="3D HOLD",   f=0,     a=true,  w="3dhold.wav" },
+  { t="WAYPOINT",  f=0,     a=false, w="waypt.wav" },
+  { t="   RTH   ", f=FLASH, a=false, w="rtl.wav" },
+  { t="FAILSAFE",  f=FLASH, a=false, w="fson.wav" },
 }
 
 local data = {}
@@ -106,7 +124,7 @@ local function flightModes()
     modeId = 1
   end
 
-  -- Audio flight mode feedback
+  -- Flight mode feedback
   local vibrate = false
   local beep = false
   if armed and not armedPrev then
@@ -173,7 +191,7 @@ local function flightModes()
         playFile(WAVPATH .. "batlow.wav")
         playNumber(data.fuel, 13)
         battPercentPlayed = data.fuel
-      elseif data.fuel%10 == 0 and data.fuel < 100 and data.fuel >= 40 then
+      elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
         playFile(WAVPATH .. "battry.wav")
         playNumber(data.fuel, 13)
         battPercentPlayed = data.fuel
@@ -232,7 +250,7 @@ local function init()
   local general = getGeneralSettings()
   data.rssiLow = low
   data.rssiCrit = crit
-  --data.version = maj+minor/10
+  --data.version = maj + minor / 10
   data.txBattMin = general["battMin"]
   data.txBattMax = general["battMax"]
   --data.units = general["imperial"]
@@ -346,22 +364,6 @@ local function drawDirection(h, w, s, x, y)
   end
 end
 
-local function drawLocation()
-  local o1 = math.rad(data.gpsHome["lat"])
-  local a1 = math.rad(data.gpsHome["lon"])
-  local o2 = math.rad(data.gpsLatLon["lat"])
-  local a2 = math.rad(data.gpsLatLon["lon"])
-  local y = math.sin(a2 - a1)*math.cos(o2)
-  local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-  local bearing = math.deg(math.atan2(y, x)) - headingRef
-  local rad1 = math.rad(bearing)
-  local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_3
-  local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)
-  lcd.drawLine(X_CNTR_3, 19, x1, y1, DOTTED, FORCE)
-  lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, ERASE)
-  lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, SOLID)
-end
-
 local function drawData(t, y, d, v, m, e, p, f)
   lcd.drawText(0, y, t, SMLSIZE)
   if d == 1 then
@@ -411,7 +413,7 @@ local function run(event)
     lcd.drawNumber(110 , 1, data.txBatt * 10.05, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
-  if data.rxBatt>0 and data.telemetry then
+  if data.rxBatt > 0 and data.telemetry then
     lcd.drawNumber(RXBATT_POS, 1, data.rxBatt * 10.05, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
@@ -435,7 +437,7 @@ local function run(event)
   end
   if data.telemetry then
     local indicatorDisplayed = false
-    if showDir or headingRef<0 or not QX7 then
+    if showDir or headingRef < 0 or not QX7 then
       lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) .. "\64", SMLSIZE)
       lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
       lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
@@ -450,7 +452,19 @@ local function run(event)
   end
   if type(data.gpsLatLon) == "table" and type(data.gpsHome) == "table" and data.distLastPositive >= 25 then
     if not showDir or not QX7 then
-      drawLocation()
+      local o1 = math.rad(data.gpsHome["lat"])
+      local a1 = math.rad(data.gpsHome["lon"])
+      local o2 = math.rad(data.gpsLatLon["lat"])
+      local a2 = math.rad(data.gpsLatLon["lon"])
+      local y = math.sin(a2 - a1) * math.cos(o2)
+      local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+      local bearing = math.deg(math.atan2(y, x)) - headingRef
+      local rad1 = math.rad(bearing)
+      local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_3
+      local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)
+      lcd.drawLine(X_CNTR_3, 19, x1, y1, DOTTED, FORCE)
+      lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, ERASE)
+      lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, SOLID)
     end
   end
 
