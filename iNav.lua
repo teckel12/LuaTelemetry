@@ -1,5 +1,5 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.1
+-- Version: 1.1.2
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
@@ -281,6 +281,7 @@ local function init()
   data.timer = 0
   data.distLastPositive = 0
   data.gpsHome = false
+  data.gpsLatLon = false
   if data.current_id == -1 or data.fuel_id == -1 then
     showCurr = false
     data.current = 0
@@ -299,7 +300,6 @@ local function background()
     data.rxBatt = getValue(data.rxBatt_id)
     data.satellites = getValue(data.satellites_id)
     data.gpsAlt = getValue(data.gpsAlt_id)
-    data.gpsLatLon = getValue(data.gpsLatLon_id)
     data.heading = getValue(data.heading_id)
     data.altitude = getValue(data.altitude_id)
     data.distance = math.floor(getValue(data.distance_id) * 3.28084 + 0.5)
@@ -320,13 +320,17 @@ local function background()
     data.rssiMin = getValue(data.rssiMin_id)
     data.txBatt = getValue(data.txBatt_id)
     data.rssiLast = data.rssi
-    --data.distance = 237
-    --data.gpsLatLon["lat"] = math.deg(data.gpsLatLon["lat"])
-    --data.gpsLatLon["lon"] = math.deg(data.gpsLatLon["lon"]*2.2)
+    local gpsTemp = getValue(data.gpsLatLon_id)
+    gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
+    if gpsFix then
+      data.gpsLatLon = gpsTemp
+      --data.distance = 237
+      --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
+      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
+    end
     if data.distance > 0 then
       data.distLastPositive = data.distance
     end
-    gpsFix = type(data.gpsLatLon) == "table" and data.satellites > 3900
     telemFlags = 0
   else
     data.telemetry = false
@@ -335,7 +339,7 @@ local function background()
 
   flightModes()
 
-  if armed and gpsFix and type(data.gpsLatLon) == "table" and type(data.gpsHome) ~= "table" then
+  if armed and gpsFix and data.gpsHome == false then
     data.gpsHome = data.gpsLatLon
   end
 end
@@ -420,11 +424,11 @@ local function run(event)
   end
 
   -- GPS
-  if gpsFix and type(data.gpsLatLon) == "table" then
+  if data.gpsLatLon ~= false then
     local gpsFlags = (telemFlags > 0 or not gpsFix) and FLASH or 0
     gpsData(math.floor(data.gpsAlt + 0.5) .. "ft", 17, gpsFlags)
-    gpsData(string.format("%.4f", data.gpsLatLon["lat"]), 25, gpsFlags)
-    gpsData(string.format("%.4f", data.gpsLatLon["lon"]), 33, gpsFlags)
+    gpsData(string.format("%.4f", data.gpsLatLon.lat), 25, gpsFlags)
+    gpsData(string.format("%.4f", data.gpsLatLon.lon), 33, gpsFlags)
   else
     lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
     lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
@@ -447,16 +451,16 @@ local function run(event)
     end
     if not showDir or headingRef >= 0 or not QX7 then
       if not indicatorDisplayed or not QX7 then
-        drawDirection(data.heading-headingRef, 145, 10, X_CNTR_2, 19)
+        drawDirection(data.heading-headingRef, 145, 8, X_CNTR_2, 19)
       end
     end
   end
-  if gpsFix and type(data.gpsLatLon) == "table" and type(data.gpsHome) == "table" and data.distLastPositive >= 25 then
+  if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distLastPositive >= 25 then
     if not showDir or not QX7 then
-      local o1 = math.rad(data.gpsHome["lat"])
-      local a1 = math.rad(data.gpsHome["lon"])
-      local o2 = math.rad(data.gpsLatLon["lat"])
-      local a2 = math.rad(data.gpsLatLon["lon"])
+      local o1 = math.rad(data.gpsHome.lat)
+      local a1 = math.rad(data.gpsHome.lon)
+      local o2 = math.rad(data.gpsLatLon.lat)
+      local a2 = math.rad(data.gpsLatLon.lon)
       local y = math.sin(a2 - a1) * math.cos(o2)
       local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
       local bearing = math.deg(math.atan2(y, x)) - headingRef
@@ -478,7 +482,7 @@ local function run(event)
     lcd.drawText(85, 9, "HF", SMLSIZE + FLASH)
   end
 
-  -- Data
+  -- Data & gauges
   if not armed then
     if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
       showMax = not showMax
@@ -509,10 +513,6 @@ local function run(event)
   end
   if showCurr then
     drawData("Fuel", 41, 0, data.fuel, 100, "%", false, battFlags)
-  end
-
-  -- Graphs
-  if showCurr then
     lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
     if data.fuel == 0 then
       lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
