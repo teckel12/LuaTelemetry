@@ -326,7 +326,7 @@ local function background()
     if data.distance > 0 then
       data.distLastPositive = data.distance
     end
-    gpsFix = (type(data.gpsLatLon) == "table" and data.satellites > 3900)
+    gpsFix = type(data.gpsLatLon) == "table" and data.satellites > 3900
     telemFlags = 0
   else
     data.telemetry = false
@@ -420,7 +420,7 @@ local function run(event)
   end
 
   -- GPS
-  if type(data.gpsLatLon) == "table" then
+  if gpsFix and type(data.gpsLatLon) == "table" then
     local gpsFlags = (telemFlags > 0 or not gpsFix) and FLASH or 0
     gpsData(math.floor(data.gpsAlt + 0.5) .. "ft", 17, gpsFlags)
     gpsData(string.format("%.4f", data.gpsLatLon["lat"]), 25, gpsFlags)
@@ -451,7 +451,7 @@ local function run(event)
       end
     end
   end
-  if type(data.gpsLatLon) == "table" and type(data.gpsHome) == "table" and data.distLastPositive >= 25 then
+  if gpsFix and type(data.gpsLatLon) == "table" and type(data.gpsHome) == "table" and data.distLastPositive >= 25 then
     if not showDir or not QX7 then
       local o1 = math.rad(data.gpsHome["lat"])
       local a1 = math.rad(data.gpsHome["lon"])
