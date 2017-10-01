@@ -323,9 +323,9 @@ local function background()
     gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
     if gpsFix then
       data.gpsLatLon = gpsTemp
-      data.distance = 237
-      data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
-      data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
+      --data.distance = 237
+      --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
+      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
     end
     if data.distance > 0 then
       data.distLastPositive = data.distance
