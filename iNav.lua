@@ -15,6 +15,7 @@ local X_CNTR_1 = QX7 and 67 or 75 -- 70 if alt
 local X_CNTR_2 = QX7 and 67 or 160 -- 140 if alt
 local X_CNTR_3 = QX7 and 67 or 120 -- 110 if alt
 
+local modeId
 local modeIdPrev = false
 local armedPrev = false
 local headingHoldPrev = false
@@ -76,17 +77,17 @@ local function flightModes()
     local modeC = math.floor(data.mode / 100) % 10
     local modeD = math.floor(data.mode / 10) % 10
     local modeE = data.mode % 10
-    if bit32.band(modeE, 4) > 0 then
+    if bit32.band(modeE, 4) == 4 then
       armed = true
-      if bit32.band(modeD, 2) > 0 then
+      if bit32.band(modeD, 2) == 2 then
         modeId = 2
-      elseif bit32.band(modeD, 1) > 0 then
+      elseif bit32.band(modeD, 1) == 1 then
         modeId = 3
       else
         modeId = 4
       end
     end
-    if bit32.band(modeE, 2) > 0 or modeE == 0 then
+    if bit32.band(modeE, 2) == 2 or modeE == 0 then
       modeId = 5
     else
       ok2arm = true
@@ -94,32 +95,30 @@ local function flightModes()
         modeId = 6
       end
     end
-    if bit32.band(modeB, 4) > 0 then
+    if bit32.band(modeB, 4) == 4 then
       headFree = true
     end
-    if bit32.band(modeC, 4) > 0 then
+    if bit32.band(modeC, 4) == 4 then
       if armed then
         modeId = 7
         posHold = true
       end
     end
-    if bit32.band(modeC, 2) > 0 then
+    if bit32.band(modeC, 2) == 2 then
       altHold = true
       if posHold then
         modeId = 8
       end
     end
-    if bit32.band(modeC, 1) > 0 then
+    if bit32.band(modeC, 1) == 1 then
       headingHold = true
     end  
-    if bit32.band(modeB, 2) > 0 then
-      modeId = 9
-    end
-    if bit32.band(modeB, 4) > 0 then
-      modeId = 10
-    end
-    if bit32.band(modeA, 4) > 0 then
+    if bit32.band(modeA, 4) == 4 then
       modeId = 11
+    elseif bit32.band(modeB, 1) == 1 then
+      modeId = 10
+    elseif bit32.band(modeB, 2) == 2 then
+      modeId = 9
     end
   else
     modeId = 1
@@ -324,9 +323,9 @@ local function background()
     gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
     if gpsFix then
       data.gpsLatLon = gpsTemp
-      --data.distance = 237
-      --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
-      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
+      data.distance = 237
+      data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
+      data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
     end
     if data.distance > 0 then
       data.distLastPositive = data.distance
@@ -427,8 +426,10 @@ local function run(event)
   if data.gpsLatLon ~= false then
     local gpsFlags = (telemFlags > 0 or not gpsFix) and FLASH or 0
     gpsData(math.floor(data.gpsAlt + 0.5) .. "ft", 17, gpsFlags)
-    gpsData(string.format("%.4f", data.gpsLatLon.lat), 25, gpsFlags)
-    gpsData(string.format("%.4f", data.gpsLatLon.lon), 33, gpsFlags)
+    --gpsData(string.format("%.4f", data.gpsLatLon.lat), 25, gpsFlags)
+    --gpsData(string.format("%.4f", data.gpsLatLon.lon), 33, gpsFlags)
+    gpsData(math.floor(data.gpsLatLon.lat * 10000 + 0.5) / 10000, 25, gpsFlags)
+    gpsData(math.floor(data.gpsLatLon.lon * 10000 + 0.5) / 10000, 33, gpsFlags)
   else
     lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
     lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
