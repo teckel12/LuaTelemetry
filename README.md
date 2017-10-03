@@ -26,12 +26,12 @@
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
 
-#### Notes
+## Notes
 
-> **Notice** If you get the message `Script Panic not enough memory` you've run out of memory on your transmitter.
+> **Notice:** If you get the message `Script Panic not enough memory` you've run out of memory on your transmitter.
 > This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
 > It's also possible that you have less memory to work with when running firmware that uses more memory (for example, firmware that includes multimodule support).
-> Using firmware with `luac` included should reduce memory usage and increase the telemetry screen speed.
+> Using transmitter firmware with `luac` included should reduce memory usage and increase the telemetry screen speed.
 
 * Designed for the Taranis Q X7, X9D, X9D+ & X9E
 * Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
