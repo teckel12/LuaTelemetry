@@ -19,6 +19,7 @@ local GPS_DIGITS = QX7 and 10000 or 1000000
 local modeIdPrev = false
 local armedPrev = false
 local headingHoldPrev = false
+local headFreePrev = false
 local altHoldPrev = false
 local gpsFixPrev = false
 local altNextPlay = 0
@@ -170,6 +171,11 @@ local function flightModes()
       playFile(WAVPATH .. "hedhld.wav")
       playFile(WAVPATH .. "off.wav")
     end
+    if headFree and headFreePrev ~= headFree then
+      playFile(WAVPATH .. "hfact.wav")
+    elseif not headFree and headFreePrev ~= headFree then
+      playFile(WAVPATH .. "hfoff.wav")
+    end
     if data.altitude > 400 then
       if getTime() > altNextPlay then
         playNumber(data.altitude, 10)
@@ -231,6 +237,7 @@ local function flightModes()
   end
   modeIdPrev = data.modeId
   headingHoldPrev = headingHold
+  headFreePrev = headFree
   altHoldPrev = altHold
   armedPrev = armed
   gpsFixPrev = data.gpsFix
