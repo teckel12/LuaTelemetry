@@ -62,8 +62,6 @@ local function flightModes()
   headFree = false
   headingHold = false
   altHold = false
-  ok2arm = false
-  posHold = false
   if data.telemetry then
     local modeA = math.floor(data.mode / 10000)
     local modeB = math.floor(data.mode / 1000) % 10
@@ -73,45 +71,43 @@ local function flightModes()
     if bit32.band(modeE, 4) == 4 then
       armed = true
       if bit32.band(modeD, 2) == 2 then
-        data.modeId = 2
+        data.modeId = 2 -- Horizon
       elseif bit32.band(modeD, 1) == 1 then
-        data.modeId = 3
+        data.modeId = 3 -- Angle
       else
-        data.modeId = 4
+        data.modeId = 4 -- Acro
+      end
+      if bit32.band(modeB, 4) == 4 then
+        headFree = true
+      end
+      if bit32.band(modeC, 1) == 1 then
+        headingHold = true
+      end
+      if bit32.band(modeC, 2) == 2 then
+        altHold = true
+      end
+      if bit32.band(modeC, 4) == 4 then
+        if altHold then
+          data.modeId = 8 -- 3D hold
+          altHold = false
+        else
+          data.modeId = 7 -- Position hold
+        end
       end
     end
     if bit32.band(modeE, 2) == 2 or modeE == 0 then
-      data.modeId = 5
+      data.modeId = 5 -- Not OK to arm
     else
-      ok2arm = true
       if not armed then
-        data.modeId = 6
+        data.modeId = 6 -- Ready to fly
       end
     end
-    if bit32.band(modeB, 4) == 4 then
-      headFree = true
-    end
-    if bit32.band(modeC, 4) == 4 then
-      if armed then
-        data.modeId = 7
-        posHold = true
-      end
-    end
-    if bit32.band(modeC, 2) == 2 then
-      altHold = true
-      if posHold then
-        data.modeId = 8
-      end
-    end
-    if bit32.band(modeC, 1) == 1 then
-      headingHold = true
-    end  
     if bit32.band(modeA, 4) == 4 then
-      data.modeId = 11
+      data.modeId = 11 -- Failsafe
     elseif bit32.band(modeB, 1) == 1 then
-      data.modeId = 10
+      data.modeId = 10 -- RTH
     elseif bit32.band(modeB, 2) == 2 then
-      data.modeId = 9
+      data.modeId = 9 -- Waypoint
     end
   else
     data.modeId = 1
@@ -120,7 +116,7 @@ local function flightModes()
   -- Flight mode feedback
   local vibrate = false
   local beep = false
-  if armed and not armedPrev then
+  if armed and not armedPrev then -- Engines armed
     data.timerStart = getTime()
     data.distLastPositive = 0
     data.headingRef = data.heading
@@ -130,51 +126,53 @@ local function flightModes()
     data.showMax = false
     data.showDir = false
     playFile(WAVPATH .. "engarm.wav")
-  elseif not armed and armedPrev then
+  elseif not armed and armedPrev then -- Engines disarmed
     if data.distLastPositive < 15 then
       data.headingRef = -1
       data.showDir = true
     end
     playFile(WAVPATH .. "engdrm.wav")
   end
-  if data.gpsFix and not gpsFixPrev then
+  if data.gpsFix and not gpsFixPrev then -- GPS fix
     playFile(WAVPATH .. "gps.wav")
     playFile(WAVPATH .. "good.wav")
-  elseif not data.gpsFix and gpsFixPrev then
+  elseif not data.gpsFix and gpsFixPrev then -- GPS lost
     playFile(WAVPATH .. "gps.wav")
     playFile(WAVPATH .. "lost.wav")
   end
-  if modeIdPrev and modeIdPrev ~= data.modeId then
-    if not armed and data.modeId == 6 and modeIdPrev == 5 then
+  if modeIdPrev and modeIdPrev ~= data.modeId then -- New flight mode
+    if armed and modes[data.modeId].w then
       playFile(WAVPATH .. modes[data.modeId].w)
-    end
-    if armed then
-      if modes[data.modeId].w then
-        playFile(WAVPATH .. modes[data.modeId].w)
-      end
-      if modes[data.modeId].f > 0 then
-        vibrate = true
-      end
+    elseif not armed and data.modeId == 6 and modeIdPrev == 5 then
+      playFile(WAVPATH .. modes[data.modeId].w)
     end
   end
   if armed then
-    if altHold and modes[data.modeId].a and altHoldPrev ~= altHold then
-      playFile(WAVPATH .. "althld.wav")
-      playFile(WAVPATH .. "active.wav")
-    elseif not altHold and modes[data.modeId].a and altHoldPrev ~= altHold then
-      playFile(WAVPATH .. "althld.wav")
-      playFile(WAVPATH .. "off.wav")
-    end
-    if headingHold and headingHoldPrev ~= headingHold then
-      playFile(WAVPATH .. "hedhlda.wav")
-    elseif not headingHold and headingHoldPrev ~= headingHold then
-      playFile(WAVPATH .. "hedhld.wav")
-      playFile(WAVPATH .. "off.wav")
-    end
-    if headFree and headFreePrev ~= headFree then
-      playFile(WAVPATH .. "hfact.wav")
-    elseif not headFree and headFreePrev ~= headFree then
-      playFile(WAVPATH .. "hfoff.wav")
+    if modes[data.modeId].a then -- Additional flight modes
+      if altHold ~= altHoldPrev then
+        if altHold then
+          playFile(WAVPATH .. "althld.wav")
+          playFile(WAVPATH .. "active.wav")
+        elseif modeIdPrev ~= 8 then
+          playFile(WAVPATH .. "althld.wav")
+          playFile(WAVPATH .. "off.wav")
+        end
+      end
+      if headingHold ~= headingHoldPrev then
+        if headingHold then
+          playFile(WAVPATH .. "hedhlda.wav")
+        else
+          playFile(WAVPATH .. "hedhld.wav")
+          playFile(WAVPATH .. "off.wav")
+        end
+      end
+      if headFree ~= headFreePrev then
+        if headFree then
+          playFile(WAVPATH .. "hfact.wav")
+        else
+          playFile(WAVPATH .. "hfoff.wav")
+        end
+      end
     end
     if data.altitude > 400 then
       if getTime() > altNextPlay then
@@ -218,8 +216,8 @@ local function flightModes()
     end
     if headFree or modes[data.modeId].f > 0 then
       beep = true
-    end
-    if data.rssi < data.rssiLow then
+      vibrate = true
+    elseif data.rssi < data.rssiLow then
       if data.rssi < data.rssiCrit then
         vibrate = true
       end
@@ -391,8 +389,10 @@ local function drawData(t, y, d, v, m, e, p, f)
 end
 
 local function drawAltHold()
-  if armed and altHold and modes[data.modeId].a then
-    lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
+  if armed and modes[data.modeId].a then
+    if altHold or data.modeId == 8 then
+      lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
+    end
   end
 end
 
