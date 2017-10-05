@@ -59,9 +59,6 @@ end
 
 local function flightModes()
   armed = false
-  headFree = false
-  headingHold = false
-  altHold = false
   if data.telemetry then
     local modeA = math.floor(data.mode / 10000)
     local modeB = math.floor(data.mode / 1000) % 10
@@ -77,21 +74,11 @@ local function flightModes()
       else
         data.modeId = 4 -- Acro
       end
-      if bit32.band(modeB, 4) == 4 then
-        headFree = true
-      end
-      if bit32.band(modeC, 1) == 1 then
-        headingHold = true
-      end
-      if bit32.band(modeC, 2) == 2 then
-        altHold = true
-      end
-      if bit32.band(modeC, 4) == 4 then
-        if altHold then
-          data.modeId = 8 -- 3D hold
-        else
-          data.modeId = 7 -- Position hold
-        end
+      headFree = bit32.band(modeB, 4) == 4 and true or false
+      headingHold = bit32.band(modeC, 1) == 1 and true or false
+      altHold = bit32.band(modeC, 2) == 2 and true or false
+      if bit32.band(modeC, 4) == 4 then -- Position hold
+        data.modeId = altHold and 8 or 7 -- 3D hold if also alt hold
       end
     end
     if bit32.band(modeE, 2) == 2 or modeE == 0 then
