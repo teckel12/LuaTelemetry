@@ -75,8 +75,8 @@ Audio feedback will play in background even if iNav LuaTelemetry screen is not d
 
 ## Release History
 
-#### v1.1.2 - 10/02/2017
-* Lots of refactoring to greatly reduce memory used
+#### v1.1.2 - 10/05/2017
+* Lots of refactoring which greatly reduced memory usage
 * Re-enabled altitude bar gauge for X9D, X9D+ & X9E transmitters
 * Refactored GPS lock calculation to prevent script syntax errors
 #### v1.1.1 - 09/28/2017
