@@ -341,19 +341,19 @@ local function drawDirection(h, w, s, x, y)
   end
 end
 
-local function drawData(t, y, d, v, vm, m, e, p, f, max)
-  lcd.drawText(0, y, t, SMLSIZE)
-  if max then
-    v = vm
-    lcd.drawText(14, y, d == 1 and "\192" or "\193", SMLSIZE)
+local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
+  lcd.drawText(0, y, txt, SMLSIZE)
+  if data.showMax and dir > 0 then
+    vc = vm
+    lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
   end
-  if p then
-    lcd.drawNumber(22, y, v * 10.05, SMLSIZE + PREC1 + f)
+  if frac then
+    lcd.drawNumber(22, y, vc * 10.05, SMLSIZE + PREC1 + flags)
   else
-    lcd.drawText(22, y, math.floor(v + 0.5), SMLSIZE + f)
+    lcd.drawText(22, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
-  if v < m then
-    lcd.drawText(lcd.getLastPos(), y, e, SMLSIZE + f)
+  if vc < max then
+    lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
   end
 end
 
@@ -458,19 +458,19 @@ local function run(event)
   end
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, "ft", false, telemFlags, data.showMax)
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, "ft", false, telemFlags)
   drawAltHold()
-  drawData("Dist", 17, 1, data.distLastPositive, data.distanceMax * 3.28084, 1000, "ft", false, telemFlags, data.showMax)
-  drawData("Sped", 25, 1, data.speed, data.speedMax, 100, "mph", false, telemFlags, data.showMax)
-  drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags, data.showMax)
-  drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 100, "dB", false, rssiFlags, data.showMax)
+  drawData("Dist", 17, 1, data.distLastPositive, data.distanceMax * 3.28084, 1000, "ft", false, telemFlags)
+  drawData("Sped", 25, 1, data.speed, data.speedMax, 100, "mph", false, telemFlags)
+  drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags)
+  drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 100, "dB", false, rssiFlags)
   if data.showCurr then
-    drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags, data.showMax)
-    drawData("Fuel", 41, 0, data.fuel, 0, 100, "%", false, battFlags, false)
+    drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
+    drawData("Fuel", 41, 0, data.fuel, 0, 100, "%", false, battFlags)
     lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
-    if data.fuel == 0 then
-      lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
-    end
+    --if data.fuel == 0 then
+    --  lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
+    --end
   end
   lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - 3.3, 0) * 111.1, 98), 100)
   min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - 3.3, 0) * 111.1, 99) / 100) + 47
