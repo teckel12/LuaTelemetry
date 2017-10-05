@@ -89,7 +89,6 @@ local function flightModes()
       if bit32.band(modeC, 4) == 4 then
         if altHold then
           data.modeId = 8 -- 3D hold
-          altHold = false
         else
           data.modeId = 7 -- Position hold
         end
@@ -133,12 +132,9 @@ local function flightModes()
     end
     playFile(WAVPATH .. "engdrm.wav")
   end
-  if data.gpsFix and not gpsFixPrev then -- GPS fix
+  if data.gpsFix ~= gpsFixPrev then -- GPS fix change
     playFile(WAVPATH .. "gps.wav")
-    playFile(WAVPATH .. "good.wav")
-  elseif not data.gpsFix and gpsFixPrev then -- GPS lost
-    playFile(WAVPATH .. "gps.wav")
-    playFile(WAVPATH .. "lost.wav")
+    playFile(WAVPATH .. (data.gpsFix and "good.wav" or "lost.wav"))
   end
   if modeIdPrev and modeIdPrev ~= data.modeId then -- New flight mode
     if armed and modes[data.modeId].w then
@@ -149,29 +145,16 @@ local function flightModes()
   end
   if armed then
     if modes[data.modeId].a then -- Additional flight modes
-      if altHold ~= altHoldPrev then
-        if altHold then
-          playFile(WAVPATH .. "althld.wav")
-          playFile(WAVPATH .. "active.wav")
-        elseif modeIdPrev ~= 8 then
-          playFile(WAVPATH .. "althld.wav")
-          playFile(WAVPATH .. "off.wav")
-        end
+      if altHold ~= altHoldPrev and data.modeId ~= 8 then
+        playFile(WAVPATH .. "althld.wav")
+        playFile(WAVPATH .. (altHold and "active.wav" or "off.wav"))
       end
       if headingHold ~= headingHoldPrev then
-        if headingHold then
-          playFile(WAVPATH .. "hedhlda.wav")
-        else
-          playFile(WAVPATH .. "hedhld.wav")
-          playFile(WAVPATH .. "off.wav")
-        end
+        playFile(WAVPATH .. "hedhld.wav")
+        playFile(WAVPATH .. (headingHold and "active.wav" or "off.wav"))
       end
       if headFree ~= headFreePrev then
-        if headFree then
-          playFile(WAVPATH .. "hfact.wav")
-        else
-          playFile(WAVPATH .. "hfoff.wav")
-        end
+        playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
       end
     end
     if data.altitude > 400 then
