@@ -59,6 +59,9 @@ end
 
 local function flightModes()
   armed = false
+  headFree = false
+  headingHold = false
+  altHold = false
   if data.telemetry then
     local modeA = math.floor(data.mode / 10000)
     local modeB = math.floor(data.mode / 1000) % 10
@@ -74,11 +77,17 @@ local function flightModes()
       else
         data.modeId = 4 -- Acro
       end
-      headFree = bit32.band(modeB, 4) == 4 and true or false
-      headingHold = bit32.band(modeC, 1) == 1 and true or false
-      altHold = bit32.band(modeC, 2) == 2 and true or false
-      if bit32.band(modeC, 4) == 4 then -- Position hold
-        data.modeId = altHold and 8 or 7 -- 3D hold if also alt hold
+      if bit32.band(modeB, 4) == 4 then
+        headFree = true
+      end
+      if bit32.band(modeC, 1) == 1 then
+        headingHold = true
+      end
+      if bit32.band(modeC, 2) == 2 then
+        altHold = true
+      end
+      if bit32.band(modeC, 4) == 4 then
+        data.modeId = altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
     end
     if bit32.band(modeE, 2) == 2 or modeE == 0 then
@@ -468,9 +477,9 @@ local function run(event)
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
     drawData("Fuel", 41, 0, data.fuel, 0, 100, "%", false, battFlags)
     lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
-    --if data.fuel == 0 then
-    --  lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
-    --end
+    if data.fuel == 0 then
+      lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
+    end
   end
   lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - 3.3, 0) * 111.1, 98), 100)
   min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - 3.3, 0) * 111.1, 99) / 100) + 47
