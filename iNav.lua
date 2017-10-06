@@ -276,10 +276,10 @@ local function init()
     data.spedPos = 33
     data.battPos1 = 45
     data.battPos2 = 41
-  end
-  if data.altitude_id == -1 then
-    data.distPos = 12
-    data.spedPos = 28
+    if data.altitude_id == -1 then
+      data.distPos = 12
+      data.spedPos = 28
+    end
   end
 end
 
@@ -466,7 +466,11 @@ local function run(event)
   lcd.drawFilledRectangle(46, 33, 40, 10, ERASE)
   lcd.drawText(pos, 33, modes[data.modeId].t, SMLSIZE + modes[data.modeId].f)
   if armed and headFree then
-    lcd.drawText(85, 9, "HF", SMLSIZE + FLASH)
+    if QX7 then
+      lcd.drawText(84, 17, "HF", SMLSIZE + FLASH)
+    else
+      lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", SMLSIZE + FLASH)
+    end
   end
 
   -- Data & gauges

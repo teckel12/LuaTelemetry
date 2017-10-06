@@ -33,7 +33,6 @@
 > It's also possible that you have less memory to work with when running firmware that uses more memory (for example, firmware that includes multimodule support).
 > Using transmitter firmware with `luac` included should reduce memory usage and increase the telemetry screen speed.
 
-* Designed for the Taranis Q X7, X9D, X9D+ & X9E
 * Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
 * Optional amperage sensor needed for fuel and current displays
 * Uses Taranis settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
@@ -78,7 +77,7 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 #### v1.1.2 - 10/06/2017
 * Lots of refactoring which greatly reduced memory usage
 * Re-enabled altitude bar gauge for X9D, X9D+ & X9E transmitters
-* Better information layout if no current sensor is present
+* Better information layout if no current or barometer sensor is present
 * Refactored GPS lock calculation to prevent script syntax errors
 #### v1.1.1 - 09/28/2017
 * Refactored code to reduce memory
