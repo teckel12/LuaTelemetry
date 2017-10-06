@@ -72,6 +72,10 @@ The launch-based orientation view is useful if model orientation is unknown.
 The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
 Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed.
 
+## Tips
+
+* Between flights, long-press the Enter/dial and select `Reset telemetry`
+
 ## Release History
 
 #### v1.1.2 - 10/06/2017
