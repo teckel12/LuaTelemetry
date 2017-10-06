@@ -108,7 +108,7 @@ local function flightModes()
     data.modeId = 1
   end
 
-  -- Flight mode feedback
+  -- Voice alerts
   local vibrate = false
   local beep = false
   if armed and not armedPrev then -- Engines armed
@@ -128,7 +128,7 @@ local function flightModes()
     end
     playFile(WAVPATH .. "engdrm.wav")
   end
-  if data.gpsFix ~= gpsFixPrev then -- GPS fix change
+  if data.gpsFix ~= gpsFixPrev then -- GPS status change
     playFile(WAVPATH .. "gps.wav")
     playFile(WAVPATH .. (data.gpsFix and "good.wav" or "lost.wav"))
   end
@@ -140,7 +140,7 @@ local function flightModes()
     end
   end
   if armed then
-    if modes[data.modeId].a then -- Additional flight modes
+    if modes[data.modeId].a then -- Flight status changes
       if altHold ~= altHoldPrev and data.modeId ~= 8 then
         playFile(WAVPATH .. "althld.wav")
         playFile(WAVPATH .. (altHold and "active.wav" or "off.wav"))
@@ -153,7 +153,7 @@ local function flightModes()
         playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
       end
     end
-    if data.altitude > 400 then
+    if data.altitude > 400 then -- Altitude alert
       if getTime() > altNextPlay then
         playNumber(data.altitude, 10)
         altNextPlay = getTime() + 1000
@@ -161,7 +161,7 @@ local function flightModes()
         beep = true
       end
     end
-    if battPercentPlayed > data.fuel then
+    if battPercentPlayed > data.fuel then -- Battery notification/alert
       if data.fuel == 30 or data.fuel == 25 then
         playFile(WAVPATH .. "batlow.wav")
         playNumber(data.fuel, 13)
@@ -261,6 +261,9 @@ local function init()
   data.showDir = true
   data.battlow = false
   data.showCurr = true
+  data.altPos = 9
+  data.distPos = 17
+  data.spedPos = 25
   data.battPos1 = 49
   data.battPos2 = 49
   if data.current_id == -1 or data.fuel_id == -1 then
@@ -268,8 +271,15 @@ local function init()
     data.current = 0
     data.currentMax = 0
     data.fuel = 100
+    data.altPos = 9
+    data.distPos = 21
+    data.spedPos = 33
     data.battPos1 = 45
     data.battPos2 = 41
+  end
+  if data.altitude_id == -1 then
+    data.distPos = 12
+    data.spedPos = 28
   end
 end
 
@@ -467,10 +477,12 @@ local function run(event)
   end
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, "ft", false, telemFlags)
-  drawAltHold()
-  drawData("Dist", 17, 1, data.distLastPositive, data.distanceMax * 3.28084, 1000, "ft", false, telemFlags)
-  drawData("Sped", 25, 1, data.speed, data.speedMax, 100, "mph", false, telemFlags)
+  if data.altitude_id ~= -1 then
+    drawData("Altd", data.altPos, 1, data.altitude, data.altitudeMax, 1000, "ft", false, telemFlags)
+    drawAltHold()
+  end
+  drawData("Dist", data.distPos, 1, data.distLastPositive, data.distanceMax * 3.28084, 1000, "ft", false, telemFlags)
+  drawData("Sped", data.spedPos, 1, data.speed, data.speedMax, 100, "mph", false, telemFlags)
   drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 100, "dB", false, rssiFlags)
   if data.showCurr then
@@ -488,13 +500,13 @@ local function run(event)
   lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, rssiGauge, 100)
   min = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
   lcd.drawLine(min, 58, min, 62, SOLID, ERASE)
-  if not QX7 then
-    lcd.drawRectangle(199, 9, 13, 48, SOLID)
+  if not QX7 and data.altitude_id ~= -1 then
+    lcd.drawRectangle(197, 9, 15, 48, SOLID)
     local height = math.max(math.min(math.ceil(data.altitude / 400 * 46), 46), 0)
-    lcd.drawFilledRectangle(200, 56 - height, 11, height, INVERS)
+    lcd.drawFilledRectangle(198, 56 - height, 13, height, INVERS)
     local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / 400 * 46), 46), 0)
-    lcd.drawLine(200, max, 210, max, DOTTED, FORCE)
-    lcd.drawText(199, 58, "Alt", SMLSIZE)
+    lcd.drawLine(198, max, 210, max, DOTTED, FORCE)
+    lcd.drawText(198, 58, "Alt", SMLSIZE)
   end
 
   return 1

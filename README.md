@@ -12,8 +12,8 @@
 * Launch-based model orientation and location indicators (great for lost orientation or if you lose site of your model)
 * Compass-based direction indicator
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Tx battery (and Altitude for X9D, X9D+ & X9E transmitters)
-* Display and speech notifications of flight modes and other flight status information (altitude hold, heading hold, etc.)
-* Speech notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
+* Display and voice alerts for flight modes and other flight status information (altitude hold, heading hold, etc.)
+* Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS information: Satellites locked, GPS altitude, GPS coordinates
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
@@ -70,14 +70,15 @@ To flip between compass-based direction and launch-based orientation and locatio
 If model is further than 25 feet away, the launch direction view will show the direction of the model based upon launch position and orientation.
 This can be used to locate a lost model, using the launch-based model location indicator and distance.
 The launch-based orientation view is useful if model orientation is unknown.
-The script gives audio feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
-Audio feedback will play in background even if iNav LuaTelemetry screen is not displayed.
+The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
+Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed.
 
 ## Release History
 
-#### v1.1.2 - 10/05/2017
+#### v1.1.2 - 10/06/2017
 * Lots of refactoring which greatly reduced memory usage
 * Re-enabled altitude bar gauge for X9D, X9D+ & X9E transmitters
+* Better information layout if no current sensor is present
 * Refactored GPS lock calculation to prevent script syntax errors
 #### v1.1.1 - 09/28/2017
 * Refactored code to reduce memory
@@ -92,4 +93,4 @@ Audio feedback will play in background even if iNav LuaTelemetry screen is not d
 
 * Automatically switch between metric and imperial (currently fixed to imperial)
 * Possible option to display value of timer instead of automatic flight timer built into script
-* Options for when speech/sound files play (may be too chatty for some)
+* Options for when voice alerts play (may be too chatty for some)
