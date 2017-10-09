@@ -1,5 +1,5 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.2
+-- Version: 1.1.3
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
@@ -43,19 +43,17 @@ local modes = {
   { t="3D HOLD",   f=0,     a=true,  w="3dhold.wav" },
   { t="WAYPOINT",  f=0,     a=false, w="waypt.wav" },
   { t="   RTH   ", f=FLASH, a=false, w="rtl.wav" },
-  { t="FAILSAFE",  f=FLASH, a=false, w="fson.wav" },
+  { t="FAILSAFE",  f=FLASH, a=false, w="fson.wav" }
 }
 
-local data = {}
+local units = {}
+units[0] = "?"
+units[7] = "kph"
+units[8] = "mph"
+units[9] = "m"
+units[10]= "ft"
 
-local function getTelemetryId(name)
-  local field = getFieldInfo(name)
-  if field then
-   return field.id
-  else
-   return -1
-  end
-end
+local data = {}
 
 local function flightModes()
   armed = false
@@ -220,6 +218,24 @@ local function flightModes()
   gpsFixPrev = data.gpsFix
 end
 
+local function getTelemetryId(name)
+  local field = getFieldInfo(name)
+  if field then
+   return field.id
+  else
+   return -1
+  end
+end
+
+local function getTelemetryUnit(name)
+  local field = getFieldInfo(name)
+  if field and field.unit >= 7 and field.unit <= 10 then
+   return field.unit
+  else
+   return 0
+  end
+end
+
 local function init()
   local rssi, low, crit = getRSSI()
   data.rssiLow = low
@@ -250,6 +266,10 @@ local function init()
   data.rssiMin_id = getTelemetryId("RSSI-")
   data.txBatt_id = getTelemetryId("tx-voltage")
   data.ras_id = getTelemetryId("RAS")
+  data.gpsAlt_unit = getTelemetryUnit("GAlt")
+  data.altitude_unit = getTelemetryUnit("Alt")
+  data.distance_unit = getTelemetryUnit("Dist")
+  data.speed_unit = getTelemetryUnit("GSpd")
   data.timerStart = 0
   data.timer = 0
   data.distLastPositive = 0
@@ -283,7 +303,7 @@ local function background()
     data.gpsAlt = getValue(data.gpsAlt_id)
     data.heading = getValue(data.heading_id)
     data.altitude = getValue(data.altitude_id)
-    data.distance = math.floor(getValue(data.distance_id) * 3.28084 + 0.5)
+    data.distance = getValue(data.distance_id)
     data.speed = getValue(data.speed_id)
     if data.showCurr then
       data.current = getValue(data.current_id)
@@ -308,6 +328,10 @@ local function background()
       --data.distance = 237
       --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
       --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
+    end
+    if data.distance_unit == 10 then -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+      data.distance = math.floor(data.distance * 3.28084 + 0.5)
+      data.distanceMax = math.floor(data.distanceMax * 3.28084 + 0.5)
     end
     if data.distance > 0 then
       data.distLastPositive = data.distance
@@ -403,7 +427,7 @@ local function run(event)
   -- GPS
   if data.gpsLatLon ~= false then
     local gpsFlags = (telemFlags > 0 or not data.gpsFix) and FLASH or 0
-    gpsData(math.floor(data.gpsAlt + 0.5) .. "ft", 17, gpsFlags)
+    gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
     gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS + 0.5) / GPS_DIGITS, 25, gpsFlags)
     gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS + 0.5) / GPS_DIGITS, 33, gpsFlags)
   else
@@ -471,10 +495,10 @@ local function run(event)
   end
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, "ft", false, telemFlags)
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, units[data.altitude_unit], false, telemFlags)
   drawAltHold()
-  drawData("Dist", 17, 1, data.distLastPositive, data.distanceMax * 3.28084, 1000, "ft", false, telemFlags)
-  drawData("Sped", 25, 1, data.speed, data.speedMax, 100, "mph", false, telemFlags)
+  drawData("Dist", 17, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)
+  drawData("Sped", 25, 1, data.speed, data.speedMax, 100, units[data.speed_unit], false, telemFlags)
   drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 100, "dB", false, rssiFlags)
   if data.showCurr then
