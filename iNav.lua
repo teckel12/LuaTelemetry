@@ -30,23 +30,22 @@ local telemFlags = -1
 -- Modes
 --  t = text
 --  f = flags for text
---  a = show alititude hold
 --  w = wave file
 local modes = {
-  { t="NO TELEM",  f=FLASH, a=false, w=false },
-  { t="HORIZON",   f=0,     a=true,  w="hrznmd.wav" },
-  { t="ANGLE",     f=0,     a=true,  w="anglmd.wav" },
-  { t="ACRO",      f=0,     a=true,  w="acromd.wav" },
-  { t=" NOT OK ",  f=FLASH, a=false, w=false },
-  { t="READY",     f=0,     a=false, w="ready.wav" },
-  { t="POS HOLD",  f=0,     a=true,  w="poshld.wav" },
-  { t="3D HOLD",   f=0,     a=true,  w="3dhold.wav" },
-  { t="WAYPOINT",  f=0,     a=false, w="waypt.wav" },
-  { t="   RTH   ", f=FLASH, a=false, w="rtl.wav" },
-  { t="FAILSAFE",  f=FLASH, a=false, w="fson.wav" }
+  { t="NO TELEM",  f=FLASH, w=false },
+  { t="HORIZON",   f=0,     w="hrznmd.wav" },
+  { t="ANGLE",     f=0,     w="anglmd.wav" },
+  { t="ACRO",      f=0,     w="acromd.wav" },
+  { t=" NOT OK ",  f=FLASH, w=false },
+  { t="READY",     f=0,     w="ready.wav" },
+  { t="POS HOLD",  f=0,     w="poshld.wav" },
+  { t="3D HOLD",   f=0,     w="3dhold.wav" },
+  { t="WAYPOINT",  f=0,     w="waypt.wav" },
+  { t="   RTH   ", f=FLASH, w="rtl.wav" },
+  { t="FAILSAFE",  f=FLASH, w="fson.wav" }
 }
 
-local units = { "?", "", "", "", "", "", "kmh", "mph", "m", "ft" }
+local units = { "?", "?", "?", "?", "mps", "fps", "kmh", "mph", "m", "ft" }
 
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
@@ -59,7 +58,7 @@ end
 
 local function getTelemetryUnit(name)
   local field = getFieldInfo(name)
-  if field and field.unit >= 7 and field.unit <= 10 then
+  if field and field.unit <= 10 then
    return field.unit
   else
    return 1
@@ -73,7 +72,7 @@ local data = {
   rssiCrit = crit,
   txBattMin = general.battMin,
   txBattMax = general.battMax,
-  modelName = model.getInfo()["name"],
+  modelName = model.getInfo().name,
   mode_id = getTelemetryId("Tmp1"),
   rxBatt_id = getTelemetryId("RxBt"),
   satellites_id = getTelemetryId("Tmp2"),
@@ -116,8 +115,7 @@ local data = {
 if data.current_id == -1 then
   data.showCurr = false
 end
-data.battPos1 = data.current_id == -1 and 45 or 49
-data.battPos2 = data.current_id == -1 and 41 or 49
+data.battPos = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
 data.altAlert = data.altitude_unit == 10 and 400 or 122
 
@@ -204,18 +202,16 @@ local function flightModes()
     end
   end
   if armed then
-    if modes[data.modeId].a then -- Flight status changes
-      if altHold ~= altHoldPrev and data.modeId ~= 8 then
-        playFile(WAVPATH .. "althld.wav")
-        playFile(WAVPATH .. (altHold and "active.wav" or "off.wav"))
-      end
-      if headingHold ~= headingHoldPrev then
-        playFile(WAVPATH .. "hedhld.wav")
-        playFile(WAVPATH .. (headingHold and "active.wav" or "off.wav"))
-      end
-      if headFree ~= headFreePrev then
-        playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
-      end
+    if altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
+      playFile(WAVPATH .. "althld.wav")
+      playFile(WAVPATH .. (altHold and "active.wav" or "off.wav"))
+    end
+    if headingHold ~= headingHoldPrev then -- Heading hold status change
+      playFile(WAVPATH .. "hedhld.wav")
+      playFile(WAVPATH .. (headingHold and "active.wav" or "off.wav"))
+    end
+    if headFree ~= headFreePrev then -- Head free status change
+      playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
     end
     if data.altitude > data.altAlert then -- Altitude alert
       if getTime() > altNextPlay then
@@ -359,7 +355,7 @@ local function drawDirection(h, w, s, x, y)
   local y3 = y - math.floor(math.cos(rad3) * s + 0.5)
   lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
   lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
-  if headingHold and armed then
+  if headingHold then
     lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
   else
     lcd.drawLine(x2, y2, x3, y3, DOTTED, FORCE)
@@ -379,14 +375,6 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
   end
   if vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
-  end
-end
-
-local function drawAltHold()
-  if armed and modes[data.modeId].a then
-    if altHold or data.modeId == 8 then
-      lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
-    end
   end
 end
 
@@ -467,15 +455,15 @@ local function run(event)
   end
 
   -- Flight mode
-  lcd.drawText(48, 34, modes[data.modeId].t, SMLSIZE + modes[data.modeId].f)
+  lcd.drawText(48, 34, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   pos = MODE_POS + (87 - lcd.getLastPos()) / 2
-  lcd.drawFilledRectangle(46, 33, 40, 10, ERASE)
-  lcd.drawText(pos, 33, modes[data.modeId].t, SMLSIZE + modes[data.modeId].f)
-  if armed and headFree then
+  lcd.drawFilledRectangle(47, 33, QX7 and 41 or 50, 9, ERASE)
+  lcd.drawText(pos, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+  if headFree then
     if QX7 then
       lcd.drawText(84, 17, "HF", SMLSIZE + FLASH)
     else
-      lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", SMLSIZE + FLASH)
+      lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", FLASH)
     end
   end
 
@@ -488,10 +476,12 @@ local function run(event)
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
   drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, units[data.altitude_unit], false, telemFlags)
-  drawAltHold()
-  drawData("Dist", 17, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)
-  drawData("Sped", 25, 1, data.speed, data.speedMax, 100, units[data.speed_unit], false, telemFlags)
-  drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags)
+  if altHold then
+    lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
+  end
+  drawData("Dist", data.showCurr and 17 or 21, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)
+  drawData("Sped", data.showCurr and 25 or 33, 1, data.speed, data.speedMax, 100, units[data.speed_unit], false, telemFlags)
+  drawData("Batt", data.showCurr and 49 or 45, 2, data.batt, data.battMin, 100, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 100, "dB", false, rssiFlags)
   if data.showCurr then
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
@@ -501,9 +491,9 @@ local function run(event)
       lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
     end
   end
-  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - 3.3, 0) * 111.1, 98), 100)
+  lcd.drawGauge(46, data.battPos, GAUGE_WIDTH, 56 - data.battPos, math.min(math.max(data.cell - 3.3, 0) * 111.1, 98), 100)
   min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - 3.3, 0) * 111.1, 99) / 100) + 47
-  lcd.drawLine(min, data.battPos2 + 1, min, 54, SOLID, ERASE)
+  lcd.drawLine(min, data.battPos + 1, min, 54, SOLID, ERASE)
   local rssiGauge = math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0)
   lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, rssiGauge, 100)
   min = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47

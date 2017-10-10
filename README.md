@@ -83,7 +83,7 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 #### v1.1.2 - 10/06/2017
 * Lots of refactoring which greatly reduced memory usage
 * Re-enabled altitude bar gauge for X9D, X9D+ & X9E transmitters
-* Better information layout if no current or barometer sensor is present
+* Better information layout if no current sensor is present
 * Refactored GPS lock calculation to prevent script syntax errors
 #### v1.1.1 - 09/28/2017
 * Refactored code to reduce memory
