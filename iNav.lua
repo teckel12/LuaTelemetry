@@ -1,5 +1,5 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.2
+-- Version: 1.1.3
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
@@ -11,6 +11,7 @@ local RXBATT_POS = LCD_W - 17
 local RIGHT_POS = QX7 and 129 or 195
 local GAUGE_WIDTH = QX7 and 82 or 149
 local MODE_POS = QX7 and 48 or 90
+local MODE_SIZE = QX7 and SMLSIZE or 0
 local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 135
 local X_CNTR_3 = QX7 and 67 or 107
@@ -30,23 +31,22 @@ local telemFlags = -1
 -- Modes
 --  t = text
 --  f = flags for text
---  a = show alititude hold
 --  w = wave file
 local modes = {
-  { t="NO TELEM",  f=FLASH, a=false, w=false },
-  { t="HORIZON",   f=0,     a=true,  w="hrznmd.wav" },
-  { t="ANGLE",     f=0,     a=true,  w="anglmd.wav" },
-  { t="ACRO",      f=0,     a=true,  w="acromd.wav" },
-  { t=" NOT OK ",  f=FLASH, a=false, w=false },
-  { t="READY",     f=0,     a=false, w="ready.wav" },
-  { t="POS HOLD",  f=0,     a=true,  w="poshld.wav" },
-  { t="3D HOLD",   f=0,     a=true,  w="3dhold.wav" },
-  { t="WAYPOINT",  f=0,     a=false, w="waypt.wav" },
-  { t="   RTH   ", f=FLASH, a=false, w="rtl.wav" },
-  { t="FAILSAFE",  f=FLASH, a=false, w="fson.wav" },
+  { t="NO TELEM",  f=FLASH, w=false },
+  { t="HORIZON",   f=0,     w="hrznmd.wav" },
+  { t="ANGLE",     f=0,     w="anglmd.wav" },
+  { t="ACRO",      f=0,     w="acromd.wav" },
+  { t=" NOT OK ",  f=FLASH, w=false },
+  { t="READY",     f=0,     w="ready.wav" },
+  { t="POS HOLD",  f=0,     w="poshld.wav" },
+  { t="3D HOLD",   f=0,     w="3dhold.wav" },
+  { t="WAYPOINT",  f=0,     w="waypt.wav" },
+  { t="   RTH   ", f=FLASH, w="rtl.wav" },
+  { t="FAILSAFE",  f=FLASH, w="fson.wav" }
 }
 
-local data = {}
+local units = { "?", "?", "?", "?", "mps", "fps", "kmh", "mph", "m", "ft" }
 
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
@@ -56,6 +56,72 @@ local function getTelemetryId(name)
    return -1
   end
 end
+
+local function getTelemetryUnit(name)
+  local field = getFieldInfo(name)
+  if field and field.unit <= 10 then
+   return field.unit
+  else
+   return 1
+  end
+end
+
+local rssi, low, crit = getRSSI()
+local general = getGeneralSettings()
+local data = {
+  rssiLow = low,
+  rssiCrit = crit,
+  txBattMin = general.battMin,
+  txBattMax = general.battMax,
+  modelName = model.getInfo().name,
+  mode_id = getTelemetryId("Tmp1"),
+  rxBatt_id = getTelemetryId("RxBt"),
+  satellites_id = getTelemetryId("Tmp2"),
+  gpsAlt_id = getTelemetryId("GAlt"),
+  gpsLatLon_id = getTelemetryId("GPS"),
+  heading_id = getTelemetryId("Hdg"),
+  altitude_id = getTelemetryId("Alt"),
+  distance_id = getTelemetryId("Dist"),
+  speed_id = getTelemetryId("GSpd"),
+  current_id = getTelemetryId("Curr"),
+  altitudeMax_id = getTelemetryId("Alt+"),
+  distanceMax_id = getTelemetryId("Dist+"),
+  speedMax_id = getTelemetryId("GSpd+"),
+  currentMax_id = getTelemetryId("Curr+"),
+  batt_id = getTelemetryId("VFAS"),
+  battMin_id = getTelemetryId("VFAS-"),
+  fuel_id = getTelemetryId("Fuel"),
+  rssi_id = getTelemetryId("RSSI"),
+  rssiMin_id = getTelemetryId("RSSI-"),
+  txBatt_id = getTelemetryId("tx-voltage"),
+  ras_id = getTelemetryId("RAS"),
+  gpsAlt_unit = getTelemetryUnit("GAlt"),
+  altitude_unit = getTelemetryUnit("Alt"),
+  distance_unit = getTelemetryUnit("Dist"),
+  speed_unit = getTelemetryUnit("GSpd"),
+  timerStart = 0,
+  timer = 0,
+  distLastPositive = 0,
+  gpsHome = false,
+  gpsLatLon = false,
+  gpsFix = false,
+  headingRef = -1,
+  showMax = false,
+  showDir = true,
+  battlow = false,
+  showCurr = true,
+  fuel = 100
+}
+
+if data.current_id == -1 then
+  data.showCurr = false
+end
+data.distPos = data.showCurr and 17 or 21
+data.speedPos = data.showCurr and 25 or 33
+data.battPos1 = data.showCurr and 49 or 45
+data.battPos2 = data.showCurr and 49 or 41
+data.distRef = data.distance_unit == 10 and 20 or 6
+data.altAlert = data.altitude_unit == 10 and 400 or 122
 
 local function flightModes()
   armed = false
@@ -122,7 +188,7 @@ local function flightModes()
     data.showDir = false
     playFile(WAVPATH .. "engarm.wav")
   elseif not armed and armedPrev then -- Engines disarmed
-    if data.distLastPositive < 15 then
+    if data.distLastPositive <= data.distRef then
       data.headingRef = -1
       data.showDir = true
     end
@@ -140,22 +206,20 @@ local function flightModes()
     end
   end
   if armed then
-    if modes[data.modeId].a then -- Flight status changes
-      if altHold ~= altHoldPrev and data.modeId ~= 8 then
-        playFile(WAVPATH .. "althld.wav")
-        playFile(WAVPATH .. (altHold and "active.wav" or "off.wav"))
-      end
-      if headingHold ~= headingHoldPrev then
-        playFile(WAVPATH .. "hedhld.wav")
-        playFile(WAVPATH .. (headingHold and "active.wav" or "off.wav"))
-      end
-      if headFree ~= headFreePrev then
-        playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
-      end
+    if altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
+      playFile(WAVPATH .. "althld.wav")
+      playFile(WAVPATH .. (altHold and "active.wav" or "off.wav"))
     end
-    if data.altitude > 400 then -- Altitude alert
+    if headingHold ~= headingHoldPrev then -- Heading hold status change
+      playFile(WAVPATH .. "hedhld.wav")
+      playFile(WAVPATH .. (headingHold and "active.wav" or "off.wav"))
+    end
+    if headFree ~= headFreePrev then -- Head free status change
+      playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
+    end
+    if data.altitude > data.altAlert then -- Altitude alert
       if getTime() > altNextPlay then
-        playNumber(data.altitude, 10)
+        playNumber(data.altitude, data.altitude_unit)
         altNextPlay = getTime() + 1000
       else
         beep = true
@@ -220,59 +284,6 @@ local function flightModes()
   gpsFixPrev = data.gpsFix
 end
 
-local function init()
-  local rssi, low, crit = getRSSI()
-  data.rssiLow = low
-  data.rssiCrit = crit
-  local general = getGeneralSettings()
-  data.txBattMin = general.battMin
-  data.txBattMax = general.battMax
-  --data.units = general.imperial
-  data.modelName = model.getInfo()["name"]
-  data.mode_id = getTelemetryId("Tmp1")
-  data.rxBatt_id = getTelemetryId("RxBt")
-  data.satellites_id = getTelemetryId("Tmp2")
-  data.gpsAlt_id = getTelemetryId("GAlt")
-  data.gpsLatLon_id = getTelemetryId("GPS")
-  data.heading_id = getTelemetryId("Hdg")
-  data.altitude_id = getTelemetryId("Alt")
-  data.distance_id = getTelemetryId("Dist")
-  data.speed_id = getTelemetryId("GSpd")
-  data.current_id = getTelemetryId("Curr")
-  data.altitudeMax_id = getTelemetryId("Alt+")
-  data.distanceMax_id = getTelemetryId("Dist+")
-  data.speedMax_id = getTelemetryId("GSpd+")
-  data.currentMax_id = getTelemetryId("Curr+")
-  data.batt_id = getTelemetryId("VFAS")
-  data.battMin_id = getTelemetryId("VFAS-")
-  data.fuel_id = getTelemetryId("Fuel")
-  data.rssi_id = getTelemetryId("RSSI")
-  data.rssiMin_id = getTelemetryId("RSSI-")
-  data.txBatt_id = getTelemetryId("tx-voltage")
-  data.ras_id = getTelemetryId("RAS")
-  data.timerStart = 0
-  data.timer = 0
-  data.distLastPositive = 0
-  data.gpsHome = false
-  data.gpsLatLon = false
-  data.gpsFix = false
-  data.headingRef = -1
-  data.showMax = false
-  data.showDir = true
-  data.battlow = false
-  data.showCurr = true
-  data.battPos1 = 49
-  data.battPos2 = 49
-  if data.current_id == -1 or data.fuel_id == -1 then
-    data.showCurr = false
-    data.current = 0
-    data.currentMax = 0
-    data.fuel = 100
-    data.battPos1 = 45
-    data.battPos2 = 41
-  end
-end
-
 local function background()
   data.rssi = getValue(data.rssi_id)
   if data.rssi > 0 or telemFlags < 0 then
@@ -283,7 +294,7 @@ local function background()
     data.gpsAlt = getValue(data.gpsAlt_id)
     data.heading = getValue(data.heading_id)
     data.altitude = getValue(data.altitude_id)
-    data.distance = math.floor(getValue(data.distance_id) * 3.28084 + 0.5)
+    data.distance = getValue(data.distance_id)
     data.speed = getValue(data.speed_id)
     if data.showCurr then
       data.current = getValue(data.current_id)
@@ -305,9 +316,14 @@ local function background()
     data.gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
     if data.gpsFix then
       data.gpsLatLon = gpsTemp
-      --data.distance = 237
+      --data.distance = 70
       --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
       --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
+    end
+    -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+    if data.distance_unit == 10 then
+      data.distance = math.floor(data.distance * 3.28084 + 0.5)
+      data.distanceMax = math.floor(data.distanceMax * 3.28084 + 0.5)
     end
     if data.distance > 0 then
       data.distLastPositive = data.distance
@@ -343,7 +359,7 @@ local function drawDirection(h, w, s, x, y)
   local y3 = y - math.floor(math.cos(rad3) * s + 0.5)
   lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
   lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
-  if headingHold and armed then
+  if headingHold then
     lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
   else
     lcd.drawLine(x2, y2, x3, y3, DOTTED, FORCE)
@@ -363,14 +379,6 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
   end
   if vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
-  end
-end
-
-local function drawAltHold()
-  if armed and modes[data.modeId].a then
-    if altHold or data.modeId == 8 then
-      lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
-    end
   end
 end
 
@@ -403,7 +411,7 @@ local function run(event)
   -- GPS
   if data.gpsLatLon ~= false then
     local gpsFlags = (telemFlags > 0 or not data.gpsFix) and FLASH or 0
-    gpsData(math.floor(data.gpsAlt + 0.5) .. "ft", 17, gpsFlags)
+    gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
     gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS + 0.5) / GPS_DIGITS, 25, gpsFlags)
     gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS + 0.5) / GPS_DIGITS, 33, gpsFlags)
   else
@@ -432,7 +440,7 @@ local function run(event)
       end
     end
   end
-  if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distLastPositive >= 25 then
+  if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distLastPositive >= data.distRef then
     if not data.showDir or not QX7 then
       local o1 = math.rad(data.gpsHome.lat)
       local a1 = math.rad(data.gpsHome.lon)
@@ -451,15 +459,15 @@ local function run(event)
   end
 
   -- Flight mode
-  lcd.drawText(48, 34, modes[data.modeId].t, SMLSIZE + modes[data.modeId].f)
+  lcd.drawText(48, 34, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
   pos = MODE_POS + (87 - lcd.getLastPos()) / 2
-  lcd.drawFilledRectangle(46, 33, 40, 10, ERASE)
-  lcd.drawText(pos, 33, modes[data.modeId].t, SMLSIZE + modes[data.modeId].f)
-  if armed and headFree then
+  lcd.drawFilledRectangle(47, 33, QX7 and 41 or 50, 9, ERASE)
+  lcd.drawText(pos, 33, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
+  if headFree then
     if QX7 then
       lcd.drawText(84, 17, "HF", SMLSIZE + FLASH)
     else
-      lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", SMLSIZE + FLASH)
+      lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", FLASH)
     end
   end
 
@@ -471,10 +479,12 @@ local function run(event)
   end
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, "ft", false, telemFlags)
-  drawAltHold()
-  drawData("Dist", 17, 1, data.distLastPositive, data.distanceMax * 3.28084, 1000, "ft", false, telemFlags)
-  drawData("Sped", 25, 1, data.speed, data.speedMax, 100, "mph", false, telemFlags)
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, units[data.altitude_unit], false, telemFlags)
+  if altHold then
+    lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
+  end
+  drawData("Dist", data.distPos, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)
+  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, 100, units[data.speed_unit], false, telemFlags)
   drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 100, "dB", false, rssiFlags)
   if data.showCurr then
@@ -494,9 +504,9 @@ local function run(event)
   lcd.drawLine(min, 58, min, 62, SOLID, ERASE)
   if not QX7 then
     lcd.drawRectangle(197, 9, 15, 48, SOLID)
-    local height = math.max(math.min(math.ceil(data.altitude / 400 * 46), 46), 0)
+    local height = math.max(math.min(math.ceil(data.altitude / data.altAlert * 46), 46), 0)
     lcd.drawFilledRectangle(198, 56 - height, 13, height, INVERS)
-    local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / 400 * 46), 46), 0)
+    local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / data.altAlert * 46), 46), 0)
     lcd.drawLine(198, max, 210, max, DOTTED, FORCE)
     lcd.drawText(198, 58, "Alt", SMLSIZE)
   end
@@ -504,4 +514,4 @@ local function run(event)
   return 1
 end
 
-return {init = init, run = run, background = background}
+return {run = run, background = background}

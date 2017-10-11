@@ -78,10 +78,12 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 
 ## Release History
 
+#### v1.1.3 - 10/10/2017
+* Shows metric or imperial values based on transmitter telemetry settings
 #### v1.1.2 - 10/06/2017
 * Lots of refactoring which greatly reduced memory usage
 * Re-enabled altitude bar gauge for X9D, X9D+ & X9E transmitters
-* Better information layout if no current or barometer sensor is present
+* Better information layout if no current sensor is present
 * Refactored GPS lock calculation to prevent script syntax errors
 #### v1.1.1 - 09/28/2017
 * Refactored code to reduce memory
@@ -91,9 +93,3 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 * Screen formatting for Taranis X9D, X9D+ & X9E
 #### v1.0.0 - 09/19/2017
 * Initial release
-
-## Todo
-
-* Automatically switch between metric and imperial (currently fixed to imperial)
-* Possible option to display value of timer instead of automatic flight timer built into script
-* Options for when voice alerts play (may be too chatty for some)
