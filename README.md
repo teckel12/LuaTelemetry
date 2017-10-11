@@ -18,7 +18,7 @@
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Display of current Fuel (% battery mAh capacity remaining), Rx voltage and automatic flight timer
-* Displays speed/distance values in metric or imperial based on telemetry setting
+* Displays speed/distance values in metric or imperial based on transmitter telemetry setting
 
 ## Requirements
 
