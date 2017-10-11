@@ -18,11 +18,11 @@
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Display of current Fuel (% battery mAh capacity remaining), Rx voltage and automatic flight timer
-* Displays speed/distance values in metric or imperial based on transmitter telemetry setting
+* Speed and distance values are displayed in metric or imperial based on transmitter telemetry settings
 
 ## Requirements
 
-* [OpenTX v2.2.0](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
+* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
 * A FrSky receiver that supports telemetry, such as X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
