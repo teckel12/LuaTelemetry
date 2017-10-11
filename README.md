@@ -49,7 +49,6 @@
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
 2. Telemetry distance sensor name must be changed from `0420` to `Dist`
-3. Sensors must be changed to US measurements (m to ft, km/h to mph, etc) for proper calibration
 
 #### INAV Lua Telemetry Screen Setup
 
