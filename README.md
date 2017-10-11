@@ -78,7 +78,7 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 
 ## Release History
 
-#### v1.1.3
+#### v1.1.3 - 10/10/2017
 * Shows metric or imperial values based on transmitter telemetry settings
 #### v1.1.2 - 10/06/2017
 * Lots of refactoring which greatly reduced memory usage

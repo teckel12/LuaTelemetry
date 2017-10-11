@@ -11,6 +11,7 @@ local RXBATT_POS = LCD_W - 17
 local RIGHT_POS = QX7 and 129 or 195
 local GAUGE_WIDTH = QX7 and 82 or 149
 local MODE_POS = QX7 and 48 or 90
+local MODE_SIZE = QX7 and SMLSIZE or 0
 local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 135
 local X_CNTR_3 = QX7 and 67 or 107
@@ -115,7 +116,10 @@ local data = {
 if data.current_id == -1 then
   data.showCurr = false
 end
-data.battPos = data.showCurr and 49 or 41
+data.distPos = data.showCurr and 17 or 21
+data.speedPos = data.showCurr and 25 or 33
+data.battPos1 = data.showCurr and 49 or 45
+data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
 data.altAlert = data.altitude_unit == 10 and 400 or 122
 
@@ -455,10 +459,10 @@ local function run(event)
   end
 
   -- Flight mode
-  lcd.drawText(48, 34, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+  lcd.drawText(48, 34, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
   pos = MODE_POS + (87 - lcd.getLastPos()) / 2
   lcd.drawFilledRectangle(47, 33, QX7 and 41 or 50, 9, ERASE)
-  lcd.drawText(pos, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+  lcd.drawText(pos, 33, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
   if headFree then
     if QX7 then
       lcd.drawText(84, 17, "HF", SMLSIZE + FLASH)
@@ -479,9 +483,9 @@ local function run(event)
   if altHold then
     lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
   end
-  drawData("Dist", data.showCurr and 17 or 21, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)
-  drawData("Sped", data.showCurr and 25 or 33, 1, data.speed, data.speedMax, 100, units[data.speed_unit], false, telemFlags)
-  drawData("Batt", data.showCurr and 49 or 45, 2, data.batt, data.battMin, 100, "V", true, battFlags)
+  drawData("Dist", data.distPos, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)
+  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, 100, units[data.speed_unit], false, telemFlags)
+  drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 100, "dB", false, rssiFlags)
   if data.showCurr then
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
@@ -491,9 +495,9 @@ local function run(event)
       lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
     end
   end
-  lcd.drawGauge(46, data.battPos, GAUGE_WIDTH, 56 - data.battPos, math.min(math.max(data.cell - 3.3, 0) * 111.1, 98), 100)
+  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - 3.3, 0) * 111.1, 98), 100)
   min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - 3.3, 0) * 111.1, 99) / 100) + 47
-  lcd.drawLine(min, data.battPos + 1, min, 54, SOLID, ERASE)
+  lcd.drawLine(min, data.battPos2 + 1, min, 54, SOLID, ERASE)
   local rssiGauge = math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0)
   lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, rssiGauge, 100)
   min = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
