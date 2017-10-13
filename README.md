@@ -23,7 +23,7 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
-* A FrSky receiver that supports telemetry, such as X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc.
+* FrSky receiver that supports SmartPort telemetry: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (D-series receivers **NOT** supported)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
 
