@@ -52,18 +52,16 @@ local function getTelemetryId(name)
   local field = getFieldInfo(name)
   if field then
    return field.id
-  else
-   return -1
   end
+  return -1
 end
 
 local function getTelemetryUnit(name)
   local field = getFieldInfo(name)
   if field and field.unit <= 10 then
    return field.unit
-  else
-   return 1
   end
+  return 1
 end
 
 local rssi, low, crit = getRSSI()
@@ -121,7 +119,7 @@ data.speedPos = data.showCurr and 25 or 33
 data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
-data.altAlert = data.altitude_unit == 10 and 400 or 122
+data.altAlert = data.altitude_unit == 10 and 400 or 123
 
 local function flightModes()
   armed = false
@@ -217,9 +215,9 @@ local function flightModes()
     if headFree ~= headFreePrev then -- Head free status change
       playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
     end
-    if data.altitude > data.altAlert then -- Altitude alert
+    if data.altitude + 0.5 >= data.altAlert then -- Altitude alert
       if getTime() > altNextPlay then
-        playNumber(data.altitude, data.altitude_unit)
+        playNumber(data.altitude + 0.5, data.altitude_unit)
         altNextPlay = getTime() + 1000
       else
         beep = true
@@ -318,7 +316,7 @@ local function background()
       data.gpsLatLon = gpsTemp
       --data.distance = 70
       --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
-      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
+      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
     end
     -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
     if data.distance_unit == 10 then
