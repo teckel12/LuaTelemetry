@@ -81,7 +81,7 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 ## Release History
 
 #### v1.1.4 - 10/13/2017
-* More accurate max altitude alerts and altitide flashes when above max altitude
+* More accurate max altitude alerts and altitude flashes when above max altitude
 * Long-press <Enter> resets values
 #### v1.1.3 - 10/10/2017
 * Shows metric or imperial values based on transmitter telemetry settings
