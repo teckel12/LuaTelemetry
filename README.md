@@ -1,4 +1,4 @@
-# SmartPort/INAV Telemetry Flight Status - v1.1.4
+# SmartPort/INAV Telemetry Flight Status - v1.1.5
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
@@ -77,6 +77,8 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 
 ## Release History
 
+#### v1.1.5
+* Altitude bar graph text flashes when above max altitude
 #### v1.1.4 - 10/13/2017
 * More accurate max altitude alerts and altitude flashes when above max altitude
 * Long-press <Enter> resets values
