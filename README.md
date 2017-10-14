@@ -1,7 +1,5 @@
 # Lua Telemetry Flight Status Screen for INAV/Taranis
 
-## Latest Release: v1.1.4
-
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
 ![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
