@@ -507,7 +507,7 @@ local function run(event)
     lcd.drawFilledRectangle(198, 56 - height, 13, height, INVERS)
     local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / data.altAlert * 46), 46), 0)
     lcd.drawLine(198, max, 210, max, DOTTED, FORCE)
-    lcd.drawText(198, 58, "Alt", SMLSIZE)
+    lcd.drawText(198, 58, "Alt", SMLSIZE + altFlags)
   end
 
   return 1
