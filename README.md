@@ -78,7 +78,7 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 ## Release History
 
 #### v1.1.5
-* Altitude bar graph text flashes when above max altitude
+* Altitude bar graph text on X9D/X9D+ flashes when above max altitude
 #### v1.1.4 - 10/13/2017
 * More accurate max altitude alerts and altitude flashes when above max altitude
 * Long-press <Enter> resets values
