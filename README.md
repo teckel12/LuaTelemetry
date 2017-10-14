@@ -29,15 +29,10 @@
 
 ## Notice
 
-> If you get the message **Script Panic not enough memory** you've run out of memory on your transmitter.
-> This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
-> It's also possible that you have less memory to work with when running firmware that uses more memory (for example, using firmware that includes multimodule support if you're not using it).
-> Using transmitter firmware with `luac` included will reduce memory usage and increase the telemetry screen speed.
-
-* Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback appreciated)
-* Optional amperage sensor needed for fuel and current displays
-* Uses Taranis settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
-* Uses Taranis settings for transmitter voltage min/max for battery gauge in screen title
+If you get the message **Script Panic not enough memory** you've run out of memory on your transmitter.
+This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
+It's also possible that you have less memory to work with when running firmware that uses more memory (for example, using firmware that includes multimodule support if you're not using it).
+Using transmitter firmware with `luac` included will reduce memory usage and increase the telemetry screen speed.
 
 ## Setup
 
@@ -72,9 +67,13 @@ The launch/pilot-based orientation view is useful if model orientation is unknow
 The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
 Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed.
 
-## Tips
+## Tips & Notes
 
-* Between flights, long-press the Enter/dial and select `Reset telemetry`
+* Between flights, you can long-press the Enter/dial and select `Reset telemetry`
+* Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback appreciated)
+* Optional amperage sensor needed for fuel and current displays
+* Uses Taranis settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
+* Uses Taranis settings for transmitter voltage min/max for battery gauge in screen title
 
 ## Release History
 
