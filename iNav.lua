@@ -1,5 +1,5 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.3
+-- Version: 1.1.4
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
@@ -50,20 +50,12 @@ local units = { "?", "?", "?", "?", "mps", "fps", "kmh", "mph", "m", "ft" }
 
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
-  if field then
-   return field.id
-  else
-   return -1
-  end
+  return field and field.id or -1
 end
 
 local function getTelemetryUnit(name)
   local field = getFieldInfo(name)
-  if field and field.unit <= 10 then
-   return field.unit
-  else
-   return 1
-  end
+  return (field and field.unit <= 10) and field.unit or 1
 end
 
 local rssi, low, crit = getRSSI()
@@ -121,7 +113,7 @@ data.speedPos = data.showCurr and 25 or 33
 data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
-data.altAlert = data.altitude_unit == 10 and 400 or 122
+data.altAlert = data.altitude_unit == 10 and 400 or 123
 
 local function flightModes()
   armed = false
@@ -129,10 +121,10 @@ local function flightModes()
   headingHold = false
   altHold = false
   if data.telemetry then
-    local modeA = math.floor(data.mode / 10000)
-    local modeB = math.floor(data.mode / 1000) % 10
-    local modeC = math.floor(data.mode / 100) % 10
-    local modeD = math.floor(data.mode / 10) % 10
+    local modeA = data.mode / 10000
+    local modeB = data.mode / 1000 % 10
+    local modeC = data.mode / 100 % 10
+    local modeD = data.mode / 10 % 10
     local modeE = data.mode % 10
     if bit32.band(modeE, 4) == 4 then
       armed = true
@@ -143,25 +135,17 @@ local function flightModes()
       else
         data.modeId = 4 -- Acro
       end
-      if bit32.band(modeB, 4) == 4 then
-        headFree = true
-      end
-      if bit32.band(modeC, 1) == 1 then
-        headingHold = true
-      end
-      if bit32.band(modeC, 2) == 2 then
-        altHold = true
-      end
+      headFree = bit32.band(modeB, 4) == 4 and true or false
+      headingHold = bit32.band(modeC, 1) == 1 and true or false
+      altHold = bit32.band(modeC, 2) == 2 and true or false
       if bit32.band(modeC, 4) == 4 then
         data.modeId = altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
     end
     if bit32.band(modeE, 2) == 2 or modeE == 0 then
       data.modeId = 5 -- Not OK to arm
-    else
-      if not armed then
-        data.modeId = 6 -- Ready to fly
-      end
+    elseif not armed then
+      data.modeId = 6 -- Ready to fly
     end
     if bit32.band(modeA, 4) == 4 then
       data.modeId = 11 -- Failsafe
@@ -171,7 +155,7 @@ local function flightModes()
       data.modeId = 9 -- Waypoint
     end
   else
-    data.modeId = 1
+    data.modeId = 1 -- No telemetry
   end
 
   -- Voice alerts
@@ -217,9 +201,9 @@ local function flightModes()
     if headFree ~= headFreePrev then -- Head free status change
       playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
     end
-    if data.altitude > data.altAlert then -- Altitude alert
+    if data.altitude + 0.5 >= data.altAlert then -- Altitude alert
       if getTime() > altNextPlay then
-        playNumber(data.altitude, data.altitude_unit)
+        playNumber(data.altitude + 0.5, data.altitude_unit)
         altNextPlay = getTime() + 1000
       else
         beep = true
@@ -318,7 +302,7 @@ local function background()
       data.gpsLatLon = gpsTemp
       --data.distance = 70
       --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
-      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.2)
+      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
     end
     -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
     if data.distance_unit == 10 then
@@ -419,7 +403,7 @@ local function run(event)
     lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
     lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
   end
-  gpsData("    Sats " .. tonumber(string.sub(data.satellites, -2)), 9, telemFlags)
+  gpsData("    Sats " .. data.satellites % 100, 9, telemFlags)
 
   -- Directionals
   if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
@@ -471,15 +455,30 @@ local function run(event)
     end
   end
 
-  -- Data & gauges
+  -- User input
   if not armed then
     if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
       data.showMax = not data.showMax
     end
+    -- Initalize variables on long <Enter>
+    if not armed and event == EVT_ENTER_LONG then
+      data.timerStart = 0
+      data.timer = 0
+      data.distLastPositive = 0
+      data.gpsHome = false
+      data.gpsLatLon = false
+      data.gpsFix = false
+      data.headingRef = -1
+      data.battlow = false
+      data.fuel = 100    
+    end
   end
+
+  -- Data & gauges
+  local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= data.altAlert) and FLASH or 0
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, units[data.altitude_unit], false, telemFlags)
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, units[data.altitude_unit], false, altFlags)
   if altHold then
     lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
   end
