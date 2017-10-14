@@ -1,4 +1,4 @@
-# Lua Telemetry Flight Status Screen for INAV/Taranis
+# SmartPort Telemetry Flight Status for INAV/Taranis - v1.1.4
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
