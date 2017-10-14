@@ -455,12 +455,26 @@ local function run(event)
     end
   end
 
-  -- Data & gauges
+  -- User input
   if not armed then
     if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
       data.showMax = not data.showMax
     end
+    -- Initalize variables on long <Enter>
+    if not armed and event == EVT_ENTER_LONG then
+      data.timerStart = 0
+      data.timer = 0
+      data.distLastPositive = 0
+      data.gpsHome = false
+      data.gpsLatLon = false
+      data.gpsFix = false
+      data.headingRef = -1
+      data.battlow = false
+      data.fuel = 100    
+    end
   end
+
+  -- Data & gauges
   local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= data.altAlert) and FLASH or 0
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
