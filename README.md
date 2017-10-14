@@ -1,5 +1,7 @@
 # Lua Telemetry Flight Status Screen for INAV/Taranis
 
+## Latest Release: v1.1.4
+
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
 ![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
@@ -9,7 +11,7 @@
 
 ## Features
 
-* Launch-based model orientation and location indicators (great for lost orientation or if you lose site of your model)
+* Launch/pilot-based model orientation and location indicators (great for lost orientation or if you lose site of your model)
 * Compass-based direction indicator
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Tx battery (and Altitude for X9D, X9D+ & X9E transmitters)
 * Display and voice alerts for flight modes and other flight status information (altitude hold, heading hold, etc.)
@@ -23,18 +25,18 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
-* A FrSky receiver that supports telemetry, such as X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc.
+* SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (D-series receivers *NOT* supported)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
 
-## Notes
+## Notice
 
-> **Notice:** If you get the message `Script Panic not enough memory` you've run out of memory on your transmitter.
+> If you get the message **Script Panic not enough memory** you've run out of memory on your transmitter.
 > This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
-> It's also possible that you have less memory to work with when running firmware that uses more memory (for example, firmware that includes multimodule support).
-> Using transmitter firmware with `luac` included should reduce memory usage and increase the telemetry screen speed.
+> It's also possible that you have less memory to work with when running firmware that uses more memory (for example, using firmware that includes multimodule support if you're not using it).
+> Using transmitter firmware with `luac` included will reduce memory usage and increase the telemetry screen speed.
 
-* Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback would be appreciated)
+* Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback appreciated)
 * Optional amperage sensor needed for fuel and current displays
 * Uses Taranis settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses Taranis settings for transmitter voltage min/max for battery gauge in screen title
@@ -65,10 +67,10 @@
 From the Taranis main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav.
 Flashing values are either because there's no telemetry or a warning.
 To flip between max/min values and current values, use the dial or +/- buttons.
-To flip between compass-based direction and launch-based orientation and location, use the dial or +/- buttons.
-If model is further than 25 feet away, the launch direction view will show the direction of the model based upon launch position and orientation.
-This can be used to locate a lost model, using the launch-based model location indicator and distance.
-The launch-based orientation view is useful if model orientation is unknown.
+To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons.
+If model is further than 25 feet away, the launch/pilot direction view will show the direction of the model based upon launch/pilot position and orientation.
+This can be used to locate a lost model, using the launch/pilot-based model location indicator and distance.
+The launch/pilot-based orientation view is useful if model orientation is unknown.
 The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
 Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed.
 
@@ -78,6 +80,8 @@ Voice alerts will play in background even if iNav LuaTelemetry screen is not dis
 
 ## Release History
 
+#### v1.1.4
+* More accurate max altitude alerts and altitide flashes when above max altitude
 #### v1.1.3 - 10/10/2017
 * Shows metric or imperial values based on transmitter telemetry settings
 #### v1.1.2 - 10/06/2017
