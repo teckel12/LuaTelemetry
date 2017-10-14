@@ -1,5 +1,5 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.4
+-- Version: 1.1.5
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
