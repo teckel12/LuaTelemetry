@@ -22,6 +22,7 @@ local armedPrev = false
 local headingHoldPrev = false
 local headFreePrev = false
 local altHoldPrev = false
+local homeResetPrev = false
 local gpsFixPrev = false
 local altNextPlay = 0
 local battNextPlay = 0
@@ -91,18 +92,9 @@ local data = {
   altitude_unit = getTelemetryUnit("Alt"),
   distance_unit = getTelemetryUnit("Dist"),
   speed_unit = getTelemetryUnit("GSpd"),
-  timerStart = 0,
-  timer = 0,
-  distLastPositive = 0,
-  gpsHome = false,
-  gpsLatLon = false,
-  gpsFix = false,
-  headingRef = -1,
   showMax = false,
   showDir = true,
-  battlow = false,
-  showCurr = true,
-  fuel = 100
+  showCurr = true
 }
 
 if data.current_id == -1 then
@@ -115,11 +107,24 @@ data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
 data.altAlert = data.altitude_unit == 10 and 400 or 123
 
+local function reset()
+  data.timerStart = 0
+  data.timer = 0
+  data.distLastPositive = 0
+  data.gpsHome = false
+  data.gpsLatLon = false
+  data.gpsFix = false
+  data.headingRef = -1
+  data.battlow = false
+  data.fuel = 100
+end
+
 local function flightModes()
   armed = false
   headFree = false
   headingHold = false
   altHold = false
+  homeReset = false
   if data.telemetry then
     local modeA = data.mode / 10000
     local modeB = data.mode / 1000 % 10
@@ -138,6 +143,7 @@ local function flightModes()
       headFree = bit32.band(modeB, 4) == 4 and true or false
       headingHold = bit32.band(modeC, 1) == 1 and true or false
       altHold = bit32.band(modeC, 2) == 2 and true or false
+      homeReset = bit32.band(modeA, 2) == 2 and true or false
       if bit32.band(modeC, 4) == 4 then
         data.modeId = altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
@@ -202,6 +208,9 @@ local function flightModes()
     if headFree ~= headFreePrev then -- Head free status change
       playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
     end
+    if homeReset and not homeResetPrev then -- Home reset
+      playFile(WAVPATH .. "homrst.wav")
+    end
     if data.altitude + 0.5 >= data.altAlert then -- Altitude alert
       if getTime() > altNextPlay then
         playNumber(data.altitude + 0.5, data.altitude_unit)
@@ -262,15 +271,19 @@ local function flightModes()
     battPercentPlayed = 100
   end
   modeIdPrev = data.modeId
-  headingHoldPrev = headingHold
-  headFreePrev = headFree
-  altHoldPrev = altHold
   armedPrev = armed
+  headFreePrev = headFree
+  headingHoldPrev = headingHold
+  altHoldPrev = altHold
+  homeResetPrev = homeReset
   gpsFixPrev = data.gpsFix
 end
 
 local function background()
   data.rssi = getValue(data.rssi_id)
+  if telemFlags == -1 then
+    reset()
+  end
   if data.rssi > 0 or telemFlags < 0 then
     data.telemetry = true
     data.mode = getValue(data.mode_id)
@@ -440,15 +453,7 @@ local function run(event)
     end
     -- Initalize variables on long <Enter>
     if not armed and event == EVT_ENTER_LONG then
-      data.timerStart = 0
-      data.timer = 0
-      data.distLastPositive = 0
-      data.gpsHome = false
-      data.gpsLatLon = false
-      data.gpsFix = false
-      data.headingRef = -1
-      data.battlow = false
-      data.fuel = 100    
+      reset()
     end
   end
 
@@ -506,7 +511,7 @@ local function run(event)
     lcd.drawNumber(RXBATT_POS, 1, data.rxBatt * 10.05, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
-    
+
   return 1
 end
 
