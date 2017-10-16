@@ -5,7 +5,7 @@
 ![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
 
 #### Taranis X9D, X9D+ & X9E
-![sample](http://www.leethost.com/link_pics/iNav3.png "View on Taranis X9D, X9D+ & X9E")
+![sample](http://www.leethost.com/link_pics/iNav3.png?1 "View on Taranis X9D, X9D+ & X9E")
 
 ## Features
 
