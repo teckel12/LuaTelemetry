@@ -27,13 +27,6 @@
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
 
-## Notice
-
-If you get the message **Script Panic not enough memory** you've run out of memory on your transmitter.
-This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
-It's also possible that you have less memory to work with when running firmware that uses more memory (for example, using firmware that includes multimodule support if you're not using it).
-Using transmitter firmware with `luac` included will reduce memory usage and increase the telemetry screen speed.
-
 ## Setup
 
 #### In INAV Configurator
@@ -48,32 +41,39 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 
 #### INAV Lua Telemetry Screen Setup
 
-1. Copy `iNav.lua` file to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
-2. Copy `iNav` folder to Taranis SD card's `\SCRIPTS\TELEMETRY\` folder
+1. Copy `iNav.lua` file to transmitter SD card's `\SCRIPTS\TELEMETRY\` folder
+2. Copy `iNav` folder to transmitter SD card's `\SCRIPTS\TELEMETRY\` folder
 3. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
+
+## Notice
+
+If you get the message **Script Panic not enough memory** you've run out of memory on your transmitter.
+This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
+It's also possible that you have less memory to work with when running firmware that uses more memory (for example, using firmware that includes multimodule support if you're not using it).
+Using transmitter firmware with `luac` included will reduce memory usage and increase the telemetry screen speed.
 
 ## Usage
 
 #### Screen Description
 ![sample](http://www.leethost.com/link_pics/iNav4.png "Screen description")
 
-From the Taranis main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav.
-Flashing values are either because there's no telemetry or a warning.
-To flip between max/min values and current values, use the dial or +/- buttons.
-To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons.
-If model is further than 25 feet away, the launch/pilot direction view will show the direction of the model based upon launch/pilot position and orientation.
-This can be used to locate a lost model, using the launch/pilot-based model location indicator and distance.
-The launch/pilot-based orientation view is useful if model orientation is unknown.
-The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
-Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed.
+* From the transmitter's main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav.
+* Flashing values indicate a warning (for example: no telemetry, battery low, altitiude too high).
+* To flip between max/min values and current values, use the dial or +/- buttons.
+* To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons.
+* The launch/pilot-based orientation view is useful if model orientation is unknown.
+* If model is further than 25 feet away, the launch/pilot-based view will show the direction of the model based upon launch/pilot position and orientation.
+* The launch/pilot-based model direction can be used to locate a lost model, using the launch/pilot-based model location indicator and distance.
+* The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
+* Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed.
 
 ## Tips & Notes
 
 * Between flights, you can long-press the Enter/dial and select `Reset telemetry`
 * Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback appreciated)
 * Optional amperage sensor needed for fuel and current displays
-* Uses Taranis settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
-* Uses Taranis settings for transmitter voltage min/max for battery gauge in screen title
+* Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
+* Uses transmitter settings for transmitter voltage min/max for battery gauge in screen title
 
 ## Release History
 
