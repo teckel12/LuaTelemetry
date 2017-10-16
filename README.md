@@ -57,15 +57,14 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 #### Screen Description
 ![sample](http://www.leethost.com/link_pics/iNav4.png "Screen description")
 
-* From the transmitter's main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav.
-* Flashing values indicate a warning (for example: no telemetry, battery low, altitiude too high).
-* To flip between max/min values and current values, use the dial or +/- buttons.
-* To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons.
-* The launch/pilot-based orientation view is useful if model orientation is unknown.
-* If model is further than 25 feet away, the launch/pilot-based view will show the direction of the model based upon launch/pilot position and orientation.
-* The launch/pilot-based model direction can be used to locate a lost model, using the launch/pilot-based model location indicator and distance.
-* The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model).
-* Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed.
+* From the transmitter's main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav
+* Flashing values indicate a warning (for example: no telemetry, battery low, altitiude too high)
+* To flip between max/min values and current values, use the dial or +/- buttons
+* To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons
+* The launch/pilot-based orientation view is useful if model orientation is unknown
+* If model is further than 25 feet away, the launch/pilot-based view will show the direction of the model based upon launch/pilot position and orientation (useful to locate a lost model)
+* The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model)
+* Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed
 
 ## Tips & Notes
 
