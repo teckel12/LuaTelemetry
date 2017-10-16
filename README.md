@@ -1,7 +1,7 @@
 # SmartPort/INAV Telemetry Flight Status - v1.1.5
 
 #### Taranis Q X7
-![sample](http://www.leethost.com/link_pics/iNav1.png "Launch-based model orientation and location indicators")
+![sample](http://www.leethost.com/link_pics/iNav1.png "launch/pilot-based model orientation and location indicators")
 ![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
 
 #### Taranis X9D, X9D+ & X9E
@@ -22,7 +22,7 @@
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ & X9E
+* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ or X9E
 * SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (*NOT* D-series receivers)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter, and compass sensors
