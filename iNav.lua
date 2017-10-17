@@ -19,10 +19,10 @@ local GPS_DIGITS = QX7 and 10000 or 1000000
 
 local modeIdPrev = false
 local armedPrev = false
-local headingHoldPrev = false
-local headFreePrev = false
-local altHoldPrev = false
-local homeResetPrev = false
+local headFree = { p=false }
+local headingHold = { p=false }
+local altHold = { p=false }
+local homeReset = { p=false }
 local gpsFixPrev = false
 local altNextPlay = 0
 local battNextPlay = 0
@@ -121,10 +121,10 @@ end
 
 local function flightModes()
   armed = false
-  headFree = false
-  headingHold = false
-  altHold = false
-  homeReset = false
+  headFree.c = false
+  headingHold.c = false
+  altHold.c = false
+  homeReset.c = false
   if data.telemetry then
     local modeA = data.mode / 10000
     local modeB = data.mode / 1000 % 10
@@ -140,12 +140,12 @@ local function flightModes()
       else
         data.modeId = 4 -- Acro
       end
-      headFree = bit32.band(modeB, 4) == 4 and true or false
-      headingHold = bit32.band(modeC, 1) == 1 and true or false
-      altHold = bit32.band(modeC, 2) == 2 and true or false
-      homeReset = bit32.band(modeA, 2) == 2 and true or false
+      headFree.c = bit32.band(modeB, 4) == 4 and true or false
+      headingHold.c = bit32.band(modeC, 1) == 1 and true or false
+      altHold.c = bit32.band(modeC, 2) == 2 and true or false
+      homeReset.c = bit32.band(modeA, 2) == 2 and true or false
       if bit32.band(modeC, 4) == 4 then
-        data.modeId = altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
+        data.modeId = altHold.c and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
     end
     if bit32.band(modeE, 2) == 2 or modeE == 0 then
@@ -197,18 +197,18 @@ local function flightModes()
   end
   if armed then
     data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer    
-    if altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
+    if altHold.c ~= altHold.p and data.modeId ~= 8 then -- Alt hold status change
       playFile(WAVPATH .. "althld.wav")
-      playFile(WAVPATH .. (altHold and "active.wav" or "off.wav"))
+      playFile(WAVPATH .. (altHold.c and "active.wav" or "off.wav"))
     end
-    if headingHold ~= headingHoldPrev then -- Heading hold status change
+    if headingHold.c ~= headingHold.p then -- Heading hold status change
       playFile(WAVPATH .. "hedhld.wav")
-      playFile(WAVPATH .. (headingHold and "active.wav" or "off.wav"))
+      playFile(WAVPATH .. (headingHold.c and "active.wav" or "off.wav"))
     end
-    if headFree ~= headFreePrev then -- Head free status change
-      playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
+    if headFree.c ~= headFree.p then -- Head free status change
+      playFile(WAVPATH .. (headFree.c and "hfact.wav" or "hfoff.wav"))
     end
-    if homeReset and not homeResetPrev then -- Home reset
+    if homeReset.c and not homeReset.p then -- Home reset
       playFile(WAVPATH .. "homrst.wav")
     end
     if data.altitude + 0.5 >= data.altAlert then -- Altitude alert
@@ -251,7 +251,7 @@ local function flightModes()
     else
       battNextPlay = 0
     end
-    if headFree or modes[data.modeId].f > 0 then
+    if headFree.c or modes[data.modeId].f > 0 then
       beep = true
       vibrate = true
     elseif data.rssi < data.rssiLow then
@@ -272,10 +272,10 @@ local function flightModes()
   end
   modeIdPrev = data.modeId
   armedPrev = armed
-  headFreePrev = headFree
-  headingHoldPrev = headingHold
-  altHoldPrev = altHold
-  homeResetPrev = homeReset
+  headFree.p = headFree.c
+  headingHold.p = headingHold.c
+  altHold.p = altHold.c
+  homeReset.p = homeReset.c
   gpsFixPrev = data.gpsFix
 end
 
@@ -357,7 +357,7 @@ local function drawDirection(heading, width, radius, x, y)
   local y3 = y - math.floor(math.cos(rad3) * radius + 0.5)
   lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
   lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
-  if headingHold then
+  if headingHold.c then
     lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
   else
     lcd.drawLine(x2, y2, x3, y3, DOTTED, FORCE)
@@ -438,7 +438,7 @@ local function run(event)
   lcd.drawText(0, 0, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
   local x = MODE_POS - (lcd.getLastPos() / 2)
   lcd.drawText(x, 33, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
-  if headFree then
+  if headFree.c then
     if QX7 then
       lcd.drawText(63, 9, "HF", SMLSIZE + FLASH)
     else
@@ -462,7 +462,7 @@ local function run(event)
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
   drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, units[data.altitude_unit], false, altFlags)
-  if altHold then
+  if altHold.c then
     lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
   end
   drawData("Dist", data.distPos, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)

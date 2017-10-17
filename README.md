@@ -12,7 +12,7 @@
 * Launch/pilot-based model orientation and location indicators (great for lost orientation or if you lose site of your model)
 * Compass-based direction indicator
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Tx battery (and Altitude for X9D, X9D+ & X9E transmitters)
-* Display and voice alerts for flight modes and other flight status information (altitude hold, heading hold, etc.)
+* Display and voice alerts for flight modes and other flight status information (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS information: Satellites locked, GPS altitude, GPS coordinates
 * Display of current/maximum: Altitude, Distance, Speed and Current
@@ -75,10 +75,12 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 * Optional amperage sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery gauge in screen title
+* INAV v1.8+ is required for `Home reset` voice notification
 
 ## Release History
 
 #### v1.1.5
+* Voice notification for `Home Reset` with INAV v1.8+
 * Moved head free warning on Q X7 to top center
 * Better text centering and right justification technique
 * Cleaned up code saving more memory
