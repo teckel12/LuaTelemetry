@@ -250,7 +250,7 @@ local function flightModes()
     else
       battNextPlay = 0
     end
-    if headFree or modes[data.modeId].f > 0 then
+    if headFree or modes[data.modeId].f ~= 0 then
       beep = true
       vibrate = true
     elseif data.rssi < data.rssiLow then
