@@ -303,7 +303,7 @@ local function background()
     data.speedMax = getValue(data.speedMax_id)
     data.batt = getValue(data.batt_id)
     data.battMin = getValue(data.battMin_id)
-    data.cells = math.floor(data.batt/4.3) + 1
+    data.cells = math.floor(data.batt / 4.3) + 1
     data.cell = data.batt/data.cells
     data.cellMin = data.battMin/data.cells
     data.rssiMin = getValue(data.rssiMin_id)
@@ -319,8 +319,8 @@ local function background()
     end
     -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
     if data.distance_unit == 10 then
-      data.distance = math.floor(data.distance * 3.28084 + 0.5)
-      data.distanceMax = math.floor(data.distanceMax * 3.28084 + 0.5)
+      data.distance = data.distance * 3.28084
+      data.distanceMax = data.distanceMax * 3.28084
     end
     if data.distance > 0 then
       data.distLastPositive = data.distance
@@ -369,12 +369,12 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     vc = vm
     lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
   end
-  if frac then
-    lcd.drawNumber(22, y, vc * 10.05, SMLSIZE + PREC1 + flags)
+  if frac and vc + 0.5 < max then
+    lcd.drawNumber(22, y, vc * 10.01, SMLSIZE + PREC1 + flags)
   else
     lcd.drawText(22, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
-  if vc < max then
+  if frac or vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
   end
 end
@@ -503,11 +503,11 @@ local function run(event)
     lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
   end
   if not QX7 then
-    lcd.drawNumber(110 , 1, data.txBatt * 10.05, SMLSIZE + PREC1 + INVERS)
+    lcd.drawNumber(110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
   if data.rxBatt > 0 and data.telemetry then
-    lcd.drawNumber(RXBATT_POS, 1, data.rxBatt * 10.05, SMLSIZE + PREC1 + INVERS)
+    lcd.drawNumber(RXBATT_POS, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
 
