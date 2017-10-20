@@ -70,7 +70,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 
 ## Tips & Notes
 
-* Between flights, you can long-press the Enter/dial and select `Reset telemetry`
+* Between flights (before armed), long-press the Enter/dial and select `Reset telemetry` to reset telemetry values
 * Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback appreciated)
 * Optional amperage sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
@@ -87,7 +87,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 * Cleaned up code saving more memory
 #### v1.1.4 - 10/13/2017
 * More accurate max altitude alerts and altitude flashes when above max altitude
-* Long-press <Enter> resets values
+* Long-press <Enter> resets values (suggest doing this between flights before armed)
 #### v1.1.3 - 10/10/2017
 * Shows metric or imperial values based on transmitter telemetry settings
 #### v1.1.2 - 10/06/2017
