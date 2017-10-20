@@ -82,6 +82,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 #### v1.1.5
 * Voice notification for `Home Reset` with INAV v1.8+
 * Moved head free warning on Q X7 to top center
+* Values convert from decimal to integer when larger to allow for more room
 * Better text centering and right justification technique
 * Cleaned up code saving more memory
 #### v1.1.4 - 10/13/2017
