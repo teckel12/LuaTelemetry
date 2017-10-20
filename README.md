@@ -72,7 +72,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 
 * Between flights (before armed), long-press the Enter/dial and select `Reset telemetry` to reset telemetry values
 * Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback appreciated)
-* Optional amperage sensor needed for fuel and current displays
+* Optional (but highly suggested) amperage sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery gauge in screen title
 * INAV v1.8+ is required for `Home reset` voice notification
