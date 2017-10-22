@@ -209,6 +209,9 @@ local function flightModes()
     end
     if homeReset and not homeResetPrev then -- Home reset
       playFile(WAVPATH .. "homrst.wav")
+      data.gpsHome = false
+      data.distLastPositive = 0
+      data.headingRef = data.heading
     end
     if data.altitude + 0.5 >= data.altAlert then -- Altitude alert
       if getTime() > altNextPlay then
