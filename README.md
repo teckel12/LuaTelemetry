@@ -1,4 +1,4 @@
-# SmartPort/INAV Telemetry Flight Status - v1.1.5
+# SmartPort/INAV Telemetry Flight Status - v1.1.6
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "launch/pilot-based model orientation and location indicators")
@@ -79,6 +79,8 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 
 ## Release History
 
+#### v1.1.6
+* On home reset, reset GPS home position, orientation and distance
 #### v1.1.5
 * Voice notification for `Home Reset` with INAV v1.8+
 * Moved head free warning on Q X7 to top center

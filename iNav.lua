@@ -1,5 +1,5 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.5
+-- Version: 1.1.6
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
@@ -322,10 +322,10 @@ local function background()
     end
     -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
     if data.distance_unit == 10 then
-      data.distance = data.distance * 3.28084
+      data.distance = math.floor(data.distance * 3.28084 + 0.5)
       data.distanceMax = data.distanceMax * 3.28084
     end
-    if data.distance > 0 then
+    if data.distance >= 0 then
       data.distLastPositive = data.distance
     end
     telemFlags = 0
