@@ -15,6 +15,8 @@ local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 106
 local X_CNTR_3 = QX7 and 67 or 135
 local GPS_DIGITS = QX7 and 10000 or 1000000
+local DATA_DIGITS_1 = QX7 and 1000 or 10000
+local DATA_DIGITS_2 = QX7 and 100 or 1000
 
 local modeIdPrev
 local armedPrev = false
@@ -28,10 +30,7 @@ local battNextPlay = 0
 local battPercentPlayed = 100
 local telemFlags = -1
 
--- Modes
---  t = text
---  f = flags for text
---  w = wave file
+-- Modes: t=text / f=flags for text / w=wave file
 local modes = {
   { t="NO TELEM",  f=FLASH, w=false },
   { t="HORIZON",   f=0,     w="hrznmd.wav" },
@@ -110,7 +109,6 @@ data.altAlert = data.altitude_unit == 10 and 400 or 123
 local function reset()
   data.timerStart = 0
   data.timer = 0
-  data.distLastPositive = 0
   data.gpsHome = false
   data.gpsLatLon = false
   data.gpsFix = false
@@ -168,7 +166,6 @@ local function flightModes()
   local beep = false
   if armed and not armedPrev then -- Engines armed
     data.timerStart = getTime()
-    data.distLastPositive = 0
     data.headingRef = data.heading
     data.gpsHome = false
     battPercentPlayed = 100
@@ -177,7 +174,7 @@ local function flightModes()
     data.showDir = false
     playFile(WAVPATH .. "engarm.wav")
   elseif not armed and armedPrev then -- Engines disarmed
-    if data.distLastPositive <= data.distRef then
+    if data.distanceLast <= data.distRef then
       data.headingRef = -1
       data.showDir = true
     end
@@ -210,7 +207,6 @@ local function flightModes()
     if homeReset and not homeResetPrev then -- Home reset
       playFile(WAVPATH .. "homrst.wav")
       data.gpsHome = false
-      data.distLastPositive = 0
       data.headingRef = data.heading
     end
     if data.altitude + 0.5 >= data.altAlert then -- Altitude alert
@@ -325,9 +321,7 @@ local function background()
       data.distance = math.floor(data.distance * 3.28084 + 0.5)
       data.distanceMax = data.distanceMax * 3.28084
     end
-    if data.distance >= 0 then
-      data.distLastPositive = data.distance
-    end
+    data.distanceLast = data.distance
     telemFlags = 0
   else
     data.telemetry = false
@@ -418,7 +412,7 @@ local function run(event)
       end
     end
   end
-  if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distLastPositive >= data.distRef then
+  if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distanceLast >= data.distRef then
     if not data.showDir or not QX7 then
       local o1 = math.rad(data.gpsHome.lat)
       local a1 = math.rad(data.gpsHome.lon)
@@ -463,13 +457,13 @@ local function run(event)
   local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= data.altAlert) and FLASH or 0
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, units[data.altitude_unit], false, altFlags)
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, DATA_DIGITS_1, units[data.altitude_unit], false, altFlags)
   if altHold then
     lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
   end
-  drawData("Dist", data.distPos, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)
-  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, 100, units[data.speed_unit], false, telemFlags)
-  drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags)
+  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, DATA_DIGITS_1, units[data.distance_unit], false, telemFlags)
+  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, DATA_DIGITS_2, units[data.speed_unit], false, telemFlags)
+  drawData("Batt", data.battPos1, 2, data.batt, data.battMin, DATA_DIGITS_2, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", false, rssiFlags)
   if data.showCurr then
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
