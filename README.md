@@ -83,7 +83,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 * On home reset, reset GPS home position, orientation and distance
 * Extra digit for data on X9D & X9D Plus transmitters
 * Variable cleanup saving memory
-#### v1.1.5
+#### v1.1.5 - 10/20/2017
 * Voice notification for `Home Reset` with INAV v1.8+
 * Moved head free warning on Q X7 to top center
 * Values convert from decimal to integer when larger to allow for more room
