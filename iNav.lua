@@ -18,12 +18,6 @@ local GPS_DIGITS = QX7 and 10000 or 1000000
 local DATA_DIGITS_1 = QX7 and 1000 or 10000
 local DATA_DIGITS_2 = QX7 and 100 or 1000
 
-local modeIdPrev
-local armedPrev = false
-local headFreePrev = false
-local headingHoldPrev = false
-local altHoldPrev = false
-local homeResetPrev
 local gpsFixPrev = false
 local altNextPlay = 0
 local battNextPlay = 0
@@ -93,7 +87,8 @@ local data = {
   speed_unit = getTelemetryUnit("GSpd"),
   showMax = false,
   showDir = true,
-  showCurr = true
+  showCurr = true,
+  modeId = 1
 }
 
 if data.current_id == -1 then
@@ -109,6 +104,7 @@ data.altAlert = data.altitude_unit == 10 and 400 or 123
 local function reset()
   data.timerStart = 0
   data.timer = 0
+  data.distanceLast = 0
   data.gpsHome = false
   data.gpsLatLon = false
   data.gpsFix = false
@@ -118,11 +114,18 @@ local function reset()
 end
 
 local function flightModes()
+  local armedPrev = armed
+  local headFreePrev = headFree
+  local headingHoldPrev = headingHold
+  local altHoldPrev = altHold
+  local homeResetPrev = homeReset
+  local homeReset = false
+  local modeIdPrev = data.modeId
   armed = false
   headFree = false
   headingHold = false
   altHold = false
-  local homeReset = false
+  data.modeId = 1 -- No telemetry
   if data.telemetry then
     local modeA = data.mode / 10000
     local modeB = data.mode / 1000 % 10
@@ -157,8 +160,6 @@ local function flightModes()
     elseif bit32.band(modeB, 2) == 2 then
       data.modeId = 9 -- Waypoint
     end
-  else
-    data.modeId = 1 -- No telemetry
   end
 
   -- Voice alerts
@@ -268,12 +269,6 @@ local function flightModes()
     data.battlow = false
     battPercentPlayed = 100
   end
-  modeIdPrev = data.modeId
-  armedPrev = armed
-  headFreePrev = headFree
-  headingHoldPrev = headingHold
-  altHoldPrev = altHold
-  homeResetPrev = homeReset
   gpsFixPrev = data.gpsFix
 end
 
