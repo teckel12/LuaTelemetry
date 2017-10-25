@@ -18,6 +18,11 @@ local GPS_DIGITS = QX7 and 10000 or 1000000
 local DATA_DIGITS_1 = QX7 and 1000 or 10000
 local DATA_DIGITS_2 = QX7 and 100 or 1000
 
+local armed = false
+local headFree = false
+local headingHold = false
+local altHold = false
+local homeResetPrev = false
 local gpsFixPrev = false
 local altNextPlay = 0
 local battNextPlay = 0
@@ -118,7 +123,6 @@ local function flightModes()
   local headFreePrev = headFree
   local headingHoldPrev = headingHold
   local altHoldPrev = altHold
-  local homeResetPrev = homeReset
   local homeReset = false
   local modeIdPrev = data.modeId
   armed = false
@@ -270,6 +274,7 @@ local function flightModes()
     battPercentPlayed = 100
   end
   gpsFixPrev = data.gpsFix
+  homeResetPrev = homeReset
 end
 
 local function background()
