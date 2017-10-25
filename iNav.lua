@@ -197,6 +197,7 @@ local function flightModes()
     end
   end
   if armed then
+    data.distanceLast = data.distance
     data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer    
     if altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
       playFile(WAVPATH .. "althld.wav")
@@ -321,7 +322,9 @@ local function background()
       data.distance = math.floor(data.distance * 3.28084 + 0.5)
       data.distanceMax = data.distanceMax * 3.28084
     end
-    data.distanceLast = data.distance
+    if data.distance > 0 then
+      data.distanceLast = data.distance
+    end
     telemFlags = 0
   else
     data.telemetry = false
