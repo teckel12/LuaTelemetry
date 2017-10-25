@@ -90,8 +90,6 @@ local data = {
   altitude_unit = getTelemetryUnit("Alt"),
   distance_unit = getTelemetryUnit("Dist"),
   speed_unit = getTelemetryUnit("GSpd"),
-  showMax = false,
-  showDir = true,
   showCurr = true,
   modeId = 1
 }
@@ -115,6 +113,8 @@ local function reset()
   data.gpsFix = false
   data.headingRef = -1
   data.battlow = false
+  data.showMax = false
+  data.showDir = true
   data.fuel = 100
 end
 
