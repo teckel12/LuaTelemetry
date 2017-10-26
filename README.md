@@ -81,6 +81,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 
 #### v1.1.6
 * On home reset, reset GPS home position, orientation and distance
+* Option to change battery warning levels, display of average/cell or total battery voltage and change battery sensor name
 * Extra digit for data on X9D & X9D Plus transmitters
 * Variable cleanup saving memory
 #### v1.1.5 - 10/20/2017

@@ -3,6 +3,14 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
+-- User values that can be changed
+local BATT_LOW  = 3.5      -- Low battery warning below this value (default = 3.5)
+local BATT_CRIT = 3.4      -- Critical battery warning below this value (default = 3.4)
+local BATT_OUT  = 3.3      -- Lowest value on battery bar graph (default = 3.3)
+local SHOW_CELL = false    -- false = Show total battery voltage (default) / true = Show cell voltage
+local BATT_SENSOR = "VFAS" -- Battery telemetry sensor to monitor (default = "VFAS")
+-- Probably shouldn't be changed below this point
+
 local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = INVERS + BLINK
 local QX7 = LCD_W < 212
@@ -79,8 +87,8 @@ local data = {
   distanceMax_id = getTelemetryId("Dist+"),
   speedMax_id = getTelemetryId("GSpd+"),
   currentMax_id = getTelemetryId("Curr+"),
-  batt_id = getTelemetryId("VFAS"),
-  battMin_id = getTelemetryId("VFAS-"),
+  batt_id = getTelemetryId(BATT_SENSOR),
+  battMin_id = getTelemetryId(BATT_SENSOR .. "-"),
   fuel_id = getTelemetryId("Fuel"),
   rssi_id = getTelemetryId("RSSI"),
   rssiMin_id = getTelemetryId("RSSI-"),
@@ -234,7 +242,7 @@ local function flightModes()
         battPercentPlayed = data.fuel
       end
     end
-    if data.fuel <= 20 or data.cell < 3.40 then
+    if data.fuel <= 20 or data.cell < BATT_CRIT then
       if getTime() > battNextPlay then
         playFile(WAVPATH .. "batcrt.wav")
         if data.fuel <= 20 and battPercentPlayed > data.fuel then
@@ -247,7 +255,7 @@ local function flightModes()
         beep = true
       end
       data.battlow = true
-    elseif data.cell < 3.50 then
+    elseif data.cell < BATT_LOW then
       if not data.battlow then
         playFile(WAVPATH .. "batlow.wav")
         data.battlow = true
@@ -370,7 +378,7 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
   end
   if frac and vc + 0.5 < max then
-    lcd.drawNumber(22, y, vc * 10.01, SMLSIZE + PREC1 + flags)
+    lcd.drawNumber(22, y, vc * 10.05, SMLSIZE + PREC1 + flags)
   else
     lcd.drawText(22, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
@@ -460,13 +468,15 @@ local function run(event)
   local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= data.altAlert) and FLASH or 0
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
+  local battNow = SHOW_CELL and data.cell or data.batt
+  local battLow = SHOW_CELL and (data.battMin / data.cells) or data.battMin
   drawData("Altd", 9, 1, data.altitude, data.altitudeMax, DATA_DIGITS_1, units[data.altitude_unit], false, altFlags)
   if altHold then
     lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
   end
   drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, DATA_DIGITS_1, units[data.distance_unit], false, telemFlags)
   drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, DATA_DIGITS_2, units[data.speed_unit], false, telemFlags)
-  drawData("Batt", data.battPos1, 2, data.batt, data.battMin, DATA_DIGITS_2, "V", true, battFlags)
+  drawData("Batt", data.battPos1, 2, battNow, battLow, DATA_DIGITS_2, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", false, rssiFlags)
   if data.showCurr then
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
@@ -476,8 +486,8 @@ local function run(event)
       lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
     end
   end
-  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - 3.3, 0) * 111.1, 98), 100)
-  min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - 3.3, 0) * 111.1, 99) / 100) + 47
+  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - BATT_OUT, 0) * 111.1, 98), 100)
+  min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - BATT_OUT, 0) * 111.1, 99) / 100) + 47
   lcd.drawLine(min, data.battPos2 + 1, min, 54, SOLID, ERASE)
   local rssiGauge = math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0)
   lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, rssiGauge, 100)
