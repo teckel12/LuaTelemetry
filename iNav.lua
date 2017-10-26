@@ -3,13 +3,8 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
--- User values that can be changed
-local BATT_LOW  = 3.5      -- Low battery warning below this value (default = 3.5)
-local BATT_CRIT = 3.4      -- Critical battery warning below this value (default = 3.4)
-local BATT_OUT  = 3.3      -- Lowest value on battery bar graph (default = 3.3)
-local SHOW_CELL = false    -- false = Show total battery voltage (default) / true = Show cell voltage
-local BATT_SENSOR = "VFAS" -- Battery telemetry sensor to monitor (default = "VFAS")
--- Probably shouldn't be changed below this point
+-- Value that can be changed
+local SHOW_CELL = false -- false = Show total battery voltage / true = Show cell average (default = false)
 
 local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = INVERS + BLINK
@@ -87,8 +82,8 @@ local data = {
   distanceMax_id = getTelemetryId("Dist+"),
   speedMax_id = getTelemetryId("GSpd+"),
   currentMax_id = getTelemetryId("Curr+"),
-  batt_id = getTelemetryId(BATT_SENSOR),
-  battMin_id = getTelemetryId(BATT_SENSOR .. "-"),
+  batt_id = getTelemetryId("VFAS"),
+  battMin_id = getTelemetryId("VFAS-"),
   fuel_id = getTelemetryId("Fuel"),
   rssi_id = getTelemetryId("RSSI"),
   rssiMin_id = getTelemetryId("RSSI-"),
@@ -242,7 +237,7 @@ local function flightModes()
         battPercentPlayed = data.fuel
       end
     end
-    if data.fuel <= 20 or data.cell < BATT_CRIT then
+    if data.fuel <= 20 or data.cell < 3.4 then
       if getTime() > battNextPlay then
         playFile(WAVPATH .. "batcrt.wav")
         if data.fuel <= 20 and battPercentPlayed > data.fuel then
@@ -255,7 +250,7 @@ local function flightModes()
         beep = true
       end
       data.battlow = true
-    elseif data.cell < BATT_LOW then
+    elseif data.cell < 3.5 then
       if not data.battlow then
         playFile(WAVPATH .. "batlow.wav")
         data.battlow = true
@@ -486,8 +481,8 @@ local function run(event)
       lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
     end
   end
-  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - BATT_OUT, 0) * 111.1, 98), 100)
-  min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - BATT_OUT, 0) * 111.1, 99) / 100) + 47
+  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - 3.3, 0) * 111.1, 98), 100)
+  min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - 3.3, 0) * 111.1, 99) / 100) + 47
   lcd.drawLine(min, data.battPos2 + 1, min, 54, SOLID, ERASE)
   local rssiGauge = math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0)
   lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, rssiGauge, 100)

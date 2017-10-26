@@ -12,7 +12,7 @@
 * Launch/pilot-based model orientation and location indicators (great for lost orientation or if you lose site of your model)
 * Compass-based direction indicator
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery (and Altitude for X9D, X9D Plus & X9E transmitters)
-* Display and voice alerts for flight modes and other flight status information (altitude hold, heading hold, home reset, etc.)
+* Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS information: Satellites locked, GPS altitude, GPS coordinates
 * Display of current/maximum: Altitude, Distance, Speed and Current
@@ -39,7 +39,7 @@
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
 2. Telemetry distance sensor name must be changed from `0420` to `Dist`
 3. `Dist`, `Alt`, `GAlt` & `Gspd` sensors can be changed from meters/kmh to feet/mph
-4. **Don't** change `Tmp1` or `Tmp2` from celsius to fahrenheit, they're not really temperatures but used for flight modes and GPS information
+4. **Don't** change `Tmp1` or `Tmp2` from celsius to fahrenheit! They're not really temperatures but used for flight modes and GPS information
 
 #### INAV Lua Telemetry Screen Setup
 
@@ -68,6 +68,12 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 * The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model)
 * Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed
 
+#### User Setting
+
+At the top of the `iNav.lua` file a value can be modified to change how the battery voltage is displayed.
+
+* **SHOW_CELL** - `false` = Show total battery voltage / `true` = Show cell average (default = false)
+
 ## Tips & Notes
 
 * Between flights (before armed), long-press the Enter/dial and select `Reset telemetry` to reset telemetry values
@@ -81,7 +87,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 
 #### v1.1.6
 * On home reset, reset GPS home position, orientation and distance
-* Option to change battery warning levels, display of average/cell or total battery voltage and change battery sensor name
+* Option to display average battery cell voltage instead of total voltage
 * Extra digit for data on X9D & X9D Plus transmitters
 * Variable cleanup saving memory
 #### v1.1.5 - 10/20/2017
