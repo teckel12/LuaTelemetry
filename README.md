@@ -9,7 +9,7 @@
 
 ## Features
 
-* Launch/pilot-based model orientation and location indicators (great for lost orientation or if you lose site of your model)
+* Launch/pilot-based model orientation and location indicators (great for lost orientation or if you lose sight of your model)
 * Compass-based direction indicator
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery (and Altitude for X9D, X9D Plus & X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
@@ -27,6 +27,10 @@
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter (barometer), and magnetometer (compass) sensors
 
+> Note: Lua Telemetry **requires** SmartPort telemetry (the above requirements imply that).
+> Lua Telemetry won't work with Crossfire for example because it uses proprietary sensors and missing sensor information.
+> The above requirements are really that, they're required for this script to function.
+
 ## Setup
 
 #### In INAV Configurator
@@ -39,7 +43,7 @@
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
 2. Telemetry distance sensor name must be changed from `0420` to `Dist`
 3. `Dist`, `Alt`, `GAlt` & `Gspd` sensors can be changed from meters/kmh to feet/mph
-4. **Don't** change `Tmp1` or `Tmp2` from celsius to fahrenheit! They're not really temperatures but used for flight modes and GPS information
+4. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not really temperatures but used for flight modes and GPS information
 
 #### INAV Lua Telemetry Screen Setup
 
@@ -60,7 +64,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 ![sample](http://www.leethost.com/link_pics/iNav4.png "Screen description")
 
 * From the transmitter's main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav
-* Flashing values indicate a warning (for example: no telemetry, battery low, altitiude too high)
+* Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
 * To flip between max/min and current values, use the dial or +/- buttons
 * To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons
 * The launch/pilot-based orientation view is useful if model orientation is unknown
@@ -108,9 +112,13 @@ At the top of the `iNav.lua` file a value can be modified to change how the batt
 * Refactored GPS lock calculation to prevent script syntax errors
 #### v1.1.1 - 09/28/2017
 * Refactored code to reduce memory
-* Removed alititude bar gauge for X9D, X9D Plus & X9E transmitters (used too much memory?)
+* Removed altitude bar gauge for X9D, X9D Plus & X9E transmitters (used too much memory?)
 #### v1.1.0 - 09/22/2017
 * Repo moved to INAVFlight
 * Screen formatting for Taranis X9D, X9D Plus & X9E
 #### v1.0.0 - 09/19/2017
 * Initial release
+
+## License
+
+[MIT](https://github.com/iNavFlight/LuaTelemetry/blob/master/LICENSE)
