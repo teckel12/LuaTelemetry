@@ -151,7 +151,7 @@ local function flightModes()
       headFree = bit32.band(modeB, 4) == 4 and true or false
       headingHold = bit32.band(modeC, 1) == 1 and true or false
       altHold = bit32.band(modeC, 2) == 2 and true or false
-      homeReset = bit32.band(modeA, 2) == 2 and true or false
+      homeReset = data.satellites >= 4000 and true or false
       if bit32.band(modeC, 4) == 4 then
         data.modeId = altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
