@@ -9,17 +9,11 @@ local SHOW_CELL = false -- false = Show total battery voltage / true = Show cell
 local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = INVERS + BLINK
 local QX7 = LCD_W < 212
-local TIMER_POS = QX7 and 60 or 150
-local RXBATT_POS = LCD_W - 17
 local RIGHT_POS = QX7 and 129 or 195
 local GAUGE_WIDTH = QX7 and 82 or 149
-local MODE_SIZE = QX7 and SMLSIZE or 0
 local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 106
-local X_CNTR_3 = QX7 and 67 or 135
 local GPS_DIGITS = QX7 and 10000 or 1000000
-local DATA_DIGITS_1 = QX7 and 1000 or 10000
-local DATA_DIGITS_2 = QX7 and 100 or 1000
 
 local armed = false
 local headFree = false
@@ -414,7 +408,7 @@ local function run(event)
     end
     if not data.showDir or data.headingRef >= 0 or not QX7 then
       if not indicatorDisplayed or not QX7 then
-        drawDirection(data.heading - data.headingRef, 145, 8, X_CNTR_3, 19)
+        drawDirection(data.heading - data.headingRef, 145, 8, QX7 and 67 or 135, 19)
       end
     end
   end
@@ -437,9 +431,9 @@ local function run(event)
   end
 
   -- Flight mode
-  lcd.drawText(0, 0, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
+  lcd.drawText(0, 0, modes[data.modeId].t, QX7 and SMLSIZE or 0 + modes[data.modeId].f)
   local x = X_CNTR_2 - (lcd.getLastPos() / 2)
-  lcd.drawText(x, 33, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
+  lcd.drawText(x, 33, modes[data.modeId].t, QX7 and SMLSIZE or 0 + modes[data.modeId].f)
   if headFree then
     if QX7 then
       lcd.drawText(63, 9, "HF", SMLSIZE + FLASH)
@@ -465,13 +459,13 @@ local function run(event)
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
   local battNow = SHOW_CELL and data.cell or data.batt
   local battLow = SHOW_CELL and (data.battMin / data.cells) or data.battMin
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, DATA_DIGITS_1, units[data.altitude_unit], false, altFlags)
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], false, altFlags)
   if altHold then
     lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
   end
-  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, DATA_DIGITS_1, units[data.distance_unit], false, telemFlags)
-  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, DATA_DIGITS_2, units[data.speed_unit], false, telemFlags)
-  drawData("Batt", data.battPos1, 2, battNow, battLow, DATA_DIGITS_2, "V", true, battFlags)
+  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], false, telemFlags)
+  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, units[data.speed_unit], false, telemFlags)
+  drawData("Batt", data.battPos1, 2, battNow, battLow, QX7 and 100 or 1000, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", false, rssiFlags)
   if data.showCurr then
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
@@ -500,7 +494,7 @@ local function run(event)
   -- Title
   lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
   lcd.drawText(0, 0, data.modelName, INVERS)
-  lcd.drawTimer(TIMER_POS, 1, data.timer, SMLSIZE + INVERS)
+  lcd.drawTimer(QX7 and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
   lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
   lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
   local battGauge = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
@@ -512,7 +506,7 @@ local function run(event)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
   if data.rxBatt > 0 and data.telemetry then
-    lcd.drawNumber(RXBATT_POS, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
+    lcd.drawNumber(LCD_W - 17, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
 
