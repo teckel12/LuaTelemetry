@@ -27,16 +27,15 @@
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS, altimeter (barometer), and magnetometer (compass) sensors
 
-> Note: Lua Telemetry **requires** SmartPort telemetry (the above requirements imply that).
-> Lua Telemetry won't work with Crossfire for example because it uses proprietary sensors and missing sensor information.
-> The above requirements are really that, they're required for this script to function.
+> Note: This Lua Telemetry script **requires** SmartPort telemetry as noted above.
+> Lua Telemetry **won't work with Crossfire** for example because it uses proprietary sensor names/formatting and missing sensor information that Lua Telemetry needs.
 
 ## Setup
 
 #### In INAV Configurator
 
-1. Setup telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
-2. If you have an amperage sensor, configure `battery_capacity` to the mAh you want to draw from your battery and set `smartport_fuel_percent = ON` in CLI settings (allows proper calibration of battery used percentage)
+1. Setup SmartPort telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md#smartport-sport-telemetry)
+2. If you have an amperage sensor (which I highly suggest), configure `battery_capacity` to the mAh you want to draw from your battery and set `smartport_fuel_percent = ON` in CLI settings (allows proper calibration of fuel used percentage)
 
 #### From Transmitter
 
@@ -47,9 +46,10 @@
 
 #### INAV Lua Telemetry Screen Setup
 
-1. Copy `iNav.lua` file to transmitter SD card's `\SCRIPTS\TELEMETRY\` folder
-2. Copy `iNav` folder to transmitter SD card's `\SCRIPTS\TELEMETRY\` folder
-3. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
+1. Download the Lua Telemetry ZIP file by clicking the green `Clone or download` button towards the top right and select `Download ZIP`
+2. From the downloaded `LuaTelemetry.zip`, copy the `iNav.lua` file to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
+3. Also from the ZIP file, copy the `iNav` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
+4. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
 
 ## Notice
 
@@ -70,7 +70,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 * The launch/pilot-based orientation view is useful if model orientation is unknown
 * If model is further than 25 feet away, the launch/pilot-based view will show the direction of the model based upon launch/pilot position and orientation (useful to locate a lost model)
 * The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model)
-* Voice alerts will play in background even if iNav LuaTelemetry screen is not displayed
+* Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### User Setting
 

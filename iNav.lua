@@ -5,8 +5,8 @@
 
 -- Value that can be changed
 local SHOW_CELL = false -- false = Show total battery voltage / true = Show cell average (default = false)
-
 local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/"
+
 local FLASH = INVERS + BLINK
 local QX7 = LCD_W < 212
 local RIGHT_POS = QX7 and 129 or 195
