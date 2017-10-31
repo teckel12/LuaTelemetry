@@ -85,6 +85,7 @@ At the top of the `iNav.lua` file a value can be modified to change how the batt
 * Optional (but highly suggested) current sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
+* If you're not getting model distance data, change your telemetry distance sensor name from `0420` to `Dist`
 * INAV v1.8+ is required for `Home reset` voice notification
 
 ## Release History
