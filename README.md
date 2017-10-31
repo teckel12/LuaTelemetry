@@ -76,7 +76,8 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 
 At the top of the `iNav.lua` file a value can be modified to change how the battery voltage is displayed.
 
-* **SHOW_CELL** - `false` = Show total battery voltage / `true` = Show cell average (default = false)
+* **SHOW_CELL** `false` = Show total battery voltage / `true` = Show cell average (default = `false`)
+* **WAVPATH** Path on your transmitter's SD card to the Lua Telemetry sound files (default = `"/SCRIPTS/TELEMETRY/iNav/"`)
 
 ## Tips & Notes
 
