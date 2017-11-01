@@ -1,37 +1,32 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.5
+-- Version: 1.1.6
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
+-- Value that can be changed
+local SHOW_CELL = false -- false = Show total battery voltage / true = Show cell average (default = false)
 local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/"
+
 local FLASH = INVERS + BLINK
 local QX7 = LCD_W < 212
-local TIMER_POS = QX7 and 60 or 150
-local RXBATT_POS = LCD_W - 17
 local RIGHT_POS = QX7 and 129 or 195
 local GAUGE_WIDTH = QX7 and 82 or 149
-local MODE_SIZE = QX7 and SMLSIZE or 0
 local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 106
-local X_CNTR_3 = QX7 and 67 or 135
 local GPS_DIGITS = QX7 and 10000 or 1000000
 
-local modeIdPrev
-local armedPrev = false
-local headFreePrev = false
-local headingHoldPrev = false
-local altHoldPrev = false
-local homeResetPrev
+local armed = false
+local headFree = false
+local headingHold = false
+local altHold = false
+local homeResetPrev = false
 local gpsFixPrev = false
 local altNextPlay = 0
 local battNextPlay = 0
 local battPercentPlayed = 100
 local telemFlags = -1
 
--- Modes
---  t = text
---  f = flags for text
---  w = wave file
+-- Modes: t=text / f=flags for text / w=wave file
 local modes = {
   { t="NO TELEM",  f=FLASH, w=false },
   { t="HORIZON",   f=0,     w="hrznmd.wav" },
@@ -92,9 +87,8 @@ local data = {
   altitude_unit = getTelemetryUnit("Alt"),
   distance_unit = getTelemetryUnit("Dist"),
   speed_unit = getTelemetryUnit("GSpd"),
-  showMax = false,
-  showDir = true,
-  showCurr = true
+  showCurr = true,
+  modeId = 1
 }
 
 if data.current_id == -1 then
@@ -110,21 +104,29 @@ data.altAlert = data.altitude_unit == 10 and 400 or 123
 local function reset()
   data.timerStart = 0
   data.timer = 0
-  data.distLastPositive = 0
+  data.distanceLast = 0
   data.gpsHome = false
   data.gpsLatLon = false
   data.gpsFix = false
   data.headingRef = -1
   data.battlow = false
+  data.showMax = false
+  data.showDir = true
   data.fuel = 100
 end
 
 local function flightModes()
+  local armedPrev = armed
+  local headFreePrev = headFree
+  local headingHoldPrev = headingHold
+  local altHoldPrev = altHold
+  local homeReset = false
+  local modeIdPrev = data.modeId
   armed = false
   headFree = false
   headingHold = false
   altHold = false
-  local homeReset = false
+  data.modeId = 1 -- No telemetry
   if data.telemetry then
     local modeA = data.mode / 10000
     local modeB = data.mode / 1000 % 10
@@ -143,7 +145,7 @@ local function flightModes()
       headFree = bit32.band(modeB, 4) == 4 and true or false
       headingHold = bit32.band(modeC, 1) == 1 and true or false
       altHold = bit32.band(modeC, 2) == 2 and true or false
-      homeReset = bit32.band(modeA, 2) == 2 and true or false
+      homeReset = data.satellites >= 4000 and true or false
       if bit32.band(modeC, 4) == 4 then
         data.modeId = altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
@@ -159,8 +161,6 @@ local function flightModes()
     elseif bit32.band(modeB, 2) == 2 then
       data.modeId = 9 -- Waypoint
     end
-  else
-    data.modeId = 1 -- No telemetry
   end
 
   -- Voice alerts
@@ -168,7 +168,6 @@ local function flightModes()
   local beep = false
   if armed and not armedPrev then -- Engines armed
     data.timerStart = getTime()
-    data.distLastPositive = 0
     data.headingRef = data.heading
     data.gpsHome = false
     battPercentPlayed = 100
@@ -177,7 +176,7 @@ local function flightModes()
     data.showDir = false
     playFile(WAVPATH .. "engarm.wav")
   elseif not armed and armedPrev then -- Engines disarmed
-    if data.distLastPositive <= data.distRef then
+    if data.distanceLast <= data.distRef then
       data.headingRef = -1
       data.showDir = true
     end
@@ -195,6 +194,7 @@ local function flightModes()
     end
   end
   if armed then
+    data.distanceLast = data.distance
     data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer    
     if altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
       playFile(WAVPATH .. "althld.wav")
@@ -209,6 +209,8 @@ local function flightModes()
     end
     if homeReset and not homeResetPrev then -- Home reset
       playFile(WAVPATH .. "homrst.wav")
+      data.gpsHome = false
+      data.headingRef = data.heading
     end
     if data.altitude + 0.5 >= data.altAlert then -- Altitude alert
       if getTime() > altNextPlay then
@@ -229,7 +231,7 @@ local function flightModes()
         battPercentPlayed = data.fuel
       end
     end
-    if data.fuel <= 20 or data.cell < 3.40 then
+    if data.fuel <= 20 or data.cell < 3.4 then
       if getTime() > battNextPlay then
         playFile(WAVPATH .. "batcrt.wav")
         if data.fuel <= 20 and battPercentPlayed > data.fuel then
@@ -242,7 +244,7 @@ local function flightModes()
         beep = true
       end
       data.battlow = true
-    elseif data.cell < 3.50 then
+    elseif data.cell < 3.5 then
       if not data.battlow then
         playFile(WAVPATH .. "batlow.wav")
         data.battlow = true
@@ -269,13 +271,8 @@ local function flightModes()
     data.battlow = false
     battPercentPlayed = 100
   end
-  modeIdPrev = data.modeId
-  armedPrev = armed
-  headFreePrev = headFree
-  headingHoldPrev = headingHold
-  altHoldPrev = altHold
-  homeResetPrev = homeReset
   gpsFixPrev = data.gpsFix
+  homeResetPrev = homeReset
 end
 
 local function background()
@@ -319,11 +316,11 @@ local function background()
     end
     -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
     if data.distance_unit == 10 then
-      data.distance = data.distance * 3.28084
+      data.distance = math.floor(data.distance * 3.28084 + 0.5)
       data.distanceMax = data.distanceMax * 3.28084
     end
     if data.distance > 0 then
-      data.distLastPositive = data.distance
+      data.distanceLast = data.distance
     end
     telemFlags = 0
   else
@@ -370,7 +367,7 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
   end
   if frac and vc + 0.5 < max then
-    lcd.drawNumber(22, y, vc * 10.01, SMLSIZE + PREC1 + flags)
+    lcd.drawNumber(22, y, vc * 10.05, SMLSIZE + PREC1 + flags)
   else
     lcd.drawText(22, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
@@ -411,11 +408,11 @@ local function run(event)
     end
     if not data.showDir or data.headingRef >= 0 or not QX7 then
       if not indicatorDisplayed or not QX7 then
-        drawDirection(data.heading - data.headingRef, 145, 8, X_CNTR_3, 19)
+        drawDirection(data.heading - data.headingRef, 145, 8, QX7 and 67 or 135, 19)
       end
     end
   end
-  if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distLastPositive >= data.distRef then
+  if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distanceLast >= data.distRef then
     if not data.showDir or not QX7 then
       local o1 = math.rad(data.gpsHome.lat)
       local a1 = math.rad(data.gpsHome.lon)
@@ -434,9 +431,9 @@ local function run(event)
   end
 
   -- Flight mode
-  lcd.drawText(0, 0, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
+  lcd.drawText(0, 0, modes[data.modeId].t, QX7 and SMLSIZE or 0 + modes[data.modeId].f)
   local x = X_CNTR_2 - (lcd.getLastPos() / 2)
-  lcd.drawText(x, 33, modes[data.modeId].t, MODE_SIZE + modes[data.modeId].f)
+  lcd.drawText(x, 33, modes[data.modeId].t, QX7 and SMLSIZE or 0 + modes[data.modeId].f)
   if headFree then
     if QX7 then
       lcd.drawText(63, 9, "HF", SMLSIZE + FLASH)
@@ -460,13 +457,15 @@ local function run(event)
   local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= data.altAlert) and FLASH or 0
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 1000, units[data.altitude_unit], false, altFlags)
+  local battNow = SHOW_CELL and data.cell or data.batt
+  local battLow = SHOW_CELL and (data.battMin / data.cells) or data.battMin
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], false, altFlags)
   if altHold then
     lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
   end
-  drawData("Dist", data.distPos, 1, data.distLastPositive, data.distanceMax, 1000, units[data.distance_unit], false, telemFlags)
-  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, 100, units[data.speed_unit], false, telemFlags)
-  drawData("Batt", data.battPos1, 2, data.batt, data.battMin, 100, "V", true, battFlags)
+  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], false, telemFlags)
+  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, units[data.speed_unit], false, telemFlags)
+  drawData("Batt", data.battPos1, 2, battNow, battLow, QX7 and 100 or 1000, "V", true, battFlags)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", false, rssiFlags)
   if data.showCurr then
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
@@ -495,7 +494,7 @@ local function run(event)
   -- Title
   lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
   lcd.drawText(0, 0, data.modelName, INVERS)
-  lcd.drawTimer(TIMER_POS, 1, data.timer, SMLSIZE + INVERS)
+  lcd.drawTimer(QX7 and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
   lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
   lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
   local battGauge = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
@@ -507,7 +506,7 @@ local function run(event)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
   if data.rxBatt > 0 and data.telemetry then
-    lcd.drawNumber(RXBATT_POS, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
+    lcd.drawNumber(LCD_W - 17, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
 
