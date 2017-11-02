@@ -1,4 +1,4 @@
-# SmartPort/INAV Telemetry Flight Status - v1.1.6
+# SmartPort/INAV Telemetry Flight Status - v1.1.7
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "launch/pilot-based model orientation and location indicators")
