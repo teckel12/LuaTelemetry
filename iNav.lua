@@ -1,5 +1,5 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.6
+-- Version: 1.1.7
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
@@ -42,7 +42,7 @@ local modes = {
   { t="FAILSAFE",  f=FLASH, w="fson.wav" }
 }
 
-local units = { "?", "?", "?", "?", "mps", "fps", "kmh", "mph", "m", "ft" }
+local units = { [0]="m", "V", "A", "mA", "kts", "m/s", "f/s", "kmh", "mph", "m", "ft" }
 
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
