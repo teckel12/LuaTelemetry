@@ -40,8 +40,8 @@
 #### From Transmitter
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
-2. Telemetry distance sensor name **must** be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft`
-3. `Dist`, `Alt`, `GAlt` & `Gspd` sensors can have their unit changed from meters/kmh to feet/mph
+2. Telemetry distance sensor name **must** be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft` (defaults to `m`)
+3. The sensors `Dist`, `Alt`, `GAlt` & `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph` (defaults to `m` and `kmh`)
 4. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not really temperatures but used for flight modes and GPS information
 
 #### INAV Lua Telemetry Screen Setup
