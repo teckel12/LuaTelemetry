@@ -1,4 +1,4 @@
-# SmartPort/INAV Telemetry Flight Status - v1.1.6
+# SmartPort/INAV Telemetry Flight Status - v1.1.7
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "launch/pilot-based model orientation and location indicators")
@@ -40,8 +40,8 @@
 #### From Transmitter
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
-2. Telemetry distance sensor name must be changed from `0420` to `Dist`
-3. `Dist`, `Alt`, `GAlt` & `Gspd` sensors can be changed from meters/kmh to feet/mph
+2. Telemetry distance sensor name **must** be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft` (defaults to `m`)
+3. The sensors `Dist`, `Alt`, `GAlt` & `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph` (defaults to `m` and `kmh`)
 4. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not really temperatures but used for flight modes and GPS information
 
 #### INAV Lua Telemetry Screen Setup
@@ -91,6 +91,8 @@ At the top of the `iNav.lua` file a value can be modified to change how the batt
 
 ## Release History
 
+#### v1.1.7
+* Fix for the default unit type of the `Dist` (`0420`) sensor
 #### v1.1.6
 * On home reset, reset GPS home position, orientation and distance
 * Option to display average battery cell voltage instead of total voltage
