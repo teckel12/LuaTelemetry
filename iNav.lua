@@ -1,5 +1,5 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.7
+-- Version: 1.1.8
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
@@ -87,15 +87,14 @@ local data = {
   altitude_unit = getTelemetryUnit("Alt"),
   distance_unit = getTelemetryUnit("Dist"),
   speed_unit = getTelemetryUnit("GSpd"),
-  showCurr = true,
   modeId = 1
 }
 
-if data.current_id == -1 then
-  data.showCurr = false
-end
-data.distPos = data.showCurr and 17 or 21
-data.speedPos = data.showCurr and 25 or 33
+data.showCurr = data.current_id > -1 and true or false
+data.showHead = data.heading_id > -1 and true or false
+data.showAlt = data.altitude_id > -1 and true or false
+data.distPos = data.showCurr and 17 or (data.showAlt and 21 or 13)
+data.speedPos = data.showCurr and 25 or (data.showAlt and 33 or 25)
 data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
@@ -394,46 +393,48 @@ local function run(event)
   gpsData("Sats " .. data.satellites % 100, 9, telemFlags)
 
   -- Directionals
-  if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
-    data.showDir = not data.showDir
-  end
-  if data.telemetry then
-    local indicatorDisplayed = false
-    if data.showDir or data.headingRef < 0 or not QX7 then
-      lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) .. "\64", SMLSIZE)
-      lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
-      lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
-      drawDirection(data.heading, 135, 7, X_CNTR_1, 23)
-      indicatorDisplayed = true
+  if data.showHead then
+    if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
+      data.showDir = not data.showDir
     end
-    if not data.showDir or data.headingRef >= 0 or not QX7 then
-      if not indicatorDisplayed or not QX7 then
-        drawDirection(data.heading - data.headingRef, 145, 8, QX7 and 67 or 135, 19)
+    if data.telemetry then
+      local indicatorDisplayed = false
+      if data.showDir or data.headingRef < 0 or not QX7 then
+        lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) .. "\64", SMLSIZE)
+        lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
+        lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
+        drawDirection(data.heading, 135, 7, X_CNTR_1, 23)
+        indicatorDisplayed = true
+      end
+      if not data.showDir or data.headingRef >= 0 or not QX7 then
+        if not indicatorDisplayed or not QX7 then
+          drawDirection(data.heading - data.headingRef, 145, 8, QX7 and 67 or 135, 19)
+        end
       end
     end
-  end
-  if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distanceLast >= data.distRef then
-    if not data.showDir or not QX7 then
-      local o1 = math.rad(data.gpsHome.lat)
-      local a1 = math.rad(data.gpsHome.lon)
-      local o2 = math.rad(data.gpsLatLon.lat)
-      local a2 = math.rad(data.gpsLatLon.lon)
-      local y = math.sin(a2 - a1) * math.cos(o2)
-      local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-      local bearing = math.deg(math.atan2(y, x)) - data.headingRef
-      local rad1 = math.rad(bearing)
-      local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_2
-      local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)
-      lcd.drawLine(X_CNTR_2, 19, x1, y1, DOTTED, FORCE)
-      lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, ERASE)
-      lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, SOLID)
+    if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distanceLast >= data.distRef then
+      if not data.showDir or not QX7 then
+        local o1 = math.rad(data.gpsHome.lat)
+        local a1 = math.rad(data.gpsHome.lon)
+        local o2 = math.rad(data.gpsLatLon.lat)
+        local a2 = math.rad(data.gpsLatLon.lon)
+        local y = math.sin(a2 - a1) * math.cos(o2)
+        local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+        local bearing = math.deg(math.atan2(y, x)) - data.headingRef
+        local rad1 = math.rad(bearing)
+        local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_2
+        local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)
+        lcd.drawLine(X_CNTR_2, 19, x1, y1, DOTTED, FORCE)
+        lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, ERASE)
+        lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, SOLID)
+      end
     end
   end
 
   -- Flight mode
-  lcd.drawText(0, 0, modes[data.modeId].t, QX7 and SMLSIZE or 0 + modes[data.modeId].f)
+  lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   local x = X_CNTR_2 - (lcd.getLastPos() / 2)
-  lcd.drawText(x, 33, modes[data.modeId].t, QX7 and SMLSIZE or 0 + modes[data.modeId].f)
+  lcd.drawText(x, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   if headFree then
     if QX7 then
       lcd.drawText(63, 9, "HF", SMLSIZE + FLASH)
@@ -459,9 +460,11 @@ local function run(event)
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
   local battNow = SHOW_CELL and data.cell or data.batt
   local battLow = SHOW_CELL and (data.battMin / data.cells) or data.battMin
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], false, altFlags)
-  if altHold then
-    lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
+  if data.showAlt then
+    drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], false, altFlags)
+    if altHold then
+      lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
+    end
   end
   drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], false, telemFlags)
   drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, units[data.speed_unit], false, telemFlags)
@@ -482,7 +485,7 @@ local function run(event)
   lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, rssiGauge, 100)
   min = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
   lcd.drawLine(min, 58, min, 62, SOLID, ERASE)
-  if not QX7 then
+  if not QX7 and data.showAlt then
     lcd.drawRectangle(197, 9, 15, 48, SOLID)
     local height = math.max(math.min(math.ceil(data.altitude / data.altAlert * 46), 46), 0)
     lcd.drawFilledRectangle(198, 56 - height, 13, height, INVERS)

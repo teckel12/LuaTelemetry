@@ -1,4 +1,4 @@
-# SmartPort/INAV Telemetry Flight Status - v1.1.7
+# SmartPort/INAV Telemetry Flight Status - v1.1.8
 
 #### Taranis Q X7
 ![sample](http://www.leethost.com/link_pics/iNav1.png "launch/pilot-based model orientation and location indicators")
@@ -10,7 +10,7 @@
 ## Features
 
 * Launch/pilot-based model orientation and location indicators (great for lost orientation or if you lose sight of your model)
-* Compass-based direction indicator
+* Compass-based direction indicator (with compass on multirotor or fixed wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery (and Altitude for X9D, X9D Plus & X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
@@ -25,7 +25,8 @@
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D Plus or X9E
 * SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (*NOT* D-series receivers)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
-* GPS, altimeter (barometer), and magnetometer (compass) sensors
+* GPS
+* Suggested for full functionality but not required: altimeter (barometer), magnetometer (compass) and current sensors
 
 > Note: This Lua Telemetry script **requires** SmartPort telemetry as noted above.
 > Lua Telemetry **won't work with Crossfire** for example because it uses proprietary sensor names/formatting and missing sensor information that Lua Telemetry needs.
@@ -91,6 +92,9 @@ At the top of the `iNav.lua` file a value can be modified to change how the batt
 
 ## Release History
 
+#### v1.1.8
+* Fixed `FAILSAFE`, `RTH`, `NOT OK` & `NO TELEM` modes to flash as they should
+* Altimeter (barometer) and magnetometer (compass) are now optional (but still suggested for full functionality)
 #### v1.1.7
 * Fix for the default unit type of the `Dist` (`0420`) sensor
 #### v1.1.6
