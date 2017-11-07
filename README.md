@@ -9,7 +9,7 @@
 
 ## Features
 
-* Launch/pilot-based model orientation and location indicators (great for lost orientation or if you lose sight of your model)
+* Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery (and Altitude for X9D, X9D Plus & X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
@@ -41,14 +41,14 @@
 #### From Transmitter
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
-2. Telemetry distance sensor name **must** be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft` (defaults to `m`)
-3. The sensors `Dist`, `Alt`, `GAlt` & `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph` (defaults to `m` and `kmh`)
+2. Telemetry distance sensor name **must** be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft`
+3. The sensors `Dist`, `Alt`, `GAlt` & `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
 4. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not really temperatures but used for flight modes and GPS information
 
 #### INAV Lua Telemetry Screen Setup
 
-1. Download the Lua Telemetry ZIP file by clicking the green `Clone or download` button towards the top right and select `Download ZIP`
-2. From the downloaded `LuaTelemetry.zip`, copy the `iNav.lua` file to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
+1. Download the Lua Telemetry ZIP file by clicking the top-right green `Clone or download` button and select `Download ZIP`
+2. From the downloaded ZIP file, copy the `iNav.lua` file to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
 3. Also from the ZIP file, copy the `iNav` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
 4. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
 
@@ -64,13 +64,13 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 #### Screen Description
 ![sample](http://www.leethost.com/link_pics/iNav4.png "Screen description")
 
-* From the transmitter's main screen, hold the `Page` button to show custom screens, then page to the screen you set to show iNav
+* From transmitter's main screen, hold the `Page` button to show custom screens, page to the iNav screen
 * Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
 * To flip between max/min and current values, use the dial or +/- buttons
 * To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons
 * The launch/pilot-based orientation view is useful if model orientation is unknown
 * If model is further than 25 feet away, the launch/pilot-based view will show the direction of the model based upon launch/pilot position and orientation (useful to locate a lost model)
-* The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up for each model)
+* The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up)
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### User Setting

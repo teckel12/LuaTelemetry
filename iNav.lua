@@ -3,9 +3,11 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
--- Value that can be changed
+-- Values that can be changed
 local SHOW_CELL = false -- false = Show total battery voltage / true = Show cell average (default = false)
-local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/"
+local BATTLOW = 3.5     -- Battery low warning cell voltage (default = 3.5)
+local BATTCRIT = 3.4    -- Battery critically low warning cell voltage (default = 3.4)
+local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/" -- Path to iNav telemetry WAV files
 
 local FLASH = INVERS + BLINK
 local QX7 = LCD_W < 212
@@ -230,7 +232,7 @@ local function flightModes()
         battPercentPlayed = data.fuel
       end
     end
-    if data.fuel <= 20 or data.cell < 3.4 then
+    if data.fuel <= 20 or data.cell < BATTCRIT then
       if getTime() > battNextPlay then
         playFile(WAVPATH .. "batcrt.wav")
         if data.fuel <= 20 and battPercentPlayed > data.fuel then
@@ -243,7 +245,7 @@ local function flightModes()
         beep = true
       end
       data.battlow = true
-    elseif data.cell < 3.5 then
+    elseif data.cell < BATTLOW then
       if not data.battlow then
         playFile(WAVPATH .. "batlow.wav")
         data.battlow = true
