@@ -5,9 +5,14 @@
 
 -- Values that can be changed
 local SHOW_CELL = false -- false = Show total battery voltage / true = Show cell average (default = false)
-local WAVPATH = "/SCRIPTS/TELEMETRY/iNav/" -- Path to iNav telemetry WAV files
+local BATT_LOW = 3.5
+local BATT_CRIT = 3.4
+local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/" -- Path to iNav telemetry files
 
-local FLASH = INVERS + BLINK
+local lcd = LCD or lcd
+local LCD_W = lcd.W or LCD_W
+local LCD_H = lcd.H or LCD_H
+local FLASH = 3
 local QX7 = LCD_W < 212
 local RIGHT_POS = QX7 and 129 or 195
 local GAUGE_WIDTH = QX7 and 82 or 149
@@ -26,93 +31,11 @@ local battNextPlay = 0
 local battPercentPlayed = 100
 local telemFlags = -1
 
--- Modes: t=text / f=flags for text / w=wave file
-local modes = {
-  { t="NO TELEM",  f=FLASH, w=false },
-  { t="HORIZON",   f=0,     w="hrznmd.wav" },
-  { t="ANGLE",     f=0,     w="anglmd.wav" },
-  { t="ACRO",      f=0,     w="acromd.wav" },
-  { t=" NOT OK ",  f=FLASH, w=false },
-  { t="READY",     f=0,     w="ready.wav" },
-  { t="POS HOLD",  f=0,     w="poshld.wav" },
-  { t="3D HOLD",   f=0,     w="3dhold.wav" },
-  { t="WAYPOINT",  f=0,     w="waypt.wav" },
-  { t="PASSTHRU",  f=0,     w=false },
-  { t="   RTH   ", f=FLASH, w="rtl.wav" },
-  { t="FAILSAFE",  f=FLASH, w="fson.wav" }
-}
-
 local units = { [0]="m", "V", "A", "mA", "kts", "m/s", "f/s", "kmh", "mph", "m", "ft" }
 
-local function getTelemetryId(name)
-  local field = getFieldInfo(name)
-  return field and field.id or -1
-end
+local data = loadScript(FILE_PATH .. "data.lua")()
 
-local function getTelemetryUnit(name)
-  local field = getFieldInfo(name)
-  return (field and field.unit <= 10) and field.unit or 1
-end
-
-local rssi, low, crit = getRSSI()
-local general = getGeneralSettings()
-local data = {
-  rssiLow = low,
-  rssiCrit = crit,
-  txBattMin = general.battMin,
-  txBattMax = general.battMax,
-  modelName = model.getInfo().name,
-  mode_id = getTelemetryId("Tmp1"),
-  rxBatt_id = getTelemetryId("RxBt"),
-  satellites_id = getTelemetryId("Tmp2"),
-  gpsAlt_id = getTelemetryId("GAlt"),
-  gpsLatLon_id = getTelemetryId("GPS"),
-  heading_id = getTelemetryId("Hdg"),
-  altitude_id = getTelemetryId("Alt"),
-  distance_id = getTelemetryId("Dist"),
-  speed_id = getTelemetryId("GSpd"),
-  current_id = getTelemetryId("Curr"),
-  altitudeMax_id = getTelemetryId("Alt+"),
-  distanceMax_id = getTelemetryId("Dist+"),
-  speedMax_id = getTelemetryId("GSpd+"),
-  currentMax_id = getTelemetryId("Curr+"),
-  batt_id = getTelemetryId("VFAS"),
-  battMin_id = getTelemetryId("VFAS-"),
-  fuel_id = getTelemetryId("Fuel"),
-  rssi_id = getTelemetryId("RSSI"),
-  rssiMin_id = getTelemetryId("RSSI-"),
-  txBatt_id = getTelemetryId("tx-voltage"),
-  ras_id = getTelemetryId("RAS"),
-  gpsAlt_unit = getTelemetryUnit("GAlt"),
-  altitude_unit = getTelemetryUnit("Alt"),
-  distance_unit = getTelemetryUnit("Dist"),
-  speed_unit = getTelemetryUnit("GSpd"),
-  modeId = 1
-}
-
-data.showCurr = data.current_id > -1 and true or false
-data.showHead = data.heading_id > -1 and true or false
-data.showAlt = data.altitude_id > -1 and true or false
-data.distPos = data.showCurr and 17 or (data.showAlt and 21 or 13)
-data.speedPos = data.showCurr and 25 or (data.showAlt and 33 or 25)
-data.battPos1 = data.showCurr and 49 or 45
-data.battPos2 = data.showCurr and 49 or 41
-data.distRef = data.distance_unit == 10 and 20 or 6
-data.altAlert = data.altitude_unit == 10 and 400 or 123
-
-local function reset()
-  data.timerStart = 0
-  data.timer = 0
-  data.distanceLast = 0
-  data.gpsHome = false
-  data.gpsLatLon = false
-  data.gpsFix = false
-  data.headingRef = -1
-  data.battlow = false
-  data.showMax = false
-  data.showDir = true
-  data.fuel = 100
-end
+local currentFlightMode = loadScript(FILE_PATH .. "modes.lua")(data.modeId) 
 
 local function flightModes()
   local armedPrev = armed
@@ -173,41 +96,42 @@ local function flightModes()
     data.battlow = false
     data.showMax = false
     data.showDir = false
-    playFile(WAVPATH .. "engarm.wav")
+    playFile(FILE_PATH .. "engarm.wav")
   elseif not armed and armedPrev then -- Engines disarmed
     if data.distanceLast <= data.distRef then
       data.headingRef = -1
       data.showDir = true
     end
-    playFile(WAVPATH .. "engdrm.wav")
+    playFile(FILE_PATH .. "engdrm.wav")
   end
   if data.gpsFix ~= gpsFixPrev then -- GPS status change
-    playFile(WAVPATH .. "gps.wav")
-    playFile(WAVPATH .. (data.gpsFix and "good.wav" or "lost.wav"))
+    playFile(FILE_PATH .. "gps.wav")
+    playFile(FILE_PATH .. (data.gpsFix and "good.wav" or "lost.wav"))
   end
   if modeIdPrev ~= data.modeId then -- New flight mode
-    if armed and modes[data.modeId].w then
-      playFile(WAVPATH .. modes[data.modeId].w)
+    currentFlightMode = loadScript(FILE_PATH .. "modes.lua")(data.modeId)
+    if armed and currentFlightMode.w then
+      playFile(FILE_PATH .. currentFlightMode.w)
     elseif not armed and data.modeId == 6 and modeIdPrev == 5 then
-      playFile(WAVPATH .. modes[data.modeId].w)
+      playFile(FILE_PATH .. currentFlightMode.w)
     end
   end
   if armed then
     data.distanceLast = data.distance
     data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer    
     if altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
-      playFile(WAVPATH .. "althld.wav")
-      playFile(WAVPATH .. (altHold and "active.wav" or "off.wav"))
+      playFile(FILE_PATH .. "althld.wav")
+      playFile(FILE_PATH .. (altHold and "active.wav" or "off.wav"))
     end
     if headingHold ~= headingHoldPrev then -- Heading hold status change
-      playFile(WAVPATH .. "hedhld.wav")
-      playFile(WAVPATH .. (headingHold and "active.wav" or "off.wav"))
+      playFile(FILE_PATH .. "hedhld.wav")
+      playFile(FILE_PATH .. (headingHold and "active.wav" or "off.wav"))
     end
     if headFree ~= headFreePrev then -- Head free status change
-      playFile(WAVPATH .. (headFree and "hfact.wav" or "hfoff.wav"))
+      playFile(FILE_PATH .. (headFree and "hfact.wav" or "hfoff.wav"))
     end
     if homeReset and not homeResetPrev then -- Home reset
-      playFile(WAVPATH .. "homrst.wav")
+      playFile(FILE_PATH .. "homrst.wav")
       data.gpsHome = false
       data.headingRef = data.heading
     end
@@ -221,18 +145,18 @@ local function flightModes()
     end
     if battPercentPlayed > data.fuel then -- Battery notification/alert
       if data.fuel == 30 or data.fuel == 25 then
-        playFile(WAVPATH .. "batlow.wav")
+        playFile(FILE_PATH .. "batlow.wav")
         playNumber(data.fuel, 13)
         battPercentPlayed = data.fuel
       elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
-        playFile(WAVPATH .. "battry.wav")
+        playFile(FILE_PATH .. "battry.wav")
         playNumber(data.fuel, 13)
         battPercentPlayed = data.fuel
       end
     end
-    if data.fuel <= 20 or data.cell < 3.4 then
+    if data.fuel <= 20 or data.cell < BATT_CRIT then
       if getTime() > battNextPlay then
-        playFile(WAVPATH .. "batcrt.wav")
+        playFile(FILE_PATH .. "batcrt.wav")
         if data.fuel <= 20 and battPercentPlayed > data.fuel then
           playNumber(data.fuel, 13)
           battPercentPlayed = data.fuel
@@ -243,15 +167,15 @@ local function flightModes()
         beep = true
       end
       data.battlow = true
-    elseif data.cell < 3.5 then
+    elseif data.cell < BATT_LOW then
       if not data.battlow then
-        playFile(WAVPATH .. "batlow.wav")
+        playFile(FILE_PATH .. "batlow.wav")
         data.battlow = true
       end
     else
       battNextPlay = 0
     end
-    if headFree or modes[data.modeId].f ~= 0 then
+    if headFree or currentFlightMode.f ~= 0 then
       beep = true
       vibrate = true
     elseif data.rssi < data.rssiLow then
@@ -277,7 +201,7 @@ end
 local function background()
   data.rssi = getValue(data.rssi_id)
   if telemFlags == -1 then
-    reset()
+    loadScript(FILE_PATH .. "reset.lua")(data)
   end
   if data.rssi > 0 or telemFlags < 0 then
     data.telemetry = true
@@ -432,9 +356,9 @@ local function run(event)
   end
 
   -- Flight mode
-  lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+  lcd.drawText(0, 0, currentFlightMode.t, (QX7 and SMLSIZE or 0) + currentFlightMode.f)
   local x = X_CNTR_2 - (lcd.getLastPos() / 2)
-  lcd.drawText(x, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+  lcd.drawText(x, 33, currentFlightMode.t, (QX7 and SMLSIZE or 0) + currentFlightMode.f)
   if headFree then
     if QX7 then
       lcd.drawText(63, 9, "HF", SMLSIZE + FLASH)
@@ -450,7 +374,7 @@ local function run(event)
     end
     -- Initalize variables on long <Enter>
     if not armed and event == EVT_ENTER_LONG then
-      reset()
+      loadScript(FILE_PATH .. "reset.lua")(data)
     end
   end
 
@@ -513,7 +437,7 @@ local function run(event)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
 
-  return 1
+  return 0
 end
 
 return {run = run, background = background}
