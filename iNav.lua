@@ -1,14 +1,14 @@
 -- Lua Telemetry Flight Status Screen for INAV/Taranis
--- Version: 1.1.8
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 -- Values that can be changed
 local SHOW_CELL = false -- false = Show total battery voltage / true = Show cell average (default = false)
-local BATT_LOW = 3.5
-local BATT_CRIT = 3.4
+local BATT_LOW = 3.5    -- Battery warning level per cell in volts (default = 3.5)
+local BATT_CRIT = 3.4   -- Critical battery level per cell in volts (default = 3.4)
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/" -- Path to iNav telemetry files
 
+local VERSION = "1.1.8"
 local lcd = LCD or lcd
 local LCD_W = lcd.W or LCD_W
 local LCD_H = lcd.H or LCD_H
@@ -303,6 +303,13 @@ local function run(event)
   lcd.clear()
   background()
 
+  -- Minimum OpenTX version
+  if (data.version < 2.2) then
+    lcd.drawText(QX7 and 5 or 47, 27, "OpenTX v2.2.0+ Required")
+    --popupWarning("OpenTX v2.2+ Required", 0);
+    return 0
+  end
+
   -- GPS
   if data.gpsLatLon ~= false then
     local gpsFlags = (telemFlags > 0 or not data.gpsFix) and FLASH or 0
@@ -315,6 +322,23 @@ local function run(event)
     lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
   end
   gpsData("Sats " .. data.satellites % 100, 9, telemFlags)
+
+  -- Startup message
+  if data.startup == 1 then
+    startupTime = getTime()
+    data.startup = 2
+  elseif data.startup == 2 then
+    if getTime() - startupTime < 200 then
+      if not QX7 then
+        lcd.drawText(55, 9, "iNav Lua Telemetry")
+      end
+      lcd.drawText(QX7 and 55 or 93, 17, "v" .. VERSION)
+      data.showHead = false
+    else
+      data.startup = 0
+    end
+  end
+  local startupTime = 0
 
   -- Directionals
   if data.showHead then

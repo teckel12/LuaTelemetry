@@ -9,6 +9,7 @@ local function getTelemetryUnit(name)
 end
 
 local rssi, low, crit = getRSSI()
+local ver, radio, maj, minor, rev = getVersion()
 local general = getGeneralSettings()
 local data = {
   rssiLow = low,
@@ -41,7 +42,9 @@ local data = {
   altitude_unit = getTelemetryUnit("Alt"),
   distance_unit = getTelemetryUnit("Dist"),
   speed_unit = getTelemetryUnit("GSpd"),
-  modeId = 1
+  accz =  getTelemetryUnit("AccZ"),
+  modeId = 1,
+  startup = 1
 }
 
 data.showCurr = data.current_id > -1 and true or false
@@ -53,5 +56,6 @@ data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
 data.altAlert = data.altitude_unit == 10 and 400 or 123
+data.version = maj + minor / 10
 
 return data

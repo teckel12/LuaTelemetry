@@ -95,6 +95,9 @@ At the top of the `iNav.lua` file a value can be modified to change how the batt
 #### v1.1.8
 * Fixed `FAILSAFE`, `RTH`, `NOT OK` & `NO TELEM` modes to flash as they should
 * Altimeter (barometer) and magnetometer (compass) are now optional (but still suggested for full functionality)
+* Split script up into multiple pieces to help reduce memory usage
+* Additional easy to change constants at the top of the `iNav.lua` file
+* Startup message/version and error if not running OpenTX v2.2.0 or later
 #### v1.1.7
 * Fix for the default unit type of the `Dist` (`0420`) sensor
 #### v1.1.6
