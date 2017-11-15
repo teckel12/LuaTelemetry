@@ -386,7 +386,7 @@ local function run(event)
       data.showMax = not data.showMax
     end
     -- Initalize variables on long <Enter>
-    if not armed and event == EVT_ENTER_LONG then
+    if event == EVT_ENTER_LONG then
       loadScript(FILE_PATH .. "reset.lua")(data)
     end
   end
@@ -448,6 +448,22 @@ local function run(event)
   if data.rxBatt > 0 and data.telemetry then
     lcd.drawNumber(LCD_W - 17, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
+  end
+
+  if not armed then
+    if event == EVT_MENU_BREAK or config then
+      config = true
+      local value = 35
+      local result = popupInput("Test", 0, value, 30, 40)
+      if result == "OK" then
+        config = false
+      elseif result == "CANCEL" then
+        config = false
+      else
+        value = result
+      end
+    end
+    local config = false
   end
 
   return 0

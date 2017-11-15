@@ -47,7 +47,7 @@
 
 #### INAV Lua Telemetry Screen Setup
 
-1. Download the Lua Telemetry ZIP file by clicking the top-right green `Clone or download` button and select `Download ZIP`
+1. Download the [Lua Telemetry ZIP file](https://github.com/iNavFlight/LuaTelemetry/archive/master.zip)
 2. From the downloaded ZIP file, copy the `iNav.lua` file to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
 3. Also from the ZIP file, copy the `iNav` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
 4. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
@@ -94,9 +94,11 @@ At the top of the `iNav.lua` file a value can be modified to change how the batt
 
 #### v1.1.8
 * Fixed `FAILSAFE`, `RTH`, `NOT OK` & `NO TELEM` modes to flash as they should
-* Altimeter (barometer) and magnetometer (compass) are now optional (but still suggested for full functionality)
+* Barometer and magnetometer are now optional (but suggested for full functionality)
 * Split script up into multiple pieces to help reduce memory usage
+* User configuration values moved to `config.dat` file.
 * Additional easy to change constants at the top of the `iNav.lua` file
+* Headfree indication on Q X7 changed to show directional indicators as dotted lines
 * Startup message/version and error if not running OpenTX v2.2.0 or later
 #### v1.1.7
 * Fix for the default unit type of the `Dist` (`0420`) sensor
