@@ -2,17 +2,11 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
--- Values that can be changed
-local SHOW_CELL = false -- false = Show total battery voltage / true = Show cell average (default = false)
-local BATT_LOW = 3.5    -- Battery warning level per cell in volts (default = 3.5)
-local BATT_CRIT = 3.4   -- Critical battery level per cell in volts (default = 3.4)
-local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/" -- Path to iNav telemetry files
-
 local VERSION = "1.1.8"
+local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
+local FLASH = 3
 local lcd = LCD or lcd
 local LCD_W = lcd.W or LCD_W
-local LCD_H = lcd.H or LCD_H
-local FLASH = 3
 local QX7 = LCD_W < 212
 local RIGHT_POS = QX7 and 129 or 195
 local GAUGE_WIDTH = QX7 and 82 or 149
@@ -154,7 +148,7 @@ local function flightModes()
         battPercentPlayed = data.fuel
       end
     end
-    if data.fuel <= 20 or data.cell < BATT_CRIT then
+    if data.fuel <= 20 or data.cell < data.battCrit then
       if getTime() > battNextPlay then
         playFile(FILE_PATH .. "batcrt.wav")
         if data.fuel <= 20 and battPercentPlayed > data.fuel then
@@ -167,7 +161,7 @@ local function flightModes()
         beep = true
       end
       data.battlow = true
-    elseif data.cell < BATT_LOW then
+    elseif data.cell < data.battLow then
       if not data.battlow then
         playFile(FILE_PATH .. "batlow.wav")
         data.battlow = true
@@ -274,8 +268,9 @@ local function drawDirection(heading, width, radius, x, y)
   local y2 = y - math.floor(math.cos(rad2) * radius + 0.5)
   local x3 = math.floor(math.sin(rad3) * radius + 0.5) + x
   local y3 = y - math.floor(math.cos(rad3) * radius + 0.5)
-  lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
-  lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
+  local lineType = (headFree and QX7) and DOTTED or SOLID
+  lcd.drawLine(x1, y1, x2, y2, lineType, FORCE)
+  lcd.drawLine(x1, y1, x3, y3, lineType, FORCE)
   if headingHold then
     lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
   else
@@ -304,9 +299,8 @@ local function run(event)
   background()
 
   -- Minimum OpenTX version
-  if (data.version < 2.2) then
-    lcd.drawText(QX7 and 5 or 47, 27, "OpenTX v2.2.0+ Required")
-    --popupWarning("OpenTX v2.2+ Required", 0);
+  if (data.version < 2.3) then
+    lcd.drawText(QX7 and 8 or 50, 27, "OpenTX v2.2+ Required")
     return 0
   end
 
@@ -333,7 +327,6 @@ local function run(event)
         lcd.drawText(55, 9, "iNav Lua Telemetry")
       end
       lcd.drawText(QX7 and 55 or 93, 17, "v" .. VERSION)
-      data.showHead = false
     else
       data.startup = 0
     end
@@ -341,7 +334,7 @@ local function run(event)
   local startupTime = 0
 
   -- Directionals
-  if data.showHead then
+  if data.showHead and data.startup == 0 then
     if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
       data.showDir = not data.showDir
     end
@@ -383,12 +376,8 @@ local function run(event)
   lcd.drawText(0, 0, currentFlightMode.t, (QX7 and SMLSIZE or 0) + currentFlightMode.f)
   local x = X_CNTR_2 - (lcd.getLastPos() / 2)
   lcd.drawText(x, 33, currentFlightMode.t, (QX7 and SMLSIZE or 0) + currentFlightMode.f)
-  if headFree then
-    if QX7 then
-      lcd.drawText(63, 9, "HF", SMLSIZE + FLASH)
-    else
-      lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", FLASH)
-    end
+  if headFree and not QX7 then
+    lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", FLASH)
   end
 
   -- User input
@@ -406,8 +395,8 @@ local function run(event)
   local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= data.altAlert) and FLASH or 0
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  local battNow = SHOW_CELL and data.cell or data.batt
-  local battLow = SHOW_CELL and (data.battMin / data.cells) or data.battMin
+  local battNow = (data.showCell == "1") and data.cell or data.batt
+  local battLow = (data.showCell == "1") and (data.battMin / data.cells) or data.battMin
   if data.showAlt then
     drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], false, altFlags)
     if altHold then

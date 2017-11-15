@@ -58,4 +58,22 @@ data.distRef = data.distance_unit == 10 and 20 or 6
 data.altAlert = data.altitude_unit == 10 and 400 or 123
 data.version = maj + minor / 10
 
+local configFile = "/SCRIPTS/TELEMETRY/iNav/config.dat"
+local fh = io.open(configFile, "r")
+if fh == nil then
+  fh = io.open(configFile, "w")
+  if fh ~= nil then
+    io.write(fh, "03534")
+    io.close(fh)
+  end
+  data.showCell = 0
+  data.battLow = 3.5
+  data.battCrit = 3.4
+else
+  data.showCell = io.read(fh, 1)
+  data.battLow = io.read(fh, 2) / 10
+  data.battCrit = io.read(fh, 2) / 10
+  io.close(fh)
+end
+
 return data
