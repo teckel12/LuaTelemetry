@@ -299,7 +299,7 @@ local function run(event)
   background()
 
   -- Minimum OpenTX version
-  if (data.version < 2.3) then
+  if (data.version < 2.2) then
     lcd.drawText(QX7 and 8 or 50, 27, "OpenTX v2.2+ Required")
     return 0
   end

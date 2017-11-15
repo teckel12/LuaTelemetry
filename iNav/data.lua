@@ -58,6 +58,7 @@ data.distRef = data.distance_unit == 10 and 20 or 6
 data.altAlert = data.altitude_unit == 10 and 400 or 123
 data.version = maj + minor / 10
 
+-- User configuration data
 local configFile = "/SCRIPTS/TELEMETRY/iNav/config.dat"
 local fh = io.open(configFile, "r")
 if fh == nil then
