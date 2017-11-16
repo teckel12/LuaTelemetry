@@ -1,3 +1,5 @@
+local FILE_PATH = ...
+
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
   return field and field.id or -1
@@ -43,6 +45,8 @@ local data = {
   distance_unit = getTelemetryUnit("Dist"),
   speed_unit = getTelemetryUnit("GSpd"),
   accz =  getTelemetryUnit("AccZ"),
+  config = 0,
+  configSelect = 0,
   modeId = 1,
   startup = 1
 }
@@ -58,8 +62,8 @@ data.distRef = data.distance_unit == 10 and 20 or 6
 data.altAlert = data.altitude_unit == 10 and 400 or 123
 data.version = maj + minor / 10
 
--- User configuration data
-local configFile = "/SCRIPTS/TELEMETRY/iNav/config.dat"
+-- User config data
+local configFile = FILE_PATH .. "config.dat"
 local fh = io.open(configFile, "r")
 if fh == nil then
   fh = io.open(configFile, "w")
@@ -71,7 +75,7 @@ if fh == nil then
   data.battLow = 3.5
   data.battCrit = 3.4
 else
-  data.showCell = io.read(fh, 1)
+  data.showCell = tonumber(io.read(fh, 1))
   data.battLow = io.read(fh, 2) / 10
   data.battCrit = io.read(fh, 2) / 10
   io.close(fh)

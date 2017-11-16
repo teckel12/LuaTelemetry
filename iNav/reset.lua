@@ -11,3 +11,4 @@ data.battlow = false
 data.showMax = false
 data.showDir = true
 data.fuel = 100
+data.config = 0

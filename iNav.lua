@@ -7,6 +7,7 @@ local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local lcd = LCD or lcd
 local LCD_W = lcd.W or LCD_W
+local LCD_H = lcd.H or LCD_H
 local QX7 = LCD_W < 212
 local RIGHT_POS = QX7 and 129 or 195
 local GAUGE_WIDTH = QX7 and 82 or 149
@@ -27,7 +28,7 @@ local telemFlags = -1
 
 local units = { [0]="m", "V", "A", "mA", "kts", "m/s", "f/s", "kmh", "mph", "m", "ft" }
 
-local data = loadScript(FILE_PATH .. "data.lua")()
+local data = loadScript(FILE_PATH .. "data.lua")(FILE_PATH)
 
 local currentFlightMode = loadScript(FILE_PATH .. "modes.lua")(data.modeId) 
 
@@ -285,9 +286,9 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
   end
   if frac and vc + 0.5 < max then
-    lcd.drawNumber(22, y, vc * 10.05, SMLSIZE + PREC1 + flags)
+    lcd.drawNumber(21, y, vc * 10.05, SMLSIZE + PREC1 + flags)
   else
-    lcd.drawText(22, y, math.floor(vc + 0.5), SMLSIZE + flags)
+    lcd.drawText(21, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
   if frac or vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
@@ -298,6 +299,17 @@ local function run(event)
   lcd.clear()
   background()
 
+  if not armed then
+    if event == EVT_MENU_BREAK then
+      data.config = 1
+      data.configSelect = 0
+    end
+    if data.config > 0 then
+      loadScript(FILE_PATH .. "config.lua")(data, event, FILE_PATH)
+      return 0
+    end
+  end
+  
   -- Minimum OpenTX version
   if (data.version < 2.2) then
     lcd.drawText(QX7 and 8 or 50, 27, "OpenTX v2.2+ Required")
@@ -381,7 +393,8 @@ local function run(event)
   end
 
   -- User input
-  if not armed then
+  if not armed and data.config == 0 then
+    -- Toggle showing max/min values
     if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
       data.showMax = not data.showMax
     end
@@ -395,8 +408,8 @@ local function run(event)
   local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= data.altAlert) and FLASH or 0
   local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  local battNow = (data.showCell == "1") and data.cell or data.batt
-  local battLow = (data.showCell == "1") and (data.battMin / data.cells) or data.battMin
+  local battNow = (data.showCell == 1) and data.cell or data.batt
+  local battLow = (data.showCell == 1) and (data.battMin / data.cells) or data.battMin
   if data.showAlt then
     drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], false, altFlags)
     if altHold then
@@ -448,22 +461,6 @@ local function run(event)
   if data.rxBatt > 0 and data.telemetry then
     lcd.drawNumber(LCD_W - 17, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
-  end
-
-  if not armed then
-    if event == EVT_MENU_BREAK or config then
-      config = true
-      local value = 35
-      local result = popupInput("Test", 0, value, 30, 40)
-      if result == "OK" then
-        config = false
-      elseif result == "CANCEL" then
-        config = false
-      else
-        value = result
-      end
-    end
-    local config = false
   end
 
   return 0
