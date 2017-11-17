@@ -68,16 +68,18 @@ local fh = io.open(configFile, "r")
 if fh == nil then
   fh = io.open(configFile, "w")
   if fh ~= nil then
-    io.write(fh, "03534")
+    io.write(fh, "035341")
     io.close(fh)
   end
   data.showCell = 0
   data.battLow = 3.5
   data.battCrit = 3.4
+  data.mahAlert = 1
 else
   data.showCell = tonumber(io.read(fh, 1))
   data.battLow = io.read(fh, 2) / 10
   data.battCrit = io.read(fh, 2) / 10
+  data.mahAlert = tonumber(io.read(fh, 1))
   io.close(fh)
 end
 

@@ -1,28 +1,33 @@
 local data, event, FILE_PATH = ...
 
-local VALUES = 3
+local VALUES = 4
+
+local function configText(line, y, text, value, number, append)
+  local extra = data.config == line and INVERS + data.configSelect or 0
+  lcd.drawText(15, y, text, SMLSIZE)
+  if number then
+    lcd.drawNumber(90, y, value * 10, SMLSIZE + PREC1 + extra)
+  else
+    lcd.drawText(90, y, value, SMLSIZE + extra)
+  end
+  if append then
+    lcd.drawText(lcd.getLastPos(), y, append, SMLSIZE + extra)
+  end
+end
+
 lcd.drawFilledRectangle(10, 10, LCD_W - 20, LCD_H - 15, ERASE)
 lcd.drawRectangle(10, 10, LCD_W - 20, LCD_H - 15, SOLID)
 
-local extra = data.config == 1 and INVERS + data.configSelect or 0
-lcd.drawText(15, 15, "Battery View", SMLSIZE)
-lcd.drawText(90, 15, data.showCell == 0 and "Total" or "Cell", SMLSIZE + extra)
-
-extra = data.config == 2 and INVERS + data.configSelect or 0
-lcd.drawText(15, 23, "Cell Low", SMLSIZE)
-lcd.drawNumber(90, 23, data.battLow * 10, SMLSIZE + PREC1 + extra)
-lcd.drawText(lcd.getLastPos(), 23, "V", SMLSIZE + extra)
-
-extra = data.config == 3 and INVERS + data.configSelect or 0
-lcd.drawText(15, 31, "Cell Critical", SMLSIZE)
-lcd.drawNumber(90, 31, data.battCrit * 10, SMLSIZE + PREC1 + extra)
-lcd.drawText(lcd.getLastPos(), 31, "V", SMLSIZE + extra)
+configText(1, 15, "Battery View", data.showCell == 1 and "Cell" or "Total", false, false)
+configText(2, 23, "Cell Low", data.battLow, true, "V")
+configText(3, 31, "Cell Critical", data.battCrit, true, "V")
+configText(4, 39, "10% mAh Alerts", data.mahAlert == 1 and "Yes" or "No", false, false)
 
 if data.configSelect == 0 then
   if event == EVT_EXIT_BREAK then
     local fh = io.open(FILE_PATH .. "config.dat", "w")
     if fh ~= nil then
-      io.write(fh, data.showCell, math.floor(data.battLow * 10), math.floor(data.battCrit * 10))
+      io.write(fh, data.showCell, math.floor(data.battLow * 10), math.floor(data.battCrit * 10), data.mahAlert)
       io.close(fh)
     end
     data.config = 0
@@ -36,19 +41,23 @@ else
     data.configSelect = 0
   elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
     if data.config == 1 then
-      data.showCell = 1
+      data.showCell = data.showCell == 1 and 0 or 1
     elseif data.config == 2 then
-      data.battLow = math.min(data.battLow + 0.1, 3.9)
+      data.battLow = math.min(math.floor(data.battLow * 10 + 1) / 10, 3.9)
     elseif data.config == 3 then
-      data.battCrit = math.min(data.battCrit + 0.1, math.min(3.9, data.battLow - 0.1))
+      data.battCrit = math.min(math.floor(data.battCrit * 10 + 1) / 10, math.min(3.9, data.battLow - 0.1))
+    elseif data.config == 4 then
+      data.mahAlert = data.mahAlert == 1 and 0 or 1
     end
   elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
     if data.config == 1 then
-      data.showCell = 0
+      data.showCell = data.showCell == 1 and 0 or 1
     elseif data.config == 2 then
-      data.battLow = math.max(data.battLow - 0.1, math.max(3.1, data.battCrit + 0.1))
+      data.battLow = math.max(math.floor(data.battLow * 10 - 1) / 10, math.max(3.1, data.battCrit + 0.1))
     elseif data.config == 3 then
-      data.battCrit = math.max(data.battCrit - 0.1, 3.1)
+      data.battCrit = math.max(math.floor(data.battCrit * 10 - 1) / 10, 3.1)
+    elseif data.config == 4 then
+      data.mahAlert = data.mahAlert == 1 and 0 or 1
     end
   end
 end

@@ -152,7 +152,7 @@ local function flightModes()
     if data.fuel <= 20 or data.cell < data.battCrit then
       if getTime() > battNextPlay then
         playFile(FILE_PATH .. "batcrt.wav")
-        if data.fuel <= 20 and battPercentPlayed > data.fuel then
+        if data.mahAlert == 1 and data.fuel <= 20 and battPercentPlayed > data.fuel then
           playNumber(data.fuel, 13)
           battPercentPlayed = data.fuel
         end
