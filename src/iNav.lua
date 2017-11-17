@@ -299,17 +299,6 @@ local function run(event)
   lcd.clear()
   background()
 
-  if not armed then
-    if event == EVT_MENU_BREAK then
-      data.config = 1
-      data.configSelect = 0
-    end
-    if data.config > 0 then
-      loadScript(FILE_PATH .. "config.lua")(data, event, FILE_PATH)
-      return 0
-    end
-  end
-  
   -- Minimum OpenTX version
   if (data.version < 2.2) then
     lcd.drawText(QX7 and 8 or 50, 27, "OpenTX v2.2+ Required")
@@ -463,6 +452,18 @@ local function run(event)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
 
+  -- Config
+  if not armed then
+    if event == EVT_MENU_BREAK then
+      data.config = 1
+      data.configSelect = 0
+    end
+    if data.config > 0 then
+      loadScript(FILE_PATH .. "config.lua")(data, event, FILE_PATH)
+      return 0
+    end
+  end
+  
   return 0
 end
 

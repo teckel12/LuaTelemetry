@@ -1,7 +1,7 @@
 local data, event, FILE_PATH = ...
 
 local VALUES = 3
---lcd.drawFilledRectangle(10, 10, LCD_W - 20, LCD_H - 15, ERASE)
+lcd.drawFilledRectangle(10, 10, LCD_W - 20, LCD_H - 15, ERASE)
 lcd.drawRectangle(10, 10, LCD_W - 20, LCD_H - 15, SOLID)
 
 local extra = data.config == 1 and INVERS + data.configSelect or 0
