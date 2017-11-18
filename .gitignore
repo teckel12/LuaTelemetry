@@ -1,4 +1,7 @@
 .vscode/
 node_modules/
+iNav/config.dat
 *.png
 *.lua
+!src/*.lua
+!src/iNav/*.lua
