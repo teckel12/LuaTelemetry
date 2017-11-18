@@ -51,7 +51,7 @@ else
     elseif data.config == 3 then
       data.battCrit = math.min(math.floor(data.battCrit * 10 + 1) / 10, math.min(3.9, data.battLow - 0.1))
     elseif data.config == 4 then
-      data.altAlert = math.min(data.altAlert + 1, 9999)
+      data.altAlert = math.min(data.altAlert + 10, 9999)
     elseif data.config == 5 then
       data.alerts = data.alerts == 1 and 0 or 1
     elseif data.config == 6 then
@@ -65,7 +65,7 @@ else
     elseif data.config == 3 then
       data.battCrit = math.max(math.floor(data.battCrit * 10 - 1) / 10, 3.1)
     elseif data.config == 4 then
-      data.altAlert = math.max(data.altAlert - 1, 0)
+      data.altAlert = math.max(data.altAlert - 10, 0)
     elseif data.config == 5 then
       data.alerts = data.alerts == 1 and 0 or 1
     elseif data.config == 6 then

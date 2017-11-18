@@ -497,7 +497,7 @@ local function run(event)
       configText(1, 13, "Battery View", data.showCell == 1 and "Total" or "Cell", false, false, false)
       configText(2, 21, "Cell Low", data.battLow * 10, true, true, "V")
       configText(3, 29, "Cell Critical", data.battCrit * 10, true, true, "V")
-      configText(4, 37, "Max Altitude", data.altAlert, true, false, altUnit)
+      configText(4, 37, "Max Altitude", data.altAlert, true, false, units[data.altitude_unit])
       configText(5, 45, "Voice Alerts", data.alerts == 1 and "On" or "Off", false, false, false)
       if data.showCurr and data.alerts == 1 then
         configText(6, 53, "10% mAh Alerts", data.mahAlert == 1 and "On" or "Off", false, false, false)
@@ -527,7 +527,7 @@ local function run(event)
           elseif data.config == 3 then
             data.battCrit = math.min(math.floor(data.battCrit * 10 + 1) / 10, math.min(3.9, data.battLow - 0.1))
           elseif data.config == 4 then
-            data.altAlert = math.min(data.altAlert + 1, 9999)
+            data.altAlert = math.min(data.altAlert + 10, 9999)
           elseif data.config == 5 then
             data.alerts = data.alerts == 1 and 0 or 1
           elseif data.config == 6 then
@@ -541,7 +541,7 @@ local function run(event)
           elseif data.config == 3 then
             data.battCrit = math.max(math.floor(data.battCrit * 10 - 1) / 10, 3.1)
           elseif data.config == 4 then
-            data.altAlert = math.max(data.altAlert - 1, 0)
+            data.altAlert = math.max(data.altAlert - 10, 0)
           elseif data.config == 5 then
             data.alerts = data.alerts == 1 and 0 or 1
           elseif data.config == 6 then
@@ -557,7 +557,7 @@ local function run(event)
 
 
 
-
+      
     end
   end
   

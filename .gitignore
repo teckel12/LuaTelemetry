@@ -1,5 +1,4 @@
 .vscode/
-node_modules/
 iNav/config.dat
 *.png
 *.lua
