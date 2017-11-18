@@ -1,6 +1,7 @@
 .vscode/
+SDCARD/
+TELEMETRY/**/*.lua
 config.dat
-*.lua
 *.png
 !src/*.lua
 !src/iNav/*.lua
