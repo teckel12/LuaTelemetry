@@ -4,6 +4,7 @@
 
 local VERSION = "1.2.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
+local CONFIG_FILE = "config.dat"
 local FLASH = 3
 local lcd = LCD or lcd
 local LCD_W = lcd.W or LCD_W
@@ -26,11 +27,125 @@ local battNextPlay = 0
 local battPercentPlayed = 100
 local telemFlags = -1
 
+-- Modes: t=text / f=flags for text / w=wave file
+local modes = {
+  { t="NO TELEM",  f=3, w=false },
+  { t="HORIZON",   f=0, w="hrznmd" },
+  { t="ANGLE",     f=0, w="anglmd" },
+  { t="ACRO",      f=0, w="acromd" },
+  { t=" NOT OK ",  f=3, w=false },
+  { t="READY",     f=0, w="ready" },
+  { t="POS HOLD",  f=0, w="poshld" },
+  { t="3D HOLD",   f=0, w="3dhold" },
+  { t="WAYPOINT",  f=0, w="waypt" },
+  { t="PASSTHRU",  f=0, w=false },
+  { t="   RTH   ", f=3, w="rtl" },
+  { t="FAILSAFE",  f=3, w="fson" }
+}
+
 local units = { [0]="m", "V", "A", "mA", "kts", "m/s", "f/s", "kmh", "mph", "m", "ft" }
 
-local data = loadScript(FILE_PATH .. "data.lua")(FILE_PATH)
+local function getTelemetryId(name)
+  local field = getFieldInfo(name)
+  return field and field.id or -1
+end
 
-local currentFlightMode = loadScript(FILE_PATH .. "modes.lua")(data.modeId)
+local function getTelemetryUnit(name)
+  local field = getFieldInfo(name)
+  return (field and field.unit <= 10) and field.unit or 1
+end
+
+local rssi, low, crit = getRSSI()
+local ver, radio, maj, minor, rev = getVersion()
+local general = getGeneralSettings()
+local data = {
+  rssiLow = low,
+  rssiCrit = crit,
+  txBattMin = general.battMin,
+  txBattMax = general.battMax,
+  modelName = model.getInfo().name,
+  mode_id = getTelemetryId("Tmp1"),
+  rxBatt_id = getTelemetryId("RxBt"),
+  satellites_id = getTelemetryId("Tmp2"),
+  gpsAlt_id = getTelemetryId("GAlt"),
+  gpsLatLon_id = getTelemetryId("GPS"),
+  heading_id = getTelemetryId("Hdg"),
+  altitude_id = getTelemetryId("Alt"),
+  distance_id = getTelemetryId("Dist"),
+  speed_id = getTelemetryId("GSpd"),
+  current_id = getTelemetryId("Curr"),
+  altitudeMax_id = getTelemetryId("Alt+"),
+  distanceMax_id = getTelemetryId("Dist+"),
+  speedMax_id = getTelemetryId("GSpd+"),
+  currentMax_id = getTelemetryId("Curr+"),
+  batt_id = getTelemetryId("VFAS"),
+  battMin_id = getTelemetryId("VFAS-"),
+  fuel_id = getTelemetryId("Fuel"),
+  rssi_id = getTelemetryId("RSSI"),
+  rssiMin_id = getTelemetryId("RSSI-"),
+  txBatt_id = getTelemetryId("tx-voltage"),
+  gpsAlt_unit = getTelemetryUnit("GAlt"),
+  altitude_unit = getTelemetryUnit("Alt"),
+  distance_unit = getTelemetryUnit("Dist"),
+  speed_unit = getTelemetryUnit("GSpd"),
+  accz =  getTelemetryUnit("AccZ"),
+  config = 0,
+  configSelect = 0,
+  modeId = 1,
+  startup = 1
+}
+
+data.showCurr = data.current_id > -1 and true or false
+data.showHead = data.heading_id > -1 and true or false
+data.showAlt = data.altitude_id > -1 and true or false
+data.distPos = data.showCurr and 17 or (data.showAlt and 21 or 13)
+data.speedPos = data.showCurr and 25 or (data.showAlt and 33 or 25)
+data.battPos1 = data.showCurr and 49 or 45
+data.battPos2 = data.showCurr and 49 or 41
+data.distRef = data.distance_unit == 10 and 20 or 6
+data.altAlert = data.altitude_unit == 10 and 400 or 123
+data.version = maj + minor / 10
+
+local function reset()
+  data.timerStart = 0
+  data.timer = 0
+  data.distanceLast = 0
+  data.gpsHome = false
+  data.gpsLatLon = false
+  data.gpsFix = false
+  data.headingRef = -1
+  data.battlow = false
+  data.showMax = false
+  data.showDir = true
+  data.fuel = 100
+  data.config = 0
+end
+
+-- Load config data
+local fh = io.open(FILE_PATH .. CONFIG_FILE, "r")
+if fh == nil then
+  fh = io.open(FILE_PATH .. CONFIG_FILE, "w")
+  if fh ~= nil then
+    io.write(fh, "1353411" .. data.altAlert)
+    io.close(fh)
+  end
+  data.showCell = 1
+  data.battLow = 3.5
+  data.battCrit = 3.4
+  data.alerts = 1
+  data.mahAlert = 1
+else
+  data.showCell = tonumber(io.read(fh, 1))
+  data.battLow = io.read(fh, 2) / 10
+  data.battCrit = io.read(fh, 2) / 10
+  data.alerts = tonumber(io.read(fh, 1))
+  data.mahAlert = tonumber(io.read(fh, 1))
+  local tmpAltAlert = tonumber(io.read(fh, 4))
+  if tmpAltAlert ~= nil then
+    data.altAlert = tmpAltAlert
+  end
+  io.close(fh)
+end
 
 local function playAudio(file)
   if data.alerts == 1 then
@@ -110,11 +225,10 @@ local function flightModes()
     playAudio(data.gpsFix and "good" or "lost")
   end
   if modeIdPrev ~= data.modeId then -- New flight mode
-    currentFlightMode = loadScript(FILE_PATH .. "modes.lua")(data.modeId)
-    if armed and currentFlightMode.w then
-      playAudio(currentFlightMode.w)
+    if armed and modes[data.modeId].w then
+      playAudio(modes[data.modeId].w)
     elseif not armed and data.modeId == 6 and modeIdPrev == 5 then
-      playAudio(currentFlightMode.w)
+      playAudio(modes[data.modeId].w)
     end
   end
   if armed then
@@ -182,7 +296,7 @@ local function flightModes()
     else
       battNextPlay = 0
     end
-    if headFree or currentFlightMode.f ~= 0 then
+    if headFree or modes[data.modeId].f ~= 0 then
       beep = true
       vibrate = true
     elseif data.rssi < data.rssiLow then
@@ -208,7 +322,7 @@ end
 local function background()
   data.rssi = getValue(data.rssi_id)
   if telemFlags == -1 then
-    loadScript(FILE_PATH .. "reset.lua")(data)
+    reset()
   end
   if data.rssi > 0 or telemFlags < 0 then
     data.telemetry = true
@@ -262,6 +376,19 @@ local function background()
 
   if armed and data.gpsFix and data.gpsHome == false then
     data.gpsHome = data.gpsLatLon
+  end
+end
+
+local function configText(line, y, text, value, number, decimal, append)
+  local extra = (data.config == line and INVERS + data.configSelect or 0) + (decimal and PREC1 or 0)
+  lcd.drawText(12, y, text, SMLSIZE)
+  if number then
+    lcd.drawNumber(85, y, value, SMLSIZE + extra)
+  else
+    lcd.drawText(85, y, value, SMLSIZE + extra)
+  end
+  if append then
+    lcd.drawText(lcd.getLastPos(), y, append, SMLSIZE + extra)
   end
 end
 
@@ -386,9 +513,9 @@ local function run(event)
   end
 
   -- Flight mode
-  lcd.drawText(0, 0, currentFlightMode.t, (QX7 and SMLSIZE or 0) + currentFlightMode.f)
+  lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   local x = X_CNTR_2 - (lcd.getLastPos() / 2)
-  lcd.drawText(x, 33, currentFlightMode.t, (QX7 and SMLSIZE or 0) + currentFlightMode.f)
+  lcd.drawText(x, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   if headFree and not QX7 then
     lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", FLASH)
   end
@@ -401,7 +528,7 @@ local function run(event)
     end
     -- Initalize variables on long <Enter>
     if event == EVT_ENTER_LONG then
-      loadScript(FILE_PATH .. "reset.lua")(data)
+      reset()
     end
   end
 
@@ -471,7 +598,71 @@ local function run(event)
       data.configSelect = 0
     end
     if data.config > 0 then
-      loadScript(FILE_PATH .. "config.lua")(data, event, FILE_PATH, units[data.altitude_unit])
+      local values = (data.showCurr and data.alerts == 1) and 6 or 5
+      
+      lcd.drawFilledRectangle(8, 11, LCD_W - 16, values * 8 + 2, ERASE)
+      lcd.drawRectangle(8, 10, LCD_W - 16, values * 8 + 4, SOLID)
+      
+      configText(1, 13, "Battery View", data.showCell == 1 and "Total" or "Cell", false, false, false)
+      configText(2, 21, "Cell Low", data.battLow * 10, true, true, "V")
+      configText(3, 29, "Cell Critical", data.battCrit * 10, true, true, "V")
+      configText(4, 37, "Max Altitude", data.altAlert, true, false, units[data.altitude_unit])
+      configText(5, 45, "Voice Alerts", data.alerts == 1 and "On" or "Off", false, false, false)
+      if data.showCurr and data.alerts == 1 then
+        configText(6, 53, "10% mAh Alerts", data.mahAlert == 1 and "On" or "Off", false, false, false)
+      end
+      
+      if data.configSelect == 0 then
+        if event == EVT_EXIT_BREAK then
+          local fh = io.open(FILE_PATH .. CONFIG_FILE, "w")
+          if fh ~= nil then
+            io.write(fh, data.showCell, math.floor(data.battLow * 10), math.floor(data.battCrit * 10), data.alerts, data.mahAlert, data.altAlert)
+            io.close(fh)
+          end
+          data.config = 0
+        elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
+          data.config = math.min(data.config + 1, values)
+        elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
+          data.config = math.max(data.config - 1, 1)
+        end
+      else
+        if event == EVT_EXIT_BREAK then
+          data.configSelect = 0
+        elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
+          if data.config == 1 then
+            data.showCell = data.showCell == 1 and 0 or 1
+          elseif data.config == 2 then
+            data.battLow = math.min(math.floor(data.battLow * 10 + 1) / 10, 3.9)
+          elseif data.config == 3 then
+            data.battCrit = math.min(math.floor(data.battCrit * 10 + 1) / 10, math.min(3.9, data.battLow - 0.1))
+          elseif data.config == 4 then
+            data.altAlert = math.min(data.altAlert + 10, 9999)
+          elseif data.config == 5 then
+            data.alerts = data.alerts == 1 and 0 or 1
+          elseif data.config == 6 then
+            data.mahAlert = data.mahAlert == 1 and 0 or 1
+          end
+        elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
+          if data.config == 1 then
+            data.showCell = data.showCell == 1 and 0 or 1
+          elseif data.config == 2 then
+            data.battLow = math.max(math.floor(data.battLow * 10 - 1) / 10, math.max(3.1, data.battCrit + 0.1))
+          elseif data.config == 3 then
+            data.battCrit = math.max(math.floor(data.battCrit * 10 - 1) / 10, 3.1)
+          elseif data.config == 4 then
+            data.altAlert = math.max(data.altAlert - 10, 0)
+          elseif data.config == 5 then
+            data.alerts = data.alerts == 1 and 0 or 1
+          elseif data.config == 6 then
+            data.mahAlert = data.mahAlert == 1 and 0 or 1
+          end
+        end
+      end
+      
+      if event == EVT_ENTER_BREAK then
+        data.configSelect = (data.configSelect == 0) and BLINK or 0
+      end
+
     end
   end
   
