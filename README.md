@@ -1,4 +1,4 @@
-# SmartPort/INAV Telemetry Flight Status - v1.1.8
+# SmartPort/INAV Telemetry Flight Status - v1.2.0
 
 #### Taranis Q X7
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
@@ -88,12 +88,12 @@ When not armed, you can press the `Menu` button which brings up a few configurat
 
 ## Release History
 
-#### v1.1.8
+#### v1.2.0
+* Distribution scripts are pre-compiled to greatly reduce memory (source still available)
+* Press `Menu` (when not armed) to modify user configuration options
+* Split script up into multiple pieces to reduce memory usage
 * Fixed `FAILSAFE`, `RTH`, `NOT OK` & `NO TELEM` modes to flash as they should
 * Barometer and magnetometer are now optional (but suggested for full functionality)
-* Split script up into multiple pieces to help reduce memory usage
-* User configuration values moved to `config.dat` file.
-* Additional easy to change constants at the top of the `iNav.lua` file
 * Headfree indication on Q X7 changed to show directional indicators as dotted lines
 * Startup message/version and error if not running OpenTX v2.2.0 or later
 #### v1.1.7

@@ -68,7 +68,7 @@ local fh = io.open(configFile, "r")
 if fh == nil then
   fh = io.open(configFile, "w")
   if fh ~= nil then
-    io.write(fh, "1353411xxx" .. data.altAlert)
+    io.write(fh, "1353411" .. data.altAlert)
     io.close(fh)
   end
   data.showCell = 1

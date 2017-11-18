@@ -1,5 +1,3 @@
 .vscode/
 SDCARD/
-config.dat
-*.png
-!assets/*.png
+*.ini
