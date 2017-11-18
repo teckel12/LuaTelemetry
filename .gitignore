@@ -1,7 +1,7 @@
 .vscode/
-iNav/config.dat
-*.png
+config.dat
 *.lua
+*.png
 !src/*.lua
 !src/iNav/*.lua
 !assets/*.png

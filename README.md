@@ -22,11 +22,10 @@
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D Plus or X9E
+* [OpenTX v2.2.0+](http://www.open-tx.org/) (**`luac` build option required!**) running on Taranis Q X7, X9D, X9D Plus or X9E
 * SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (*NOT* D-series receivers)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
-* GPS
-* Suggested for full functionality but not required: altimeter (barometer), magnetometer (compass) and current sensors
+* GPS (suggested but not required: altimeter (barometer), magnetometer (compass) and current sensors
 
 > Note: This Lua Telemetry script **requires** SmartPort telemetry as noted above.
 > Lua Telemetry **won't work with Crossfire** for example because it uses proprietary sensor names/formatting and missing sensor information that Lua Telemetry needs.
@@ -48,16 +47,8 @@
 #### INAV Lua Telemetry Screen Setup
 
 1. Download the [Lua Telemetry ZIP file](https://github.com/iNavFlight/LuaTelemetry/archive/master.zip)
-2. From the downloaded ZIP file, copy the `iNav.lua` file to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
-3. Also from the ZIP file, copy the `iNav` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
-4. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
-
-## Notice
-
-If you get the message **Script Panic not enough memory** you've run out of memory on your transmitter.
-This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
-It's also possible that you have less memory to work with when running firmware that uses more memory (for example, using firmware that includes multimodule support if you're not using it).
-Using transmitter firmware with `luac` included will reduce memory usage and increase the telemetry screen speed.
+2. From the downloaded ZIP file, copy the contents of the `TELEMETRY` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
+3. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
 
 ## Usage
 
@@ -74,11 +65,16 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### User Setting
+![sample](assets/iNavConfig.png "Configuration menu")
 
-At the top of the `iNav.lua` file a value can be modified to change how the battery voltage is displayed.
+When not armed, you can press the `Menu` button which brings up a few configuration options shown above.
 
-* **SHOW_CELL** `false` = Show total battery voltage / `true` = Show cell average (default = `false`)
-* **WAVPATH** Path on your transmitter's SD card to the Lua Telemetry sound files (default = `"/SCRIPTS/TELEMETRY/iNav/"`)
+* Battery View - Total = Total battery voltage / Cell = Battery cell average voltage
+* Cell Low - Cell voltage for low battery warning
+* Cell Critical - Cell volgate for battery critical warning
+* Max Altitude - Altitude where altitude warning starts
+* Voice Alerts - Turn on or off all voice alerts
+* 10% mAh Alerts - Voice alerts for each 10% fuel point (only available with current sensor)
 
 ## Tips & Notes
 
