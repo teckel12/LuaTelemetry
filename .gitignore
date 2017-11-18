@@ -4,3 +4,4 @@ iNav/config.dat
 *.lua
 !src/*.lua
 !src/iNav/*.lua
+!assets/*.png

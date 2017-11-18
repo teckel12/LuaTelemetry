@@ -1,11 +1,11 @@
 # SmartPort/INAV Telemetry Flight Status - v1.1.8
 
 #### Taranis Q X7
-![sample](http://www.leethost.com/link_pics/iNav1.png "launch/pilot-based model orientation and location indicators")
-![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
+![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
+![sample](assets/iNavQX72.png "Compass-based direction indicator")
 
 #### Taranis X9D, X9D Plus & X9E
-![sample](http://www.leethost.com/link_pics/iNav3.png?1 "View on Taranis X9D, X9D Plus & X9E")
+![sample](assets/iNavX9D.png "View on Taranis X9D, X9D Plus & X9E")
 
 ## Features
 
@@ -62,7 +62,7 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 ## Usage
 
 #### Screen Description
-![sample](http://www.leethost.com/link_pics/iNav4.png "Screen description")
+![sample](assets/iNavKey.png "Screen description")
 
 * From transmitter's main screen, hold the `Page` button to show custom screens, page to the iNav screen
 * Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
