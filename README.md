@@ -88,7 +88,7 @@ Press the `Menu` button (when not armed) to display the configuration options me
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you're not getting model distance data, change your telemetry distance sensor name from `0420` to `Dist`
-* If you change a telemetry sensor's unit, you'll need to power cycle the transmitter for the change to take effect
+* If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
 * INAV v1.8+ is required for `Home reset` voice notification
 
 ## Release History
