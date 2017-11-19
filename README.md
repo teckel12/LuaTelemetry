@@ -1,11 +1,11 @@
-# SmartPort/INAV Telemetry Flight Status - v1.1.8
+# SmartPort/INAV Telemetry Flight Status - v1.2.0
 
 #### Taranis Q X7
-![sample](http://www.leethost.com/link_pics/iNav1.png "launch/pilot-based model orientation and location indicators")
-![sample](http://www.leethost.com/link_pics/iNav2.png "Compass-based direction indicator")
+![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
+![sample](assets/iNavQX72.png "Compass-based direction indicator")
 
 #### Taranis X9D, X9D Plus & X9E
-![sample](http://www.leethost.com/link_pics/iNav3.png?1 "View on Taranis X9D, X9D Plus & X9E")
+![sample](assets/iNavX9D.png "View on Taranis X9D, X9D Plus & X9E")
 
 ## Features
 
@@ -22,11 +22,10 @@
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D Plus or X9E
+* [OpenTX v2.2.0+](http://www.open-tx.org/) (**`luac` build option required!**) running on Taranis Q X7, X9D, X9D Plus or X9E
 * SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (*NOT* D-series receivers)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
-* GPS
-* Suggested for full functionality but not required: altimeter (barometer), magnetometer (compass) and current sensors
+* GPS (suggested but not required: altimeter (barometer), magnetometer (compass) and current sensors
 
 > Note: This Lua Telemetry script **requires** SmartPort telemetry as noted above.
 > Lua Telemetry **won't work with Crossfire** for example because it uses proprietary sensor names/formatting and missing sensor information that Lua Telemetry needs.
@@ -47,22 +46,14 @@
 
 #### INAV Lua Telemetry Screen Setup
 
-1. Download the Lua Telemetry ZIP file by clicking the top-right green `Clone or download` button and select `Download ZIP`
-2. From the downloaded ZIP file, copy the `iNav.lua` file to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
-3. Also from the ZIP file, copy the `iNav` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
-4. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
-
-## Notice
-
-If you get the message **Script Panic not enough memory** you've run out of memory on your transmitter.
-This happens if you have too many Lua scripts running (this includes model, function, and telemetry scripts).
-It's also possible that you have less memory to work with when running firmware that uses more memory (for example, using firmware that includes multimodule support if you're not using it).
-Using transmitter firmware with `luac` included will reduce memory usage and increase the telemetry screen speed.
+1. Download the [Lua Telemetry ZIP file](https://github.com/iNavFlight/LuaTelemetry/archive/master.zip)
+2. From the downloaded ZIP file, copy the contents of the `TELEMETRY` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
+3. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
 
 ## Usage
 
 #### Screen Description
-![sample](http://www.leethost.com/link_pics/iNav4.png "Screen description")
+![sample](assets/iNavKey.png "Screen description")
 
 * From transmitter's main screen, hold the `Page` button to show custom screens, page to the iNav screen
 * Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
@@ -74,27 +65,37 @@ Using transmitter firmware with `luac` included will reduce memory usage and inc
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### User Setting
+Press the `Menu` button (when not armed) to display the configuration options menu:
 
-At the top of the `iNav.lua` file a value can be modified to change how the battery voltage is displayed.
+![sample](assets/iNavConfig.png "Configuration menu")
 
-* **SHOW_CELL** `false` = Show total battery voltage / `true` = Show cell average (default = `false`)
-* **WAVPATH** Path on your transmitter's SD card to the Lua Telemetry sound files (default = `"/SCRIPTS/TELEMETRY/iNav/"`)
+* **Battery View** - Total battery voltage / Cell voltage average (default: Total)
+* **Cell Low** - Cell voltage for low battery warning (default: 3.5v)
+* **Cell Critical** - Cell volgate for battery critical warning (default: 3.4v)
+* **Max Altitude** - Altitude where altitude warning starts (default: 400ft or 123m)
+* **Voice Alerts** - Turn on or off all voice alerts (default: On)
+* **10% mAh Alerts** - Voice alerts for each 10% fuel (with current sensor) (default: On)
 
 ## Tips & Notes
 
+* If the script doesn't run or you get a memory error, enable the `luac` build option in your OpenTX firmware
 * Between flights (before armed), long-press the Enter/dial and select `Reset telemetry` to reset telemetry values
-* Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback appreciated)
 * Optional (but highly suggested) current sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you're not getting model distance data, change your telemetry distance sensor name from `0420` to `Dist`
+* If you change a telemetry sensor's unit, you'll need to power cycle the transmitter for the change to take effect
 * INAV v1.8+ is required for `Home reset` voice notification
 
 ## Release History
 
-#### v1.1.8
+#### v1.2.0
+* Lua Telemetry is now pre-compiled to greatly reduce memory (source still available)
+* Press `Menu` button (when not armed) to modify user configuration options
 * Fixed `FAILSAFE`, `RTH`, `NOT OK` & `NO TELEM` modes to flash as they should
-* Altimeter (barometer) and magnetometer (compass) are now optional (but still suggested for full functionality)
+* Barometer and magnetometer are now optional (but suggested for full functionality)
+* Headfree indication on Q X7 changed to show directional indicators as dotted lines
+* Startup message/version and error if not running OpenTX v2.2.0 or later
 #### v1.1.7
 * Fix for the default unit type of the `Dist` (`0420`) sensor
 #### v1.1.6
