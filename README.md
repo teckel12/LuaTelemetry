@@ -59,7 +59,7 @@
 #### Screen Description
 ![sample](assets/iNavKey.png "Screen description")
 
-* From transmitter's main screen, hold the `Page` button to show custom screens, page to the iNav screen
+* From transmitter's main screen, long hold the `Page` button to show custom screens, short press `Page` to the iNav screen
 * Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
 * To flip between max/min and current values, use the dial or +/- buttons
 * To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons
