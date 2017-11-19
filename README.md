@@ -24,7 +24,7 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) (**`luac` build option required!**) running on Taranis Q X7, X9D, X9D Plus or X9E
-* SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (**Not D-series or Crossfire receivers**)
+* SmartPort telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (**not D-series or Crossfire receivers**)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS
 
