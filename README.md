@@ -27,7 +27,12 @@
 * SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (**Not D-series or Crossfire receivers**)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS
-* Suggested but not required: altimeter (barometer), magnetometer (compass) and current sensors
+
+#### Suggested (Not Required)
+
+* Altimeter (barometer)
+* Magnetometer (compass)
+* Current sensor
 
 ## Setup
 
