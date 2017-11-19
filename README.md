@@ -18,17 +18,21 @@
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Display of current Fuel (% battery mAh capacity remaining), Receiver voltage and flight timer
+* Configuration options can be changed from inside the script
 * Speed and distance values are displayed in metric or imperial based on transmitter's telemetry settings
 
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) (**`luac` build option required!**) running on Taranis Q X7, X9D, X9D Plus or X9E
-* SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (*NOT* D-series receivers)
+* SmartPort telemetry compatible receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (**Not D-series or Crossfire receivers**)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
-* GPS (suggested but not required: altimeter (barometer), magnetometer (compass) and current sensors
+* GPS
 
-> Note: This Lua Telemetry script **requires** SmartPort telemetry as noted above.
-> Lua Telemetry **won't work with Crossfire** for example because it uses proprietary sensor names/formatting and missing sensor information that Lua Telemetry needs.
+#### Suggested (Not Required)
+
+* Altimeter (barometer)
+* Magnetometer (compass)
+* Current sensor
 
 ## Setup
 
@@ -55,7 +59,7 @@
 #### Screen Description
 ![sample](assets/iNavKey.png "Screen description")
 
-* From transmitter's main screen, hold the `Page` button to show custom screens, page to the iNav screen
+* From transmitter's main screen, long hold the `Page` button to show custom screens, short press `Page` to the iNav screen
 * Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
 * To flip between max/min and current values, use the dial or +/- buttons
 * To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons
@@ -72,7 +76,7 @@ Press the `Menu` button (when not armed) to display the configuration options me
 * **Battery View** - Total battery voltage / Cell voltage average (default: Total)
 * **Cell Low** - Cell voltage for low battery warning (default: 3.5V)
 * **Cell Critical** - Cell volgate for battery critical warning (default: 3.4V)
-* **Max Altitude** - Altitude where altitude warning starts (default: 400ft or 123m)
+* **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 123m)
 * **Voice Alerts** - Turn on or off all voice alerts (default: On)
 * **10% mAh Alerts** - Voice alerts for each 10% fuel (with current sensor) (default: On)
 
@@ -84,7 +88,7 @@ Press the `Menu` button (when not armed) to display the configuration options me
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you're not getting model distance data, change your telemetry distance sensor name from `0420` to `Dist`
-* If you change a telemetry sensor's unit, you'll need to power cycle the transmitter for the change to take effect
+* If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
 * INAV v1.8+ is required for `Home reset` voice notification
 
 ## Release History
