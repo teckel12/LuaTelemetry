@@ -70,8 +70,8 @@ Press the `Menu` button (when not armed) to display the configuration options me
 ![sample](assets/iNavConfig.png "Configuration menu")
 
 * **Battery View** - Total battery voltage / Cell voltage average (default: Total)
-* **Cell Low** - Cell voltage for low battery warning (default: 3.5v)
-* **Cell Critical** - Cell volgate for battery critical warning (default: 3.4v)
+* **Cell Low** - Cell voltage for low battery warning (default: 3.5V)
+* **Cell Critical** - Cell volgate for battery critical warning (default: 3.4V)
 * **Max Altitude** - Altitude where altitude warning starts (default: 400ft or 123m)
 * **Voice Alerts** - Turn on or off all voice alerts (default: On)
 * **10% mAh Alerts** - Voice alerts for each 10% fuel (with current sensor) (default: On)
