@@ -65,33 +65,33 @@
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### User Setting
+Press the `Menu` button (when not armed) to display the configuration options menu:
+
 ![sample](assets/iNavConfig.png "Configuration menu")
 
-When not armed, you can press the `Menu` button which brings up a few configuration options shown above.
-
-* Battery View - Total = Total battery voltage / Cell = Battery cell average voltage
-* Cell Low - Cell voltage for low battery warning
-* Cell Critical - Cell volgate for battery critical warning
-* Max Altitude - Altitude where altitude warning starts
-* Voice Alerts - Turn on or off all voice alerts
-* 10% mAh Alerts - Voice alerts for each 10% fuel point (only available with current sensor)
+* **Battery View** - Total battery voltage / Cell voltage average (default: Total)
+* **Cell Low** - Cell voltage for low battery warning (default: 3.5v)
+* **Cell Critical** - Cell volgate for battery critical warning (default: 3.4v)
+* **Max Altitude** - Altitude where altitude warning starts (default: 400ft or 123m)
+* **Voice Alerts** - Turn on or off all voice alerts (default: On)
+* **10% mAh Alerts** - Voice alerts for each 10% fuel (with current sensor) (default: On)
 
 ## Tips & Notes
 
+* If the script doesn't run or you get a memory error, enable the `luac` build option in your OpenTX firmware
 * Between flights (before armed), long-press the Enter/dial and select `Reset telemetry` to reset telemetry values
-* Designed for multirotor models, but should be valuable for fixed wing (fixed wing feedback appreciated)
 * Optional (but highly suggested) current sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you're not getting model distance data, change your telemetry distance sensor name from `0420` to `Dist`
+* If you change a telemetry sensor's unit, you'll need to power cycle the transmitter for the change to take effect
 * INAV v1.8+ is required for `Home reset` voice notification
 
 ## Release History
 
 #### v1.2.0
-* Distribution scripts are pre-compiled to greatly reduce memory (source still available)
-* Press `Menu` (when not armed) to modify user configuration options
-* Split script up into multiple pieces to reduce memory usage
+* Lua Telemetry is now pre-compiled to greatly reduce memory (source still available)
+* Press `Menu` button (when not armed) to modify user configuration options
 * Fixed `FAILSAFE`, `RTH`, `NOT OK` & `NO TELEM` modes to flash as they should
 * Barometer and magnetometer are now optional (but suggested for full functionality)
 * Headfree indication on Q X7 changed to show directional indicators as dotted lines

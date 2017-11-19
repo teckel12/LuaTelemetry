@@ -88,7 +88,6 @@ local data = {
   altitude_unit = getTelemetryUnit("Alt"),
   distance_unit = getTelemetryUnit("Dist"),
   speed_unit = getTelemetryUnit("GSpd"),
-  accz =  getTelemetryUnit("AccZ"),
   config = 0,
   configSelect = 0,
   modeId = 1,
@@ -140,10 +139,7 @@ else
   data.battCrit = io.read(fh, 2) / 10
   data.alerts = tonumber(io.read(fh, 1))
   data.mahAlert = tonumber(io.read(fh, 1))
-  local tmpAltAlert = tonumber(io.read(fh, 4))
-  if tmpAltAlert ~= nil then
-    data.altAlert = tmpAltAlert
-  end
+  data.altAlert = tonumber(io.read(fh, 4))
   io.close(fh)
 end
 
@@ -225,7 +221,7 @@ local function flightModes()
     playAudio(data.gpsFix and "good" or "lost")
   end
   if modeIdPrev ~= data.modeId then -- New flight mode
-    if armed and modes[data.modeId].w then
+    if armed and modes[data.modeId].w ~= false then
       playAudio(modes[data.modeId].w)
     elseif not armed and data.modeId == 6 and modeIdPrev == 5 then
       playAudio(modes[data.modeId].w)
@@ -636,7 +632,7 @@ local function run(event)
           elseif data.config == 3 then
             data.battCrit = math.min(math.floor(data.battCrit * 10 + 1) / 10, math.min(3.9, data.battLow - 0.1))
           elseif data.config == 4 then
-            data.altAlert = math.min(data.altAlert + 10, 9999)
+            data.altAlert = math.min(data.altAlert + (data.altitude_unit == 10 and 10 or 1), 9999)
           elseif data.config == 5 then
             data.alerts = data.alerts == 1 and 0 or 1
           elseif data.config == 6 then
@@ -650,12 +646,15 @@ local function run(event)
           elseif data.config == 3 then
             data.battCrit = math.max(math.floor(data.battCrit * 10 - 1) / 10, 3.1)
           elseif data.config == 4 then
-            data.altAlert = math.max(data.altAlert - 10, 0)
+            data.altAlert = math.max(data.altAlert - (data.altitude_unit == 10 and 10 or 1), 0)
           elseif data.config == 5 then
             data.alerts = data.alerts == 1 and 0 or 1
           elseif data.config == 6 then
             data.mahAlert = data.mahAlert == 1 and 0 or 1
           end
+        end
+        if data.config == 4 and data.altitude_unit == 10 then
+          data.altAlert = math.floor(data.altAlert / 10) * 10
         end
       end
       
