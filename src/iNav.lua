@@ -15,6 +15,7 @@ local GAUGE_WIDTH = QX7 and 82 or 149
 local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 106
 local GPS_DIGITS = QX7 and 10000 or 1000000
+local CONFIG_X = QX7 and 8 or 50
 
 local armed = false
 local headFree = false
@@ -377,11 +378,11 @@ end
 
 local function configText(line, y, text, value, number, decimal, append)
   local extra = (data.config == line and INVERS + data.configSelect or 0) + (decimal and PREC1 or 0)
-  lcd.drawText(12, y, text, SMLSIZE)
+  lcd.drawText(CONFIG_X + 4, y, text, SMLSIZE)
   if number then
-    lcd.drawNumber(85, y, value, SMLSIZE + extra)
+    lcd.drawNumber(CONFIG_X + 77, y, value, SMLSIZE + extra)
   else
-    lcd.drawText(85, y, value, SMLSIZE + extra)
+    lcd.drawText(CONFIG_X + 77, y, value, SMLSIZE + extra)
   end
   if append then
     lcd.drawText(lcd.getLastPos(), y, append, SMLSIZE + extra)
@@ -599,8 +600,8 @@ local function run(event)
     if data.config > 0 then
       local values = (data.showCurr and data.alerts == 1) and 6 or 5
       
-      lcd.drawFilledRectangle(8, 11, LCD_W - 16, values * 8 + 2, ERASE)
-      lcd.drawRectangle(8, 10, LCD_W - 16, values * 8 + 4, SOLID)
+      lcd.drawFilledRectangle(CONFIG_X, 11, 112, values * 8 + 2, ERASE)
+      lcd.drawRectangle(CONFIG_X, 10, 112, values * 8 + 4, SOLID)
       
       configText(1, 13, "Battery View", data.showCell == 1 and "Total" or "Cell", false, false, false)
       configText(2, 21, "Cell Low", data.battLow * 10, true, true, "V")
@@ -619,9 +620,9 @@ local function run(event)
             io.close(fh)
           end
           data.config = 0
-        elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
+        elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK then
           data.config = math.min(data.config + 1, values)
-        elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
+        elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK then
           data.config = math.max(data.config - 1, 1)
         end
       else
