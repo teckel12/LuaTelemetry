@@ -27,6 +27,7 @@ local altNextPlay = 0
 local battNextPlay = 0
 local battPercentPlayed = 100
 local telemFlags = -1
+local config_y
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -376,7 +377,8 @@ local function background()
   end
 end
 
-local function configText(line, y, text, value, number, decimal, append)
+local function configText(line, text, value, number, decimal, append)
+  local y = (line - 1) * 8 + config_y + 3
   local extra = (data.config == line and INVERS + data.configSelect or 0) + (decimal and PREC1 or 0)
   lcd.drawText(CONFIG_X + 4, y, text, SMLSIZE)
   if number then
@@ -599,17 +601,17 @@ local function run(event)
     end
     if data.config > 0 then
       local values = (data.showCurr and data.alerts == 1) and 6 or 5
-      
-      lcd.drawFilledRectangle(CONFIG_X, 11, 112, values * 8 + 2, ERASE)
-      lcd.drawRectangle(CONFIG_X, 10, 112, values * 8 + 4, SOLID)
-      
-      configText(1, 13, "Battery View", data.showCell == 1 and "Total" or "Cell", false, false, false)
-      configText(2, 21, "Cell Low", data.battLow * 10, true, true, "V")
-      configText(3, 29, "Cell Critical", data.battCrit * 10, true, true, "V")
-      configText(4, 37, "Max Altitude", data.altAlert, true, false, units[data.altitude_unit])
-      configText(5, 45, "Voice Alerts", data.alerts == 1 and "On" or "Off", false, false, false)
+      local config_h = values * 8 + 4
+      config_y = (64 - values * 8) / 2 + 2     
+      lcd.drawFilledRectangle(CONFIG_X, config_y, 112, config_h, ERASE)
+      lcd.drawRectangle(CONFIG_X, config_y, 112, config_h, SOLID)
+      configText(1, "Battery View", data.showCell == 1 and "Total" or "Cell", false, false, false)
+      configText(2, "Cell Low", data.battLow * 10, true, true, "V")
+      configText(3, "Cell Critical", data.battCrit * 10, true, true, "V")
+      configText(4, "Max Altitude", data.altAlert, true, false, units[data.altitude_unit])
+      configText(5, "Voice Alerts", data.alerts == 1 and "On" or "Off", false, false, false)
       if data.showCurr and data.alerts == 1 then
-        configText(6, 53, "10% mAh Alerts", data.mahAlert == 1 and "On" or "Off", false, false, false)
+        configText(6, "10% mAh Alerts", data.mahAlert == 1 and "On" or "Off", false, false, false)
       end
       
       if data.configSelect == 0 then
