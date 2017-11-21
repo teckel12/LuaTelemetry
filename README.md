@@ -1,4 +1,4 @@
-# SmartPort/INAV Telemetry Flight Status - v1.2.0
+# SmartPort/INAV Telemetry Flight Status - v1.2.1
 
 #### Taranis Q X7
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
@@ -93,6 +93,9 @@ Press the `Menu` button (when not armed) to display the configuration options me
 
 ## Release History
 
+#### v1.2.1
+* Enhanced config menu display, centered on Q X7 & X9D/+
+* Added `S` (South) to X9D/+ directional display
 #### v1.2.0
 * Lua Telemetry is now pre-compiled to greatly reduce memory (source still available)
 * Press `Menu` button (when not armed) to modify user configuration options
