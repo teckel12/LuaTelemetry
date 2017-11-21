@@ -2,7 +2,7 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.2.0"
+local VERSION = "1.2.1"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local CONFIG_FILE = "config.dat"
 local FLASH = 3
@@ -460,7 +460,7 @@ local function run(event)
   elseif data.startup == 2 then
     if getTime() - startupTime < 200 then
       if not QX7 then
-        lcd.drawText(55, 9, "iNav Lua Telemetry")
+        lcd.drawText(55, 9, "INAV Lua Telemetry")
       end
       lcd.drawText(QX7 and 55 or 93, 17, "v" .. VERSION)
     else
@@ -480,6 +480,9 @@ local function run(event)
         lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) .. "\64", SMLSIZE)
         lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
         lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
+        if not QX7 then
+          lcd.drawText(X_CNTR_1 - 2, 32, "S", SMLSIZE)
+        end
         drawDirection(data.heading, 135, 7, X_CNTR_1, 23)
         indicatorDisplayed = true
       end
@@ -513,7 +516,7 @@ local function run(event)
   local x = X_CNTR_2 - (lcd.getLastPos() / 2)
   lcd.drawText(x, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   if headFree and not QX7 then
-    lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", FLASH)
+    lcd.drawText(lcd.getLastPos() + 1, 33, " HF ", FLASH)
   end
 
   -- User input
