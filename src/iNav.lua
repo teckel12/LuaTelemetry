@@ -105,16 +105,6 @@ data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
 data.version = maj + minor / 10
 
--- Config options: t=text / v=value(default) / m=min / x=max / i=inc*10 / n=number / d=decimal / a=append text / l=lookup text
-local config = {
-  { t="Battery View",   v=1,   m=0,   x=0,   i=0, n=false, d=false, a=false, l={[0]="Cell", "Total"} },
-  { t="Cell Low",       v=3.5, m=3.1, x=3.9, i=1, n=true,  d=true,  a="V",   l=false },
-  { t="Cell Critical",  v=3.4, m=3.1, x=3.9, i=1, n=true,  d=true,  a="V",   l=false },
-  { t="Max Altitude",   v=data.altitude_unit == 10 and 400 or 123, m=0, x=9999, i=data.altitude_unit == 10 and 100 or 10, n=true, d=false, a=units[data.altitude_unit], l=false },
-  { t="Voice Alerts",   v=1,   m=0,   x=0,   i=0, n=false, d=false, a=false, l={[0]="Off", "On"} },
-  { t="10% mAh Alerts", v=1,   m=0,   x=0,   i=0, n=false, d=false, a=false, l={[0]="Off", "On"} }
-}
-
 local function reset()
   data.timerStart = 0
   data.timer = 0
@@ -130,14 +120,28 @@ local function reset()
   data.config = 0
 end
 
+-- Config options: t=text / v=value(default) / n=number / (d=decimal) / (m=min) / (x=max) / (i=inc) / a=append text / (l=lookup text)
+local config = {
+  { t="Battery View",   v=1,   n=false, a=false, l={[0]="Cell", "Total"} },
+  { t="Cell Low",       v=3.5, n=true, d=true, m=3.1, x=3.9, i=0.1, a="V" },
+  { t="Cell Critical",  v=3.4, n=true, d=true, m=3.1, x=3.9, i=0.1, a="V" },
+  { t="Max Altitude",   v=data.altitude_unit == 10 and 400 or 123, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, n=true, d=false, a=units[data.altitude_unit] },
+  { t="Voice Alerts",   v=1,   n=false, a=false, l={[0]="Off", "On"} },
+  { t="10% mAh Alerts", v=1,   n=false, a=false, l={[0]="Off", "On"} }
+}
+
+local function saveConfig()
+  local fh = io.open(FILE_PATH .. CONFIG_FILE, "w")
+  if fh ~= nil then
+    io.write(fh, config[1].v, math.floor(config[2].v * 10), math.floor(config[3].v * 10), config[5].v, config[6].v, config[4].v)
+    io.close(fh)
+  end
+end
+
 -- Load config data
 local fh = io.open(FILE_PATH .. CONFIG_FILE, "r")
 if fh == nil then
-  fh = io.open(FILE_PATH .. CONFIG_FILE, "w")
-  if fh ~= nil then
-    io.write(fh, "1353411" .. config[4].v)
-    io.close(fh)
-  end
+  saveConfig()
 else
   config[1].v = tonumber(io.read(fh, 1))
   config[2].v = io.read(fh, 2) / 10
@@ -432,19 +436,6 @@ local function run(event)
     return 0
   end
 
-  -- GPS
-  if data.gpsLatLon ~= false then
-    local gpsFlags = (telemFlags > 0 or not data.gpsFix) and FLASH or 0
-    gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
-    gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
-    gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
-  else
-    lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
-    lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
-    lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
-  end
-  gpsData("Sats " .. data.satellites % 100, 9, telemFlags)
-
   -- Startup message
   if data.startup == 1 then
     startupTime = getTime()
@@ -460,6 +451,19 @@ local function run(event)
     end
   end
   local startupTime = 0
+
+  -- GPS
+  if data.gpsLatLon ~= false then
+    local gpsFlags = (telemFlags > 0 or not data.gpsFix) and FLASH or 0
+    gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
+    gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
+    gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
+  else
+    lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
+    lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
+    lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
+  end
+  gpsData("Sats " .. data.satellites % 100, 9, telemFlags)
 
   -- Directionals
   if data.showHead and data.startup == 0 then
@@ -592,9 +596,10 @@ local function run(event)
       local values = (data.showCurr and config[5].v == 1) and 6 or 5
       local config_h = values * 8 + 4
       local config_y = 34 - values * 4
+
+      -- Display menu
       lcd.drawFilledRectangle(CONFIG_X, config_y, 112, config_h, ERASE)
       lcd.drawRectangle(CONFIG_X, config_y, 112, config_h, SOLID)
-
       for line = 1, values do
         local y = (line - 1) * 8 + config_y + 3
         local extra = (data.config == line and INVERS + data.configSelect or 0) + (config[line].d and PREC1 or 0)
@@ -615,15 +620,11 @@ local function run(event)
 
       if data.configSelect == 0 then
         if event == EVT_EXIT_BREAK then
-          local fh = io.open(FILE_PATH .. CONFIG_FILE, "w")
-          if fh ~= nil then
-            io.write(fh, config[1].v, math.floor(config[2].v * 10), math.floor(config[3].v * 10), config[5].v, config[6].v, config[4].v)
-            io.close(fh)
-          end
+          saveConfig()
           data.config = 0
-        elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK then
+        elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK then -- Next option
           data.config = math.min(data.config + 1, values)
-        elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK then
+        elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK then -- Previous option
           data.config = math.max(data.config - 1, 1)
         end
       else
@@ -632,17 +633,20 @@ local function run(event)
         elseif not config[data.config].n and (event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK) then
           config[data.config].v = config[data.config].v == 1 and 0 or 1
         elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
-          config[data.config].v = math.min(math.floor(config[data.config].v * 10 + config[data.config].i) / 10, config[data.config].x)
+          config[data.config].v = math.min(math.floor(config[data.config].v * 10 + config[data.config].i * 10) / 10, config[data.config].x)
         elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
-          config[data.config].v = math.max(math.floor(config[data.config].v * 10 - config[data.config].i) / 10, config[data.config].m)
+          config[data.config].v = math.max(math.floor(config[data.config].v * 10 - config[data.config].i * 10) / 10, config[data.config].m)
         end
 
-        if data.config == 2 then
-          config[2].v = math.max(config[2].v, config[3].v + 0.1)
-        elseif data.config == 3 then
-          config[3].v = math.min(config[3].v, config[2].v - 0.1)
-        elseif data.config == 4 and data.altitude_unit == 10 then
-          config[4].v = math.floor(config[4].v / 10) * 10
+        -- Special cases
+        if event then
+          if data.config == 2 then -- Cell low > critical
+            config[2].v = math.max(config[2].v, config[3].v + 0.1)
+          elseif data.config == 3 then -- Cell critical < low
+            config[3].v = math.min(config[3].v, config[2].v - 0.1)
+          elseif config[data.config].i then
+            config[data.config].v = math.floor(config[data.config].v / config[data.config].i) * config[data.config].i
+          end
         end
       end
       
