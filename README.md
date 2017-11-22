@@ -94,7 +94,7 @@ Press the `Menu` button (when not armed) to display the configuration options me
 ## Release History
 
 #### v1.2.1
-* Enhanced config menu display, centered on Q X7 & X9D/+
+* Enhanced and cleaned up config menu, centered on Q X7 & X9D/+
 * Added `S` (South) to X9D/+ directional display
 #### v1.2.0
 * Lua Telemetry is now pre-compiled to greatly reduce memory (source still available)

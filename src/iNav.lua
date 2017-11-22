@@ -4,7 +4,6 @@
 
 local VERSION = "1.2.1"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
-local CONFIG_FILE = "config.dat"
 local FLASH = 3
 local lcd = LCD or lcd
 local LCD_W = lcd.W or LCD_W
@@ -30,16 +29,16 @@ local telemFlags = -1
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
-  { t="NO TELEM",  f=3, w=false },
+  { t="NO TELEM",  f=3 },
   { t="HORIZON",   f=0, w="hrznmd" },
   { t="ANGLE",     f=0, w="anglmd" },
   { t="ACRO",      f=0, w="acromd" },
-  { t=" NOT OK ",  f=3, w=false },
+  { t=" NOT OK ",  f=3 },
   { t="READY",     f=0, w="ready" },
   { t="POS HOLD",  f=0, w="poshld" },
   { t="3D HOLD",   f=0, w="3dhold" },
   { t="WAYPOINT",  f=0, w="waypt" },
-  { t="PASSTHRU",  f=0, w=false },
+  { t="PASSTHRU",  f=0 },
   { t="   RTH   ", f=3, w="rtl" },
   { t="FAILSAFE",  f=3, w="fson" }
 }
@@ -113,25 +112,25 @@ local function reset()
   data.gpsLatLon = false
   data.gpsFix = false
   data.headingRef = -1
-  data.battlow = false
+  data.battLow = false
   data.showMax = false
   data.showDir = true
   data.fuel = 100
   data.config = 0
 end
 
--- Config options: t=text / v=value(default) / n=number / (d=decimal) / (m=min) / (x=max) / (i=inc) / a=append text / (l=lookup text)
+-- Config options: t=text / v=value / l=lookup text / d=decimal / m=min / x=max / i=inc / a=append text
 local config = {
-  { t="Battery View",   v=1,   n=false, a=false, l={[0]="Cell", "Total"} },
-  { t="Cell Low",       v=3.5, n=true, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { t="Cell Critical",  v=3.4, n=true, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { t="Max Altitude",   v=data.altitude_unit == 10 and 400 or 123, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, n=true, d=false, a=units[data.altitude_unit] },
-  { t="Voice Alerts",   v=1,   n=false, a=false, l={[0]="Off", "On"} },
-  { t="10% mAh Alerts", v=1,   n=false, a=false, l={[0]="Off", "On"} }
+  { t="Battery View",   v=1, l={[0]="Cell", "Total"} },
+  { t="Cell Low",       v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V" },
+  { t="Cell Critical",  v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V" },
+  { t="Max Altitude",   v=data.altitude_unit == 10 and 400 or 123, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, d=false, a=units[data.altitude_unit] },
+  { t="Voice Alerts",   v=1, l={[0]="Off", "On"} },
+  { t="10% mAh Alerts", v=1, l={[0]="Off", "On"} }
 }
 
 local function saveConfig()
-  local fh = io.open(FILE_PATH .. CONFIG_FILE, "w")
+  local fh = io.open(FILE_PATH .. "config.dat", "w")
   if fh ~= nil then
     io.write(fh, config[1].v, math.floor(config[2].v * 10), math.floor(config[3].v * 10), config[5].v, config[6].v, config[4].v)
     io.close(fh)
@@ -139,7 +138,7 @@ local function saveConfig()
 end
 
 -- Load config data
-local fh = io.open(FILE_PATH .. CONFIG_FILE, "r")
+local fh = io.open(FILE_PATH .. "config.dat", "r")
 if fh == nil then
   saveConfig()
 else
@@ -214,7 +213,7 @@ local function flightModes()
     data.headingRef = data.heading
     data.gpsHome = false
     battPercentPlayed = 100
-    config[2].v = false
+    data.battLow = false
     data.showMax = false
     data.showDir = false
     playAudio("engarm")
@@ -230,7 +229,7 @@ local function flightModes()
     playAudio(data.gpsFix and "good" or "lost")
   end
   if modeIdPrev ~= data.modeId then -- New flight mode
-    if armed and modes[data.modeId].w ~= false then
+    if armed and modes[data.modeId].w ~= nil then
       playAudio(modes[data.modeId].w)
     elseif not armed and data.modeId == 6 and modeIdPrev == 5 then
       playAudio(modes[data.modeId].w)
@@ -292,11 +291,11 @@ local function flightModes()
         vibrate = true
         beep = true
       end
-      data.battlow = true
+      data.battLow = true
     elseif data.cell < config[2].v then
-      if not data.battlow then
+      if not data.battLow then
         playAudio("batlow")
-        data.battlow = true
+        data.battLow = true
       end
     else
       battNextPlay = 0
@@ -317,7 +316,7 @@ local function flightModes()
       playTone(2000, 100, 3000, PLAY_NOW)
     end
   else
-    data.battlow = false
+    data.battLow = false
     battPercentPlayed = 100
   end
   gpsFixPrev = data.gpsFix
@@ -529,7 +528,7 @@ local function run(event)
 
   -- Data & gauges
   local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= config[4].v) and FLASH or 0
-  local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
+  local battFlags = (telemFlags > 0 or data.battLow) and FLASH or 0
   local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
   local battNow = (config[1].v == 0) and data.cell or data.batt
   local battLow = (config[1].v == 0) and (data.battMin / data.cells) or data.battMin
@@ -604,7 +603,7 @@ local function run(event)
         local y = (line - 1) * 8 + config_y + 3
         local extra = (data.config == line and INVERS + data.configSelect or 0) + (config[line].d and PREC1 or 0)
         lcd.drawText(CONFIG_X + 4, y, config[line].t, SMLSIZE)
-        if config[line].n then
+        if config[line].d ~= nil then
           lcd.drawNumber(CONFIG_X + 77, y, config[line].d and config[line].v * 10 or config[line].v, SMLSIZE + extra)
         else
           if not config[line].l then
@@ -613,7 +612,7 @@ local function run(event)
             lcd.drawText(CONFIG_X + 77, y, config[line].l[config[line].v], SMLSIZE + extra)
           end
         end
-        if config[line].a then
+        if config[line].a ~= nil then
           lcd.drawText(lcd.getLastPos(), y, config[line].a, SMLSIZE + extra)
         end      
       end
@@ -630,7 +629,7 @@ local function run(event)
       else
         if event == EVT_EXIT_BREAK then
           data.configSelect = 0
-        elseif not config[data.config].n and (event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK) then
+        elseif config[data.config].d == nil and (event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK) then
           config[data.config].v = config[data.config].v == 1 and 0 or 1
         elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
           config[data.config].v = math.min(math.floor(config[data.config].v * 10 + config[data.config].i * 10) / 10, config[data.config].x)
@@ -649,14 +648,14 @@ local function run(event)
           end
         end
       end
-      
+
       if event == EVT_ENTER_BREAK then
         data.configSelect = (data.configSelect == 0) and BLINK or 0
       end
 
     end
   end
-  
+
   return 0
 end
 
