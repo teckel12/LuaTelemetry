@@ -94,18 +94,19 @@ Press the `Menu` button (when not armed) to display the configuration options me
 ## Release History
 
 #### v1.2.1
+* Config setting `10% mAh Alerts` changed to `Voice Status` to turn on/off all non-alert status notifications
 * Enhanced and cleaned up config menu, centered on Q X7 & X9D/+
 * Added `S` (South) to X9D/+ directional display
-#### v1.2.0
+#### v1.2.0 - 11/18/2017
 * Lua Telemetry is now pre-compiled to greatly reduce memory (source still available)
 * Press `Menu` button (when not armed) to modify user configuration options
 * Fixed `FAILSAFE`, `RTH`, `NOT OK` & `NO TELEM` modes to flash as they should
 * Barometer and magnetometer are now optional (but suggested for full functionality)
 * Headfree indication on Q X7 changed to show directional indicators as dotted lines
 * Startup message/version and error if not running OpenTX v2.2.0 or later
-#### v1.1.7
+#### v1.1.7 - 11/02/2017
 * Fix for the default unit type of the `Dist` (`0420`) sensor
-#### v1.1.6
+#### v1.1.6 - 11/01/2017
 * On home reset, reset GPS home position, orientation and distance
 * Option to display average battery cell voltage instead of total voltage
 * Extra digit for data on X9D & X9D Plus transmitters
