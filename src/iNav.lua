@@ -107,12 +107,12 @@ data.version = maj + minor / 10
 
 -- Config options: t=text / v=value(default) / m=min / x=max / i=inc*10 / n=number / d=decimal / a=append text / l=lookup text
 local config = {
-  { t="Battery View",   v=1,   m=0,   x=0,    i=0, n=false, d=false, a=false, l={[0]="Cell", "Total"} },
-  { t="Cell Low",       v=3.5, m=3.1, x=3.9,  i=1, n=true,  d=true,  a="V",   l=false },
-  { t="Cell Critical",  v=3.4, m=3.1, x=3.9,  i=1, n=true,  d=true,  a="V",   l=false },
+  { t="Battery View",   v=1,   m=0,   x=0,   i=0, n=false, d=false, a=false, l={[0]="Cell", "Total"} },
+  { t="Cell Low",       v=3.5, m=3.1, x=3.9, i=1, n=true,  d=true,  a="V",   l=false },
+  { t="Cell Critical",  v=3.4, m=3.1, x=3.9, i=1, n=true,  d=true,  a="V",   l=false },
   { t="Max Altitude",   v=data.altitude_unit == 10 and 400 or 123, m=0, x=9999, i=data.altitude_unit == 10 and 100 or 10, n=true, d=false, a=units[data.altitude_unit], l=false },
-  { t="Voice Alerts",   v=1,   m=0,   x=0,    i=0, n=false, d=false, a=false, l={[0]="Off", "On"} },
-  { t="10% mAh Alerts", v=1,   m=0,   x=0,    i=0, n=false, d=false, a=false, l={[0]="Off", "On"} }
+  { t="Voice Alerts",   v=1,   m=0,   x=0,   i=0, n=false, d=false, a=false, l={[0]="Off", "On"} },
+  { t="10% mAh Alerts", v=1,   m=0,   x=0,   i=0, n=false, d=false, a=false, l={[0]="Off", "On"} }
 }
 
 local function reset()
