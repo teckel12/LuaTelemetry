@@ -73,8 +73,6 @@ local data = {
   rssi_id = getTelemetryId("RSSI"),
   rssiMin_id = getTelemetryId("RSSI-"),
   accZ_id = getTelemetryId("AccZ"),
-  accZMin_id = getTelemetryId("AccZ-"),
-  accZMax_id = getTelemetryId("AccZ+"),
   txBatt_id = getTelemetryId("tx-voltage"),
   gpsAlt_unit = getTelemetryUnit("GAlt"),
   altitude_unit = getTelemetryUnit("Alt"),
@@ -92,7 +90,8 @@ local data = {
   telemFlags = -1,
   config = 0,
   configSelect = 0,
-  modeId = 1
+  modeId = 1,
+  startup = 1
 }
 
 data.showCurr = data.current_id > -1 and true or false
@@ -355,8 +354,6 @@ local function background()
     data.cellMin = data.battMin/data.cells
     data.rssiMin = getValue(data.rssiMin_id)
     data.accZ = getValue(data.accZ_id)
-    data.accZMin = getValue(data.accZMin_id)
-    data.accZMax = getValue(data.accZMax_id)
     data.txBatt = getValue(data.txBatt_id)
     data.rssiLast = data.rssi
     local gpsTemp = getValue(data.gpsLatLon_id)
@@ -569,6 +566,16 @@ local function run(event)
     local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[4].v * 46), 46), 0)
     lcd.drawLine(198, max, 210, max, DOTTED, FORCE)
     lcd.drawText(198, 58, "Alt", SMLSIZE)
+  end
+
+  -- Variometer
+  if data.armed then
+    local VAR_X = X_CNTR_2 + 16
+    local vario = math.max(math.min(math.floor(data.accZ * 5) / 5 - 1, 1), -1) * 12
+    if vario ~= 0 then
+      lcd.drawLine(VAR_X - 1, 21, VAR_X + 1, 21, SOLID, FORCE)
+      lcd.drawLine(VAR_X, 21, VAR_X, 21 - vario, SOLID, FORCE)
+    end
   end
 
   -- Title
