@@ -78,7 +78,7 @@ Press the `Menu` button (when not armed) to display the configuration options me
 * **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V)
 * **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 123m)
 * **Voice Alerts** - Turn on or off all voice alerts (default: On)
-* **10% mAh Alerts** - Voice alerts for each 10% fuel (with current sensor) (default: On)
+* **Voice Status** - Turn on or off all voice status notifications (default: On)
 
 ## Tips & Notes
 
@@ -94,7 +94,7 @@ Press the `Menu` button (when not armed) to display the configuration options me
 ## Release History
 
 #### v1.2.1
-* Enhanced config menu display, centered on Q X7 & X9D/+
+* Enhanced and cleaned up config menu, centered on Q X7 & X9D/+
 * Added `S` (South) to X9D/+ directional display
 #### v1.2.0
 * Lua Telemetry is now pre-compiled to greatly reduce memory (source still available)
