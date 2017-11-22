@@ -629,18 +629,12 @@ local function run(event)
       else
         if event == EVT_EXIT_BREAK then
           data.configSelect = 0
+        elseif not config[data.config].n and (event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK) then
+          config[data.config].v = config[data.config].v == 1 and 0 or 1
         elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
-          if config[data.config].n then
-            config[data.config].v = math.min(math.floor(config[data.config].v * 10 + config[data.config].i) / 10, config[data.config].x)
-          else
-            config[data.config].v = config[data.config].v == 1 and 0 or 1
-          end
+          config[data.config].v = math.min(math.floor(config[data.config].v * 10 + config[data.config].i) / 10, config[data.config].x)
         elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
-          if config[data.config].n then
-            config[data.config].v = math.max(math.floor(config[data.config].v * 10 - config[data.config].i) / 10, config[data.config].m)
-          else
-            config[data.config].v = config[data.config].v == 1 and 0 or 1
-          end
+          config[data.config].v = math.max(math.floor(config[data.config].v * 10 - config[data.config].i) / 10, config[data.config].m)
         end
 
         if data.config == 2 then
