@@ -130,9 +130,10 @@ local config = {
   { t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit] },
   { t="Variometer",    c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
   { t="RTH Feedback",  c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { t="HF Feedback",   c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} }
+  { t="HF Feedback",   c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
+  { t="RSSI Feedback", c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} }
 }
-local configValues = 9
+local configValues = 10
 
 local function saveConfig()
   local fh = io.open(FILE_PATH .. "config.dat", "w")
@@ -308,7 +309,7 @@ local function flightModes()
         beep = true
         vibrate = true
       end
-    elseif data.rssi < data.rssiLow then
+    elseif data.rssi < data.rssiLow and config[10].v == 1 then
       if data.rssi < data.rssiCrit then
         vibrate = true
       end
