@@ -68,8 +68,10 @@
 * The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up)
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
-#### User Setting
+#### Configuration Settings
 Press the `Menu` button (when not armed) to display the configuration options menu:
+
+> ***Update this for the new config options!***
 
 ![sample](assets/iNavConfig.png "Configuration menu")
 
@@ -95,7 +97,7 @@ Press the `Menu` button (when not armed) to display the configuration options me
 ## Release History
 
 #### v1.2.1
-* Config setting changed to `Voice Status` to turn on/off all non-alert status notifications
+* Lots of new/changed config settings - **Please review!**
 * Variometer to show if model is gaining or decreasing altitude
 * Enhanced and cleaned up config menu, centered menu on Q X7 & X9D/+
 * Added `S` (South) to X9D/+ directional display
