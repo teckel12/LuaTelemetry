@@ -120,20 +120,20 @@ local function reset()
   data.config = 0
 end
 
--- Config options: t=text / c=characters / v=value / l=lookup text / d=decimal / m=min / x=max / i=inc / a=append text
+-- Config options: o=display order / t=text / c=characters / v=value / l=lookup text / d=decimal / m=min / x=max / i=inc / a=append text
 local config = {
-  { t="Battery View",  c=1, v=1, m=0, x=1, i=1, l={[0]="Cell", "Total"} },
-  { t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { t="Voice",         c=1, v=2, m=0, x=2, i=1, l={[0]="Off", "Crit", "All"} },
-  { t="Feedback",      c=1, v=2, m=0, x=3, i=1, l={[0]="Off", "Vib", "Beep", "Both"} },
-  { t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit] },
-  { t="Variometer",    c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { t="RTH Feedback",  c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { t="HF Feedback",   c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { t="RSSI Feedback", c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { t="Battry Alert",  c=1, v=2, m=0, x=2, i=1, l={[0]="Off", "Crit", "All"} },
-  { t="Altitude Alert",c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} }
+  { o=1,  t="Battery View",  c=1, v=1, m=0, x=1, i=1, l={[0]="Cell", "Total"} },
+  { o=2,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V" },
+  { o=3,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V" },
+  { o=8,  t="Voice",         c=1, v=2, m=0, x=2, i=1, l={[0]="Off", "Crit", "All"} },
+  { o=9,  t="Feedback",      c=1, v=2, m=0, x=3, i=1, l={[0]="Off", "Vib", "Beep", "Both"} },
+  { o=5,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit] },
+  { o=7,  t="Variometer",    c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
+  { o=10, t="RTH Feedback",  c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
+  { o=11, t="HF Feedback",   c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
+  { o=12, t="RSSI Feedback", c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
+  { o=4,  t="Battry Alert",  c=1, v=2, m=0, x=2, i=1, l={[0]="Off", "Crit", "All"} },
+  { o=6,  t="Altitude Alert",c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} }
 }
 local configValues = 12
 
