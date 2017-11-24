@@ -15,7 +15,6 @@ local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 106
 local GPS_DIGITS = QX7 and 10000 or 1000000
 local CONFIG_X = QX7 and 8 or 50
-local VAR_X = X_CNTR_2 + 16
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -577,8 +576,8 @@ local function run(event)
 
   -- Variometer
   if data.armed and config[7].v == 1 then
-    lcd.drawLine(VAR_X - 1, 21, VAR_X + 1, 21, SOLID, FORCE)
-    lcd.drawLine(VAR_X, 21, VAR_X, 21 - math.max(math.min(math.floor(data.accZ * 20) / 20 - 1, 1), -1) * 12, SOLID, FORCE)
+    lcd.drawLine(X_CNTR_2 + 15, 21, X_CNTR_2 + 17, 21, SOLID, FORCE)
+    lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 16, 21 - math.max(math.min(math.floor(data.accZ * 20) / 20 - 1, 1), -1) * 12, SOLID, FORCE)
   end
 
   -- Title
