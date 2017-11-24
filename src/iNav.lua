@@ -160,13 +160,13 @@ end
 
 local function flightModes()
   local armedPrev = data.armed
-  local headFreePrev = data.headingHold
+  local headFreePrev = data.headFree
   local headingHoldPrev = data.headingHold
   local altHoldPrev = data.altHold
   local homeReset = false
   local modeIdPrev = data.modeId
   data.armed = false
-  data.headingHold = false
+  data.headFree = false
   data.headingHold = false
   data.altHold = false
   data.modeId = 1 -- No telemetry
@@ -185,7 +185,7 @@ local function flightModes()
       else
         data.modeId = 4 -- Acro
       end
-      data.headingHold = bit32.band(modeB, 4) == 4 and true or false
+      data.headFree = bit32.band(modeB, 4) == 4 and true or false
       data.headingHold = bit32.band(modeC, 1) == 1 and true or false
       data.altHold = bit32.band(modeC, 2) == 2 and true or false
       homeReset = data.satellites >= 4000 and true or false
@@ -247,8 +247,8 @@ local function flightModes()
       playAudio("hedhld")
       playAudio(data.headingHold and "active" or "off")
     end
-    if data.headingHold ~= headFreePrev then -- Head free status change
-      playAudio(data.headingHold and "hfact" or "hfoff", 1)
+    if data.headFree ~= headFreePrev then -- Head free status change
+      playAudio(data.headFree and "hfact" or "hfoff", 1)
     end
     if homeReset and not data.homeResetPrev then -- Home reset
       playAudio("homrst")
@@ -301,7 +301,7 @@ local function flightModes()
     else
       data.battNextPlay = 0
     end
-    if data.headingHold or modes[data.modeId].f ~= 0 then
+    if data.headFree or modes[data.modeId].f ~= 0 then
       beep = true
       vibrate = true
     elseif data.rssi < data.rssiLow then
@@ -401,7 +401,7 @@ local function drawDirection(heading, width, radius, x, y)
   local y2 = y - math.floor(math.cos(rad2) * radius + 0.5)
   local x3 = math.floor(math.sin(rad3) * radius + 0.5) + x
   local y3 = y - math.floor(math.cos(rad3) * radius + 0.5)
-  local lineType = (data.headingHold and QX7) and DOTTED or SOLID
+  local lineType = (data.headFree and QX7) and DOTTED or SOLID
   lcd.drawLine(x1, y1, x2, y2, lineType, FORCE)
   lcd.drawLine(x1, y1, x3, y3, lineType, FORCE)
   if data.headingHold then
@@ -512,7 +512,7 @@ local function run(event)
   lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   local x = X_CNTR_2 - (lcd.getLastPos() / 2)
   lcd.drawText(x, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
-  if data.headingHold and not QX7 then
+  if data.headFree and not QX7 then
     lcd.drawText(lcd.getLastPos() + 1, 33, " HF ", FLASH)
   end
 
@@ -571,11 +571,9 @@ local function run(event)
   -- Variometer
   if data.armed then
     local VAR_X = X_CNTR_2 + 16
-    local vario = math.max(math.min(math.floor(data.accZ * 5) / 5 - 1, 1), -1) * 12
-    if vario ~= 0 then
-      lcd.drawLine(VAR_X - 1, 21, VAR_X + 1, 21, SOLID, FORCE)
-      lcd.drawLine(VAR_X, 21, VAR_X, 21 - vario, SOLID, FORCE)
-    end
+    local vario = math.max(math.min(math.floor(data.accZ * 20) / 20 - 1, 1), -1) * 12
+    lcd.drawLine(VAR_X - 1, 21, VAR_X + 1, 21, SOLID, FORCE)
+    lcd.drawLine(VAR_X, 21, VAR_X, 21 - vario, SOLID, FORCE)
   end
 
   -- Title
