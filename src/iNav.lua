@@ -15,6 +15,7 @@ local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 106
 local GPS_DIGITS = QX7 and 10000 or 1000000
 local CONFIG_X = QX7 and 8 or 50
+local VAR_X = X_CNTR_2 + 16
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -119,21 +120,22 @@ local function reset()
   data.config = 0
 end
 
--- Config options: t=text / v=value / l=lookup text / d=decimal / m=min / x=max / i=inc / a=append text
+-- Config options: t=text / c=characters / v=value / l=lookup text / d=decimal / m=min / x=max / i=inc / a=append text
 local config = {
-  { t="Battery View",  v=1, l={[0]="Cell", "Total"} },
-  { t="Cell Low",      v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { t="Cell Critical", v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { t="Max Altitude",  v=data.altitude_unit == 10 and 400 or 123, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, d=false, a=units[data.altitude_unit] },
-  { t="Voice Alerts",  v=1, l={[0]="Off", "On"} },
-  { t="Voice Status",  v=1, l={[0]="Off", "On"} }
+  { t="Battery View",  c=1, v=1, l={[0]="Cell", "Total"} },
+  { t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V" },
+  { t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V" },
+  { t="Voice Alerts",  c=1, v=1, l={[0]="Off", "On"} },
+  { t="Voice Status",  c=1, v=1, l={[0]="Off", "On"} },
+  { t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit] },
+  { t="Variometer",    c=1, v=1, l={[0]="Off", "On"} }
 }
-local configValues = 6
+local configValues = 7
 
 local function saveConfig()
   local fh = io.open(FILE_PATH .. "config.dat", "w")
   if fh ~= nil then
-    io.write(fh, config[1].v, math.floor(config[2].v * 10), math.floor(config[3].v * 10), config[5].v, config[6].v, config[4].v)
+    io.write(fh, config[1].v, math.floor(config[2].v * 10), math.floor(config[3].v * 10), config[4].v, config[5].v, string.format("%04d", config[6].v), config[7].v)
     io.close(fh)
   end
 end
@@ -143,17 +145,17 @@ local fh = io.open(FILE_PATH .. "config.dat", "r")
 if fh == nil then
   saveConfig()
 else
-  config[1].v = tonumber(io.read(fh, 1))
-  config[2].v = io.read(fh, 2) / 10
-  config[3].v = io.read(fh, 2) / 10
-  config[5].v = tonumber(io.read(fh, 1))
-  config[6].v = tonumber(io.read(fh, 1))
-  config[4].v = tonumber(io.read(fh, 4))
+  for line = 1, configValues do
+    local tmp = io.read(fh, config[line].c)
+    if tmp ~= "" then
+      config[line].v = config[line].d == nil and tonumber(tmp) or tmp / 10
+    end
+  end
   io.close(fh)
 end
 
 local function playAudio(file, alert)
-  if (config[5].v == 1 and alert ~= nil) or (config[6].v == 1 and alert == nil) then
+  if (config[4].v == 1 and alert ~= nil) or (config[5].v == 1 and alert == nil) then
     playFile(FILE_PATH .. file .. ".wav")
   end
 end
@@ -255,9 +257,9 @@ local function flightModes()
       data.gpsHome = false
       data.headingRef = data.heading
     end
-    if data.altitude + 0.5 >= config[4].v then -- Altitude alert
+    if data.altitude + 0.5 >= config[6].v then -- Altitude alert
       if getTime() > data.altNextPlay then
-        if config[5].v == 1 then
+        if config[4].v == 1 then
           playNumber(data.altitude + 0.5, data.altitude_unit)
           data.altNextPlay = getTime() + 1000
         end
@@ -267,23 +269,21 @@ local function flightModes()
     end
     if data.battPercentPlayed > data.fuel then -- Battery notification/alert
       if data.fuel == 30 or data.fuel == 25 then
-        if config[5].v == 1 then
+        if config[4].v == 1 then
           playAudio("batlow", 1)
           playNumber(data.fuel, 13)
           data.battPercentPlayed = data.fuel
         end
-      elseif config[6].v == 1 and data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
-        if config[6].v == 1 then
-          playAudio("battry")
-          playNumber(data.fuel, 13)
-          data.battPercentPlayed = data.fuel
-        end
+      elseif config[5].v == 1 and data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
+        playAudio("battry")
+        playNumber(data.fuel, 13)
+        data.battPercentPlayed = data.fuel
       end
     end
     if data.fuel <= 20 or data.cell < config[3].v then
       if getTime() > data.battNextPlay then
         playAudio("batcrt", 1)
-        if data.fuel <= 20 and data.battPercentPlayed > data.fuel and config[5].v == 1 then
+        if data.fuel <= 20 and data.battPercentPlayed > data.fuel and config[4].v == 1 then
           playNumber(data.fuel, 13)
           data.battPercentPlayed = data.fuel
         end
@@ -529,7 +529,7 @@ local function run(event)
   end
 
   -- Data & gauges
-  local altFlags = (data.telemFlags > 0 or data.altitude + 0.5 >= config[4].v) and FLASH or 0
+  local altFlags = (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0
   local battFlags = (data.telemFlags > 0 or data.battLow) and FLASH or 0
   local rssiFlags = (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
   local battNow = (config[1].v == 0) and data.cell or data.batt
@@ -561,19 +561,17 @@ local function run(event)
   lcd.drawLine(min, 58, min, 62, SOLID, ERASE)
   if not QX7 and data.showAlt then
     lcd.drawRectangle(197, 9, 15, 48, SOLID)
-    local height = math.max(math.min(math.ceil(data.altitude / config[4].v * 46), 46), 0)
+    local height = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
     lcd.drawFilledRectangle(198, 56 - height, 13, height, INVERS)
-    local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[4].v * 46), 46), 0)
+    local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
     lcd.drawLine(198, max, 210, max, DOTTED, FORCE)
     lcd.drawText(198, 58, "Alt", SMLSIZE)
   end
 
   -- Variometer
-  if data.armed then
-    local VAR_X = X_CNTR_2 + 16
-    local vario = math.max(math.min(math.floor(data.accZ * 20) / 20 - 1, 1), -1) * 12
+  if data.armed and config[7].v == 1 then
     lcd.drawLine(VAR_X - 1, 21, VAR_X + 1, 21, SOLID, FORCE)
-    lcd.drawLine(VAR_X, 21, VAR_X, 21 - vario, SOLID, FORCE)
+    lcd.drawLine(VAR_X, 21, VAR_X, 21 - math.max(math.min(math.floor(data.accZ * 20) / 20 - 1, 1), -1) * 12, SOLID, FORCE)
   end
 
   -- Title
@@ -597,7 +595,7 @@ local function run(event)
 
   -- Config
   if not data.armed then
-    if event == EVT_MENU_BREAK then
+    if event == EVT_MENU_BREAK and data.config == 0 then
       data.config = 1
       configSelect = 0
       configTop = 1
@@ -612,10 +610,10 @@ local function run(event)
       lcd.drawRectangle(CONFIG_X, config_y, 112, config_h, SOLID)
       for line = configTop, math.min(configValues, configTop + 5) do
         local y = (line - configTop) * 8 + config_y + 3
-        local extra = (data.config == line and INVERS + configSelect or 0) + (config[line].d and PREC1 or 0)
+        local extra = (data.config == line and INVERS + configSelect or 0) + (config[line].d ~= nil and PREC1 or 0)
         lcd.drawText(CONFIG_X + 4, y, config[line].t, SMLSIZE)
-        if config[line].d ~= nil then
-          lcd.drawNumber(CONFIG_X + 77, y, config[line].d and config[line].v * 10 or config[line].v, SMLSIZE + extra)
+        if config[line].l == nil then
+          lcd.drawNumber(CONFIG_X + 77, y, config[line].d ~= nil and config[line].v * 10 or config[line].v, SMLSIZE + extra)
         else
           if not config[line].l then
             lcd.drawText(CONFIG_X + 77, y, config[line].v, SMLSIZE + extra)
@@ -646,7 +644,7 @@ local function run(event)
       else
         if event == EVT_EXIT_BREAK then
           configSelect = 0
-        elseif config[data.config].d == nil and (event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK) then
+        elseif config[data.config].l ~= nil and (event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK) then
           config[data.config].v = config[data.config].v == 1 and 0 or 1
         elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
           config[data.config].v = math.min(math.floor(config[data.config].v * 10 + config[data.config].i * 10) / 10, config[data.config].x)
