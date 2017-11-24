@@ -122,15 +122,17 @@ end
 
 -- Config options: t=text / c=characters / v=value / l=lookup text / d=decimal / m=min / x=max / i=inc / a=append text
 local config = {
-  { t="Battery View",  c=1, v=1, l={[0]="Cell", "Total"} },
+  { t="Battery View",  c=1, v=1, m=0, x=1, i=1, l={[0]="Cell", "Total"} },
   { t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V" },
   { t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { t="Voice Alerts",  c=1, v=1, l={[0]="Off", "On"} },
-  { t="Voice Status",  c=1, v=1, l={[0]="Off", "On"} },
+  { t="Voice",         c=1, v=2, m=0, x=2, i=1, l={[0]="Off", "Crit", "All"} },
+  { t="Feedback",      c=1, v=2, m=0, x=3, i=1, l={[0]="Off", "Vib", "Beep", "Both"} },
   { t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit] },
-  { t="Variometer",    c=1, v=1, l={[0]="Off", "On"} }
+  { t="Variometer",    c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
+  { t="RTH Feedback",  c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
+  { t="HF Feedback",   c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} }
 }
-local configValues = 7
+local configValues = 9
 
 local function saveConfig()
   local fh = io.open(FILE_PATH .. "config.dat", "w")
@@ -155,7 +157,7 @@ else
 end
 
 local function playAudio(file, alert)
-  if (config[4].v == 1 and alert ~= nil) or (config[5].v == 1 and alert == nil) then
+  if config[4].v == 2 or (config[4].v == 1 and alert ~= nil) then
     playFile(FILE_PATH .. file .. ".wav")
   end
 end
@@ -301,19 +303,21 @@ local function flightModes()
     else
       data.battNextPlay = 0
     end
-    if data.headFree or modes[data.modeId].f ~= 0 then
-      beep = true
-      vibrate = true
+    if (data.headFree and config[9].v == 1) or modes[data.modeId].f ~= 0 then
+      if data.modeId =~ 11 or (data.modeId == 11 and config[8].v == 1) then
+        beep = true
+        vibrate = true
+      end
     elseif data.rssi < data.rssiLow then
       if data.rssi < data.rssiCrit then
         vibrate = true
       end
       beep = true
     end
-    if vibrate then
+    if vibrate and (config[5].v == 1 or config[5].v == 3) then
       playHaptic(25, 3000)
     end
-    if beep then
+    if beep and config[5].v >= 2 then
       playTone(2000, 100, 3000, PLAY_NOW)
     end
   else
@@ -644,8 +648,6 @@ local function run(event)
       else
         if event == EVT_EXIT_BREAK then
           configSelect = 0
-        elseif config[data.config].l ~= nil and (event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK) then
-          config[data.config].v = config[data.config].v == 1 and 0 or 1
         elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
           config[data.config].v = math.min(math.floor(config[data.config].v * 10 + config[data.config].i * 10) / 10, config[data.config].x)
         elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
