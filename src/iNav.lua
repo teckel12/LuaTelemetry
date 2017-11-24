@@ -131,9 +131,11 @@ local config = {
   { t="Variometer",    c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
   { t="RTH Feedback",  c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
   { t="HF Feedback",   c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { t="RSSI Feedback", c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} }
+  { t="RSSI Feedback", c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
+  { t="Battry Alert",  c=1, v=2, m=0, x=2, i=1, l={[0]="Off", "Crit", "All"} },
+  { t="Altitude Alert",c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} }
 }
-local configValues = 10
+local configValues = 12
 
 local function saveConfig()
   local fh = io.open(FILE_PATH .. "config.dat", "w")
@@ -260,7 +262,7 @@ local function flightModes()
       data.gpsHome = false
       data.headingRef = data.heading
     end
-    if data.altitude + 0.5 >= config[6].v then -- Altitude alert
+    if data.altitude + 0.5 >= config[6].v and config[12].v == 1 then -- Altitude alert
       if getTime() > data.altNextPlay then
         if config[4].v == 1 then
           playNumber(data.altitude + 0.5, data.altitude_unit)
@@ -270,7 +272,7 @@ local function flightModes()
         beep = true
       end
     end
-    if data.battPercentPlayed > data.fuel then -- Battery notification/alert
+    if data.battPercentPlayed > data.fuel and config[11].v == 2 then -- Battery notification/alert
       if data.fuel == 30 or data.fuel == 25 then
         if config[4].v == 1 then
           playAudio("batlow", 1)
@@ -283,7 +285,7 @@ local function flightModes()
         data.battPercentPlayed = data.fuel
       end
     end
-    if data.fuel <= 20 or data.cell < config[3].v then
+    if (data.fuel <= 20 or data.cell < config[3].v) and config[11].v >= 1 then
       if getTime() > data.battNextPlay then
         playAudio("batcrt", 1)
         if data.fuel <= 20 and data.battPercentPlayed > data.fuel and config[4].v == 1 then
@@ -296,7 +298,7 @@ local function flightModes()
         beep = true
       end
       data.battLow = true
-    elseif data.cell < config[2].v then
+    elseif data.cell < config[2].v and config[11].v == 2 then
       if not data.battLow then
         playAudio("batlow", 1)
         data.battLow = true
