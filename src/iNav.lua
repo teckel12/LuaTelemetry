@@ -119,22 +119,23 @@ local function reset()
   data.config = 0
 end
 
--- Config options: o=display Order / t=Text / c=Characters / v=Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text / b=Blocked by
+-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text / b=Blocked by
 local config = {
   { o=1,  t="Battery View",  c=1, v=1, i=1, l={[0]="Cell", "Total"} },
   { o=3,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
   { o=4,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
-  { o=8,  t="Voice Alerts",  c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
-  { o=9,  t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "On"} },
+  { o=9,  t="Voice Alerts",  c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
+  { o=10, t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "On"} },
   { o=6,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit], b=5 },
-  { o=7,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=10, t="RTH Feedback",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
-  { o=11, t="HF Feedback",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
-  { o=12, t="RSSI Feedback", c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
+  { o=8,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
+  { o=11, t="RTH Feedback",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=10 },
+  { o=12, t="HF Feedback",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=10 },
+  { o=13, t="RSSI Feedback", c=1, v=1, i=1, l={[0]="Off", "On"}, b=10 },
   { o=2,  t="Battery Alerts",c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
-  { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} }
+  { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
+  { o=7,  t="Timer",         c=1, v=0, x=3, i=1, l={[0]="Auto", "Timer1", "Timer2", "Timer3"} }
 }
-local configValues = 12
+local configValues = 13
 for i = 1, configValues do
   for ii = 1, configValues do
     if i == config[ii].o then
@@ -257,7 +258,11 @@ local function flightModes()
   end
   if data.armed then
     data.distanceLast = data.distance
-    data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer    
+    if config[13].v == 0 then
+      data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
+    else
+      data.timer = model.getTimer(config[13].v - 1)["value"]
+    end
     if data.altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
       playAudio("althld")
       playAudio(data.altHold and "active" or "off")
