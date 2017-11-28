@@ -119,29 +119,41 @@ local function reset()
   data.config = 0
 end
 
--- Config options: o=display order / t=text / c=characters / v=value / l=lookup text / d=decimal / m=min / x=max / i=inc / a=append text
+-- Config options: o=display Order / t=Text / c=Characters / v=Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text
 local config = {
-  { o=1,  t="Battery View",  c=1, v=1, m=0, x=1, i=1, l={[0]="Cell", "Total"} },
-  { o=2,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { o=3,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V" },
-  { o=8,  t="Voice",         c=1, v=2, m=0, x=2, i=1, l={[0]="Off", "Crit", "All"} },
-  { o=9,  t="Feedback",      c=1, v=2, m=0, x=3, i=1, l={[0]="Off", "Vib", "Beep", "Both"} },
-  { o=5,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, m=0, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit] },
-  { o=7,  t="Variometer",    c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { o=10, t="RTH Feedback",  c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { o=11, t="HF Feedback",   c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { o=12, t="RSSI Feedback", c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} },
-  { o=4,  t="Battry Alert",  c=1, v=2, m=0, x=2, i=1, l={[0]="Off", "Crit", "All"} },
-  { o=6,  t="Altitude Alert",c=1, v=1, m=0, x=1, i=1, l={[0]="Off", "On"} }
+  { o=1,  t="Battery View",  c=1, v=1, i=1, l={[0]="Cell", "Total"} },
+  { o=3,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
+  { o=4,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
+  { o=8,  t="Voice",         c=1, v=2, x=2, i=1, l={[0]="Off", "Crit", "All"} },
+  { o=9,  t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "All"} },
+  { o=6,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit], b=5 },
+  { o=7,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
+  { o=10, t="RTH Warning",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
+  { o=11, t="HF Warning",    c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
+  { o=12, t="RSSI Warning",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
+  { o=2,  t="Battry Warning",c=1, v=2, x=2, i=1, l={[0]="Off", "Crit", "All"} },
+  { o=5,  t="Alt Warning",   c=1, v=1, i=1, l={[0]="Off", "On"} }
 }
 local configValues = 12
+for i = 1, configValues do
+  for ii = 1, configValues do
+    if i == config[ii].o then
+      config[i].z = ii
+      config[ii].o = nil
+    end
+  end
+end
 
 local function saveConfig()
   local fh = io.open(FILE_PATH .. "config.dat", "w")
-  if fh ~= nil then
-    io.write(fh, config[1].v, math.floor(config[2].v * 10), math.floor(config[3].v * 10), config[4].v, config[5].v, string.format("%04d", config[6].v), config[7].v)
-    io.close(fh)
+  for line = 1, configValues do
+    if config[line].d == nil then
+      io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
+    else 
+      io.write(fh, math.floor(config[line].v * 10))
+    end
   end
+  io.close(fh)
 end
 
 -- Load config data
@@ -306,7 +318,7 @@ local function flightModes()
       data.battNextPlay = 0
     end
     if (data.headFree and config[9].v == 1) or modes[data.modeId].f ~= 0 then
-      if data.modeId =~ 11 or (data.modeId == 11 and config[8].v == 1) then
+      if data.modeId ~= 11 or (data.modeId == 11 and config[8].v == 1) then
         beep = true
         vibrate = true
       end
@@ -616,20 +628,25 @@ local function run(event)
       lcd.drawRectangle(CONFIG_X, config_y, 112, config_h, SOLID)
       for line = configTop, math.min(configValues, configTop + 5) do
         local y = (line - configTop) * 8 + config_y + 3
-        local extra = (data.config == line and INVERS + configSelect or 0) + (config[line].d ~= nil and PREC1 or 0)
-        lcd.drawText(CONFIG_X + 4, y, config[line].t, SMLSIZE)
-        if config[line].l == nil then
-          lcd.drawNumber(CONFIG_X + 77, y, config[line].d ~= nil and config[line].v * 10 or config[line].v, SMLSIZE + extra)
+        local z = config[line].z
+        local extra = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
+        config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
+        lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
+        if config[z].l == nil then
+          lcd.drawNumber(CONFIG_X + 77, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + extra)
+          if config[z].a ~= nil then
+            lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + extra)
+          end
         else
-          if not config[line].l then
-            lcd.drawText(CONFIG_X + 77, y, config[line].v, SMLSIZE + extra)
+          if not config[z].l then
+            lcd.drawText(CONFIG_X + 77, y, config[z].v, SMLSIZE + extra)
           else
-            lcd.drawText(CONFIG_X + 77, y, config[line].l[config[line].v], SMLSIZE + extra)
+            lcd.drawText(CONFIG_X + 77, y, config[z].l[config[z].v], SMLSIZE + extra)
           end
         end
-        if config[line].a ~= nil then
-          lcd.drawText(lcd.getLastPos(), y, config[line].a, SMLSIZE + extra)
-        end      
+        if config[z].p ~= nil then
+          lcd.drawLine(CONFIG_X + 3, y + 3, CONFIG_X + 107, y + 3, SOLID, FORCE)
+        end
       end
 
       if configSelect == 0 then
@@ -648,28 +665,34 @@ local function run(event)
           end
         end
       else
+        local z = config[data.config].z
         if event == EVT_EXIT_BREAK then
           configSelect = 0
         elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
-          config[data.config].v = math.min(math.floor(config[data.config].v * 10 + config[data.config].i * 10) / 10, config[data.config].x)
+          config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
         elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
-          config[data.config].v = math.max(math.floor(config[data.config].v * 10 - config[data.config].i * 10) / 10, config[data.config].m)
+          config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
         end
 
         -- Special cases
         if event then
-          if data.config == 2 then -- Cell low > critical
+          if z == 2 then -- Cell low > critical
             config[2].v = math.max(config[2].v, config[3].v + 0.1)
-          elseif data.config == 3 then -- Cell critical < low
+          elseif z == 3 then -- Cell critical < low
             config[3].v = math.min(config[3].v, config[2].v - 0.1)
-          elseif config[data.config].i then
-            config[data.config].v = math.floor(config[data.config].v / config[data.config].i) * config[data.config].i
+          elseif config[z].i > 1 then
+            config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
           end
         end
       end
 
       if event == EVT_ENTER_BREAK then
-        configSelect = (configSelect == 0) and BLINK or 0
+        if config[config[data.config].z].p == nil then
+          configSelect = (configSelect == 0) and BLINK or 0
+        else
+          playTone(2000, 100, 500, PLAY_NOW)
+          playHaptic(25, 500)
+        end
       end
 
     end
