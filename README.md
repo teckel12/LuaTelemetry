@@ -71,17 +71,20 @@
 #### Configuration Settings
 Press the `Menu` button (when not armed) to display the configuration options menu:
 
-> ***Update this for the new config options!***
-
 ![sample](assets/iNavConfig.png "Configuration menu")
 
 * **Battery View** - Total battery voltage / Cell voltage average (default: Total)
+* **Battery Alert** - Battery alerts on, off, or only critical alerts (default: On)
 * **Cell Low** - Cell voltage for low battery warning (default: 3.5V)
 * **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V)
-* **Voice Alerts** - Turn on or off all voice alerts (default: On)
-* **Voice Status** - Turn on or off all voice status notifications (default: On)
+* **Altitude Alert** - Turn on or off the altitude alert (default: On)
 * **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 120m)
 * **Variometer** - Show if model is gaining or decreasing altitude (default: On)
+* **Voice Alerts** - Voice alerts on, off, or only critical alerts (default: On)
+* **Feedback** - Turn beeper and/or heptic feedback for alerts on or off (default: On)
+* **RTH Feedback** - Return to home beeper and heptic feedback on or off (default: On)
+* **HF Feedback** - Head free beeper and heptic feedback on or off (default: On)
+* **RSSI Feedback** - RSSI beeper and heptic feedback on or off (default: On)
 
 ## Tips & Notes
 
@@ -97,8 +100,8 @@ Press the `Menu` button (when not armed) to display the configuration options me
 ## Release History
 
 #### v1.2.1
-* Lots of new/changed config settings - **Please review!**
-* Variometer to show if model is gaining or decreasing altitude
+* Lots of new/changed config settings (press `Menu` button to access) - **Please review!**
+* Variometer shows if model is gaining or decreasing altitude
 * Enhanced and cleaned up config menu, centered menu on Q X7 & X9D/+
 * Added `S` (South) to X9D/+ directional display
 #### v1.2.0 - 11/18/2017

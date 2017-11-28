@@ -14,7 +14,7 @@ local GAUGE_WIDTH = QX7 and 82 or 149
 local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 106
 local GPS_DIGITS = QX7 and 10000 or 1000000
-local CONFIG_X = QX7 and 8 or 50
+local CONFIG_X = QX7 and 6 or 48
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -119,20 +119,20 @@ local function reset()
   data.config = 0
 end
 
--- Config options: o=display Order / t=Text / c=Characters / v=Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text
+-- Config options: o=display Order / t=Text / c=Characters / v=Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text / b=Blocked by
 local config = {
   { o=1,  t="Battery View",  c=1, v=1, i=1, l={[0]="Cell", "Total"} },
   { o=3,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
   { o=4,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
-  { o=8,  t="Voice",         c=1, v=2, x=2, i=1, l={[0]="Off", "Crit", "All"} },
-  { o=9,  t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "All"} },
+  { o=8,  t="Voice Alerts",  c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
+  { o=9,  t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "On"} },
   { o=6,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit], b=5 },
   { o=7,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=10, t="RTH Warning",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
-  { o=11, t="HF Warning",    c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
-  { o=12, t="RSSI Warning",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
-  { o=2,  t="Battry Warning",c=1, v=2, x=2, i=1, l={[0]="Off", "Crit", "All"} },
-  { o=5,  t="Alt Warning",   c=1, v=1, i=1, l={[0]="Off", "On"} }
+  { o=10, t="RTH Feedback",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
+  { o=11, t="HF Feedback",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
+  { o=12, t="RSSI Feedback", c=1, v=1, i=1, l={[0]="Off", "On"}, b=9 },
+  { o=2,  t="Battery Alerts",c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
+  { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} }
 }
 local configValues = 12
 for i = 1, configValues do
@@ -235,6 +235,7 @@ local function flightModes()
     data.battLow = false
     data.showMax = false
     data.showDir = false
+    data.config = 0
     playAudio("engarm", 1)
   elseif not data.armed and armedPrev then -- Engines disarmed
     if data.distanceLast <= data.distRef then
@@ -273,33 +274,31 @@ local function flightModes()
       data.gpsHome = false
       data.headingRef = data.heading
     end
-    if data.altitude + 0.5 >= config[6].v and config[12].v == 1 then -- Altitude alert
+    if data.altitude + 0.5 >= config[6].v and config[12].v > 0 then -- Altitude alert
       if getTime() > data.altNextPlay then
-        if config[4].v == 1 then
+        if config[4].v > 0 then
           playNumber(data.altitude + 0.5, data.altitude_unit)
-          data.altNextPlay = getTime() + 1000
         end
+        data.altNextPlay = getTime() + 1000
       else
         beep = true
       end
     end
-    if data.battPercentPlayed > data.fuel and config[11].v == 2 then -- Battery notification/alert
+    if data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
       if data.fuel == 30 or data.fuel == 25 then
-        if config[4].v == 1 then
-          playAudio("batlow", 1)
-          playNumber(data.fuel, 13)
-          data.battPercentPlayed = data.fuel
-        end
-      elseif config[5].v == 1 and data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
+        playAudio("batlow")
+        playNumber(data.fuel, 13)
+        data.battPercentPlayed = data.fuel
+      elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
         playAudio("battry")
         playNumber(data.fuel, 13)
         data.battPercentPlayed = data.fuel
       end
     end
-    if (data.fuel <= 20 or data.cell < config[3].v) and config[11].v >= 1 then
+    if (data.fuel <= 20 or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
       if getTime() > data.battNextPlay then
         playAudio("batcrt", 1)
-        if data.fuel <= 20 and data.battPercentPlayed > data.fuel and config[4].v == 1 then
+        if data.fuel <= 20 and data.battPercentPlayed > data.fuel and config[4].v > 0 then
           playNumber(data.fuel, 13)
           data.battPercentPlayed = data.fuel
         end
@@ -309,9 +308,9 @@ local function flightModes()
         beep = true
       end
       data.battLow = true
-    elseif data.cell < config[2].v and config[11].v == 2 then
+    elseif data.cell < config[2].v and config[11].v == 2 then -- Voltage notification
       if not data.battLow then
-        playAudio("batlow", 1)
+        playAudio("batlow")
         data.battLow = true
       end
     else
@@ -548,7 +547,7 @@ local function run(event)
 
   -- Data & gauges
   local altFlags = (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0
-  local battFlags = (data.telemFlags > 0 or data.battLow) and FLASH or 0
+  local battFlags = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
   local rssiFlags = (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
   local battNow = (config[1].v == 0) and data.cell or data.batt
   local battLow = (config[1].v == 0) and (data.battMin / data.cells) or data.battMin
@@ -624,28 +623,30 @@ local function run(event)
       local config_y = 34 - configMax * 4
 
       -- Display menu
-      lcd.drawFilledRectangle(CONFIG_X, config_y, 112, config_h, ERASE)
-      lcd.drawRectangle(CONFIG_X, config_y, 112, config_h, SOLID)
+      lcd.drawFilledRectangle(CONFIG_X, config_y, 116, config_h, ERASE)
+      lcd.drawRectangle(CONFIG_X, config_y, 116, config_h, SOLID)
       for line = configTop, math.min(configValues, configTop + 5) do
         local y = (line - configTop) * 8 + config_y + 3
         local z = config[line].z
         local extra = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
         config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
         lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
-        if config[z].l == nil then
-          lcd.drawNumber(CONFIG_X + 77, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + extra)
-          if config[z].a ~= nil then
-            lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + extra)
-          end
-        else
-          if not config[z].l then
-            lcd.drawText(CONFIG_X + 77, y, config[z].v, SMLSIZE + extra)
-          else
-            lcd.drawText(CONFIG_X + 77, y, config[z].l[config[z].v], SMLSIZE + extra)
-          end
-        end
         if config[z].p ~= nil then
-          lcd.drawLine(CONFIG_X + 3, y + 3, CONFIG_X + 107, y + 3, SOLID, FORCE)
+          lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + extra)
+          lcd.drawLine(CONFIG_X + 77, y + 3, CONFIG_X + 91, y + 3, SOLID, FORCE)
+        else
+          if config[z].l == nil then
+            lcd.drawNumber(CONFIG_X + 78, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + extra)
+            if config[z].a ~= nil then
+              lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + extra)
+            end
+          else
+            if not config[z].l then
+              lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + extra)
+            else
+              lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v], SMLSIZE + extra)
+            end
+          end
         end
       end
 
@@ -690,8 +691,8 @@ local function run(event)
         if config[config[data.config].z].p == nil then
           configSelect = (configSelect == 0) and BLINK or 0
         else
-          playTone(2000, 100, 500, PLAY_NOW)
-          playHaptic(25, 500)
+          playTone(2000, 100, 100, PLAY_NOW)
+          playHaptic(25, 100)
         end
       end
 
