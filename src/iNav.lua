@@ -89,7 +89,6 @@ local data = {
   altHold = false,
   telemFlags = -1,
   config = 0,
-  configSelect = 0,
   modeId = 1,
   startup = 1
 }
@@ -624,17 +623,13 @@ local function run(event)
       data.config = 1
       configSelect = 0
       configTop = 1
-      configMax = math.min(configValues, configTop + 5)
     end
     if data.config > 0 then
-      local config_h = configMax * 8 + 4
-      local config_y = 34 - configMax * 4
-
       -- Display menu
-      lcd.drawFilledRectangle(CONFIG_X, config_y, 116, config_h, ERASE)
-      lcd.drawRectangle(CONFIG_X, config_y, 116, config_h, SOLID)
+      lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
+      lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
       for line = configTop, math.min(configValues, configTop + 5) do
-        local y = (line - configTop) * 8 + config_y + 3
+        local y = (line - configTop) * 8 + 10 + 3
         local z = config[line].z
         local extra = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
         config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
