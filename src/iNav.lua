@@ -124,18 +124,19 @@ local config = {
   { o=1,  t="Battery View",  c=1, v=1, i=1, l={[0]="Cell", "Total"} },
   { o=3,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
   { o=4,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
-  { o=9,  t="Voice Alerts",  c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
-  { o=10, t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "On"} },
+  { o=10, t="Voice Alerts",  c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
+  { o=11, t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "On"} },
   { o=6,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit], b=5 },
-  { o=8,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=11, t="RTH Feedback",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=10 },
-  { o=12, t="HF Feedback",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=10 },
-  { o=13, t="RSSI Feedback", c=1, v=1, i=1, l={[0]="Off", "On"}, b=10 },
+  { o=9,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
+  { o=12, t="RTH Feedback",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
+  { o=13, t="HF Feedback",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
+  { o=14, t="RSSI Feedback", c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
   { o=2,  t="Battery Alerts",c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
   { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=7,  t="Timer",         c=1, v=0, x=3, i=1, l={[0]="Auto", "Timer1", "Timer2", "Timer3"} }
+  { o=7,  t="Timer",         c=1, v=1, x=4, i=1, l={[0]="Off", "Auto", "Timer1", "Timer2", "Timer3"} },
+  { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} }
 }
-local configValues = 13
+local configValues = 14
 for i = 1, configValues do
   for ii = 1, configValues do
     if i == config[ii].o then
@@ -258,10 +259,10 @@ local function flightModes()
   end
   if data.armed then
     data.distanceLast = data.distance
-    if config[13].v == 0 then
+    if config[13].v == 1 then
       data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
-    else
-      data.timer = model.getTimer(config[13].v - 1)["value"]
+    elseif config[13].v > 1 then
+      data.timer = model.getTimer(config[13].v - 2)["value"]
     end
     if data.altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
       playAudio("althld")
@@ -599,7 +600,9 @@ local function run(event)
   -- Title
   lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
   lcd.drawText(0, 0, data.modelName, INVERS)
-  lcd.drawTimer(QX7 and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
+  if config[13].v > 0 then
+    lcd.drawTimer(QX7 and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
+  end
   lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
   lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
   local battGauge = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
@@ -610,7 +613,7 @@ local function run(event)
     lcd.drawNumber(110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
-  if data.rxBatt > 0 and data.telemetry then
+  if data.rxBatt > 0 and data.telemetry and config[14].v == 1 then
     lcd.drawNumber(LCD_W - 17, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
