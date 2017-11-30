@@ -103,8 +103,9 @@ When not armed press the `Menu` button to display the configuration options menu
 
 #### v1.2.1
 * Lots of new/changed config settings (press `Menu` button to access) - **Please review!**
-* Variometer shows if model is gaining or decreasing altitude
 * Enhanced and cleaned up config menu, centered menu on Q X7 & X9D/+
+* Variometer shows if model is gaining or decreasing altitude
+* Cell voltage battery view shows with two digits of precision
 * Added `S` (South) to X9D/+ directional display
 #### v1.2.0 - 11/18/2017
 * Lua Telemetry is now pre-compiled to greatly reduce memory (source still available)

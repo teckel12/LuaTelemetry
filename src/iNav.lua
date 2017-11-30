@@ -439,12 +439,12 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     vc = vm
     lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
   end
-  if frac and vc + 0.5 < max then
-    lcd.drawNumber(21, y, vc * 10.05, SMLSIZE + PREC1 + flags)
+  if frac ~= 0 and vc + 0.5 < max then
+    lcd.drawNumber(21, y, vc * 10.02, SMLSIZE + frac + flags)
   else
     lcd.drawText(21, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
-  if frac or vc < max then
+  if frac ~= 0 or vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
   end
 end
@@ -532,8 +532,7 @@ local function run(event)
 
   -- Flight mode
   lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
-  local x = X_CNTR_2 - (lcd.getLastPos() / 2)
-  lcd.drawText(x, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+  lcd.drawText(X_CNTR_2 - (lcd.getLastPos() / 2), 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   if data.headFree and not QX7 then
     lcd.drawText(lcd.getLastPos() + 1, 33, " HF ", FLASH)
   end
@@ -551,42 +550,38 @@ local function run(event)
   end
 
   -- Data & gauges
-  local altFlags = (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0
-  local battFlags = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
-  local rssiFlags = (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  local battNow = (config[1].v == 0) and data.cell or data.batt
-  local battLow = (config[1].v == 0) and (data.battMin / data.cells) or data.battMin
+  local tmp = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
   if data.showAlt then
-    drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], false, altFlags)
+    drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
     if data.altHold then
       lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
     end
   end
-  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], false, data.telemFlags)
-  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, units[data.speed_unit], false, data.telemFlags)
-  drawData("Batt", data.battPos1, 2, battNow, battLow, QX7 and 100 or 1000, "V", true, battFlags)
-  drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", false, rssiFlags)
+  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], 0, data.telemFlags)
+  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, units[data.speed_unit], 0, data.telemFlags)
+  drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, QX7 and 100 or 1000, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
+  drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
   if data.showCurr then
-    drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, data.telemFlags)
-    drawData("Fuel", 41, 0, data.fuel, 0, 200, "%", false, battFlags)
+    drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", PREC1, data.telemFlags)
+    drawData("Fuel", 41, 0, data.fuel, 0, 200, "%", 0, tmp)
     lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
     if data.fuel == 0 then
       lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
     end
   end
-  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - 3.1, 0) * 90.9, 98), 100)
-  min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - 3.1, 0) * 90.9, 99) / 100) + 47
-  lcd.drawLine(min, data.battPos2 + 1, min, 54, SOLID, ERASE)
-  local rssiGauge = math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0)
-  lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, rssiGauge, 100)
-  min = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
-  lcd.drawLine(min, 58, min, 62, SOLID, ERASE)
+  tmp = 100 / (4.2 - config[3].v + 0.1)
+  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - config[3].v + 0.1, 0) * tmp, 98), 100)
+  tmp = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - config[3].v + 0.1, 0) * tmp, 99) / 100) + 47
+  lcd.drawLine(tmp, data.battPos2 + 1, tmp, 54, SOLID, ERASE)
+  lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0), 100)
+  tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
+  lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
   if not QX7 and data.showAlt then
     lcd.drawRectangle(197, 9, 15, 48, SOLID)
-    local height = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
-    lcd.drawFilledRectangle(198, 56 - height, 13, height, INVERS)
-    local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
-    lcd.drawLine(198, max, 210, max, DOTTED, FORCE)
+    tmp = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
+    lcd.drawFilledRectangle(198, 56 - tmp, 13, tmp, INVERS)
+    tmp = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
+    lcd.drawLine(198, tmp, 210, tmp, DOTTED, FORCE)
     lcd.drawText(198, 58, "Alt", SMLSIZE)
   end
 
@@ -604,8 +599,8 @@ local function run(event)
   end
   lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
   lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
-  local battGauge = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
-  for i = 87, battGauge, 2 do
+  tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
+  for i = 87, tmp, 2 do
     lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
   end
   if not QX7 then
@@ -631,23 +626,23 @@ local function run(event)
       for line = configTop, math.min(configValues, configTop + 5) do
         local y = (line - configTop) * 8 + 10 + 3
         local z = config[line].z
-        local extra = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
+        tmp = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
         config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
         lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
         if config[z].p ~= nil then
-          lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + extra)
+          lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + tmp)
           lcd.drawLine(CONFIG_X + 77, y + 3, CONFIG_X + 91, y + 3, SOLID, FORCE)
         else
           if config[z].l == nil then
-            lcd.drawNumber(CONFIG_X + 78, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + extra)
+            lcd.drawNumber(CONFIG_X + 78, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + tmp)
             if config[z].a ~= nil then
-              lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + extra)
+              lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + tmp)
             end
           else
             if not config[z].l then
-              lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + extra)
+              lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
             else
-              lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v], SMLSIZE + extra)
+              lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v], SMLSIZE + tmp)
             end
           end
         end
