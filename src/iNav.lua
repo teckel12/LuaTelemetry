@@ -577,18 +577,34 @@ local function run(event)
   tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
   lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
   if not QX7 and data.showAlt then
-    lcd.drawRectangle(197, 9, 15, 48, SOLID)
+    local w = config[7].v == 1 and 7 or 15
+    local l = config[7].v == 1 and 205 or 197
+    lcd.drawRectangle(l, 9, w, 48, SOLID)
     tmp = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
-    lcd.drawFilledRectangle(198, 56 - tmp, 13, tmp, INVERS)
+    lcd.drawFilledRectangle(l + 1, 56 - tmp, w - 2, tmp, INVERS)
     tmp = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
-    lcd.drawLine(198, tmp, 210, tmp, DOTTED, FORCE)
-    lcd.drawText(198, 58, "Alt", SMLSIZE)
+    lcd.drawLine(l + 1, tmp, l + w - 2, tmp, DOTTED, FORCE)
+    lcd.drawText(l + 1, 58, config[7].v == 1 and "A" or "Alt", SMLSIZE)
   end
 
   -- Variometer
-  if data.armed and config[7].v == 1 then
-    lcd.drawLine(X_CNTR_2 + 15, 21, X_CNTR_2 + 17, 21, SOLID, FORCE)
-    lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 16, 21 - math.max(math.min(math.floor(data.accZ * 20) / 20 - 1, 1), -1) * 12, SOLID, FORCE)
+  if config[7].v == 1 then
+    if QX7 and data.armed then
+      lcd.drawLine(X_CNTR_2 + 15, 21, X_CNTR_2 + 17, 21, SOLID, FORCE)
+      lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 16, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
+    elseif not QX7 then
+      local w = data.showAlt and 7 or 15
+      lcd.drawRectangle(197, 9, w, 48, SOLID)
+      lcd.drawText(198, 58, data.showAlt and "V" or "Var", SMLSIZE)
+      if data.armed then
+        tmp = 33 - math.floor(math.max(math.min(data.accZ - 1, 1), -1) * 23 - 0.5)
+        if tmp > 33 then
+          lcd.drawFilledRectangle(198, 33, w - 2, tmp - 33, INVERS)
+        else
+          lcd.drawFilledRectangle(198, tmp - 1, w - 2, 33 - tmp + 2, INVERS)
+        end
+      end
+    end
   end
 
   -- Title

@@ -101,7 +101,7 @@ When not armed press the `Menu` button to display the configuration options menu
 
 ## Release History
 
-#### v1.2.1
+#### v1.2.1 - 12/01/2017
 * Lots of new/changed config settings (press `Menu` button to access) - **Please review!**
 * Enhanced and cleaned up config menu, centered menu on Q X7 & X9D/+
 * Variometer shows if model is gaining or decreasing altitude
