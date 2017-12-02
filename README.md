@@ -10,7 +10,7 @@
 ## Features
 
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
-* Compass-based direction indicator (with compass on multirotor or fixed wing with GPS)
+* Compass-based direction indicator (with compass on multi rotor or fixed wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ & X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
@@ -23,7 +23,7 @@
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) ( **`luac` build option required!** ) running on Taranis Q X7, X9D, X9D+ or X9E
+* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ or X9E
 * SmartPort telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (**not D-series or Crossfire receivers**)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS
@@ -83,14 +83,13 @@ When not armed press the `Menu` button to display the configuration options menu
 * **Rx Voltage** - Turn on or off the receiver voltage in the title (default: On)
 * **Variometer** - Show if model is gaining or decreasing altitude (default: On)
 * **Voice Alerts** - Voice alerts on, off, or only critical alerts (default: On)
-* **Feedback** - Turn beeper and/or heptic feedback for alerts on or off (default: On)
-* **RTH Feedback** - Return to home beeper and heptic feedback on or off (default: On)
-* **HF Feedback** - Head free beeper and heptic feedback on or off (default: On)
-* **RSSI Feedback** - RSSI beeper and heptic feedback on or off (default: On)
+* **Feedback** - Turn beeper and/or haptic feedback for alerts on or off (default: On)
+* **RTH Feedback** - Return to home beeper and haptic feedback on or off (default: On)
+* **HF Feedback** - Head free beeper and haptic feedback on or off (default: On)
+* **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
 
 ## Tips & Notes
 
-* Make sure you enable the `luac` build option in your OpenTX firmware
 * Between flights (before armed), long-press the Enter/dial and select `Reset telemetry` to reset telemetry values
 * Optional (but highly suggested) current sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
