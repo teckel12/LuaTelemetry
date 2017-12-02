@@ -2,9 +2,8 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.2.0"
+local VERSION = "1.2.1"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
-local CONFIG_FILE = "config.dat"
 local FLASH = 3
 local lcd = LCD or lcd
 local LCD_W = lcd.W or LCD_W
@@ -15,30 +14,20 @@ local GAUGE_WIDTH = QX7 and 82 or 149
 local X_CNTR_1 = QX7 and 67 or 70
 local X_CNTR_2 = QX7 and 67 or 106
 local GPS_DIGITS = QX7 and 10000 or 1000000
-
-local armed = false
-local headFree = false
-local headingHold = false
-local altHold = false
-local homeResetPrev = false
-local gpsFixPrev = false
-local altNextPlay = 0
-local battNextPlay = 0
-local battPercentPlayed = 100
-local telemFlags = -1
+local CONFIG_X = QX7 and 6 or 48
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
-  { t="NO TELEM",  f=3, w=false },
+  { t="NO TELEM",  f=3 },
   { t="HORIZON",   f=0, w="hrznmd" },
   { t="ANGLE",     f=0, w="anglmd" },
   { t="ACRO",      f=0, w="acromd" },
-  { t=" NOT OK ",  f=3, w=false },
+  { t=" NOT OK ",  f=3 },
   { t="READY",     f=0, w="ready" },
   { t="POS HOLD",  f=0, w="poshld" },
   { t="3D HOLD",   f=0, w="3dhold" },
   { t="WAYPOINT",  f=0, w="waypt" },
-  { t="PASSTHRU",  f=0, w=false },
+  { t="PASSTHRU",  f=0 },
   { t="   RTH   ", f=3, w="rtl" },
   { t="FAILSAFE",  f=3, w="fson" }
 }
@@ -83,13 +72,23 @@ local data = {
   fuel_id = getTelemetryId("Fuel"),
   rssi_id = getTelemetryId("RSSI"),
   rssiMin_id = getTelemetryId("RSSI-"),
+  accZ_id = getTelemetryId("AccZ"),
   txBatt_id = getTelemetryId("tx-voltage"),
   gpsAlt_unit = getTelemetryUnit("GAlt"),
   altitude_unit = getTelemetryUnit("Alt"),
   distance_unit = getTelemetryUnit("Dist"),
   speed_unit = getTelemetryUnit("GSpd"),
+  homeResetPrev = false,
+  gpsFixPrev = false,
+  altNextPlay = 0,
+  battNextPlay = 0,
+  battPercentPlayed = 100,
+  armed = false,
+  headFree = false,
+  headingHold = false,
+  altHold = false,
+  telemFlags = -1,
   config = 0,
-  configSelect = 0,
   modeId = 1,
   startup = 1
 }
@@ -102,7 +101,6 @@ data.speedPos = data.showCurr and 25 or (data.showAlt and 33 or 25)
 data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
-data.altAlert = data.altitude_unit == 10 and 400 or 123
 data.version = maj + minor / 10
 
 local function reset()
@@ -113,53 +111,83 @@ local function reset()
   data.gpsLatLon = false
   data.gpsFix = false
   data.headingRef = -1
-  data.battlow = false
+  data.battLow = false
   data.showMax = false
   data.showDir = true
   data.fuel = 100
   data.config = 0
 end
 
--- Load config data
-local fh = io.open(FILE_PATH .. CONFIG_FILE, "r")
-if fh == nil then
-  fh = io.open(FILE_PATH .. CONFIG_FILE, "w")
-  if fh ~= nil then
-    io.write(fh, "1353411" .. data.altAlert)
-    io.close(fh)
+-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text / b=Blocked by
+local config = {
+  { o=1,  t="Battery View",  c=1, v=1, i=1, l={[0]="Cell", "Total"} },
+  { o=3,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
+  { o=4,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
+  { o=10, t="Voice Alerts",  c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
+  { o=11, t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "On"} },
+  { o=6,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit], b=5 },
+  { o=9,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
+  { o=12, t="RTH Feedback",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
+  { o=13, t="HF Feedback",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
+  { o=14, t="RSSI Feedback", c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
+  { o=2,  t="Battery Alerts",c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
+  { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
+  { o=7,  t="Timer",         c=1, v=1, x=4, i=1, l={[0]="Off", "Auto", "Timer1", "Timer2", "Timer3"} },
+  { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} }
+}
+local configValues = 14
+for i = 1, configValues do
+  for ii = 1, configValues do
+    if i == config[ii].o then
+      config[i].z = ii
+      config[ii].o = nil
+    end
   end
-  data.showCell = 1
-  data.battLow = 3.5
-  data.battCrit = 3.4
-  data.alerts = 1
-  data.mahAlert = 1
-else
-  data.showCell = tonumber(io.read(fh, 1))
-  data.battLow = io.read(fh, 2) / 10
-  data.battCrit = io.read(fh, 2) / 10
-  data.alerts = tonumber(io.read(fh, 1))
-  data.mahAlert = tonumber(io.read(fh, 1))
-  data.altAlert = tonumber(io.read(fh, 4))
+end
+
+local function saveConfig()
+  local fh = io.open(FILE_PATH .. "config.dat", "w")
+  for line = 1, configValues do
+    if config[line].d == nil then
+      io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
+    else 
+      io.write(fh, math.floor(config[line].v * 10))
+    end
+  end
   io.close(fh)
 end
 
-local function playAudio(file)
-  if data.alerts == 1 then
+-- Load config data
+local fh = io.open(FILE_PATH .. "config.dat", "r")
+if fh == nil then
+  saveConfig()
+else
+  for line = 1, configValues do
+    local tmp = io.read(fh, config[line].c)
+    if tmp ~= "" then
+      config[line].v = config[line].d == nil and tonumber(tmp) or tmp / 10
+    end
+  end
+  io.close(fh)
+end
+
+local function playAudio(file, alert)
+  if config[4].v == 2 or (config[4].v == 1 and alert ~= nil) then
     playFile(FILE_PATH .. file .. ".wav")
   end
 end
 
 local function flightModes()
-  local armedPrev = armed
-  local headFreePrev = headFree
-  local headingHoldPrev = headingHold
-  local altHoldPrev = altHold
+  local armedPrev = data.armed
+  local headFreePrev = data.headFree
+  local headingHoldPrev = data.headingHold
+  local altHoldPrev = data.altHold
   local homeReset = false
   local modeIdPrev = data.modeId
-  armed = false
-  headFree = false
-  headingHold = false
-  altHold = false
+  data.armed = false
+  data.headFree = false
+  data.headingHold = false
+  data.altHold = false
   data.modeId = 1 -- No telemetry
   if data.telemetry then
     local modeA = data.mode / 10000
@@ -168,7 +196,7 @@ local function flightModes()
     local modeD = data.mode / 10 % 10
     local modeE = data.mode % 10
     if bit32.band(modeE, 4) == 4 then
-      armed = true
+      data.armed = true
       if bit32.band(modeD, 2) == 2 then
         data.modeId = 2 -- Horizon
       elseif bit32.band(modeD, 1) == 1 then
@@ -176,12 +204,12 @@ local function flightModes()
       else
         data.modeId = 4 -- Acro
       end
-      headFree = bit32.band(modeB, 4) == 4 and true or false
-      headingHold = bit32.band(modeC, 1) == 1 and true or false
-      altHold = bit32.band(modeC, 2) == 2 and true or false
+      data.headFree = bit32.band(modeB, 4) == 4 and true or false
+      data.headingHold = bit32.band(modeC, 1) == 1 and true or false
+      data.altHold = bit32.band(modeC, 2) == 2 and true or false
       homeReset = data.satellites >= 4000 and true or false
       if bit32.band(modeC, 4) == 4 then
-        data.modeId = altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
+        data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
     else
       data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and 5 or 6 -- Not OK to arm / Ready to fly
@@ -200,127 +228,130 @@ local function flightModes()
   -- Voice alerts
   local vibrate = false
   local beep = false
-  if armed and not armedPrev then -- Engines armed
+  if data.armed and not armedPrev then -- Engines armed
     data.timerStart = getTime()
     data.headingRef = data.heading
     data.gpsHome = false
-    battPercentPlayed = 100
-    data.battlow = false
+    data.battPercentPlayed = 100
+    data.battLow = false
     data.showMax = false
     data.showDir = false
-    playAudio("engarm")
-  elseif not armed and armedPrev then -- Engines disarmed
+    data.config = 0
+    playAudio("engarm", 1)
+  elseif not data.armed and armedPrev then -- Engines disarmed
     if data.distanceLast <= data.distRef then
       data.headingRef = -1
       data.showDir = true
     end
-    playAudio("engdrm")
+    playAudio("engdrm", 1)
   end
-  if data.gpsFix ~= gpsFixPrev then -- GPS status change
-    playAudio("gps")
-    playAudio(data.gpsFix and "good" or "lost")
+  if data.gpsFix ~= data.gpsFixPrev then -- GPS status change
+    playAudio("gps", not data.gpsFix and 1 or nil)
+    playAudio(data.gpsFix and "good" or "lost", not data.gpsFix and 1 or nil)
   end
   if modeIdPrev ~= data.modeId then -- New flight mode
-    if armed and modes[data.modeId].w ~= false then
-      playAudio(modes[data.modeId].w)
-    elseif not armed and data.modeId == 6 and modeIdPrev == 5 then
+    if data.armed and modes[data.modeId].w ~= nil then
+      playAudio(modes[data.modeId].w, modes[data.modeId].f > 0 and 1 or nil)
+    elseif not data.armed and data.modeId == 6 and modeIdPrev == 5 then
       playAudio(modes[data.modeId].w)
     end
   end
-  if armed then
+  if data.armed then
     data.distanceLast = data.distance
-    data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer    
-    if altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
+    if config[13].v == 1 then
+      data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
+    elseif config[13].v > 1 then
+      data.timer = model.getTimer(config[13].v - 2)["value"]
+    end
+    if data.altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
       playAudio("althld")
-      playAudio(altHold and "active" or "off")
+      playAudio(data.altHold and "active" or "off")
     end
-    if headingHold ~= headingHoldPrev then -- Heading hold status change
+    if data.headingHold ~= headingHoldPrev then -- Heading hold status change
       playAudio("hedhld")
-      playAudio(headingHold and "active" or "off")
+      playAudio(data.headingHold and "active" or "off")
     end
-    if headFree ~= headFreePrev then -- Head free status change
-      playAudio(headFree and "hfact" or "hfoff")
+    if data.headFree ~= headFreePrev then -- Head free status change
+      playAudio(data.headFree and "hfact" or "hfoff", 1)
     end
-    if homeReset and not homeResetPrev then -- Home reset
+    if homeReset and not data.homeResetPrev then -- Home reset
       playAudio("homrst")
       data.gpsHome = false
       data.headingRef = data.heading
     end
-    if data.altitude + 0.5 >= data.altAlert then -- Altitude alert
-      if getTime() > altNextPlay then
-        if data.alerts == 1 then
+    if data.altitude + 0.5 >= config[6].v and config[12].v > 0 then -- Altitude alert
+      if getTime() > data.altNextPlay then
+        if config[4].v > 0 then
           playNumber(data.altitude + 0.5, data.altitude_unit)
-          altNextPlay = getTime() + 1000
         end
+        data.altNextPlay = getTime() + 1000
       else
         beep = true
       end
     end
-    if battPercentPlayed > data.fuel then -- Battery notification/alert
+    if data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
       if data.fuel == 30 or data.fuel == 25 then
-        if data.alerts == 1 then
-          playAudio("batlow")
-          playNumber(data.fuel, 13)
-          battPercentPlayed = data.fuel
-        end
-      elseif data.mahAlert == 1 and data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
-        if data.alerts == 1 then
-          playAudio("battry")
-          playNumber(data.fuel, 13)
-          battPercentPlayed = data.fuel
-        end
+        playAudio("batlow")
+        playNumber(data.fuel, 13)
+        data.battPercentPlayed = data.fuel
+      elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
+        playAudio("battry")
+        playNumber(data.fuel, 13)
+        data.battPercentPlayed = data.fuel
       end
     end
-    if data.fuel <= 20 or data.cell < data.battCrit then
-      if getTime() > battNextPlay then
-        playAudio("batcrt")
-        if data.fuel <= 20 and battPercentPlayed > data.fuel and data.alerts == 1 then
+    if (data.fuel <= 20 or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
+      if getTime() > data.battNextPlay then
+        playAudio("batcrt", 1)
+        if data.fuel <= 20 and data.battPercentPlayed > data.fuel and config[4].v > 0 then
           playNumber(data.fuel, 13)
-          battPercentPlayed = data.fuel
+          data.battPercentPlayed = data.fuel
         end
-        battNextPlay = getTime() + 500
+        data.battNextPlay = getTime() + 500
       else
         vibrate = true
         beep = true
       end
-      data.battlow = true
-    elseif data.cell < data.battLow then
-      if not data.battlow then
+      data.battLow = true
+    elseif data.cell < config[2].v and config[11].v == 2 then -- Voltage notification
+      if not data.battLow then
         playAudio("batlow")
-        data.battlow = true
+        data.battLow = true
       end
     else
-      battNextPlay = 0
+      data.battNextPlay = 0
     end
-    if headFree or modes[data.modeId].f ~= 0 then
-      beep = true
-      vibrate = true
-    elseif data.rssi < data.rssiLow then
+    if (data.headFree and config[9].v == 1) or modes[data.modeId].f ~= 0 then
+      if data.modeId ~= 11 or (data.modeId == 11 and config[8].v == 1) then
+        beep = true
+        vibrate = true
+      end
+    elseif data.rssi < data.rssiLow and config[10].v == 1 then
       if data.rssi < data.rssiCrit then
         vibrate = true
       end
       beep = true
     end
-    if vibrate then
+    if vibrate and (config[5].v == 1 or config[5].v == 3) then
       playHaptic(25, 3000)
     end
-    if beep then
+    if beep and config[5].v >= 2 then
       playTone(2000, 100, 3000, PLAY_NOW)
     end
   else
-    data.battlow = false
-    battPercentPlayed = 100
+    data.battLow = false
+    data.battPercentPlayed = 100
   end
-  gpsFixPrev = data.gpsFix
-  homeResetPrev = homeReset
+  data.gpsFixPrev = data.gpsFix
+  data.homeResetPrev = homeReset
 end
 
 local function background()
   data.rssi = getValue(data.rssi_id)
-  if telemFlags == -1 then
+  if data.telemFlags == -1 then
     reset()
   end
-  if data.rssi > 0 or telemFlags < 0 then
+  if data.rssi > 0 or data.telemFlags < 0 then
     data.telemetry = true
     data.mode = getValue(data.mode_id)
     data.rxBatt = getValue(data.rxBatt_id)
@@ -344,6 +375,7 @@ local function background()
     data.cell = data.batt/data.cells
     data.cellMin = data.battMin/data.cells
     data.rssiMin = getValue(data.rssiMin_id)
+    data.accZ = getValue(data.accZ_id)
     data.txBatt = getValue(data.txBatt_id)
     data.rssiLast = data.rssi
     local gpsTemp = getValue(data.gpsLatLon_id)
@@ -362,29 +394,16 @@ local function background()
     if data.distance > 0 then
       data.distanceLast = data.distance
     end
-    telemFlags = 0
+    data.telemFlags = 0
   else
     data.telemetry = false
-    telemFlags = FLASH
+    data.telemFlags = FLASH
   end
 
   flightModes()
 
-  if armed and data.gpsFix and data.gpsHome == false then
+  if data.armed and data.gpsFix and data.gpsHome == false then
     data.gpsHome = data.gpsLatLon
-  end
-end
-
-local function configText(line, y, text, value, number, decimal, append)
-  local extra = (data.config == line and INVERS + data.configSelect or 0) + (decimal and PREC1 or 0)
-  lcd.drawText(12, y, text, SMLSIZE)
-  if number then
-    lcd.drawNumber(85, y, value, SMLSIZE + extra)
-  else
-    lcd.drawText(85, y, value, SMLSIZE + extra)
-  end
-  if append then
-    lcd.drawText(lcd.getLastPos(), y, append, SMLSIZE + extra)
   end
 end
 
@@ -404,10 +423,10 @@ local function drawDirection(heading, width, radius, x, y)
   local y2 = y - math.floor(math.cos(rad2) * radius + 0.5)
   local x3 = math.floor(math.sin(rad3) * radius + 0.5) + x
   local y3 = y - math.floor(math.cos(rad3) * radius + 0.5)
-  local lineType = (headFree and QX7) and DOTTED or SOLID
+  local lineType = (data.headFree and QX7) and DOTTED or SOLID
   lcd.drawLine(x1, y1, x2, y2, lineType, FORCE)
   lcd.drawLine(x1, y1, x3, y3, lineType, FORCE)
-  if headingHold then
+  if data.headingHold then
     lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
   else
     lcd.drawLine(x2, y2, x3, y3, DOTTED, FORCE)
@@ -420,12 +439,12 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     vc = vm
     lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
   end
-  if frac and vc + 0.5 < max then
-    lcd.drawNumber(21, y, vc * 10.05, SMLSIZE + PREC1 + flags)
+  if frac ~= 0 and vc + 0.5 < max then
+    lcd.drawNumber(21, y, vc * 10.02, SMLSIZE + frac + flags)
   else
     lcd.drawText(21, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
-  if frac or vc < max then
+  if frac ~= 0 or vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
   end
 end
@@ -440,9 +459,25 @@ local function run(event)
     return 0
   end
 
+  -- Startup message
+  if data.startup == 1 then
+    startupTime = getTime()
+    data.startup = 2
+  elseif data.startup == 2 then
+    if getTime() - startupTime < 200 then
+      if not QX7 then
+        lcd.drawText(55, 9, "INAV Lua Telemetry")
+      end
+      lcd.drawText(QX7 and 55 or 93, 17, "v" .. VERSION)
+    else
+      data.startup = 0
+    end
+  end
+  local startupTime = 0
+
   -- GPS
   if data.gpsLatLon ~= false then
-    local gpsFlags = (telemFlags > 0 or not data.gpsFix) and FLASH or 0
+    local gpsFlags = (data.telemFlags > 0 or not data.gpsFix) and FLASH or 0
     gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
     gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
     gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
@@ -451,23 +486,7 @@ local function run(event)
     lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
     lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
   end
-  gpsData("Sats " .. data.satellites % 100, 9, telemFlags)
-
-  -- Startup message
-  if data.startup == 1 then
-    startupTime = getTime()
-    data.startup = 2
-  elseif data.startup == 2 then
-    if getTime() - startupTime < 200 then
-      if not QX7 then
-        lcd.drawText(55, 9, "iNav Lua Telemetry")
-      end
-      lcd.drawText(QX7 and 55 or 93, 17, "v" .. VERSION)
-    else
-      data.startup = 0
-    end
-  end
-  local startupTime = 0
+  gpsData("Sats " .. data.satellites % 100, 9, data.telemFlags)
 
   -- Directionals
   if data.showHead and data.startup == 0 then
@@ -480,6 +499,9 @@ local function run(event)
         lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) .. "\64", SMLSIZE)
         lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
         lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
+        if not QX7 then
+          lcd.drawText(X_CNTR_1 - 2, 32, "S", SMLSIZE)
+        end
         drawDirection(data.heading, 135, 7, X_CNTR_1, 23)
         indicatorDisplayed = true
       end
@@ -510,14 +532,13 @@ local function run(event)
 
   -- Flight mode
   lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
-  local x = X_CNTR_2 - (lcd.getLastPos() / 2)
-  lcd.drawText(x, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
-  if headFree and not QX7 then
-    lcd.drawText(lcd.getLastPos() + 2, 33, " HF ", FLASH)
+  lcd.drawText(X_CNTR_2 - (lcd.getLastPos() / 2), 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+  if data.headFree and not QX7 then
+    lcd.drawText(lcd.getLastPos() + 1, 33, " HF ", FLASH)
   end
 
   -- User input
-  if not armed and data.config == 0 then
+  if not data.armed and data.config == 0 then
     -- Toggle showing max/min values
     if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
       data.showMax = not data.showMax
@@ -529,142 +550,169 @@ local function run(event)
   end
 
   -- Data & gauges
-  local altFlags = (telemFlags > 0 or data.altitude + 0.5 >= data.altAlert) and FLASH or 0
-  local battFlags = (telemFlags > 0 or data.battlow) and FLASH or 0
-  local rssiFlags = (telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0
-  local battNow = (data.showCell == 0) and data.cell or data.batt
-  local battLow = (data.showCell == 0) and (data.battMin / data.cells) or data.battMin
+  local tmp = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
   if data.showAlt then
-    drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], false, altFlags)
-    if altHold then
+    drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
+    if data.altHold then
       lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
     end
   end
-  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], false, telemFlags)
-  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, units[data.speed_unit], false, telemFlags)
-  drawData("Batt", data.battPos1, 2, battNow, battLow, QX7 and 100 or 1000, "V", true, battFlags)
-  drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", false, rssiFlags)
+  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], 0, data.telemFlags)
+  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, units[data.speed_unit], 0, data.telemFlags)
+  drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, QX7 and 100 or 1000, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
+  drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
   if data.showCurr then
-    drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", true, telemFlags)
-    drawData("Fuel", 41, 0, data.fuel, 0, 200, "%", false, battFlags)
+    drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", PREC1, data.telemFlags)
+    drawData("Fuel", 41, 0, data.fuel, 0, 200, "%", 0, tmp)
     lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
     if data.fuel == 0 then
       lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
     end
   end
-  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - 3.1, 0) * 90.9, 98), 100)
-  min = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - 3.1, 0) * 90.9, 99) / 100) + 47
-  lcd.drawLine(min, data.battPos2 + 1, min, 54, SOLID, ERASE)
-  local rssiGauge = math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0)
-  lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, rssiGauge, 100)
-  min = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
-  lcd.drawLine(min, 58, min, 62, SOLID, ERASE)
+  tmp = 100 / (4.2 - config[3].v + 0.1)
+  lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - config[3].v + 0.1, 0) * tmp, 98), 100)
+  tmp = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - config[3].v + 0.1, 0) * tmp, 99) / 100) + 47
+  lcd.drawLine(tmp, data.battPos2 + 1, tmp, 54, SOLID, ERASE)
+  lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0), 100)
+  tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
+  lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
   if not QX7 and data.showAlt then
-    lcd.drawRectangle(197, 9, 15, 48, SOLID)
-    local height = math.max(math.min(math.ceil(data.altitude / data.altAlert * 46), 46), 0)
-    lcd.drawFilledRectangle(198, 56 - height, 13, height, INVERS)
-    local max = 56 - math.max(math.min(math.ceil(data.altitudeMax / data.altAlert * 46), 46), 0)
-    lcd.drawLine(198, max, 210, max, DOTTED, FORCE)
-    lcd.drawText(198, 58, "Alt", SMLSIZE)
+    local w = config[7].v == 1 and 7 or 15
+    local l = config[7].v == 1 and 205 or 197
+    lcd.drawRectangle(l, 9, w, 48, SOLID)
+    tmp = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
+    lcd.drawFilledRectangle(l + 1, 56 - tmp, w - 2, tmp, INVERS)
+    tmp = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
+    lcd.drawLine(l + 1, tmp, l + w - 2, tmp, DOTTED, FORCE)
+    lcd.drawText(l + 1, 58, config[7].v == 1 and "A" or "Alt", SMLSIZE)
+  end
+
+  -- Variometer
+  if config[7].v == 1 then
+    if QX7 and data.armed then
+      lcd.drawLine(X_CNTR_2 + 15, 21, X_CNTR_2 + 17, 21, SOLID, FORCE)
+      lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 16, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
+    elseif not QX7 then
+      local w = data.showAlt and 7 or 15
+      lcd.drawRectangle(197, 9, w, 48, SOLID)
+      lcd.drawText(198, 58, data.showAlt and "V" or "Var", SMLSIZE)
+      if data.armed then
+        tmp = 33 - math.floor(math.max(math.min(data.accZ - 1, 1), -1) * 23 - 0.5)
+        if tmp > 33 then
+          lcd.drawFilledRectangle(198, 33, w - 2, tmp - 33, INVERS)
+        else
+          lcd.drawFilledRectangle(198, tmp - 1, w - 2, 33 - tmp + 2, INVERS)
+        end
+      end
+    end
   end
 
   -- Title
   lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
   lcd.drawText(0, 0, data.modelName, INVERS)
-  lcd.drawTimer(QX7 and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
+  if config[13].v > 0 then
+    lcd.drawTimer(QX7 and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
+  end
   lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
   lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
-  local battGauge = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
-  for i = 87, battGauge, 2 do
+  tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
+  for i = 87, tmp, 2 do
     lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
   end
   if not QX7 then
     lcd.drawNumber(110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
-  if data.rxBatt > 0 and data.telemetry then
+  if data.rxBatt > 0 and data.telemetry and config[14].v == 1 then
     lcd.drawNumber(LCD_W - 17, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
     lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
   end
 
   -- Config
-  if not armed then
-    if event == EVT_MENU_BREAK then
+  if not data.armed then
+    if event == EVT_MENU_BREAK and data.config == 0 then
       data.config = 1
-      data.configSelect = 0
+      configSelect = 0
+      configTop = 1
     end
     if data.config > 0 then
-      local values = (data.showCurr and data.alerts == 1) and 6 or 5
-      
-      lcd.drawFilledRectangle(8, 11, LCD_W - 16, values * 8 + 2, ERASE)
-      lcd.drawRectangle(8, 10, LCD_W - 16, values * 8 + 4, SOLID)
-      
-      configText(1, 13, "Battery View", data.showCell == 1 and "Total" or "Cell", false, false, false)
-      configText(2, 21, "Cell Low", data.battLow * 10, true, true, "V")
-      configText(3, 29, "Cell Critical", data.battCrit * 10, true, true, "V")
-      configText(4, 37, "Max Altitude", data.altAlert, true, false, units[data.altitude_unit])
-      configText(5, 45, "Voice Alerts", data.alerts == 1 and "On" or "Off", false, false, false)
-      if data.showCurr and data.alerts == 1 then
-        configText(6, 53, "10% mAh Alerts", data.mahAlert == 1 and "On" or "Off", false, false, false)
-      end
-      
-      if data.configSelect == 0 then
-        if event == EVT_EXIT_BREAK then
-          local fh = io.open(FILE_PATH .. CONFIG_FILE, "w")
-          if fh ~= nil then
-            io.write(fh, data.showCell, math.floor(data.battLow * 10), math.floor(data.battCrit * 10), data.alerts, data.mahAlert, data.altAlert)
-            io.close(fh)
+      -- Display menu
+      lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
+      lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
+      for line = configTop, math.min(configValues, configTop + 5) do
+        local y = (line - configTop) * 8 + 10 + 3
+        local z = config[line].z
+        tmp = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
+        config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
+        lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
+        if config[z].p ~= nil then
+          lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + tmp)
+          lcd.drawLine(CONFIG_X + 77, y + 3, CONFIG_X + 91, y + 3, SOLID, FORCE)
+        else
+          if config[z].l == nil then
+            lcd.drawNumber(CONFIG_X + 78, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + tmp)
+            if config[z].a ~= nil then
+              lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + tmp)
+            end
+          else
+            if not config[z].l then
+              lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
+            else
+              lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v], SMLSIZE + tmp)
+            end
           end
+        end
+      end
+
+      if configSelect == 0 then
+        if event == EVT_EXIT_BREAK then
+          saveConfig()
           data.config = 0
-        elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
-          data.config = math.min(data.config + 1, values)
-        elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
+        elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK then -- Next option
+          data.config = math.min(data.config + 1, configValues)
+          if data.config > math.min(configValues, configTop + 5) then
+            configTop = configTop + 1
+          end
+        elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK then -- Previous option
           data.config = math.max(data.config - 1, 1)
+          if data.config < configTop then
+            configTop = configTop - 1
+          end
         end
       else
+        local z = config[data.config].z
         if event == EVT_EXIT_BREAK then
-          data.configSelect = 0
+          configSelect = 0
         elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
-          if data.config == 1 then
-            data.showCell = data.showCell == 1 and 0 or 1
-          elseif data.config == 2 then
-            data.battLow = math.min(math.floor(data.battLow * 10 + 1) / 10, 3.9)
-          elseif data.config == 3 then
-            data.battCrit = math.min(math.floor(data.battCrit * 10 + 1) / 10, math.min(3.9, data.battLow - 0.1))
-          elseif data.config == 4 then
-            data.altAlert = math.min(data.altAlert + (data.altitude_unit == 10 and 10 or 1), 9999)
-          elseif data.config == 5 then
-            data.alerts = data.alerts == 1 and 0 or 1
-          elseif data.config == 6 then
-            data.mahAlert = data.mahAlert == 1 and 0 or 1
-          end
+          config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
         elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
-          if data.config == 1 then
-            data.showCell = data.showCell == 1 and 0 or 1
-          elseif data.config == 2 then
-            data.battLow = math.max(math.floor(data.battLow * 10 - 1) / 10, math.max(3.1, data.battCrit + 0.1))
-          elseif data.config == 3 then
-            data.battCrit = math.max(math.floor(data.battCrit * 10 - 1) / 10, 3.1)
-          elseif data.config == 4 then
-            data.altAlert = math.max(data.altAlert - (data.altitude_unit == 10 and 10 or 1), 0)
-          elseif data.config == 5 then
-            data.alerts = data.alerts == 1 and 0 or 1
-          elseif data.config == 6 then
-            data.mahAlert = data.mahAlert == 1 and 0 or 1
-          end
+          config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
         end
-        if data.config == 4 and data.altitude_unit == 10 then
-          data.altAlert = math.floor(data.altAlert / 10) * 10
+
+        -- Special cases
+        if event then
+          if z == 2 then -- Cell low > critical
+            config[2].v = math.max(config[2].v, config[3].v + 0.1)
+          elseif z == 3 then -- Cell critical < low
+            config[3].v = math.min(config[3].v, config[2].v - 0.1)
+          elseif config[z].i > 1 then
+            config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
+          end
         end
       end
-      
+
       if event == EVT_ENTER_BREAK then
-        data.configSelect = (data.configSelect == 0) and BLINK or 0
+        if config[config[data.config].z].p == nil then
+          configSelect = (configSelect == 0) and BLINK or 0
+        else
+          playTone(2000, 100, 100, PLAY_NOW)
+          playHaptic(25, 100)
+        end
       end
 
     end
   end
-  
+
   return 0
 end
 
