@@ -2,7 +2,7 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.2.1"
+local VERSION = "1.2.2"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local lcd = LCD or lcd
@@ -80,6 +80,9 @@ local data = {
   speed_unit = getTelemetryUnit("GSpd"),
   homeResetPrev = false,
   gpsFixPrev = false,
+  gpsLogger = {{lat=0, lon=0}, {lat=0, lon=0}, {lat=0, lon=0}, {lat=0, lon=0}, {lat=0, lon=0}},
+  gpsLogPos = 1,
+  gpsLogTimer = 0,
   altNextPlay = 0,
   battNextPlay = 0,
   battPercentPlayed = 100,
@@ -382,6 +385,12 @@ local function background()
     data.gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
     if data.gpsFix then
       data.gpsLatLon = gpsTemp
+      if getTime() > data.gpsLogTimer then
+        data.gpsLogTimer = getTime() + 100
+        data.gpsLogger[data.gpsLogPos] = data.gpsLatLon
+        data.gpsLogPos = data.gpsLogPos == 5 and 1 or data.gpsLogPos + 1
+      end
+      lcd.drawText(RIGHT_POS - 60, 20, data.gpsLogger[data.gpsLogPos].lat, INVERS)
       --data.distance = 70
       --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
       --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
