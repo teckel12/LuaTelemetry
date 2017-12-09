@@ -80,8 +80,6 @@ local data = {
   speed_unit = getTelemetryUnit("GSpd"),
   homeResetPrev = false,
   gpsFixPrev = false,
-  gpsLogger = {{lat=0, lon=0}, {lat=0, lon=0}, {lat=0, lon=0}, {lat=0, lon=0}, {lat=0, lon=0}},
-  gpsLogPos = 1,
   gpsLogTimer = 0,
   altNextPlay = 0,
   battNextPlay = 0,
@@ -136,9 +134,10 @@ local config = {
   { o=2,  t="Battery Alerts",c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
   { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
   { o=7,  t="Timer",         c=1, v=1, x=4, i=1, l={[0]="Off", "Auto", "Timer1", "Timer2", "Timer3"} },
-  { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} }
+  { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} },
+  { o=15, t="GPS",           c=1, v=0, x=4, i=1, l={[0]="-", "-", "-", "-", "-"} }
 }
-local configValues = 14
+local configValues = 15
 for i = 1, configValues do
   for ii = 1, configValues do
     if i == config[ii].o then
@@ -187,12 +186,12 @@ local function flightModes()
   local altHoldPrev = data.altHold
   local homeReset = false
   local modeIdPrev = data.modeId
-  data.armed = false
-  data.headFree = false
-  data.headingHold = false
-  data.altHold = false
-  data.modeId = 1 -- No telemetry
   if data.telemetry then
+    data.armed = false
+    data.headFree = false
+    data.headingHold = false
+    data.altHold = false
+    data.modeId = 1 -- No telemetry
     local modeA = data.mode / 10000
     local modeB = data.mode / 1000 % 10
     local modeC = data.mode / 100 % 10
@@ -226,6 +225,12 @@ local function flightModes()
     elseif bit32.band(modeB, 2) == 2 then
       data.modeId = 9 -- Waypoint
     end
+  else
+    data.armed = armedPrev
+    data.headFree = headFreePrev
+    data.headingHold = headingHoldPrev
+    data.altHold = altHoldPrev
+    data.modeId = modeIdPrev
   end
 
   -- Voice alerts
@@ -387,10 +392,9 @@ local function background()
       data.gpsLatLon = gpsTemp
       if getTime() > data.gpsLogTimer then
         data.gpsLogTimer = getTime() + 100
-        data.gpsLogger[data.gpsLogPos] = data.gpsLatLon
-        data.gpsLogPos = data.gpsLogPos == 5 and 1 or data.gpsLogPos + 1
+        config[15].l[config[15].v] = math.floor(data.gpsLatLon.lat * 100000) / 100000 .. " " .. math.floor(data.gpsLatLon.lon * 100000) / 100000
+        config[15].v = config[15].v >= 4 and 0 or config[15].v + 1
       end
-      lcd.drawText(RIGHT_POS - 60, 20, data.gpsLogger[data.gpsLogPos].lat, INVERS)
       --data.distance = 70
       --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
       --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
@@ -498,7 +502,7 @@ local function run(event)
   gpsData("Sats " .. data.satellites % 100, 9, data.telemFlags)
 
   -- Directionals
-  if data.showHead and data.startup == 0 then
+  if data.showHead and data.startup == 0 and data.config == 0 then
     if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
       data.showDir = not data.showDir
     end
@@ -638,88 +642,86 @@ local function run(event)
   end
 
   -- Config
-  if not data.armed then
-    if event == EVT_MENU_BREAK and data.config == 0 then
-      data.config = 1
-      configSelect = 0
-      configTop = 1
-    end
-    if data.config > 0 then
-      -- Display menu
-      lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
-      lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
-      for line = configTop, math.min(configValues, configTop + 5) do
-        local y = (line - configTop) * 8 + 10 + 3
-        local z = config[line].z
-        tmp = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
-        config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
-        lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
-        if config[z].p ~= nil then
-          lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + tmp)
-          lcd.drawLine(CONFIG_X + 77, y + 3, CONFIG_X + 91, y + 3, SOLID, FORCE)
-        else
-          if config[z].l == nil then
-            lcd.drawNumber(CONFIG_X + 78, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + tmp)
-            if config[z].a ~= nil then
-              lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + tmp)
-            end
-          else
-            if not config[z].l then
-              lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
-            else
-              lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v], SMLSIZE + tmp)
-            end
-          end
-        end
-      end
-
-      if configSelect == 0 then
-        if event == EVT_EXIT_BREAK then
-          saveConfig()
-          data.config = 0
-        elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK then -- Next option
-          data.config = math.min(data.config + 1, configValues)
-          if data.config > math.min(configValues, configTop + 5) then
-            configTop = configTop + 1
-          end
-        elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK then -- Previous option
-          data.config = math.max(data.config - 1, 1)
-          if data.config < configTop then
-            configTop = configTop - 1
-          end
-        end
+  if event == EVT_MENU_BREAK and data.config == 0 then
+    data.config = 1
+    configSelect = 0
+    configTop = 1
+  end
+  if data.config > 0 then
+    -- Display menu
+    lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
+    lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
+    for line = configTop, math.min(configValues, configTop + 5) do
+      local y = (line - configTop) * 8 + 10 + 3
+      local z = config[line].z
+      tmp = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
+      config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
+      lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
+      if config[z].p ~= nil then
+        lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + tmp)
+        lcd.drawLine(CONFIG_X + 77, y + 3, CONFIG_X + 91, y + 3, SOLID, FORCE)
       else
-        local z = config[data.config].z
-        if event == EVT_EXIT_BREAK then
-          configSelect = 0
-        elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
-          config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
-        elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
-          config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
-        end
-
-        -- Special cases
-        if event then
-          if z == 2 then -- Cell low > critical
-            config[2].v = math.max(config[2].v, config[3].v + 0.1)
-          elseif z == 3 then -- Cell critical < low
-            config[3].v = math.min(config[3].v, config[2].v - 0.1)
-          elseif config[z].i > 1 then
-            config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
+        if config[z].l == nil then
+          lcd.drawNumber(CONFIG_X + 78, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + tmp)
+          if config[z].a ~= nil then
+            lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + tmp)
+          end
+        else
+          if not config[z].l then
+            lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
+          else
+            lcd.drawText(CONFIG_X + (z == 15 and 25 or 78), y, config[z].l[config[z].v], SMLSIZE + tmp)
           end
         end
       end
+    end
 
-      if event == EVT_ENTER_BREAK then
-        if config[config[data.config].z].p == nil then
-          configSelect = (configSelect == 0) and BLINK or 0
-        else
-          playTone(2000, 100, 100, PLAY_NOW)
-          playHaptic(25, 100)
+    if configSelect == 0 then
+      if event == EVT_EXIT_BREAK then
+        saveConfig()
+        data.config = 0
+      elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK then -- Next option
+        data.config = math.min(data.config + 1, configValues)
+        if data.config > math.min(configValues, configTop + 5) then
+          configTop = configTop + 1
+        end
+      elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK then -- Previous option
+        data.config = math.max(data.config - 1, 1)
+        if data.config < configTop then
+          configTop = configTop - 1
         end
       end
+    else
+      local z = config[data.config].z
+      if event == EVT_EXIT_BREAK then
+        configSelect = 0
+      elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
+        config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
+      elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
+        config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
+      end
 
+      -- Special cases
+      if event then
+        if z == 2 then -- Cell low > critical
+          config[2].v = math.max(config[2].v, config[3].v + 0.1)
+        elseif z == 3 then -- Cell critical < low
+          config[3].v = math.min(config[3].v, config[2].v - 0.1)
+        elseif config[z].i > 1 then
+          config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
+        end
+      end
     end
+
+    if event == EVT_ENTER_BREAK then
+      if config[config[data.config].z].p == nil then
+        configSelect = (configSelect == 0) and BLINK or 0
+      else
+        playTone(2000, 100, 100, PLAY_NOW)
+        playHaptic(25, 100)
+      end
+    end
+
   end
 
   return 0
