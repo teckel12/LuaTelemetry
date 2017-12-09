@@ -1,4 +1,4 @@
-# SmartPort/INAV Telemetry Flight Status - v1.2.1
+# SmartPort/INAV Telemetry Flight Status - v1.2.2
 
 #### Taranis Q X7
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
@@ -24,9 +24,9 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ or X9E
-* SmartPort telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (**not D-series or Crossfire receivers**)
+* SmartPort telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. (**D-series & Crossfire *NOT* supported**)
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
-* GPS
+* GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
 #### Suggested (not required)
 
@@ -87,6 +87,7 @@ When not armed press the `Menu` button to display the configuration options menu
 * **RTH Feedback** - Return to home beeper and haptic feedback on or off (default: On)
 * **HF Feedback** - Head free beeper and haptic feedback on or off (default: On)
 * **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
+* **GPS** - Not a configuration option, shows a log of the last 5 GPS coordinates
 
 ## Tips & Notes
 
@@ -100,6 +101,10 @@ When not armed press the `Menu` button to display the configuration options menu
 
 ## Release History
 
+#### v1.2.2 - 12/09/2017
+* Last 5 GPS coordinates can be reviewed from the config menu
+* Resolved issue where if telemetry was lost/recovered it would incorrectly give voice alerts for flight modes/engines armed/disarmed
+* Config menu can be accessed at any time, even when armed
 #### v1.2.1 - 12/01/2017
 * Lots of new/changed config settings (press `Menu` button to access) - **Please review!**
 * Enhanced and cleaned up config menu, centered menu on Q X7 & X9D/+
