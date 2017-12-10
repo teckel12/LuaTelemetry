@@ -225,14 +225,8 @@ local function flightModes()
     elseif bit32.band(modeB, 2) == 2 then
       data.modeId = 9 -- Waypoint
     end
-  else
-    data.armed = armedPrev
-    data.headFree = headFreePrev
-    data.headingHold = headingHoldPrev
-    data.altHold = altHoldPrev
-    data.modeId = modeIdPrev
   end
-
+  
   -- Voice alerts
   local vibrate = false
   local beep = false
