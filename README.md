@@ -69,7 +69,7 @@
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### Configuration Settings
-When not armed press the `Menu` button to display the configuration options menu:
+Press the `Menu` button to display the configuration options menu:
 
 ![sample](assets/iNavConfig.png "Configuration menu")
 
