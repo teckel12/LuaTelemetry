@@ -135,7 +135,7 @@ local config = {
   { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
   { o=7,  t="Timer",         c=1, v=1, x=4, i=1, l={[0]="Off", "Auto", "Timer1", "Timer2", "Timer3"} },
   { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=15, t="GPS",           c=1, v=0, x=4, i=1, l={[0]="-", "-", "-", "-", "-"} }
+  { o=15, t="GPS",           c=1, v=4, x=4, i=1, l={[0]="-", "-", "-", "-", "-"} }
 }
 local configValues = 15
 for i = 1, configValues do
@@ -386,8 +386,12 @@ local function background()
       data.gpsLatLon = gpsTemp
       if getTime() > data.gpsLogTimer then
         data.gpsLogTimer = getTime() + 100
-        config[15].l[config[15].v] = math.floor(data.gpsLatLon.lat * 100000) / 100000 .. " " .. math.floor(data.gpsLatLon.lon * 100000) / 100000
-        config[15].v = config[15].v >= 4 and 0 or config[15].v + 1
+        gpsTemp = math.floor(data.gpsLatLon.lat * 100000) / 100000 .. " " .. math.floor(data.gpsLatLon.lon * 100000) / 100000
+        local newPos = config[15].v >= 4 and 0 or config[15].v + 1
+        if gpsTemp ~= config[15].l[config[15].v] then
+          config[15].l[newPos] = gpsTemp
+          config[15].v = newPos
+        end
       end
       --data.distance = 70
       --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)

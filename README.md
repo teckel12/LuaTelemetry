@@ -18,7 +18,7 @@
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
-* Manu configuration options can be changed from inside the script
+* Menu configuration options can be changed from inside the script
 * Speed and distance values are displayed in metric or imperial based on transmitter's telemetry settings
 
 ## Requirements
@@ -32,7 +32,7 @@
 
 * Altimeter (barometer)
 * Magnetometer (compass)
-* Current sensor (for fuel guage)
+* Current sensor (for fuel gauge)
 
 ## Setup
 
