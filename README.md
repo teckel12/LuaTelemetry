@@ -101,8 +101,8 @@ Press the `Menu` button to display the configuration options menu:
 
 ## Change Log
 
-[Release History](https://github.com/iNavFlight/LuaTelemetry/blob/master/CHANGES.md)
+[Release History](CHANGES.md)
 
 ## License
 
-[MIT](https://github.com/iNavFlight/LuaTelemetry/blob/master/LICENSE)
+[MIT](LICENSE)
