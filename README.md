@@ -79,7 +79,7 @@ Press the `Menu` button to display the configuration options menu:
 * **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V)
 * **Altitude Alert** - Turn on or off the altitude alert (default: On)
 * **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 120m)
-* **Timer** - Show the automatic timer, timer1-3, or turn timer off (default: Auto)
+* **Timer** - Show the automatic flight timer, timer1-3, or turn timer off (default: Auto)
 * **Rx Voltage** - Turn on or off the receiver voltage in the title (default: On)
 * **Variometer** - Show if model is gaining or decreasing altitude (default: On)
 * **Voice Alerts** - Voice alerts on, off, or only critical alerts (default: On)
