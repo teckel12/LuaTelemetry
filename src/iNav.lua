@@ -135,7 +135,7 @@ local config = {
   { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
   { o=7,  t="Timer",         c=1, v=1, x=4, i=1, l={[0]="Off", "Auto", "Timer1", "Timer2", "Timer3"} },
   { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=15, t="GPS",           c=1, v=4, x=4, i=1, l={[0]="1", "2", "3", "4", "5"} }
+  { o=15, t="GPS",           c=1, v=4, x=4, i=1, l={[0]="-", "-", "-", "-", "-"} }
 }
 local configValues = 15
 for i = 1, configValues do

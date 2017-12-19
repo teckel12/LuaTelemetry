@@ -1,7 +1,8 @@
 # Release History
 
-## v1.2.3 - 
+## v1.2.3 - 12/19/2017
 * Logs the last 5 unique GPS coordinates
+* Updated readme screenshots to show variometer
 ## v1.2.2 - 12/09/2017
 * Last 5 GPS coordinates can be reviewed from the config menu
 * Resolved issue where if telemetry was lost/recovered it would incorrectly give voice alerts for flight modes/engines armed/disarmed
