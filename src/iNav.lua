@@ -2,7 +2,7 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.2.3"
+local VERSION = "1.2.4"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local lcd = LCD or lcd
@@ -32,7 +32,7 @@ local modes = {
   { t="FAILSAFE",  f=3, w="fson" }
 }
 
-local units = { [0]="m", "V", "A", "mA", "kts", "m/s", "f/s", "kmh", "mph", "m", "ft" }
+local units = { [0]="m", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
 
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
@@ -434,9 +434,8 @@ local function drawDirection(heading, width, radius, x, y)
   local y2 = y - math.floor(math.cos(rad2) * radius + 0.5)
   local x3 = math.floor(math.sin(rad3) * radius + 0.5) + x
   local y3 = y - math.floor(math.cos(rad3) * radius + 0.5)
-  local lineType = (data.headFree and QX7) and DOTTED or SOLID
-  lcd.drawLine(x1, y1, x2, y2, lineType, FORCE)
-  lcd.drawLine(x1, y1, x3, y3, lineType, FORCE)
+  lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
+  lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
   if data.headingHold then
     lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
   else
@@ -451,9 +450,9 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
   end
   if frac ~= 0 and vc + 0.5 < max then
-    lcd.drawNumber(21, y, vc * 10.02, SMLSIZE + frac + flags)
+    lcd.drawNumber(22, y, vc * 10.02, SMLSIZE + frac + flags)
   else
-    lcd.drawText(21, y, math.floor(vc + 0.5), SMLSIZE + flags)
+    lcd.drawText(22, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
   if frac ~= 0 or vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
@@ -497,7 +496,14 @@ local function run(event)
     lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
     lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
   end
-  gpsData("Sats " .. data.satellites % 100, 9, data.telemFlags)
+  local tmp = RIGHT_POS - (data.satellites % 100 > 9 and 10 or 5)
+  lcd.drawLine(tmp - 7, 9, tmp - 3, 13, SOLID, FORCE)
+  lcd.drawLine(tmp - 7, 10, tmp - 4, 13, SOLID, FORCE)
+  lcd.drawLine(tmp - 7, 11, tmp - 5, 13, SOLID, FORCE)
+  lcd.drawLine(tmp - 8, 14, tmp - 4, 10, SOLID, FORCE)
+  lcd.drawPoint(tmp - 7, 14)
+  lcd.drawPoint(tmp - 6, 14)
+  lcd.drawText(tmp, 9, data.satellites % 100, SMLSIZE + data.telemFlags)
 
   -- Directionals
   if data.showHead and data.startup == 0 and data.config == 0 then
@@ -544,8 +550,8 @@ local function run(event)
   -- Flight mode
   lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
   lcd.drawText(X_CNTR_2 - (lcd.getLastPos() / 2), 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
-  if data.headFree and not QX7 then
-    lcd.drawText(lcd.getLastPos() + 1, 33, " HF ", FLASH)
+  if data.headFree then
+    lcd.drawText(tmp - 26, 9, " HF ", FLASH + SMLSIZE)
   end
 
   -- User input
@@ -561,15 +567,18 @@ local function run(event)
   end
 
   -- Data & gauges
-  local tmp = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
   if data.showAlt then
     drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
     if data.altHold then
-      lcd.drawText(lcd.getLastPos() + 1, 9, "\192", SMLSIZE + INVERS)
+      tmp = lcd.getLastPos() + 1
+      lcd.drawRectangle(tmp + 1, 9, 3, 3, FORCE)
+      lcd.drawFilledRectangle(tmp, 11, 5, 4, FORCE)
+      lcd.drawPoint(tmp + 2, 12)
     end
   end
+  tmp = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
   drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], 0, data.telemFlags)
-  drawData("Sped", data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, units[data.speed_unit], 0, data.telemFlags)
+  drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, '', 0, data.telemFlags)
   drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, QX7 and 100 or 1000, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
   if data.showCurr then
