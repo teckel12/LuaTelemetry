@@ -2,8 +2,8 @@
 
 ## v1.2.4 - 04/17/2018
 * Satellite and altitude hold are now icons
-* Added headfree mode flashing notification on QX7 (already existed on X9D)
-* Smarter unit designation resulting in a cleaner display
+* Added flashing notification for headfree mode on QX7 (already existed on X9D)
+* Smarter unit designation resulting in a cleaner display (ft = ', MPH & km/h)
 ## v1.2.3 - 12/19/2017
 * Logs the last 5 unique GPS coordinates
 * Updated readme screenshots to show variometer
