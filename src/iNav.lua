@@ -608,8 +608,8 @@ local function run(event)
   end
 
   -- Variometer
-  if config[7].v == 1 then
-    if QX7 and data.armed then
+  if config[7].v == 1 and data.startup == 0 then
+    if QX7 and data.armed and not data.showDir then
       lcd.drawLine(X_CNTR_2 + 15, 21, X_CNTR_2 + 17, 21, SOLID, FORCE)
       lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 16, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
     elseif not QX7 then
