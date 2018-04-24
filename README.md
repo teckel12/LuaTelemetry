@@ -74,7 +74,9 @@ Press the `Menu` button to display the configuration options menu:
 
 ![sample](assets/iNavConfig.png "Configuration menu")
 
-From the configuration settings menu use the dial or +/- buttons to cycle through options and `Enter` to select.
+* Use the dial or +/- buttons to cycle through menu or select desired setting
+* Press Enter/dial to select and deselect menu option
+* Press `Exit` button to deselect menu option or escape configuration menu
 
 * **Battery View** - Total battery voltage / Cell voltage average (default: Total)
 * **Battery Alert** - Battery alerts on, off, or only critical alerts (default: On)
@@ -94,7 +96,7 @@ From the configuration settings menu use the dial or +/- buttons to cycle throug
 
 ## Tips & Notes
 
-* Between flights (before armed), long-press the Enter/dial and select `Reset telemetry` to reset telemetry values
+* Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
 * Optional (but highly suggested) current sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
