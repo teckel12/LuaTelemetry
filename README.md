@@ -72,11 +72,11 @@
 #### Configuration Settings
 Press the `Menu` button to display the configuration options menu:
 
-![sample](assets/iNavConfig.png "Configuration menu")
-
 * Use the dial or +/- buttons to cycle through menu or select desired setting
 * Press Enter/dial to select and deselect menu option
 * Press `Exit` button to deselect menu option or escape configuration menu
+
+![sample](assets/iNavConfig.png "Configuration menu")
 
 * **Battery View** - Total battery voltage / Cell voltage average (default: Total)
 * **Battery Alert** - Battery alerts on, off, or only critical alerts (default: On)
