@@ -72,9 +72,9 @@
 #### Configuration Settings
 Press the `Menu` button to display the configuration options menu:
 
-* Use the dial or +/- buttons to cycle through menu or select desired setting
-* Press Enter/dial to select and deselect menu option
-* Press `Exit` button to deselect menu option or escape configuration menu
+* Use the dial or +/- buttons to cycle through the menu or select the desired setting
+* Press Enter/dial to select and deselect a menu option
+* Press `Exit` to deselect a menu option or escape the configuration menu
 
 ![sample](assets/iNavConfig.png "Configuration menu")
 
