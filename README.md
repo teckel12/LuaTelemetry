@@ -74,6 +74,8 @@ Press the `Menu` button to display the configuration options menu:
 
 ![sample](assets/iNavConfig.png "Configuration menu")
 
+From the configuration settings menu use the dial or +/- buttons to cycle through options and `Enter` to select.
+
 * **Battery View** - Total battery voltage / Cell voltage average (default: Total)
 * **Battery Alert** - Battery alerts on, off, or only critical alerts (default: On)
 * **Cell Low** - Cell voltage for low battery warning (default: 3.5V)
