@@ -58,11 +58,12 @@
 
 #### Screen Description
 ![sample](assets/iNavKey.png "Screen description")
+![sample](assets/iNavKeyX9D.png "Screen description for X9D")
 
 * From transmitter's main screen, long hold the `Page` button to show custom screens, short press `Page` to the iNav screen
 * Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
 * When not armed you can flip between max/min and current values by using the dial or +/- buttons
-* To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons
+* To flip between compass-based direction and launch/pilot-based orientation and location, use the dial
 * The launch/pilot-based orientation view is useful if model orientation is unknown
 * If model is further than 25 feet away, the launch/pilot-based view will show the direction of the model based on launch/pilot position and orientation (useful to locate a lost model)
 * The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up)
@@ -70,6 +71,10 @@
 
 #### Configuration Settings
 Press the `Menu` button to display the configuration options menu:
+
+* Use the dial or +/- buttons to cycle through the menu or select the desired setting
+* Press Enter/dial to select and deselect a menu option
+* Press `Exit` to deselect a menu option or escape the configuration menu
 
 ![sample](assets/iNavConfig.png "Configuration menu")
 
@@ -91,7 +96,7 @@ Press the `Menu` button to display the configuration options menu:
 
 ## Tips & Notes
 
-* Between flights (before armed), long-press the Enter/dial and select `Reset telemetry` to reset telemetry values
+* Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
 * Optional (but highly suggested) current sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
