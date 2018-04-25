@@ -1,8 +1,8 @@
--- Lua Telemetry Flight Status Screen for INAV/Taranis
+-- Lua Telemetry Flight Status for INAV/Taranis
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.2.4"
+local VERSION = "1.2.5"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local lcd = LCD or lcd
@@ -27,7 +27,7 @@ local modes = {
   { t="POS HOLD",  f=0, w="poshld" },
   { t="3D HOLD",   f=0, w="3dhold" },
   { t="WAYPOINT",  f=0, w="waypt" },
-  { t="PASSTHRU",  f=0 },
+  { t="MANUAL",    f=0, w="manmd" },
   { t="   RTH   ", f=3, w="rtl" },
   { t="FAILSAFE",  f=3, w="fson" }
 }
