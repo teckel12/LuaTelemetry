@@ -116,8 +116,8 @@ Press the `Menu` button to display the configuration options menu:
 
 ## Support
 
-[All issues](LuaTelemetry/issues?q=is%3Aissue)
-[Open issues](LuaTelemetry/issues)
+* [All issues](/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
+* [Open issues](/iNavFlight/LuaTelemetry/issues)
 
 > When opening an issue, please use the form outline as a guide for easier reproduction, diagnosis and a faster resolution
 
