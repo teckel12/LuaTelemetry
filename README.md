@@ -1,5 +1,5 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.2.4
-### Supports SmartPort(S.Port) and F.Port telemetry (X-series receivers)
+### Supports SmartPort(S.Port) and F.Port telemetry on X-series receivers
 
 #### Taranis Q X7
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
