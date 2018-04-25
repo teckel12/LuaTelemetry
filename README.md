@@ -39,7 +39,7 @@
 
 * Planned support of FkSky D-series telemetry receivers in INAV v1.9.2
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
-    * **Lua Telemetry can't fix this, Crossfire has missing info Lua Telemetry requires** 
+    * **Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires** 
 * INAV v1.9.1+ is required for FPort compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 
@@ -116,10 +116,10 @@ Press the `Menu` button to display the configuration options menu:
 
 ## Support
 
-* [All issues](/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
-* [Open issues](/iNavFlight/LuaTelemetry/issues)
-
 > When opening an issue, please use the form outline as a guide for easier reproduction, diagnosis and a faster resolution
+
+* [All issues](https://github.com/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
+* [Open issues](https://github.com/iNavFlight/LuaTelemetry/issues)
 
 ## Change Log
 
