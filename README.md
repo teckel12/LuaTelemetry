@@ -1,4 +1,4 @@
-# Lua Telemetry Flight Status for INAV/Taranis - v1.2.4
+# Lua Telemetry Flight Status for INAV/Taranis - v1.2.5
 ### Supports SmartPort(S.Port) and FPort telemetry (X-series receivers)
 
 #### Taranis Q X7
