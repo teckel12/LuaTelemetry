@@ -1,5 +1,5 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.2.5
-### SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E
+### SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
 
 ## Screenshots
 
@@ -12,7 +12,7 @@
 
 ## Features
 
-* SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E
+* SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
