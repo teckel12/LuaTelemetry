@@ -1,5 +1,5 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.2.5
-### Supports SmartPort(S.Port) and FPort telemetry (X-series receivers)
+### Supports SmartPort(S.Port) and F.Port telemetry on X-series receivers
 
 #### Taranis Q X7
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
@@ -25,7 +25,7 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ or X9E
-* FkSky X-series telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. running SmartPort or FPort
+* FkSky X-series telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. running SmartPort or F.Port
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
@@ -40,7 +40,7 @@
 * Planned support of FkSky D-series telemetry receivers in INAV v1.9.2
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
     * **Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires** 
-* INAV v1.9.1+ is required for FPort compatibility
+* INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 
 ## Setup
