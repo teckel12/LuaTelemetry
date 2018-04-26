@@ -1,6 +1,8 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.2.5
 ### Supports SmartPort(S.Port) and F.Port telemetry on X-series receivers
 
+## Screenshots
+
 #### Taranis Q X7
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
 ![sample](assets/iNavQX72.png "Compass-based direction indicator")
@@ -25,7 +27,7 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ or X9E
-* FkSky X-series telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. running SmartPort or F.Port
+* FkSky X-series telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. running SmartPort(S.Port) or F.Port
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
@@ -39,7 +41,7 @@
 
 * Planned support of FkSky D-series telemetry receivers in INAV v1.9.2
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
-    * **Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires** 
+    * Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 
@@ -47,10 +49,10 @@
 
 #### In INAV Configurator
 
-1. Setup SmartPort telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md#smartport-sport-telemetry)
-1. If you have an amperage sensor, in CLI settings configure `battery_capacity` to the mAh you want to draw from your battery
-    * If running INAV v1.9.0+ make sure `smartport_fuel_unit = PERCENT` is set in CLI settings
-    * If running INAV previous to v1.9.0, set `smartport_fuel_percent = ON` in CLI settings
+1. Setup SmartPort(S.Port) telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md#smartport-sport-telemetry)
+1. If you have an current sensor, in CLI settings set `battery_capacity` to the mAh you want to draw from your battery
+    * If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
+    * If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
 
 #### From Transmitter
 
@@ -62,7 +64,7 @@
 #### INAV Lua Telemetry Screen Setup
 
 1. Download the [Lua Telemetry ZIP file](https://github.com/iNavFlight/LuaTelemetry/archive/master.zip)
-1. From the downloaded ZIP file, copy the contents of the `TELEMETRY` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
+1. From the downloaded ZIP file, copy the contents of the `TELEMETRY` folder to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder (`iNav.lua` file and `iNav` folder)
 1. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
 
 ## Usage
@@ -113,10 +115,11 @@ Press the `Menu` button to display the configuration options menu:
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you're not getting model distance data, change your telemetry distance sensor name from `0420` to `Dist`
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
+* If getting a script panic not enough memory error, be sure you're following the `INAV Lua Telemetry Screen Setup` instructions above
 
 ## Support
 
-> When opening an issue, please use the form outline as a guide for easier reproduction, diagnosis and a faster resolution
+When opening an issue, please use the form outline as a guide for easier reproduction, diagnosis and a faster resolution
 
 * [All issues](https://github.com/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
 * [Open issues](https://github.com/iNavFlight/LuaTelemetry/issues)
