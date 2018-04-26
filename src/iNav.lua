@@ -32,7 +32,7 @@ local modes = {
   { t="FAILSAFE",  f=3, w="fson" }
 }
 
-local units = { [0]="m", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
+local units = { [0]="", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
 
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
@@ -103,6 +103,7 @@ data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
 data.version = maj + minor / 10
+data.altitude_unit = data.showAlt and data.altitude_unit or 0
 
 local function reset()
   data.timerStart = 0
@@ -444,10 +445,12 @@ local function drawDirection(heading, width, radius, x, y)
 end
 
 local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
-  lcd.drawText(0, y, txt, SMLSIZE)
   if data.showMax and dir > 0 then
     vc = vm
-    lcd.drawText(14, y, dir == 1 and "\192" or "\193", SMLSIZE)
+    lcd.drawText(0, y, string.sub(txt, 1, 3), SMLSIZE)
+    lcd.drawText(15, y, dir == 1 and "\192" or "\193", SMLSIZE)
+  else
+    lcd.drawText(0, y, txt, SMLSIZE)
   end
   if frac ~= 0 and vc + 0.5 < max then
     lcd.drawNumber(22, y, vc * 10.02, SMLSIZE + frac + flags)

@@ -31,7 +31,7 @@
 
 #### Suggested (not required)
 
-* Altimeter/barometer
+* Altimeter/barometer (for altitude)
 * Magnetometer/compass (for multirotor)
 * Current/amperage sensor (for fuel gauge)
 
