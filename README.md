@@ -116,7 +116,7 @@ Press the `Menu` button to display the configuration options menu:
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you're not getting model distance data, change your telemetry distance sensor name from `0420` to `Dist`
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
-* If getting a script panic not enough memory error, be sure you're following the `INAV Lua Telemetry Screen Setup` instructions above
+* If getting a script panic not enough memory error, be sure you're following the [INAV Lua Telemetry Screen Setup](https://github.com/iNavFlight/LuaTelemetry#inav-lua-telemetry-screen-setup) instructions
 
 ## Support
 
