@@ -1,9 +1,9 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.2.5
-### Supports SmartPort(S.Port) and F.Port telemetry on X-series receivers
+### SmartPort(S.Port) & F.Port telemetry on Taranis QX7, X9D, X9D+ & X9E
 
 ## Screenshots
 
-#### Taranis Q X7
+#### Taranis QX7
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
 ![sample](assets/iNavQX72.png "Compass-based direction indicator")
 
@@ -12,6 +12,7 @@
 
 ## Features
 
+* SmartPort(S.Port) & F.Port telemetry on Taranis QX7, X9D, X9D+ & X9E
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ & X9E transmitters)
@@ -26,7 +27,7 @@
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7, X9D, X9D+ or X9E
+* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X9D, X9D+ or X9E
 * FkSky X-series telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. running SmartPort(S.Port) or F.Port
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
