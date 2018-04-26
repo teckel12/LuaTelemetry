@@ -1,8 +1,9 @@
 # Release History
 
-## v1.2.5 - 04/25/2018
-* Rename PASSTHRU mode MANUAL
-* Add audio file for MANUAL mode
+## v1.2.5 - 04/26/2018
+* Rename PASSTHRU mode MANUAL and add audio file for manual mode
+* Correct altitude unit designation in configuration when barometer is not present
+* Adjustment to data display for min/max indicator
 ## v1.2.4 - 04/17/2018
 * Satellite and altitude hold are now icons
 * Added flashing notification for headfree mode on QX7 (already existed on X9D)
