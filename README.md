@@ -1,5 +1,5 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.2.5
-### SmartPort(S.Port) & F.Port telemetry on Taranis QX7, X9D, X9D+ & X9E
+### SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E
 
 ## Screenshots
 
@@ -7,15 +7,15 @@
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
 ![sample](assets/iNavQX72.png "Compass-based direction indicator")
 
-#### Taranis X9D, X9D+ & X9E
-![sample](assets/iNavX9D.png "View on Taranis X9D, X9D+ & X9E")
+#### Taranis X9D, X9D+ and X9E
+![sample](assets/iNavX9D.png "View on Taranis X9D, X9D+ and X9E")
 
 ## Features
 
-* SmartPort(S.Port) & F.Port telemetry on Taranis QX7, X9D, X9D+ & X9E
+* SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
-* Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ & X9E transmitters)
+* Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS info: Satellites locked, GPS altitude, GPS coordinates. Also logs the last 5 GPS coordinates (reviewed from the config menu)
@@ -59,8 +59,8 @@
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
 1. Telemetry distance sensor name **must** be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft`
-1. The sensors `Dist`, `Alt`, `GAlt` & `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
-1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps, used for flight modes & GPS info
+1. The sensors `Dist`, `Alt`, `GAlt` and `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
+1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps, used for flight modes and GPS info
 
 #### INAV Lua Telemetry Screen Setup
 
