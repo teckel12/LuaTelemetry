@@ -96,14 +96,13 @@ local data = {
 
 data.showCurr = data.current_id > -1 and true or false
 data.showHead = data.heading_id > -1 and true or false
-data.altAltitude = data.altitude_id > -1 and false or true
 data.distPos = data.showCurr and 17 or 21
 data.speedPos = data.showCurr and 25 or 33
 data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
 data.version = maj + minor / 10
-if data.altAltitude then
+if data.altitude_id == -1 then
   data.altitude_unit = data.gpsAlt_unit
 end
 
@@ -369,7 +368,7 @@ local function background()
     data.gpsAlt = getValue(data.gpsAlt_id)
     data.heading = getValue(data.heading_id)
     data.altitude = getValue(data.altitude_id)
-    if data.altAltitude and data.gpsAltBase and data.gpsFix then
+    if data.altitude_id == -1 and data.gpsAltBase and data.gpsFix then
       data.altitude = data.gpsAlt - data.gpsAltBase
     end
     data.distance = getValue(data.distance_id)
