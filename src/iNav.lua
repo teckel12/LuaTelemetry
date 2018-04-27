@@ -41,7 +41,7 @@ end
 
 local function getTelemetryUnit(name)
   local field = getFieldInfo(name)
-  return (field and field.unit <= 10) and field.unit or 1
+  return (field and field.unit <= 10) and field.unit or 0
 end
 
 local rssi, low, crit = getRSSI()
@@ -60,7 +60,7 @@ local data = {
   gpsLatLon_id = getTelemetryId("GPS"),
   heading_id = getTelemetryId("Hdg"),
   altitude_id = getTelemetryId("Alt"),
-  distance_id = getTelemetryId("Dist"),
+  distance_id = getTelemetryId("Dist") > -1 and getTelemetryId("Dist") or getTelemetryId("0420"),
   speed_id = getTelemetryId("GSpd"),
   current_id = getTelemetryId("Curr"),
   altitudeMax_id = getTelemetryId("Alt+"),
@@ -76,7 +76,7 @@ local data = {
   txBatt_id = getTelemetryId("tx-voltage"),
   gpsAlt_unit = getTelemetryUnit("GAlt"),
   altitude_unit = getTelemetryUnit("Alt"),
-  distance_unit = getTelemetryUnit("Dist"),
+  distance_unit = getTelemetryUnit("Dist") > 0 and getTelemetryUnit("Dist") or getTelemetryUnit("0420"),
   speed_unit = getTelemetryUnit("GSpd"),
   homeResetPrev = false,
   gpsFixPrev = false,
@@ -96,14 +96,16 @@ local data = {
 
 data.showCurr = data.current_id > -1 and true or false
 data.showHead = data.heading_id > -1 and true or false
-data.showAlt = data.altitude_id > -1 and true or false
-data.distPos = data.showCurr and 17 or (data.showAlt and 21 or 13)
-data.speedPos = data.showCurr and 25 or (data.showAlt and 33 or 25)
+data.altAltitude = data.altitude_id > -1 and false or true
+data.distPos = data.showCurr and 17 or 21
+data.speedPos = data.showCurr and 25 or 33
 data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
 data.version = maj + minor / 10
-data.altitude_unit = data.showAlt and data.altitude_unit or 0
+if data.altAltitude then
+  data.altitude_unit = data.gpsAlt_unit
+end
 
 local function reset()
   data.timerStart = 0
@@ -118,6 +120,7 @@ local function reset()
   data.showDir = true
   data.fuel = 100
   data.config = 0
+  data.gpsAltBase = false
 end
 
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text / b=Blocked by
@@ -240,11 +243,15 @@ local function flightModes()
     data.showMax = false
     data.showDir = false
     data.config = 0
+    if not data.gpsAltBase and data.gpsFix then
+      data.gpsAltBase = data.gpsAlt
+    end
     playAudio("engarm", 1)
   elseif not data.armed and armedPrev then -- Engines disarmed
     if data.distanceLast <= data.distRef then
       data.headingRef = -1
       data.showDir = true
+      data.gpsAltBase = false
     end
     playAudio("engdrm", 1)
   end
@@ -362,6 +369,9 @@ local function background()
     data.gpsAlt = getValue(data.gpsAlt_id)
     data.heading = getValue(data.heading_id)
     data.altitude = getValue(data.altitude_id)
+    if data.altAltitude and data.gpsAltBase and data.gpsFix then
+      data.altitude = data.gpsAlt - data.gpsAltBase
+    end
     data.distance = getValue(data.distance_id)
     data.speed = getValue(data.speed_id)
     if data.showCurr then
@@ -570,14 +580,12 @@ local function run(event)
   end
 
   -- Data & gauges
-  if data.showAlt then
-    drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
-    if data.altHold then
-      tmp = lcd.getLastPos() + 1
-      lcd.drawRectangle(tmp + 1, 9, 3, 3, FORCE)
-      lcd.drawFilledRectangle(tmp, 11, 5, 4, FORCE)
-      lcd.drawPoint(tmp + 2, 12)
-    end
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
+  if data.altHold then
+    tmp = lcd.getLastPos() + 1
+    lcd.drawRectangle(tmp + 1, 9, 3, 3, FORCE)
+    lcd.drawFilledRectangle(tmp, 11, 5, 4, FORCE)
+    lcd.drawPoint(tmp + 2, 12)
   end
   tmp = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
   drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], 0, data.telemFlags)
@@ -599,7 +607,7 @@ local function run(event)
   lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0), 100)
   tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
   lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
-  if not QX7 and data.showAlt then
+  if not QX7 then
     local w = config[7].v == 1 and 7 or 15
     local l = config[7].v == 1 and 205 or 197
     lcd.drawRectangle(l, 9, w, 48, SOLID)
@@ -616,15 +624,14 @@ local function run(event)
       lcd.drawLine(X_CNTR_2 + 15, 21, X_CNTR_2 + 17, 21, SOLID, FORCE)
       lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 16, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
     elseif not QX7 then
-      local w = data.showAlt and 7 or 15
-      lcd.drawRectangle(197, 9, w, 48, SOLID)
-      lcd.drawText(198, 58, data.showAlt and "V" or "Var", SMLSIZE)
+      lcd.drawRectangle(197, 9, 7, 48, SOLID)
+      lcd.drawText(198, 58, "V", SMLSIZE)
       if data.armed then
         tmp = 33 - math.floor(math.max(math.min(data.accZ - 1, 1), -1) * 23 - 0.5)
         if tmp > 33 then
-          lcd.drawFilledRectangle(198, 33, w - 2, tmp - 33, INVERS)
+          lcd.drawFilledRectangle(198, 33, 5, tmp - 33, INVERS)
         else
-          lcd.drawFilledRectangle(198, tmp - 1, w - 2, 33 - tmp + 2, INVERS)
+          lcd.drawFilledRectangle(198, tmp - 1, 5, 33 - tmp + 2, INVERS)
         end
       end
     end
