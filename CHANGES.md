@@ -1,5 +1,12 @@
 # Release History
 
+## v1.2.5 - 04/28/2018
+* Uses GPS for launch-based altitude if barometer isn't present
+* No longer requires `0420` sensor to be renamed `Dist`
+* Better error handling, specially if `iNav` folder doesn't exist
+* Renamed PASSTHRU mode MANUAL and add audio file for manual mode
+* Correct altitude unit designation in configuration when barometer isn't present
+* Adjustment to data display for min/max indicator
 ## v1.2.4 - 04/17/2018
 * Satellite and altitude hold are now icons
 * Added flashing notification for headfree mode on QX7 (already existed on X9D)
