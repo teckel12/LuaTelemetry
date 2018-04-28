@@ -1,5 +1,5 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.2.5
-### SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
+> ### SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
 
 ## Screenshots
 
@@ -58,7 +58,7 @@
 #### From Transmitter
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
-1. Telemetry distance sensor name **must** be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft`
+1. Telemetry distance sensor name can be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft`
 1. The sensors `Dist`, `Alt`, `GAlt` and `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
 1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps, used for flight modes and GPS info
 
@@ -114,7 +114,6 @@ Press the `Menu` button to display the configuration options menu:
 * Optional (but highly suggested) current sensor needed for fuel and current displays
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
-* If you're not getting model distance data, change your telemetry distance sensor name from `0420` to `Dist`
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
 * If getting a script panic not enough memory error, be sure you're following the [INAV Lua Telemetry Screen Setup](#inav-lua-telemetry-screen-setup) instructions
 
@@ -127,8 +126,8 @@ When opening an issue, please use the form outline as a guide for easier reprodu
 
 ## Change Log
 
-[Release History](CHANGES.md)
+* [Release history](CHANGES.md)
 
 ## License
 
-[MIT](LICENSE)
+* [MIT license](LICENSE)
