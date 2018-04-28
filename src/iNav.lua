@@ -76,7 +76,7 @@ local data = {
   txBatt_id = getTelemetryId("tx-voltage"),
   gpsAlt_unit = getTelemetryUnit("GAlt"),
   altitude_unit = getTelemetryUnit("Alt"),
-  distance_unit = getTelemetryUnit("Dist") > 0 and getTelemetryUnit("Dist") or getTelemetryUnit("0420"),
+  distance_unit = getTelemetryId("Dist") > -1 and getTelemetryUnit("Dist") or getTelemetryUnit("0420"),
   speed_unit = getTelemetryUnit("GSpd"),
   homeResetPrev = false,
   gpsFixPrev = false,
@@ -101,10 +101,9 @@ data.speedPos = data.showCurr and 25 or 33
 data.battPos1 = data.showCurr and 49 or 45
 data.battPos2 = data.showCurr and 49 or 41
 data.distRef = data.distance_unit == 10 and 20 or 6
-data.version = maj + minor / 10
-if data.altitude_id == -1 then
-  data.altitude_unit = data.gpsAlt_unit
-end
+data.altitude_unit = data.altitude_id == -1 and data.gpsAlt_unit or data.altitude_unit
+data.distance_unit = data.distance_unit == 0 and 9 or data.distance_unit
+data.systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false
 
 local function reset()
   data.timerStart = 0
@@ -152,14 +151,18 @@ end
 
 local function saveConfig()
   local fh = io.open(FILE_PATH .. "config.dat", "w")
-  for line = 1, configValues do
-    if config[line].d == nil then
-      io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
-    else 
-      io.write(fh, math.floor(config[line].v * 10))
+  if fh == nil then
+    data.systemError = "Folder \"iNav\" not found"
+  else
+    for line = 1, configValues do
+      if config[line].d == nil then
+        io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
+      else 
+        io.write(fh, math.floor(config[line].v * 10))
+      end
     end
+    io.close(fh)
   end
-  io.close(fh)
 end
 
 -- Load config data
@@ -475,9 +478,11 @@ local function run(event)
   lcd.clear()
   background()
 
-  -- Minimum OpenTX version
-  if (data.version < 2.2) then
-    lcd.drawText(QX7 and 8 or 50, 27, "OpenTX v2.2+ Required")
+  -- Display system error
+  if data.systemError then
+    lcd.drawText(0, 27, data.systemError)
+    lcd.clear()
+    lcd.drawText((LCD_W - lcd.getLastPos()) / 2, 27, data.systemError)
     return 0
   end
 
