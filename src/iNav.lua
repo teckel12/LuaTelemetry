@@ -2,7 +2,7 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.2.5"
+local VERSION = "1.2.6"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local lcd = LCD or lcd
@@ -584,7 +584,7 @@ local function run(event)
   end
 
   -- Data & gauges
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
   if data.altHold then
     tmp = lcd.getLastPos() + 1
     lcd.drawRectangle(tmp + 1, 9, 3, 3, FORCE)
@@ -592,9 +592,9 @@ local function run(event)
     lcd.drawPoint(tmp + 2, 12)
   end
   tmp = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
-  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], 0, data.telemFlags)
-  drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, '', 0, data.telemFlags)
-  drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, QX7 and 100 or 1000, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
+  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
+  drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
+  drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, 100, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
   if data.showCurr then
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", PREC1, data.telemFlags)
