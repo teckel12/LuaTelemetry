@@ -32,11 +32,11 @@
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
-#### Suggested (not required)
+#### Suggested Sensors (not required)
 
-* Altimeter/barometer (for altitude)
-* Magnetometer/compass (for multirotor)
-* Current/amperage sensor (for fuel gauge)
+* Altimeter/barometer (GPS altitude used if barometer not present)
+* Magnetometer/compass (fixed-wing craft use GPS for some directional info)
+* Current/amperage (for fuel gauge)
 
 ## Notes
 
