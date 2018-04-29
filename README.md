@@ -50,7 +50,7 @@
 
 #### In INAV Configurator
 
-1. Setup SmartPort(S.Port) telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md#smartport-sport-telemetry)
+1. Setup SmartPort(S.Port) or F.Port telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md#smartport-sport-telemetry)
 1. If you have an current sensor, in CLI settings set `battery_capacity` to the mAh you want to draw from your battery
     * If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
     * If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
@@ -58,7 +58,7 @@
 #### From Transmitter
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
-1. Telemetry distance sensor name can be changed from `0420` to `Dist` and set to the desired unit: `m` or `ft`
+1. Telemetry distance sensor name `0420` can be changed to `Dist` and set to the desired unit: `m` or `ft`
 1. The sensors `Dist`, `Alt`, `GAlt` and `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
 1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps, used for flight modes and GPS info
 
@@ -112,6 +112,7 @@ Press the `Menu` button to display the configuration options menu:
 
 * Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
 * Optional (but highly suggested) current sensor needed for fuel and current displays
+* If fuel gauge isn't accurate, be sure you've set CLI values `smartport_fuel_unit` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data.
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
