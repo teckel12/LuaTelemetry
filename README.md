@@ -1,5 +1,8 @@
-# Lua Telemetry Flight Status for INAV/Taranis - v1.2.5
-> ### SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
+# Lua Telemetry Flight Status for INAV/Taranis - v1.3.0
+
+```
+SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
+```
 
 ## Screenshots
 
@@ -12,7 +15,7 @@
 
 ## Features
 
-* SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
+* SmartPort(S.Port), F.Port and FrSky D-series telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
@@ -28,7 +31,7 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X9D, X9D+ or X9E
-* FkSky X-series telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. running SmartPort(S.Port) or F.Port
+* FkSky X-series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, D8R-II plus, D8R-XP, D4R-II, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
@@ -40,17 +43,17 @@
 
 ## Notes
 
-* Planned support of FkSky D-series telemetry receivers in INAV v1.9.2
-* Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
-    * Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires
+* INAV v1.9.2+ is required for FkSky D-series telemetry compatibility
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
+* Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
+    * Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires
 
 ## Setup
 
 #### In INAV Configurator
 
-1. Setup SmartPort(S.Port) or F.Port telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md#smartport-sport-telemetry)
+1. Setup SmartPort(S.Port), F.Port or D-series telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
 1. If you have an current sensor, in CLI settings set `battery_capacity` to the mAh you want to draw from your battery
     * If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
     * If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
@@ -111,7 +114,7 @@ Press the `Menu` button to display the configuration options menu:
 ## Tips
 
 * Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
-* Optional (but highly suggested) current sensor needed for fuel and current displays
+* If current sensor isn't present or battery isn't fully charged when plugged in, fuel gauge will be based on battery voltage
 * If fuel gauge isn't accurate, be sure you've set CLI values `smartport_fuel_unit` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data.
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
