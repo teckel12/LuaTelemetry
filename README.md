@@ -41,10 +41,10 @@
 ## Notes
 
 * Planned support of FkSky D-series telemetry receivers in INAV v1.9.2
-* Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
-    * Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
+* Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
+    * Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires
 
 ## Setup
 
@@ -111,7 +111,7 @@ Press the `Menu` button to display the configuration options menu:
 ## Tips
 
 * Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
-* Optional (but highly suggested) current sensor needed for fuel and current displays
+* If current sensor isn't present or battery isn't fully charged when plugged in, fuel gauge will be based on battery voltage
 * If fuel gauge isn't accurate, be sure you've set CLI values `smartport_fuel_unit` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data.
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
