@@ -1,5 +1,7 @@
 # Release History
 
+## v1.2.6 - 05/01/2018
+* Updated data digits to display before truncating unit of measure
 ## v1.2.5 - 04/28/2018
 * Uses GPS for launch-based altitude if barometer isn't present
 * No longer requires `0420` sensor to be renamed `Dist`
