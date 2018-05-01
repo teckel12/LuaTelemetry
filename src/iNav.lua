@@ -358,6 +358,12 @@ local function flightModes()
   data.homeResetPrev = homeReset
 end
 
+-- Not used now, but could be in the future
+--local function gpsFormat(coord, lat)
+--  local gpsD = math.floor(math.abs(coord))
+--  return gpsD .. string.format("\185%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "'N" or "'S") or (coord >= 0 and "'E" or "'W"))
+--end
+
 local function background()
   data.rssi = getValue(data.rssi_id)
   if data.telemFlags == -1 then
@@ -397,6 +403,9 @@ local function background()
     data.gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
     if data.gpsFix then
       data.gpsLatLon = gpsTemp
+      --data.distance = 70
+      --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
+      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
       if getTime() > data.gpsLogTimer then
         data.gpsLogTimer = getTime() + 100
         gpsTemp = math.floor(data.gpsLatLon.lat * 100000) / 100000 .. " " .. math.floor(data.gpsLatLon.lon * 100000) / 100000
@@ -406,9 +415,6 @@ local function background()
           config[15].v = newPos
         end
       end
-      --data.distance = 70
-      --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
-      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
     end
     -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
     if data.distance_unit == 10 then
