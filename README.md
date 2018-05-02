@@ -43,7 +43,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 
 ## Notes
 
-* INAV v1.9.2+ is required for FkSky D-series telemetry compatibility
+* INAV v2.0+ is required for FkSky D-series telemetry compatibility
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
