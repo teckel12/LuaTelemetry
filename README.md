@@ -40,7 +40,7 @@
 
 ## Notes
 
-* Planned support of FkSky D-series telemetry receivers in INAV v1.9.2
+* Planned support of FkSky D-series telemetry receivers in INAV v2.0
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
