@@ -113,13 +113,17 @@ Press the `Menu` button to display the configuration options menu:
 
 ## Tips
 
+> **Script panic, not enough memory error:**
+> Be sure you're following the [INAV Lua Telemetry Screen Setup](#inav-lua-telemetry-screen-setup) instructions.
+> If you're still having memory issues, you can free up memory by turning off OpenTX firmware build options and/or removing other Lua Scripts from screens.
+> Keep in mind that a not enough memory error doesn't indicate a problem with Lua Telemetry, it means exactly what it says, your transmitter is out of memory and therefore can't run Lua Telemetry.
+
 * Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
 * If current sensor isn't present or battery isn't fully charged when plugged in, fuel gauge will be based on battery voltage
 * If fuel gauge isn't accurate, be sure you've set CLI values `smartport_fuel_unit` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data.
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
-* If getting a script panic not enough memory error, be sure you're following the [INAV Lua Telemetry Screen Setup](#inav-lua-telemetry-screen-setup) instructions
 
 ## Support
 
