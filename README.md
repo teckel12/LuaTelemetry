@@ -78,6 +78,7 @@ SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmi
 ![sample](assets/iNavKeyX9D.png "Screen description for X9D")
 
 * From transmitter's main screen, long hold the `Page` button to show custom screens, short press `Page` to the iNav screen
+* If you get a `Script panic not enough memory` error when starting Lua Telemetry, please see the [Tips](#tips) section
 * Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
 * When not armed you can flip between max/min and current values by using the dial or +/- buttons
 * To flip between compass-based direction and launch/pilot-based orientation and location, use the dial
@@ -113,7 +114,7 @@ Press the `Menu` button to display the configuration options menu:
 
 ## Tips
 
-> **Script panic, not enough memory error:**
+> **Script panic not enough memory error:**
 > Be sure you're following the [INAV Lua Telemetry Screen Setup](#inav-lua-telemetry-screen-setup) instructions.
 > If you're still having memory issues, you can free up memory by turning off OpenTX firmware build options and/or removing other Lua Scripts from screens.
 > Keep in mind that a not enough memory error doesn't indicate a problem with Lua Telemetry, it means exactly what it says, your transmitter is out of memory and therefore can't run Lua Telemetry.
