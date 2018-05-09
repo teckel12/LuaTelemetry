@@ -1,6 +1,7 @@
 # Release History
 
-## v1.2.6 - 05/09/2018
+## v1.3.0 - 05/09/2018
+* Support added for D-series receivers
 * If distance sensor name is the default `0420`, the max distance now displays correctly
 * Updated data digits to display before truncating unit of measure
 ## v1.2.5 - 04/28/2018

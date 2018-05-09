@@ -1,7 +1,7 @@
-# Lua Telemetry Flight Status for INAV/Taranis - v1.2.6
+# Lua Telemetry Flight Status for INAV/Taranis - v1.3.0
 
 ```
-SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
+SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
 ```
 
 ## Screenshots
@@ -15,7 +15,7 @@ SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmi
 
 ## Features
 
-* SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
+* SmartPort(S.Port), F.Port and FrSky D-series telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
@@ -31,7 +31,7 @@ SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmi
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X9D, X9D+ or X9E
-* FkSky X-series telemetry receiver: X4R(SB), X8R, XSR, R-XSR, XSR-M, XSR-E, etc. running SmartPort(S.Port) or F.Port
+* FkSky X-series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, D8R-II plus, D8R-XP, D4R-II, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
@@ -43,7 +43,7 @@ SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmi
 
 ## Notes
 
-* Planned support of FkSky D-series telemetry receivers in INAV v2.0
+* INAV v2.0+ is required for FkSky D-series telemetry compatibility
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
@@ -53,7 +53,7 @@ SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmi
 
 #### In INAV Configurator
 
-1. Setup SmartPort(S.Port) or F.Port telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md#smartport-sport-telemetry)
+1. Setup SmartPort(S.Port), F.Port or D-series telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
 1. If you have an current sensor, in CLI settings set `battery_capacity` to the mAh you want to draw from your battery
     * If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
     * If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
@@ -61,7 +61,7 @@ SmartPort(S.Port) and F.Port telemetry on Taranis QX7, X9D, X9D+ and X9E transmi
 #### From Transmitter
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
-1. Telemetry distance sensor name `0420` can be changed to `Dist` and set to the desired unit: `m` or `ft`
+1. Telemetry distance sensor name `0420` (or `0007` with D-series receivers) should be changed to `Dist` and set to the desired unit: `m` or `ft`
 1. The sensors `Dist`, `Alt`, `GAlt` and `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
 1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps, used for flight modes and GPS info
 
