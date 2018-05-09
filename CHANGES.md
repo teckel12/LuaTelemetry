@@ -1,5 +1,7 @@
 # Release History
 
+## v1.3.0 - 05/09/2018
+* Support added for D-series receivers
 ## v1.2.5 - 04/28/2018
 * Uses GPS for launch-based altitude if barometer isn't present
 * No longer requires `0420` sensor to be renamed `Dist`
