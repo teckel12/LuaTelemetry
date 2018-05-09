@@ -61,7 +61,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 #### From Transmitter
 
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
-1. Telemetry distance sensor name `0420` can be changed to `Dist` and set to the desired unit: `m` or `ft`
+1. Telemetry distance sensor name `0420` (or `07` with D-series receivers) should be changed to `Dist` and set to the desired unit: `m` or `ft`
 1. The sensors `Dist`, `Alt`, `GAlt` and `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
 1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps, used for flight modes and GPS info
 
