@@ -47,7 +47,7 @@ end
 local rssi, low, crit = getRSSI()
 local ver, radio, maj, minor, rev = getVersion()
 local general = getGeneralSettings()
-local distanceSensor = getTelemetryId("0420") > -1 and "0420" or (getTelemetryId("Dist") > -1 and "Dist" or "0007")
+local distanceSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
   rssiLow = low,
   rssiCrit = crit,
