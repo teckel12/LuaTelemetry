@@ -29,7 +29,8 @@ local modes = {
   { t="WAYPOINT",  f=0, w="waypt" },
   { t="MANUAL",    f=0, w="manmd" },
   { t="   RTH   ", f=FLASH, w="rtl" },
-  { t="FAILSAFE",  f=FLASH, w="fson" }
+  { t="FAILSAFE",  f=FLASH, w="fson" },
+  { t="THR WARN",  f=FLASH }
 }
 
 local units = { [0]="", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
@@ -79,6 +80,7 @@ local data = {
   altitude_unit = getTelemetryUnit("Alt"),
   distance_unit = getTelemetryUnit(distanceSensor),
   speed_unit = getTelemetryUnit("GSpd"),
+  throttle_id = getTelemetryId("thr"),
   homeResetPrev = false,
   gpsFixPrev = false,
   gpsLogTimer = 0,
@@ -221,7 +223,7 @@ local function flightModes()
         data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
     else
-      data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and 5 or 6 -- Not OK to arm / Ready to fly
+      data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1023 and 13 or 5) or 6 -- Not OK to arm / Throttle warning / Ready to fly
     end
     if bit32.band(modeA, 4) == 4 then
       data.modeId = 12 -- Failsafe
@@ -400,6 +402,7 @@ local function background()
     data.accZ = getValue(data.accZ_id)
     data.txBatt = getValue(data.txBatt_id)
     data.rssiLast = data.rssi
+    data.throttle = getValue(data.throttle_id)
     local gpsTemp = getValue(data.gpsLatLon_id)
     data.gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
     if data.gpsFix then
