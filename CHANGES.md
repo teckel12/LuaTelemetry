@@ -2,6 +2,7 @@
 
 ## v1.3.0 - 05/10/2018
 * Support added for D-series receivers
+* Option to show GPS coordinates as degrees and minutes instead of the previous decimal only
 * Shows `THR WARN` if not okay to fly and throttle isn't at minimum position
 * If distance sensor name is the default `0420`, the max distance now displays correctly
 * Updated data digits to display before truncating unit of measure

@@ -124,7 +124,7 @@ local function reset()
   data.gpsAltBase = false
 end
 
--- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text / b=Blocked by
+-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
   { o=1,  t="Battery View",  c=1, v=1, i=1, l={[0]="Cell", "Total"} },
   { o=3,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
@@ -140,9 +140,10 @@ local config = {
   { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
   { o=7,  t="Timer",         c=1, v=1, x=4, i=1, l={[0]="Off", "Auto", "Timer1", "Timer2", "Timer3"} },
   { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=15, t="GPS",           c=1, v=4, x=4, i=1, l={[0]="-", "-", "-", "-", "-"} }
+  { o=16, t="GPS",           c=1, v=4, x=4, i=1, l={[0]="-", "-", "-", "-", "-"} },
+  { o=15, t="GPS Coords",    c=1, v=0, x=1, i=1, l={[0]="Decimal", "Deg/Min"} }
 }
-local configValues = 15
+local configValues = 16
 for i = 1, configValues do
   for ii = 1, configValues do
     if i == config[ii].o then
@@ -361,11 +362,10 @@ local function flightModes()
   data.homeResetPrev = homeReset
 end
 
--- Not used now, but could be in the future
---local function gpsFormat(coord, lat)
---  local gpsD = math.floor(math.abs(coord))
---  return gpsD .. string.format("\185%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "'N" or "'S") or (coord >= 0 and "'E" or "'W"))
---end
+local function gpsFormat(coord, lat, decimals)
+  local gpsD = math.floor(math.abs(coord))
+  return gpsD .. string.format("\185%0" .. (decimals + 3) .. "." .. decimals .. "f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "'N" or "'S") or (coord >= 0 and "'E" or "'W"))
+end
 
 local function background()
   data.rssi = getValue(data.rssi_id)
@@ -412,7 +412,11 @@ local function background()
       --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
       if getTime() > data.gpsLogTimer then
         data.gpsLogTimer = getTime() + 100
-        gpsTemp = math.floor(data.gpsLatLon.lat * 100000) / 100000 .. " " .. math.floor(data.gpsLatLon.lon * 100000) / 100000
+        if config[16] == 0 then
+          gpsTemp = math.floor(data.gpsLatLon.lat * 100000) / 100000 .. " " .. math.floor(data.gpsLatLon.lon * 100000) / 100000
+        else
+          gpsTemp = gpsFormat(data.gpsLatLon.lat, true, 2) .. " " .. gpsFormat(data.gpsLatLon.lon, false, 2)
+        end
         if gpsTemp ~= config[15].l[config[15].v] then
           local newPos = config[15].v >= 4 and 0 or config[15].v + 1
           config[15].l[newPos] = gpsTemp
@@ -516,8 +520,13 @@ local function run(event)
   if data.gpsLatLon ~= false then
     local gpsFlags = (data.telemFlags > 0 or not data.gpsFix) and FLASH or 0
     gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
-    gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
-    gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
+    if config[16] == 0 then
+      gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
+      gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
+    else
+      gpsData(gpsFormat(data.gpsLatLon.lat, true, QX7 and 2 or 3), 25, gpsFlags)
+      gpsData(gpsFormat(data.gpsLatLon.lon, false, QX7 and 2 or 3), 33, gpsFlags)
+    end
   else
     lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
     lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
