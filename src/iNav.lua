@@ -18,22 +18,22 @@ local CONFIG_X = QX7 and 6 or 48
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
-  { t="NO TELEM",  f=FLASH },
-  { t="HORIZON",   f=0, w="hrznmd" },
-  { t="ANGLE",     f=0, w="anglmd" },
-  { t="ACRO",      f=0, w="acromd" },
-  { t=" NOT OK ",  f=FLASH },
-  { t="READY",     f=0, w="ready" },
-  { t="POS HOLD",  f=0, w="poshld" },
-  { t="3D HOLD",   f=0, w="3dhold" },
-  { t="WAYPOINT",  f=0, w="waypt" },
-  { t="MANUAL",    f=0, w="manmd" },
-  { t="   RTH   ", f=FLASH, w="rtl" },
-  { t="FAILSAFE",  f=FLASH, w="fson" },
-  { t="THR WARN",  f=FLASH }
+  { t = "NO TELEM",  f = FLASH },
+  { t = "HORIZON",   f = 0, w = "hrznmd" },
+  { t = "ANGLE",     f = 0, w = "anglmd" },
+  { t = "ACRO",      f = 0, w = "acromd" },
+  { t = " NOT OK ",  f = FLASH },
+  { t = "READY",     f = 0, w = "ready" },
+  { t = "POS HOLD",  f = 0, w = "poshld" },
+  { t = "3D HOLD",   f = 0, w = "3dhold" },
+  { t = "WAYPOINT",  f = 0, w = "waypt" },
+  { t = "MANUAL",    f = 0, w = "manmd" },
+  { t = "   RTH   ", f = FLASH, w = "rtl" },
+  { t = "FAILSAFE",  f = FLASH, w = "fson" },
+  { t = "THR WARN",  f = FLASH }
 }
 
-local units = { [0]="", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
+local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
 
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
@@ -126,22 +126,22 @@ end
 
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
-  { o=1,  t="Battery View",  c=1, v=1, i=1, l={[0]="Cell", "Total"} },
-  { o=3,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
-  { o=4,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
-  { o=10, t="Voice Alerts",  c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
-  { o=11, t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "On"} },
-  { o=6,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit], b=5 },
-  { o=9,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=12, t="RTH Feedback",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
-  { o=13, t="HF Feedback",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
-  { o=14, t="RSSI Feedback", c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
-  { o=2,  t="Battery Alerts",c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
-  { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=7,  t="Timer",         c=1, v=1, x=4, i=1, l={[0]="Off", "Auto", "Timer1", "Timer2", "Timer3"} },
-  { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=16, t="GPS",           c=1, v=4, x=4, i=1, l={[0]="-", "-", "-", "-", "-"} },
-  { o=15, t="GPS Coords",    c=1, v=0, x=1, i=1, l={[0]="Decimal", "Deg/Min"} }
+  { o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
+  { o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
+  { o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
+  { o = 10, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
+  { o = 11, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
+  { o = 6,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 5 },
+  { o = 9,  t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+  { o = 12, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
+  { o = 13, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
+  { o = 14, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
+  { o = 2,  t = "Battery Alerts", c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
+  { o = 5,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+  { o = 7,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
+  { o = 8,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+  { o = 16, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = "-", "-", "-", "-", "-"} },
+  { o = 15, t = "GPS Coords",     c = 1, v = 0, x = 1, i = 1, l = {[0] = "Decimal", "Deg/Min"} }
 }
 local configValues = 16
 for i = 1, configValues do
