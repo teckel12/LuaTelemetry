@@ -224,7 +224,7 @@ local function flightModes()
         data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
     else
-      data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1023 and 13 or 5) or 6 -- Not OK to arm / Throttle warning / Ready to fly
+      data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 13 or 5) or 6 -- Not OK to arm / Throttle warning / Ready to fly
     end
     if bit32.band(modeA, 4) == 4 then
       data.modeId = 12 -- Failsafe
@@ -479,9 +479,9 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     lcd.drawText(0, y, txt, SMLSIZE)
   end
   if frac ~= 0 and vc + 0.5 < max then
-    lcd.drawNumber(22, y, vc * 10.02, SMLSIZE + frac + flags)
+    lcd.drawNumber(21, y, vc * 10.02, SMLSIZE + frac + flags)
   else
-    lcd.drawText(22, y, math.floor(vc + 0.5), SMLSIZE + flags)
+    lcd.drawText(21, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
   if frac ~= 0 or vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
