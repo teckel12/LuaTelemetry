@@ -47,7 +47,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
-    * Lua Telemetry can't fix this, Crossfire has missing information Lua Telemetry requires
+    * Lua Telemetry can't fix this, Crossfire has missing flight mode info Lua Telemetry requires
 
 ## Setup
 
@@ -63,7 +63,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
 1. Telemetry distance sensor name `0420` (or `0007` with D-series receivers) should be changed to `Dist` and set to the desired unit: `m` or `ft`
 1. The sensors `Dist`, `Alt`, `GAlt` and `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
-1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps, used for flight modes and GPS info
+1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps (used for flight modes and GPS info)
 
 #### INAV Lua Telemetry Screen Setup
 
@@ -122,7 +122,7 @@ Press the `Menu` button to display the configuration options menu:
 
 * Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
 * If current sensor isn't present or battery isn't fully charged when plugged in, fuel gauge will be based on battery voltage
-* If fuel gauge isn't accurate, be sure you've set CLI values `smartport_fuel_unit` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data.
+* If fuel gauge isn't accurate, be sure you've set CLI values `smartport_fuel_unit` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
