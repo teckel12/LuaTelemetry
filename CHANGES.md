@@ -3,7 +3,7 @@
 ## v1.3.0 - 05/11/2018
 * Compatibility with new F.Port protocol (requires INAV v1.9.1+)
 * Support added for D-series receivers with telemetry (requires INAV v2.0+)
-* Option to show GPS coordinates as degrees and minutes instead of the previous decimal only
+* Option to show GPS coordinates as degrees and minutes or in geocoding format instead of the previous decimal only
 * Shows `THR WARN` if not okay to fly and throttle isn't at minimum position
 * If distance sensor name is the default `0420`, the max distance now displays correctly
 * Updated data digits to display before truncating unit of measure
