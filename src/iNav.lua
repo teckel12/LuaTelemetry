@@ -124,6 +124,8 @@ local function reset()
   data.gpsAltBase = false
 end
 
+local emptyGPS = { lat = 0, lon = 0 }
+
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
   { o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
@@ -140,8 +142,8 @@ local config = {
   { o = 5,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
   { o = 7,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
   { o = 8,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-  { o = 16, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = "-", "-", "-", "-", "-"} },
-  { o = 15, t = "GPS Coords",     c = 1, v = 0, x = 1, i = 1, l = {[0] = "Decimal", "Deg/Min"} }
+  { o = 16, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+  { o = 15, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Signed", "Deg/Min", "Geocode"} }
 }
 local configValues = 16
 for i = 1, configValues do
@@ -362,9 +364,14 @@ local function flightModes()
   data.homeResetPrev = homeReset
 end
 
-local function gpsFormat(coord, lat, decimals)
+local function gpsDegMin(coord, lat)
   local gpsD = math.floor(math.abs(coord))
-  return gpsD .. string.format("\185%0" .. (decimals + 3) .. "." .. decimals .. "f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "'N" or "'S") or (coord >= 0 and "'E" or "'W"))
+  return gpsD .. string.format("\176%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
+end
+
+local function gpsGeocoding(coord, lat)
+  local gpsD = math.floor(math.abs(coord))
+  return (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W")) .. gpsD .. string.format("\176%05.2f", (math.abs(coord) - gpsD) * 60)
 end
 
 local function background()
@@ -412,11 +419,6 @@ local function background()
       --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
       if getTime() > data.gpsLogTimer then
         data.gpsLogTimer = getTime() + 100
-        if config[16] == 0 then
-          gpsTemp = math.floor(data.gpsLatLon.lat * 100000) / 100000 .. " " .. math.floor(data.gpsLatLon.lon * 100000) / 100000
-        else
-          gpsTemp = gpsFormat(data.gpsLatLon.lat, true, 2) .. " " .. gpsFormat(data.gpsLatLon.lon, false, 2)
-        end
         if gpsTemp ~= config[15].l[config[15].v] then
           local newPos = config[15].v >= 4 and 0 or config[15].v + 1
           config[15].l[newPos] = gpsTemp
@@ -520,12 +522,12 @@ local function run(event)
   if data.gpsLatLon ~= false then
     local gpsFlags = (data.telemFlags > 0 or not data.gpsFix) and FLASH or 0
     gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
-    if config[16] == 0 then
+    if config[16].v == 0 then
       gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
       gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
     else
-      gpsData(gpsFormat(data.gpsLatLon.lat, true, QX7 and 2 or 3), 25, gpsFlags)
-      gpsData(gpsFormat(data.gpsLatLon.lon, false, QX7 and 2 or 3), 33, gpsFlags)
+      gpsData(config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), 25, gpsFlags)
+      gpsData(config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), 33, gpsFlags)
     end
   else
     lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
@@ -710,7 +712,17 @@ local function run(event)
           if not config[z].l then
             lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
           else
-            lcd.drawText(CONFIG_X + (z == 15 and 25 or 78), y, config[z].l[config[z].v], SMLSIZE + tmp)
+            if z == 15 then
+              if config[16].v == 0 then
+                lcd.drawText(CONFIG_X + 25, y, string.format("%8.4f %9.4f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon), SMLSIZE + tmp)
+              elseif config[16].v == 1 then
+                lcd.drawText(CONFIG_X + 25, y, gpsDegMin(config[z].l[config[z].v].lat, true) .. " " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+              else
+                lcd.drawText(CONFIG_X + 25, y, gpsGeocoding(config[z].l[config[z].v].lat, true) .. " " .. gpsGeocoding(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+              end
+            else
+              lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v], SMLSIZE + tmp)
+            end
           end
         end
       end

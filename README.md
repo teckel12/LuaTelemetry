@@ -69,7 +69,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 
 1. Download the latest [Lua Telemetry ZIP file](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
 1. From the downloaded ZIP file, copy the contents of the `TELEMETRY` folder (both the `iNav.lua` file and `iNav` folder) to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
-1. In model setup, page to `DISPLAY`, set desired screen to `Script`, and select `iNav`
+1. In model setup, page to `DISPLAY`, set desired screen to `Script` and select `iNav`
 
 ## Usage
 
@@ -84,7 +84,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 * To flip between compass-based direction and launch/pilot-based orientation and location, use the dial
 * The launch/pilot-based orientation view is useful if model orientation is unknown
 * If model is further than 25 feet away, the launch/pilot-based view will show the direction of the model based on launch/pilot position and orientation (useful to locate a lost model)
-* The script gives voice feedback for flight modes, battery levels, and warnings (no need to manually set this up)
+* The script gives voice feedback for flight modes, battery levels and warnings (no need to manually set this up)
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### Configuration Settings
@@ -97,20 +97,20 @@ Press the `Menu` button to display the configuration options menu:
 ![sample](assets/iNavConfig.png "Configuration menu")
 
 * **Battery View** - Total battery voltage / Cell voltage average (default: Total)
-* **Battery Alert** - Battery alerts on, off, or only critical alerts (default: On)
+* **Battery Alert** - Battery alerts on, off or only critical alerts (default: On)
 * **Cell Low** - Cell voltage for low battery warning (default: 3.5V)
 * **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V)
 * **Altitude Alert** - Turn on or off the altitude alert (default: On)
 * **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 120m)
-* **Timer** - Show the automatic flight timer, timer1-3, or turn timer off (default: Auto)
+* **Timer** - Show the automatic flight timer, timer1-3 or turn timer off (default: Auto)
 * **Rx Voltage** - Turn on or off the receiver voltage in the title (default: On)
 * **Variometer** - Show if model is gaining or decreasing altitude (default: On)
-* **Voice Alerts** - Voice alerts on, off, or only critical alerts (default: On)
+* **Voice Alerts** - Voice alerts on, off or only critical alerts (default: On)
 * **Feedback** - Turn beeper and/or haptic feedback for alerts on or off (default: On)
 * **RTH Feedback** - Return to home beeper and haptic feedback on or off (default: On)
 * **HF Feedback** - Head free beeper and haptic feedback on or off (default: On)
 * **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
-* **GPS Coords** - Display GPS coordinates as decimal or degrees and minutes (default: Decimal)
+* **GPS Coords** - GPS coords as signed, degrees/minutes or geocoding format (default: Signed)
 * **GPS** - Not a configuration option, shows a log of the last 5 GPS coordinates
 
 ## Tips
