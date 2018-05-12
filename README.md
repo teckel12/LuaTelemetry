@@ -110,7 +110,7 @@ Press the `Menu` button to display the configuration options menu:
 * **RTH Feedback** - Return to home beeper and haptic feedback on or off (default: On)
 * **HF Feedback** - Head free beeper and haptic feedback on or off (default: On)
 * **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
-* **GPS Coords** - GPS coords as signed, degrees/minutes or geocoding format (default: Signed)
+* **GPS Coords** - GPS coords as decimal, degrees/minutes or geocoding format (default: Decimal)
 * **GPS** - Not a configuration option, shows a log of the last 5 GPS coordinates
 
 ## Tips

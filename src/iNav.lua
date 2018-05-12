@@ -143,7 +143,7 @@ local config = {
   { o = 7,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
   { o = 8,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
   { o = 16, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
-  { o = 15, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Signed", "Deg/Min", "Geocode"} }
+  { o = 15, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} }
 }
 local configValues = 16
 for i = 1, configValues do
