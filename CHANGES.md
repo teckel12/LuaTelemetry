@@ -1,6 +1,6 @@
 # Release History
 
-## v1.3.0 - 05/11/2018
+## v1.3.0 - 05/13/2018
 * Compatibility with new F.Port protocol (requires INAV v1.9.1+)
 * Support added for D-series receivers with telemetry (requires INAV v2.0+)
 * Option to show GPS coordinates as degrees and minutes or in geocoding format instead of the previous decimal only

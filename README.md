@@ -121,7 +121,7 @@ Press the `Menu` button to display the configuration options menu:
 > Keep in mind that a not enough memory error doesn't indicate a problem with Lua Telemetry, it means exactly what it says, your transmitter is out of memory and therefore can't run Lua Telemetry.
 
 * Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
-* If current sensor isn't present or battery isn't fully charged when plugged in, fuel gauge will be based on battery voltage
+* If current sensor isn't present or _battery isn't fully charged when plugged in_, fuel gauge will be based on battery voltage
 * If fuel gauge isn't accurate, be sure you've set CLI values `smartport_fuel_unit` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
