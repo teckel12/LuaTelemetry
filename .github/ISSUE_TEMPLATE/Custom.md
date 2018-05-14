@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Template to use to report a bug or issue with Lua Telemetry
+about: Report a bug or issue with Lua Telemetry
 
 ---
 
