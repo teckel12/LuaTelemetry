@@ -1,6 +1,6 @@
 ---
 name: Issue template
-about: Issue template
+about: Template to use to report an issue with Lua Telemetry
 
 ---
 
