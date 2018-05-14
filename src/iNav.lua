@@ -414,9 +414,6 @@ local function background()
     data.gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
     if data.gpsFix then
       data.gpsLatLon = gpsTemp
-      --data.distance = 70
-      --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
-      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
       if getTime() > data.gpsLogTimer then
         data.gpsLogTimer = getTime() + 100
         if gpsTemp ~= config[15].l[config[15].v] then
