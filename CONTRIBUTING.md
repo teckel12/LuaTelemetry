@@ -16,7 +16,7 @@ Always write a clear log message for your commits. One-line messages are fine fo
 
 Start reading the Lua Telemetry code and you'll get the hang of it:
 
-  * We indent using two spaces (soft tabs)
+  * We indent using tabs because using spaces is prone to alignment errors, restricts personal preference, takes longer and is just plain wrong.
   * We always put spaces after list items and method parameters (`[1, 2, 3]`, not `[1,2,3]`) and around operators (`x += 1`, not `x+=1`).
   * This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
   * While code readability is important, script execution speed and memory usage are also a major concern.  Sometimes, writing less-readable code is desirable due to execution speed or memory usage constraints.

@@ -1,5 +1,6 @@
 # Release History
 
+## v1.3.1
 ## v1.3.0 - 05/13/2018
 * Compatibility with new F.Port protocol (requires INAV v1.9.1+)
 * Support added for D-series receivers with telemetry (requires INAV v2.0+)
