@@ -2,7 +2,7 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.2.5"
+local VERSION = "1.3.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local lcd = LCD or lcd
@@ -18,21 +18,22 @@ local CONFIG_X = QX7 and 6 or 48
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
-  { t="NO TELEM",  f=FLASH },
-  { t="HORIZON",   f=0, w="hrznmd" },
-  { t="ANGLE",     f=0, w="anglmd" },
-  { t="ACRO",      f=0, w="acromd" },
-  { t=" NOT OK ",  f=FLASH },
-  { t="READY",     f=0, w="ready" },
-  { t="POS HOLD",  f=0, w="poshld" },
-  { t="3D HOLD",   f=0, w="3dhold" },
-  { t="WAYPOINT",  f=0, w="waypt" },
-  { t="MANUAL",    f=0, w="manmd" },
-  { t="   RTH   ", f=FLASH, w="rtl" },
-  { t="FAILSAFE",  f=FLASH, w="fson" }
+  { t = "NO TELEM",  f = FLASH },
+  { t = "HORIZON",   f = 0, w = "hrznmd" },
+  { t = "ANGLE",     f = 0, w = "anglmd" },
+  { t = "ACRO",      f = 0, w = "acromd" },
+  { t = " NOT OK ",  f = FLASH },
+  { t = "READY",     f = 0, w = "ready" },
+  { t = "POS HOLD",  f = 0, w = "poshld" },
+  { t = "3D HOLD",   f = 0, w = "3dhold" },
+  { t = "WAYPOINT",  f = 0, w = "waypt" },
+  { t = "MANUAL",    f = 0, w = "manmd" },
+  { t = "   RTH   ", f = FLASH, w = "rtl" },
+  { t = "FAILSAFE",  f = FLASH, w = "fson" },
+  { t = "THR WARN",  f = FLASH }
 }
 
-local units = { [0]="", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
+local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
 
 local function getTelemetryId(name)
   local field = getFieldInfo(name)
@@ -47,6 +48,7 @@ end
 local rssi, low, crit = getRSSI()
 local ver, radio, maj, minor, rev = getVersion()
 local general = getGeneralSettings()
+local distanceSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
   rssiLow = low,
   rssiCrit = crit,
@@ -60,11 +62,11 @@ local data = {
   gpsLatLon_id = getTelemetryId("GPS"),
   heading_id = getTelemetryId("Hdg"),
   altitude_id = getTelemetryId("Alt"),
-  distance_id = getTelemetryId("Dist") > -1 and getTelemetryId("Dist") or getTelemetryId("0420"),
+  distance_id = getTelemetryId(distanceSensor),
   speed_id = getTelemetryId("GSpd"),
   current_id = getTelemetryId("Curr"),
   altitudeMax_id = getTelemetryId("Alt+"),
-  distanceMax_id = getTelemetryId("Dist+"),
+  distanceMax_id = getTelemetryId(distanceSensor .. "+"),
   speedMax_id = getTelemetryId("GSpd+"),
   currentMax_id = getTelemetryId("Curr+"),
   batt_id = getTelemetryId("VFAS"),
@@ -76,8 +78,9 @@ local data = {
   txBatt_id = getTelemetryId("tx-voltage"),
   gpsAlt_unit = getTelemetryUnit("GAlt"),
   altitude_unit = getTelemetryUnit("Alt"),
-  distance_unit = getTelemetryId("Dist") > -1 and getTelemetryUnit("Dist") or getTelemetryUnit("0420"),
+  distance_unit = getTelemetryUnit(distanceSensor),
   speed_unit = getTelemetryUnit("GSpd"),
+  throttle_id = getTelemetryId("thr"),
   homeResetPrev = false,
   gpsFixPrev = false,
   gpsLogTimer = 0,
@@ -121,25 +124,28 @@ local function reset()
   data.gpsAltBase = false
 end
 
--- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Inc / a=Append text / b=Blocked by
+local emptyGPS = { lat = 0, lon = 0 }
+
+-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
-  { o=1,  t="Battery View",  c=1, v=1, i=1, l={[0]="Cell", "Total"} },
-  { o=3,  t="Cell Low",      c=2, v=3.5, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
-  { o=4,  t="Cell Critical", c=2, v=3.4, d=true, m=3.1, x=3.9, i=0.1, a="V", b=2 },
-  { o=10, t="Voice Alerts",  c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
-  { o=11, t="Feedback",      c=1, v=3, x=3, i=1, l={[0]="Off", "Haptic", "Beeper", "On"} },
-  { o=6,  t="Max Altitude",  c=4, v=data.altitude_unit == 10 and 400 or 120, x=9999, i=data.altitude_unit == 10 and 10 or 1, a=units[data.altitude_unit], b=5 },
-  { o=9,  t="Variometer",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=12, t="RTH Feedback",  c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
-  { o=13, t="HF Feedback",   c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
-  { o=14, t="RSSI Feedback", c=1, v=1, i=1, l={[0]="Off", "On"}, b=11 },
-  { o=2,  t="Battery Alerts",c=1, v=2, x=2, i=1, l={[0]="Off", "Critical", "On"} },
-  { o=5,  t="Altitude Alert",c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=7,  t="Timer",         c=1, v=1, x=4, i=1, l={[0]="Off", "Auto", "Timer1", "Timer2", "Timer3"} },
-  { o=8,  t="Rx Voltage",    c=1, v=1, i=1, l={[0]="Off", "On"} },
-  { o=15, t="GPS",           c=1, v=4, x=4, i=1, l={[0]="-", "-", "-", "-", "-"} }
+  { o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
+  { o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
+  { o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
+  { o = 10, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
+  { o = 11, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
+  { o = 6,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 5 },
+  { o = 9,  t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+  { o = 12, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
+  { o = 13, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
+  { o = 14, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
+  { o = 2,  t = "Battery Alerts", c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
+  { o = 5,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+  { o = 7,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
+  { o = 8,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+  { o = 16, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+  { o = 15, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} }
 }
-local configValues = 15
+local configValues = 16
 for i = 1, configValues do
   for ii = 1, configValues do
     if i == config[ii].o then
@@ -220,7 +226,7 @@ local function flightModes()
         data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
       end
     else
-      data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and 5 or 6 -- Not OK to arm / Ready to fly
+      data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 13 or 5) or 6 -- Not OK to arm / Throttle warning / Ready to fly
     end
     if bit32.band(modeA, 4) == 4 then
       data.modeId = 12 -- Failsafe
@@ -358,6 +364,16 @@ local function flightModes()
   data.homeResetPrev = homeReset
 end
 
+local function gpsDegMin(coord, lat)
+  local gpsD = math.floor(math.abs(coord))
+  return gpsD .. string.format("\176%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
+end
+
+local function gpsGeocoding(coord, lat)
+  local gpsD = math.floor(math.abs(coord))
+  return (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W")) .. gpsD .. string.format("\176%05.2f", (math.abs(coord) - gpsD) * 60)
+end
+
 local function background()
   data.rssi = getValue(data.rssi_id)
   if data.telemFlags == -1 then
@@ -393,22 +409,19 @@ local function background()
     data.accZ = getValue(data.accZ_id)
     data.txBatt = getValue(data.txBatt_id)
     data.rssiLast = data.rssi
+    data.throttle = getValue(data.throttle_id)
     local gpsTemp = getValue(data.gpsLatLon_id)
     data.gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
     if data.gpsFix then
       data.gpsLatLon = gpsTemp
       if getTime() > data.gpsLogTimer then
         data.gpsLogTimer = getTime() + 100
-        gpsTemp = math.floor(data.gpsLatLon.lat * 100000) / 100000 .. " " .. math.floor(data.gpsLatLon.lon * 100000) / 100000
         if gpsTemp ~= config[15].l[config[15].v] then
           local newPos = config[15].v >= 4 and 0 or config[15].v + 1
           config[15].l[newPos] = gpsTemp
           config[15].v = newPos
         end
       end
-      --data.distance = 70
-      --data.gpsLatLon.lat = math.deg(data.gpsLatLon.lat)
-      --data.gpsLatLon.lon = math.deg(data.gpsLatLon.lon * 2.1064)
     end
     -- Dist doesn't have a known unit so the transmitter doesn't auto-convert
     if data.distance_unit == 10 then
@@ -465,9 +478,9 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
     lcd.drawText(0, y, txt, SMLSIZE)
   end
   if frac ~= 0 and vc + 0.5 < max then
-    lcd.drawNumber(22, y, vc * 10.02, SMLSIZE + frac + flags)
+    lcd.drawNumber(21, y, vc * 10.02, SMLSIZE + frac + flags)
   else
-    lcd.drawText(22, y, math.floor(vc + 0.5), SMLSIZE + flags)
+    lcd.drawText(21, y, math.floor(vc + 0.5), SMLSIZE + flags)
   end
   if frac ~= 0 or vc < max then
     lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
@@ -506,8 +519,13 @@ local function run(event)
   if data.gpsLatLon ~= false then
     local gpsFlags = (data.telemFlags > 0 or not data.gpsFix) and FLASH or 0
     gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
-    gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
-    gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
+    if config[16].v == 0 then
+      gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
+      gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
+    else
+      gpsData(config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), 25, gpsFlags)
+      gpsData(config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), 33, gpsFlags)
+    end
   else
     lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
     lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
@@ -584,7 +602,7 @@ local function run(event)
   end
 
   -- Data & gauges
-  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, QX7 and 1000 or 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
+  drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
   if data.altHold then
     tmp = lcd.getLastPos() + 1
     lcd.drawRectangle(tmp + 1, 9, 3, 3, FORCE)
@@ -592,9 +610,9 @@ local function run(event)
     lcd.drawPoint(tmp + 2, 12)
   end
   tmp = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
-  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, QX7 and 1000 or 10000, units[data.distance_unit], 0, data.telemFlags)
-  drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, QX7 and 100 or 1000, '', 0, data.telemFlags)
-  drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, QX7 and 100 or 1000, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
+  drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
+  drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
+  drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, 100, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
   drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
   if data.showCurr then
     drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", PREC1, data.telemFlags)
@@ -691,7 +709,17 @@ local function run(event)
           if not config[z].l then
             lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
           else
-            lcd.drawText(CONFIG_X + (z == 15 and 25 or 78), y, config[z].l[config[z].v], SMLSIZE + tmp)
+            if z == 15 then
+              if config[16].v == 0 then
+                lcd.drawText(CONFIG_X + 25, y, string.format("%8.4f %9.4f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon), SMLSIZE + tmp)
+              elseif config[16].v == 1 then
+                lcd.drawText(CONFIG_X + 25, y, gpsDegMin(config[z].l[config[z].v].lat, true) .. " " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+              else
+                lcd.drawText(CONFIG_X + 25, y, gpsGeocoding(config[z].l[config[z].v].lat, true) .. " " .. gpsGeocoding(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+              end
+            else
+              lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v], SMLSIZE + tmp)
+            end
           end
         end
       end
