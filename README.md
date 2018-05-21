@@ -67,8 +67,8 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 
 #### INAV Lua Telemetry Screen Setup
 
-1. Download the latest [Lua Telemetry ZIP file](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
-1. From the downloaded ZIP file, copy the contents of the `TELEMETRY` folder (both the `iNav.lua` file and `iNav` folder) to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
+1. Download the latest [LuaTelemetry_v###.zip](https://github.com/iNavFlight/LuaTelemetry/releases/latest) ZIP file (Note: not the source code)
+1. Copy the contents of the ZIP file (both the `iNav.lua` file and `iNav` folder) to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
 1. In model setup, page to `DISPLAY`, set desired screen to `Script` and select `iNav`
 
 ## Usage
