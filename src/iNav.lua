@@ -131,21 +131,22 @@ local config = {
 	{ o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
 	{ o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
 	{ o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
-	{ o = 10, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
-	{ o = 11, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
-	{ o = 6,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 5 },
-	{ o = 9,  t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 12, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
-	{ o = 13, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
-	{ o = 14, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 11 },
+	{ o = 11, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
+	{ o = 12, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
+	{ o = 7,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 6 },
+	{ o = 10, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 13, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 12 },
+	{ o = 14, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 12 },
+	{ o = 15, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 12 },
 	{ o = 2,  t = "Battery Alerts", c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
-	{ o = 5,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 7,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
-	{ o = 8,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 16, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
-	{ o = 15, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} }
+	{ o = 6,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 8,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
+	{ o = 9,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 17, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+	{ o = 16, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
+	{ o = 5,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 }
 }
-local configValues = 16
+local configValues = 17
 for i = 1, configValues do
 	for ii = 1, configValues do
 		if i == config[ii].o then
@@ -308,20 +309,20 @@ local function flightModes()
 			end
 		end
 		if data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
-			if data.fuel == 30 or data.fuel == 25 then
+			if data.fuel == config[17].v + 5 or data.fuel == config[17].v + 10 then
 				playAudio("batlow")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
-			elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel >= 40 then
+			elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel > config[17].v + 10 then
 				playAudio("battry")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
 			end
 		end
-		if (data.fuel <= 20 or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
+		if (data.fuel <= config[17].v or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
 			if getTime() > data.battNextPlay then
 				playAudio("batcrt", 1)
-				if data.fuel <= 20 and data.battPercentPlayed > data.fuel and config[4].v > 0 then
+				if data.fuel <= config[17].v and data.battPercentPlayed > data.fuel and config[4].v > 0 then
 					playNumber(data.fuel, 13)
 					data.battPercentPlayed = data.fuel
 				end

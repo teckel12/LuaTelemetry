@@ -1,6 +1,7 @@
 # Release History
 
-## v1.3.1
+## v1.3.1 - 05/21/2018
+* Option to set the critical warning level for fuel percentage remaining (low warning when 10% higher than critical level)
 ## v1.3.0 - 05/13/2018
 * Compatibility with new F.Port protocol (requires INAV v1.9.1+)
 * Support added for D-series receivers with telemetry (requires INAV v2.0+)

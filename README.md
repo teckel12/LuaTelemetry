@@ -1,4 +1,4 @@
-# Lua Telemetry Flight Status for INAV/Taranis - v1.3.0
+# Lua Telemetry Flight Status for INAV/Taranis - v1.3.1
 
 ```
 SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
@@ -47,7 +47,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
-    * Lua Telemetry can't fix this, Crossfire has missing flight mode info Lua Telemetry requires
+	* Lua Telemetry can't fix this, Crossfire has missing flight mode info Lua Telemetry requires
 
 ## Setup
 
@@ -55,8 +55,8 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 
 1. Setup SmartPort(S.Port), F.Port or D-series telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
 1. If you have an current sensor, in CLI settings set `battery_capacity` to the mAh you want to draw from your battery
-    * If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
-    * If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
+	* If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
+	* If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
 
 #### From Transmitter
 
@@ -100,6 +100,7 @@ Press the `Menu` button to display the configuration options menu:
 * **Battery Alert** - Battery alerts on, off or only critical alerts (default: On)
 * **Cell Low** - Cell voltage for low battery warning (default: 3.5V)
 * **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V)
+* **Fuel Critical** - Fuel percentage for battery critical warning (default: 20%)
 * **Altitude Alert** - Turn on or off the altitude alert (default: On)
 * **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 120m)
 * **Timer** - Show the automatic flight timer, timer1-3 or turn timer off (default: Auto)
