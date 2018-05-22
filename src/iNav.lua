@@ -11,9 +11,9 @@ local LCD_H = lcd.H or LCD_H
 local QX7 = LCD_W < 212
 local RIGHT_POS = QX7 and 129 or 195
 local GAUGE_WIDTH = QX7 and 82 or 149
-local X_CNTR_1 = QX7 and 67 or 70
-local X_CNTR_2 = QX7 and 67 or 106
-local GPS_DIGITS = QX7 and 10000 or 1000000
+local X_CNTR_1 = QX7 and 63 or 68
+local X_CNTR_2 = QX7 and 63 or 104
+local GPS_DIGITS = QX7 and 100000 or 1000000
 local CONFIG_X = QX7 and 6 or 48
 
 -- Modes: t=text / f=flags for text / w=wave file
@@ -131,22 +131,23 @@ local config = {
 	{ o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
 	{ o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
 	{ o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
-	{ o = 11, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
-	{ o = 12, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
-	{ o = 7,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 6 },
-	{ o = 10, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 13, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 12 },
-	{ o = 14, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 12 },
-	{ o = 15, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 12 },
+	{ o = 12, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
+	{ o = 13, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
+	{ o = 8,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 7 },
+	{ o = 11, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 14, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 13 },
+	{ o = 15, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 13 },
+	{ o = 16, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 13 },
 	{ o = 2,  t = "Battery Alerts", c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
-	{ o = 6,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 8,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
-	{ o = 9,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 17, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
-	{ o = 16, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
-	{ o = 5,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 }
+	{ o = 7,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 9,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
+	{ o = 10,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 18, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+	{ o = 17, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
+	{ o = 6,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
+	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 }
 }
-local configValues = 17
+local configValues = 18
 for i = 1, configValues do
 	for ii = 1, configValues do
 		if i == config[ii].o then
@@ -309,7 +310,7 @@ local function flightModes()
 			end
 		end
 		if data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
-			if data.fuel == config[17].v + 5 or data.fuel == config[17].v + 10 then
+			if data.fuel % 5 == 0 and data.fuel > config[17].v and data.fuel <= config[18].v then
 				playAudio("batlow")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
@@ -367,12 +368,12 @@ end
 
 local function gpsDegMin(coord, lat)
 	local gpsD = math.floor(math.abs(coord))
-	return gpsD .. string.format("\176%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
+	return gpsD .. string.format("\64%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
 end
 
 local function gpsGeocoding(coord, lat)
 	local gpsD = math.floor(math.abs(coord))
-	return (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W")) .. gpsD .. string.format("\176%05.2f", (math.abs(coord) - gpsD) * 60)
+	return (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W")) .. gpsD .. string.format("\64%05.2f", (math.abs(coord) - gpsD) * 60)
 end
 
 local function background()
@@ -560,7 +561,7 @@ local function run(event)
 			end
 			if not data.showDir or data.headingRef >= 0 or not QX7 then
 				if not indicatorDisplayed or not QX7 then
-					drawDirection(data.heading - data.headingRef, 145, 8, QX7 and 67 or 135, 19)
+					drawDirection(data.heading - data.headingRef, 145, 8, QX7 and 63 or 133, 19)
 				end
 			end
 		end
@@ -610,7 +611,7 @@ local function run(event)
 		lcd.drawFilledRectangle(tmp, 11, 5, 4, FORCE)
 		lcd.drawPoint(tmp + 2, 12)
 	end
-	tmp = (data.telemFlags > 0 or data.fuel <= 20 or data.cell < config[3].v) and FLASH or 0
+	tmp = (data.telemFlags > 0 or data.fuel <= config[17].v or data.cell < config[3].v) and FLASH or 0
 	drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
 	drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
 	drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, 100, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
@@ -644,8 +645,8 @@ local function run(event)
 	-- Variometer
 	if config[7].v == 1 and data.startup == 0 then
 		if QX7 and data.armed and not data.showDir then
-			lcd.drawLine(X_CNTR_2 + 15, 21, X_CNTR_2 + 17, 21, SOLID, FORCE)
-			lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 16, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
+			lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 18, 21, SOLID, FORCE)
+			lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 17, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
 		elseif not QX7 then
 			lcd.drawRectangle(197, 9, 7, 48, SOLID)
 			lcd.drawText(198, 58, "V", SMLSIZE)
@@ -696,6 +697,9 @@ local function run(event)
 			local z = config[line].z
 			tmp = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
 			config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
+			if not data.showCurr and z >= 17 and z <= 18 then
+				config[z].p = 1
+			end
 			lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
 			if config[z].p ~= nil then
 				lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + tmp)
@@ -712,11 +716,11 @@ local function run(event)
 					else
 						if z == 15 then
 							if config[16].v == 0 then
-								lcd.drawText(CONFIG_X + 25, y, string.format("%8.4f %9.4f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon), SMLSIZE + tmp)
+								lcd.drawText(CONFIG_X + 22, y, string.format("%9.5f %10.5f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon), SMLSIZE + tmp)
 							elseif config[16].v == 1 then
-								lcd.drawText(CONFIG_X + 25, y, gpsDegMin(config[z].l[config[z].v].lat, true) .. " " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+								lcd.drawText(CONFIG_X + 22, y, gpsDegMin(config[z].l[config[z].v].lat, true) .. " " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 							else
-								lcd.drawText(CONFIG_X + 25, y, gpsGeocoding(config[z].l[config[z].v].lat, true) .. " " .. gpsGeocoding(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+								lcd.drawText(CONFIG_X + 22, y, gpsGeocoding(config[z].l[config[z].v].lat, true) .. " " .. gpsGeocoding(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 							end
 						else
 							lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v], SMLSIZE + tmp)
@@ -757,6 +761,10 @@ local function run(event)
 					config[2].v = math.max(config[2].v, config[3].v + 0.1)
 				elseif z == 3 then -- Cell critical < low
 					config[3].v = math.min(config[3].v, config[2].v - 0.1)
+				elseif z == 18 then -- Fuel low > critical
+					config[18].v = math.max(config[18].v, config[17].v + 5)
+				elseif z == 17 then -- Fuel critical < low
+					config[17].v = math.min(config[17].v, config[18].v - 5)
 				elseif config[z].i > 1 then
 					config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
 				end

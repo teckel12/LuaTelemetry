@@ -100,6 +100,7 @@ Press the `Menu` button to display the configuration options menu:
 * **Battery Alert** - Battery alerts on, off or only critical alerts (default: On)
 * **Cell Low** - Cell voltage for low battery warning (default: 3.5V)
 * **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V)
+* **Fuel Low** - Fuel percentage for low battery warning (default: 30%)
 * **Fuel Critical** - Fuel percentage for battery critical warning (default: 20%)
 * **Altitude Alert** - Turn on or off the altitude alert (default: On)
 * **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 120m)
