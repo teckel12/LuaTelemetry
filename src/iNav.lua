@@ -586,7 +586,7 @@ local function run(event)
 
 	-- Flight mode
 	lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
-	lcd.drawText(X_CNTR_2 - (lcd.getLastPos() / 2), 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+	lcd.drawText(X_CNTR_2 - (lcd.getLastPos() / 2) + 1, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
 	if data.headFree then
 		lcd.drawText(tmp - 26, 9, " HF ", FLASH + SMLSIZE)
 	end
@@ -645,8 +645,8 @@ local function run(event)
 	-- Variometer
 	if config[7].v == 1 and data.startup == 0 then
 		if QX7 and data.armed and not data.showDir then
-			lcd.drawLine(X_CNTR_2 + 16, 21, X_CNTR_2 + 18, 21, SOLID, FORCE)
-			lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 17, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
+			lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 19, 21, SOLID, FORCE)
+			lcd.drawLine(X_CNTR_2 + 18, 21, X_CNTR_2 + 18, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
 		elseif not QX7 then
 			lcd.drawRectangle(197, 9, 7, 48, SOLID)
 			lcd.drawText(198, 58, "V", SMLSIZE)
