@@ -1,7 +1,9 @@
 # Release History
 
-## v1.3.1 - 05/22/2018
+## v1.3.1 - 05/25/2018
 * Option to set the low and critical warning level for fuel percentage remaining
+* Modified how battery cell count is calculated
+* Can now set cell critical voltage to as low as 2.6v to support 18650 batteries
 * Slightly adjusted display positioning to show greater GPS accuracy on QX7 transmitter
 ## v1.3.0 - 05/13/2018
 * Compatibility with new F.Port protocol (requires INAV v1.9.1+)

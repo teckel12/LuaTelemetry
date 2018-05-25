@@ -92,6 +92,8 @@ local data = {
 	headingHold = false,
 	altHold = false,
 	telemFlags = -1,
+	cells = -1,
+	fuel = 100,
 	config = 0,
 	modeId = 1,
 	startup = 1
@@ -119,6 +121,13 @@ local function reset()
 	data.battLow = false
 	data.showMax = false
 	data.showDir = true
+	if data.showCurr then
+		if data.fuel >= 95 then
+			data.cell = -1 
+		end
+	else
+		data.cells = -1
+	end
 	data.fuel = 100
 	data.config = 0
 	data.gpsAltBase = false
@@ -129,8 +138,8 @@ local emptyGPS = { lat = 0, lon = 0 }
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
 	{ o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
-	{ o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
-	{ o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 3.1, x = 3.9, i = 0.1, a = "V", b = 2 },
+	{ o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 2.7, x = 3.9, i = 0.1, a = "V", b = 2 },
+	{ o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 2.6, x = 3.8, i = 0.1, a = "V", b = 2 },
 	{ o = 12, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
 	{ o = 13, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
 	{ o = 8,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 7 },
@@ -404,14 +413,15 @@ local function background()
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		data.cells = math.floor(data.batt / 4.3) + 1
+		if data.cells == -1 and data.batt > 3 then
+			data.cells = math.floor(data.batt / 4.3) + 1
+		end
 		data.cell = data.batt/data.cells
 		data.cellMin = data.battMin/data.cells
 		data.rssiMin = getValue(data.rssiMin_id)
 		data.accZ = getValue(data.accZ_id)
 		data.txBatt = getValue(data.txBatt_id)
 		data.rssiLast = data.rssi
-		data.throttle = getValue(data.throttle_id)
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		data.gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
 		if data.gpsFix then
@@ -438,6 +448,7 @@ local function background()
 		data.telemetry = false
 		data.telemFlags = FLASH
 	end
+	data.throttle = getValue(data.throttle_id)
 
 	flightModes()
 
@@ -781,7 +792,7 @@ local function run(event)
 		end
 
 	end
-
+	lcd.drawText(40, 9, data.cells, SMLSIZE)
 	return 0
 end
 
