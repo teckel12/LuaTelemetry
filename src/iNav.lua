@@ -121,11 +121,7 @@ local function reset()
 	data.battLow = false
 	data.showMax = false
 	data.showDir = true
-	if data.showCurr then
-		if data.fuel >= 95 then
-			data.cell = -1 
-		end
-	else
+	if not data.showCurr then
 		data.cells = -1
 	end
 	data.fuel = 100
@@ -413,7 +409,7 @@ local function background()
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		if data.cells == -1 and data.batt > 3 then
+		if data.cells == -1 or (data.showCurr and data.fuel >= 95) then
 			data.cells = math.floor(data.batt / 4.3) + 1
 		end
 		data.cell = data.batt/data.cells
@@ -792,7 +788,7 @@ local function run(event)
 		end
 
 	end
-	lcd.drawText(40, 9, data.cells, SMLSIZE)
+
 	return 0
 end
 
