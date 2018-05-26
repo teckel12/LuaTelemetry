@@ -551,7 +551,7 @@ local function run(event)
 
 	-- Directionals
 	if data.showHead and data.startup == 0 and data.config == 0 then
-		if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
+		if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK or event == EVT_UP_BREAK or event == EVT_DOWN_BREAK then
 			data.showDir = not data.showDir
 		end
 		if data.telemetry then
@@ -601,7 +601,7 @@ local function run(event)
 	-- User input
 	if not data.armed and data.config == 0 then
 		-- Toggle showing max/min values
-		if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK then
+		if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK or event == EVT_UP_BREAK or event == EVT_DOWN_BREAK then
 			data.showMax = not data.showMax
 		end
 		-- Initalize variables on long <Enter>
@@ -690,7 +690,7 @@ local function run(event)
 	end
 
 	-- Config
-	if event == EVT_MENU_BREAK and data.config == 0 then
+	if data.config == 0 and (event == EVT_MENU_BREAK or event == EVT_SHIFT_BREAK) then
 		data.config = 1
 		configSelect = 0
 		configTop = 1
@@ -741,12 +741,12 @@ local function run(event)
 			if event == EVT_EXIT_BREAK then
 				saveConfig()
 				data.config = 0
-			elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK then -- Next option
+			elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK or event == EVT_DOWN_BREAK then -- Next option
 				data.config = math.min(data.config + 1, configValues)
 				if data.config > math.min(configValues, configTop + 5) then
 					configTop = configTop + 1
 				end
-			elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK then -- Previous option
+			elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK or event == EVT_UP_BREAK then -- Previous option
 				data.config = math.max(data.config - 1, 1)
 				if data.config < configTop then
 					configTop = configTop - 1
@@ -756,9 +756,9 @@ local function run(event)
 			local z = config[data.config].z
 			if event == EVT_EXIT_BREAK then
 				configSelect = 0
-			elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK then
+			elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_UP_BREAK then
 				config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
-			elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK then
+			elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK or event == EVT_DOWN_BREAK then
 				config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
 			end
 

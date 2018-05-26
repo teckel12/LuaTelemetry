@@ -1,6 +1,7 @@
 # Release History
 
-## v1.3.1 - 05/25/2018
+## v1.3.1 - 05/26/2018
+* Support added for the X-Lite transmitter
 * Option to set the low and critical warning level for fuel percentage remaining
 * Modified how battery cell count is calculated
 * Can now set cell critical voltage to as low as 2.6v to support 18650 batteries

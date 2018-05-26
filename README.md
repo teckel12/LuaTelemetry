@@ -1,12 +1,12 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.3.1
 
 ```
-SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
+SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 ```
 
 ## Screenshots
 
-#### Taranis QX7
+#### Taranis QX7 and X-Lite
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
 ![sample](assets/iNavQX72.png "Compass-based direction indicator")
 
@@ -15,7 +15,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 
 ## Features
 
-* SmartPort(S.Port), F.Port and FrSky D-series telemetry on Taranis QX7, X9D, X9D+ and X9E transmitters
+* SmartPort(S.Port), F.Port and FrSky D-series telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
@@ -30,7 +30,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X9D, X9D+ or X9E
+* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X9D, X9D+ or X9E (v2.2.2+ for X-Lite)
 * FkSky X-series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, D8R-II plus, D8R-XP, D4R-II, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
@@ -88,7 +88,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X9D, X9D+ and X
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### Configuration Settings
-Press the `Menu` button to display the configuration options menu:
+Press the `Menu` button (`Shift` on X-Lite) to display the configuration options menu:
 
 * Use the dial or +/- buttons to cycle through the menu or select the desired setting
 * Press Enter/dial to select and deselect a menu option
