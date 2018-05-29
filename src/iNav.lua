@@ -49,11 +49,12 @@ local rssi, low, crit = getRSSI()
 local ver, radio, maj, minor, rev = getVersion()
 local tx = string.sub(radio, 0, 2)
 local tmp = tx == "x9" and EVT_PLUS_BREAK or (tx == "xl" and EVT_UP_BREAK)
-local prev = tx == "x7" and EVT_ROT_LEFT or tmp
-local incr = tx == "x7" and EVT_ROT_RIGHT or tmp
+local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
+local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
 tmp = tx == "x9" and EVT_MINUS_BREAK or (tx == "xl" and EVT_DOWN_BREAK)
-local next = tx == "x7" and EVT_ROT_RIGHT or tmp
-local decr = tx == "x7" and EVT_ROT_LEFT or tmp
+local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
+local DECR = tx == "x7" and EVT_ROT_LEFT or tmp
+local MENU = tx == "xl" and EVT_SHIFT_BREAK or EVT_MENU_BREAK
 local general = getGeneralSettings()
 local distanceSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
@@ -562,7 +563,7 @@ local function run(event)
 
 	-- Directionals
 	if data.showHead and data.startup == 0 and data.config == 0 then
-		if event == next or event == prev then
+		if event == NEXT or event == PREV then
 			data.showDir = not data.showDir
 		end
 		if data.telemetry then
@@ -612,7 +613,7 @@ local function run(event)
 	-- User input
 	if not data.armed and data.config == 0 then
 		-- Toggle showing max/min values
-		if event == prev or event == next then
+		if event == PREV or event == NEXT then
 			data.showMax = not data.showMax
 		end
 		-- Initalize variables on long <Enter>
@@ -701,7 +702,7 @@ local function run(event)
 	end
 
 	-- Config
-	if data.config == 0 and (event == EVT_MENU_BREAK or event == EVT_SHIFT_BREAK) then
+	if data.config == 0 and event == MENU then
 		data.config = 1
 		configSelect = 0
 		configTop = 1
@@ -752,12 +753,12 @@ local function run(event)
 			if event == EVT_EXIT_BREAK then
 				saveConfig()
 				data.config = 0
-			elseif event == next then -- Next option
+			elseif event == NEXT then -- Next option
 				data.config = math.min(data.config + 1, configValues)
 				if data.config > math.min(configValues, configTop + 5) then
 					configTop = configTop + 1
 				end
-			elseif event == prev then -- Previous option
+			elseif event == PREV then -- Previous option
 				data.config = math.max(data.config - 1, 1)
 				if data.config < configTop then
 					configTop = configTop - 1
@@ -767,9 +768,9 @@ local function run(event)
 			local z = config[data.config].z
 			if event == EVT_EXIT_BREAK then
 				configSelect = 0
-			elseif event == incr then
+			elseif event == INCR then
 				config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
-			elseif event == decr then
+			elseif event == DECR then
 				config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
 			end
 
