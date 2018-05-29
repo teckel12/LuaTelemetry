@@ -30,7 +30,7 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X9D, X9D+ or X9E (v2.2.2+ for X-Lite)
+* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X-Lite, X9D, X9D+ or X9E
 * FkSky X-series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, D8R-II plus, D8R-XP, D4R-II, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
@@ -46,6 +46,7 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 * INAV v2.0+ is required for FkSky D-series telemetry compatibility
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
+* OpenTX v2.2.2 is required for compatibility with Taranis X-Lite transmitter
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
 	* Lua Telemetry can't fix this, Crossfire has missing flight mode info Lua Telemetry requires
 
