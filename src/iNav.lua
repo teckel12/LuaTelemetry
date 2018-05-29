@@ -48,15 +48,14 @@ end
 local rssi, low, crit = getRSSI()
 local ver, radio, maj, minor, rev = getVersion()
 local tx = string.sub(radio, 0, 2)
-local next = tx == 'x7' and EVT_ROT_RIGHT or (tx == 'x9' and EVT_MINUS_BREAK or (tx == 'xl' and EVT_DOWN_BREAK))
-local prev = tx == 'x7' and EVT_ROT_LEFT or (tx == 'x9' and EVT_PLUS_BREAK or (tx == 'xl' and EVT_UP_BREAK))
-local incr = tx == 'x7' and EVT_ROT_RIGHT or (tx == 'x9' and EVT_PLUS_BREAK or (tx == 'xl' and EVT_UP_BREAK))
-local decr = tx == 'x7' and EVT_ROT_LEFT or (tx == 'x9' and EVT_MINUS_BREAK or (tx == 'xl' and EVT_DOWN_BREAK))
+local tmp = tx == "x9" and EVT_PLUS_BREAK or (tx == "xl" and EVT_UP_BREAK)
+local prev = tx == "x7" and EVT_ROT_LEFT or tmp
+local incr = tx == "x7" and EVT_ROT_RIGHT or tmp
+tmp = tx == "x9" and EVT_MINUS_BREAK or (tx == "xl" and EVT_DOWN_BREAK)
+local next = tx == "x7" and EVT_ROT_RIGHT or tmp
+local decr = tx == "x7" and EVT_ROT_LEFT or tmp
 local general = getGeneralSettings()
 local distanceSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
-if distanceSensor ~= "Dist" then
-	--setTelemetryValue()
-end
 local data = {
 	rssiLow = low,
 	rssiCrit = crit,
@@ -196,7 +195,7 @@ if fh == nil then
 	saveConfig()
 else
 	for line = 1, configValues do
-		local tmp = io.read(fh, config[line].c)
+		tmp = io.read(fh, config[line].c)
 		if tmp ~= "" then
 			config[line].v = config[line].d == nil and tonumber(tmp) or tmp / 10
 		end
@@ -552,7 +551,7 @@ local function run(event)
 		lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
 		lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
 	end
-	local tmp = RIGHT_POS - (data.satellites % 100 > 9 and 10 or 5)
+	tmp = RIGHT_POS - (data.satellites % 100 > 9 and 10 or 5)
 	lcd.drawLine(tmp - 7, 9, tmp - 3, 13, SOLID, FORCE)
 	lcd.drawLine(tmp - 7, 10, tmp - 4, 13, SOLID, FORCE)
 	lcd.drawLine(tmp - 7, 11, tmp - 5, 13, SOLID, FORCE)
@@ -613,7 +612,7 @@ local function run(event)
 	-- User input
 	if not data.armed and data.config == 0 then
 		-- Toggle showing max/min values
-		if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK or event == EVT_UP_BREAK or event == EVT_DOWN_BREAK then
+		if event == prev or event == next then
 			data.showMax = not data.showMax
 		end
 		-- Initalize variables on long <Enter>
