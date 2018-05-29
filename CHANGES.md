@@ -1,6 +1,6 @@
 # Release History
 
-## v1.3.1 - 05/26/2018
+## v1.3.1 - 05/29/2018
 * Support added for the X-Lite transmitter
 * Option to set the low and critical warning level for fuel percentage remaining
 * Modified how battery cell count is calculated

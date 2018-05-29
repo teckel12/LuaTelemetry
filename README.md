@@ -1,7 +1,7 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.3.1
 
 ```
-SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
+FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 ```
 
 ## Screenshots
@@ -15,7 +15,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X-Lite, X9D, X9
 
 ## Features
 
-* SmartPort(S.Port), F.Port and FrSky D-series telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
+* FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
@@ -77,7 +77,7 @@ SmartPort(S.Port), F.Port and D-series telemetry on Taranis QX7, X-Lite, X9D, X9
 ![sample](assets/iNavKey.png "Screen description")
 ![sample](assets/iNavKeyX9D.png "Screen description for X9D")
 
-* From transmitter's main screen, long hold the `Page` button to show custom screens, short press `Page` to the iNav screen
+* From transmitter's main screen, long hold the `Page` button (down d-pad on X-Lite) to show custom screens, short press `Page` to the iNav screen
 * If you get a `Script panic not enough memory` error when starting Lua Telemetry, please see the [Tips](#tips) section
 * Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
 * When not armed you can flip between max/min and current values by using the dial or +/- buttons

@@ -8,13 +8,13 @@ local FLASH = 3
 local lcd = LCD or lcd
 local LCD_W = lcd.W or LCD_W
 local LCD_H = lcd.H or LCD_H
-local QX7 = LCD_W < 212
-local RIGHT_POS = QX7 and 129 or 195
-local GAUGE_WIDTH = QX7 and 82 or 149
-local X_CNTR_1 = QX7 and 63 or 68
-local X_CNTR_2 = QX7 and 63 or 104
-local GPS_DIGITS = QX7 and 100000 or 1000000
-local CONFIG_X = QX7 and 6 or 48
+local SMLCD = LCD_W < 212
+local RIGHT_POS = SMLCD and 129 or 195
+local GAUGE_WIDTH = SMLCD and 82 or 149
+local X_CNTR_1 = SMLCD and 63 or 68
+local X_CNTR_2 = SMLCD and 63 or 104
+local GPS_DIGITS = SMLCD and 100000 or 1000000
+local CONFIG_X = SMLCD and 6 or 48
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -47,8 +47,16 @@ end
 
 local rssi, low, crit = getRSSI()
 local ver, radio, maj, minor, rev = getVersion()
+local tx = string.sub(radio, 0, 2)
+local next = tx == 'x7' and EVT_ROT_RIGHT or (tx == 'x9' and EVT_MINUS_BREAK or (tx == 'xl' and EVT_DOWN_BREAK))
+local prev = tx == 'x7' and EVT_ROT_LEFT or (tx == 'x9' and EVT_PLUS_BREAK or (tx == 'xl' and EVT_UP_BREAK))
+local incr = tx == 'x7' and EVT_ROT_RIGHT or (tx == 'x9' and EVT_PLUS_BREAK or (tx == 'xl' and EVT_UP_BREAK))
+local decr = tx == 'x7' and EVT_ROT_LEFT or (tx == 'x9' and EVT_MINUS_BREAK or (tx == 'xl' and EVT_DOWN_BREAK))
 local general = getGeneralSettings()
 local distanceSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
+if distanceSensor ~= "Dist" then
+	--setTelemetryValue()
+end
 local data = {
 	rssiLow = low,
 	rssiCrit = crit,
@@ -121,7 +129,11 @@ local function reset()
 	data.battLow = false
 	data.showMax = false
 	data.showDir = true
-	if not data.showCurr then
+	if data.showCurr then
+		if data.fuel >= 95 then
+			data.cells = -1
+		end
+	else
 		data.cells = -1
 	end
 	data.fuel = 100
@@ -409,7 +421,7 @@ local function background()
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		if data.cells == -1 or (data.showCurr and data.fuel >= 95) then
+		if data.cells == -1 and data.batt > 2 then
 			data.cells = math.floor(data.batt / 4.3) + 1
 		end
 		data.cell = data.batt/data.cells
@@ -514,10 +526,10 @@ local function run(event)
 		data.startup = 2
 	elseif data.startup == 2 then
 		if getTime() - startupTime < 200 then
-			if not QX7 then
+			if not SMLCD then
 				lcd.drawText(55, 9, "INAV Lua Telemetry")
 			end
-			lcd.drawText(QX7 and 55 or 93, 17, "v" .. VERSION)
+			lcd.drawText(SMLCD and 55 or 93, 17, "v" .. VERSION)
 		else
 			data.startup = 0
 		end
@@ -551,29 +563,29 @@ local function run(event)
 
 	-- Directionals
 	if data.showHead and data.startup == 0 and data.config == 0 then
-		if event == EVT_ROT_LEFT or event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_MINUS_BREAK or event == EVT_UP_BREAK or event == EVT_DOWN_BREAK then
+		if event == next or event == prev then
 			data.showDir = not data.showDir
 		end
 		if data.telemetry then
 			local indicatorDisplayed = false
-			if data.showDir or data.headingRef < 0 or not QX7 then
+			if data.showDir or data.headingRef < 0 or not SMLCD then
 				lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) .. "\64", SMLSIZE)
 				lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
 				lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
-				if not QX7 then
+				if not SMLCD then
 					lcd.drawText(X_CNTR_1 - 2, 32, "S", SMLSIZE)
 				end
 				drawDirection(data.heading, 135, 7, X_CNTR_1, 23)
 				indicatorDisplayed = true
 			end
-			if not data.showDir or data.headingRef >= 0 or not QX7 then
-				if not indicatorDisplayed or not QX7 then
-					drawDirection(data.heading - data.headingRef, 145, 8, QX7 and 63 or 133, 19)
+			if not data.showDir or data.headingRef >= 0 or not SMLCD then
+				if not indicatorDisplayed or not SMLCD then
+					drawDirection(data.heading - data.headingRef, 145, 8, SMLCD and 63 or 133, 19)
 				end
 			end
 		end
 		if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distanceLast >= data.distRef then
-			if not data.showDir or not QX7 then
+			if not data.showDir or not SMLCD then
 				local o1 = math.rad(data.gpsHome.lat)
 				local a1 = math.rad(data.gpsHome.lon)
 				local o2 = math.rad(data.gpsLatLon.lat)
@@ -592,8 +604,8 @@ local function run(event)
 	end
 
 	-- Flight mode
-	lcd.drawText(0, 0, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
-	lcd.drawText(X_CNTR_2 - (lcd.getLastPos() / 2) + 1, 33, modes[data.modeId].t, (QX7 and SMLSIZE or 0) + modes[data.modeId].f)
+	lcd.drawText(0, 0, modes[data.modeId].t, (SMLCD and SMLSIZE or 0) + modes[data.modeId].f)
+	lcd.drawText(X_CNTR_2 - (lcd.getLastPos() / 2) + 1, 33, modes[data.modeId].t, (SMLCD and SMLSIZE or 0) + modes[data.modeId].f)
 	if data.headFree then
 		lcd.drawText(tmp - 26, 9, " HF ", FLASH + SMLSIZE)
 	end
@@ -638,7 +650,7 @@ local function run(event)
 	lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0), 100)
 	tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
 	lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
-	if not QX7 then
+	if not SMLCD then
 		local w = config[7].v == 1 and 7 or 15
 		local l = config[7].v == 1 and 205 or 197
 		lcd.drawRectangle(l, 9, w, 48, SOLID)
@@ -651,10 +663,10 @@ local function run(event)
 
 	-- Variometer
 	if config[7].v == 1 and data.startup == 0 then
-		if QX7 and data.armed and not data.showDir then
+		if SMLCD and data.armed and not data.showDir then
 			lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 19, 21, SOLID, FORCE)
 			lcd.drawLine(X_CNTR_2 + 18, 21, X_CNTR_2 + 18, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
-		elseif not QX7 then
+		elseif not SMLCD then
 			lcd.drawRectangle(197, 9, 7, 48, SOLID)
 			lcd.drawText(198, 58, "V", SMLSIZE)
 			if data.armed then
@@ -672,7 +684,7 @@ local function run(event)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
 	lcd.drawText(0, 0, data.modelName, INVERS)
 	if config[13].v > 0 then
-		lcd.drawTimer(QX7 and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
+		lcd.drawTimer(SMLCD and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
 	end
 	lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
 	lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
@@ -680,7 +692,7 @@ local function run(event)
 	for i = 87, tmp, 2 do
 		lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
 	end
-	if not QX7 then
+	if not SMLCD then
 		lcd.drawNumber(110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
 		lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
 	end
@@ -741,12 +753,12 @@ local function run(event)
 			if event == EVT_EXIT_BREAK then
 				saveConfig()
 				data.config = 0
-			elseif event == EVT_ROT_RIGHT or event == EVT_MINUS_BREAK or event == EVT_DOWN_BREAK then -- Next option
+			elseif event == next then -- Next option
 				data.config = math.min(data.config + 1, configValues)
 				if data.config > math.min(configValues, configTop + 5) then
 					configTop = configTop + 1
 				end
-			elseif event == EVT_ROT_LEFT or event == EVT_PLUS_BREAK or event == EVT_UP_BREAK then -- Previous option
+			elseif event == prev then -- Previous option
 				data.config = math.max(data.config - 1, 1)
 				if data.config < configTop then
 					configTop = configTop - 1
@@ -756,9 +768,9 @@ local function run(event)
 			local z = config[data.config].z
 			if event == EVT_EXIT_BREAK then
 				configSelect = 0
-			elseif event == EVT_ROT_RIGHT or event == EVT_PLUS_BREAK or event == EVT_UP_BREAK then
+			elseif event == incr then
 				config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
-			elseif event == EVT_ROT_LEFT or event == EVT_MINUS_BREAK or event == EVT_DOWN_BREAK then
+			elseif event == decr then
 				config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
 			end
 
