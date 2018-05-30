@@ -199,6 +199,7 @@ else
 		end
 	end
 	io.close(fh)
+	config[19].v = math.min(config[19].x, config[19].v)
 end
 
 local function playAudio(file, alert)
@@ -691,8 +692,8 @@ local function run(event)
 			lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
 		end
 	end
-	if (not SMLCD and bit32.band(config[19].v, 1) ~= 1) or (SMLCD and config[19].v == 0) then
-		lcd.drawNumber(SMLCD and 90 or 110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
+	if config[19].v ~= 1 then
+		lcd.drawNumber(SMLCD and (config[14].v == 1 and 90 or LCD_W - 17) or 110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
 		lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
 	end
 	if data.rxBatt > 0 and data.telemetry and config[14].v == 1 then
@@ -718,6 +719,10 @@ local function run(event)
 			if not data.showCurr and z >= 17 and z <= 18 then
 				config[z].p = 1
 			end
+			if z == 19 then
+				config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
+				config[19].v = math.min(config[19].x, config[19].v)
+			end		
 			lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
 			if config[z].p ~= nil then
 				lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + tmp)
