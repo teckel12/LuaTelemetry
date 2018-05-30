@@ -3,6 +3,7 @@
 ## v1.3.1 - 05/29/2018
 * Support added for the X-Lite transmitter (requires OpenTX v2.2.2)
 * Option to set the low and critical warning level for fuel percentage remaining
+* Option to display the transmitter voltage as a graph and/or in decimal form
 * Modified how battery cell count is calculated
 * Can now set cell critical voltage to as low as 2.6v to support 18650 batteries
 * Slightly adjusted display positioning to show greater GPS accuracy on QX7 and X-Lite transmitters

@@ -144,23 +144,24 @@ local config = {
 	{ o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
 	{ o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 2.7, x = 3.9, i = 0.1, a = "V", b = 2 },
 	{ o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 2.6, x = 3.8, i = 0.1, a = "V", b = 2 },
-	{ o = 12, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
-	{ o = 13, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
+	{ o = 13, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
+	{ o = 14, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "On"} },
 	{ o = 8,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 7 },
-	{ o = 11, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 14, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 13 },
-	{ o = 15, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 13 },
-	{ o = 16, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 13 },
+	{ o = 12, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 15, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
+	{ o = 16, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
+	{ o = 17, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
 	{ o = 2,  t = "Battery Alerts", c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "On"} },
 	{ o = 7,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 9,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
-	{ o = 10,  t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 18, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
-	{ o = 17, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
+	{ o = 11, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 19, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+	{ o = 18, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
 	{ o = 6,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
-	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 }
+	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
+	{ o = 10, t = "Tx Voltage",     c = 1, v = 2, x = 2, i = 1, l = {[0] = "Decimal", "Graph", "On"} }
 }
-local configValues = 18
+local configValues = 19
 for i = 1, configValues do
 	for ii = 1, configValues do
 		if i == config[ii].o then
@@ -463,7 +464,7 @@ end
 
 local function gpsData(txt, y, flags)
 	lcd.drawText(0, 0, txt, SMLSIZE)
-	local x = RIGHT_POS - lcd.getLastPos()
+	local x = RIGHT_POS - lcd.getLastPos() - (flags == 0 and 0 or 1)
 	lcd.drawText(x, y, txt, SMLSIZE + flags)
 end
 
@@ -682,14 +683,16 @@ local function run(event)
 	if config[13].v > 0 then
 		lcd.drawTimer(SMLCD and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
 	end
-	lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
-	lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
-	tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
-	for i = 87, tmp, 2 do
-		lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
+	if config[19].v > 0 then
+		lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
+		lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
+		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
+		for i = 87, tmp, 2 do
+			lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
+		end
 	end
-	if not SMLCD then
-		lcd.drawNumber(110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
+	if (not SMLCD and bit32.band(config[19].v, 1) ~= 1) or (SMLCD and config[19].v == 0) then
+		lcd.drawNumber(SMLCD and 90 or 110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
 		lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
 	end
 	if data.rxBatt > 0 and data.telemetry and config[14].v == 1 then

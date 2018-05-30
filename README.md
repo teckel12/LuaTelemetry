@@ -106,6 +106,7 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * **Altitude Alert** - Turn on or off the altitude alert (default: On)
 * **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 120m)
 * **Timer** - Show the automatic flight timer, timer1-3 or turn timer off (default: Auto)
+* **Tx Voltage** - Display transmitter voltage as a graph and/or in decimal (default: On)
 * **Rx Voltage** - Turn on or off the receiver voltage in the title (default: On)
 * **Variometer** - Show if model is gaining or decreasing altitude (default: On)
 * **Voice Alerts** - Voice alerts on, off or only critical alerts (default: On)
