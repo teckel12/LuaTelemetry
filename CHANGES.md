@@ -1,5 +1,7 @@
 # Release History
 
+## v1.3.2 - 05/30/2018
+* Transmitter voltage options specific to transmitter's display size
 ## v1.3.1 - 05/29/2018
 * Support added for the X-Lite transmitter (requires OpenTX v2.2.2)
 * Option to set the low and critical warning level for fuel percentage remaining
