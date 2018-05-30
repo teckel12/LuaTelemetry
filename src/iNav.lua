@@ -711,11 +711,14 @@ local function run(event)
 		-- Display menu
 		lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
 		lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
+		for line = 1, configValues do
+			local z = config[line].z
+			config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
+		end
 		for line = configTop, math.min(configValues, configTop + 5) do
 			local y = (line - configTop) * 8 + 10 + 3
 			local z = config[line].z
 			tmp = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
-			config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 			if not data.showCurr and z >= 17 and z <= 18 then
 				config[z].p = 1
 			end
@@ -759,13 +762,17 @@ local function run(event)
 				data.config = 0
 			elseif event == NEXT then -- Next option
 				data.config = math.min(data.config + 1, configValues)
-				if data.config > math.min(configValues, configTop + 5) then
-					configTop = configTop + 1
+				configTop = data.config > math.min(configValues, configTop + 5) and configTop + 1 or configTop
+				while config[config[data.config].z].p ~= nil do
+					data.config = math.min(data.config + 1, configValues)
+					configTop = data.config > math.min(configValues, configTop + 5) and configTop + 1 or configTop
 				end
 			elseif event == PREV then -- Previous option
 				data.config = math.max(data.config - 1, 1)
-				if data.config < configTop then
-					configTop = configTop - 1
+				configTop = data.config < configTop and configTop - 1 or configTop
+				while config[config[data.config].z].p ~= nil do
+					data.config = math.max(data.config - 1, 1)
+					configTop = data.config < configTop and configTop - 1 or configTop
 				end
 			end
 		else
@@ -795,12 +802,7 @@ local function run(event)
 		end
 
 		if event == EVT_ENTER_BREAK then
-			if config[config[data.config].z].p == nil then
-				configSelect = (configSelect == 0) and BLINK or 0
-			else
-				playTone(2000, 100, 100, PLAY_NOW)
-				playHaptic(25, 100)
-			end
+			configSelect = (configSelect == 0) and BLINK or 0
 		end
 
 	end
