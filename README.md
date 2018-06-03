@@ -15,7 +15,7 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 
 ## Features
 
-* FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
+* Works with all FrSky telemetry receivers (X-series and D-series) and all FrSky Taranis transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
@@ -49,6 +49,7 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 * OpenTX v2.2.2 is required for compatibility with Taranis X-Lite transmitter
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
 	* Lua Telemetry can't fix this, Crossfire has missing flight mode info Lua Telemetry requires
+* FrSky Horus transmitters are not currently supported due to the missing draw flags: `ERASE` and `FORCED`
 
 ## Setup
 
@@ -68,7 +69,7 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 
 #### INAV Lua Telemetry Screen Setup
 
-1. Download the latest [LuaTelemetry_v###.zip](https://github.com/iNavFlight/LuaTelemetry/releases/latest) ZIP file (Note: not the source code)
+1. Download the latest [LuaTelemetry_v###.zip](https://github.com/iNavFlight/LuaTelemetry/releases/latest) ZIP file (Note: **NOT** the source code)
 1. Copy the contents of the ZIP file (both the `iNav.lua` file and `iNav` folder) to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
 1. In model setup, page to `DISPLAY`, set desired screen to `Script` and select `iNav`
 

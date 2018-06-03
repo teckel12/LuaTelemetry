@@ -1,8 +1,10 @@
 # Release History
 
-## v1.3.2 - 05/30/2018
+## v1.3.2 - 06/03/2018
 * Transmitter voltage options specific to transmitter's display size and if Rx voltage is displayed
 * Disabled options are now skipped over instead of allowing selection
+* Removed dependency on `getLastPos()` function which cleans up the code, should be faster, and allows future Horus support
+* Transmitter voltage display config value now survives restart on QX7 transmitter
 ## v1.3.1 - 05/29/2018
 * Support added for the X-Lite transmitter (requires OpenTX v2.2.2)
 * Option to set the low and critical warning level for fuel percentage remaining
@@ -38,7 +40,7 @@
 * Config menu can be accessed at any time, even when armed
 ## v1.2.1 - 12/01/2017
 * Lots of new/changed config settings (press `Menu` button to access) - **Please review!**
-* Enhanced and cleaned up config menu, centered menu on Q X7 & X9D/+
+* Enhanced and cleaned up config menu, centered menu on QX7 & X9D/+
 * Variometer shows if model is gaining or decreasing altitude
 * Cell voltage battery view shows with two digits of precision
 * Added `S` (South) to X9D/+ directional display
@@ -47,7 +49,7 @@
 * Press `Menu` button (when not armed) to modify user configuration options
 * Fixed `FAILSAFE`, `RTH`, `NOT OK` & `NO TELEM` modes to flash as they should
 * Barometer and magnetometer are now optional (but suggested for full functionality)
-* Headfree indication on Q X7 changed to show directional indicators as dotted lines
+* Headfree indication on QX7 changed to show directional indicators as dotted lines
 * Startup message/version and error if not running OpenTX v2.2.0 or later
 ## v1.1.7 - 11/02/2017
 * Fix for the default unit type of the `Dist` (`0420`) sensor
@@ -58,7 +60,7 @@
 * Variable cleanup saving memory
 ## v1.1.5 - 10/20/2017
 * Voice notification for `Home Reset` with INAV v1.8+
-* Moved head free warning on Q X7 to top center
+* Moved head free warning on QX7 to top center
 * Values convert from decimal to integer when larger to allow for more room
 * Better text centering and right justification technique
 * Cleaned up code saving more memory

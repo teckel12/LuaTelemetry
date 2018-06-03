@@ -20,14 +20,14 @@ local CONFIG_X = SMLCD and 6 or 48
 local modes = {
 	{ t = "NO TELEM",  f = FLASH },
 	{ t = "HORIZON",   f = 0, w = "hrznmd" },
-	{ t = "ANGLE",     f = 0, w = "anglmd" },
-	{ t = "ACRO",      f = 0, w = "acromd" },
+	{ t = "  ANGLE",   f = 0, w = "anglmd" },
+	{ t = "   ACRO",   f = 0, w = "acromd" },
 	{ t = " NOT OK ",  f = FLASH },
-	{ t = "READY",     f = 0, w = "ready" },
+	{ t = "  READY",   f = 0, w = "ready" },
 	{ t = "POS HOLD",  f = 0, w = "poshld" },
 	{ t = "3D HOLD",   f = 0, w = "3dhold" },
 	{ t = "WAYPOINT",  f = 0, w = "waypt" },
-	{ t = "MANUAL",    f = 0, w = "manmd" },
+	{ t = " MANUAL",   f = 0, w = "manmd" },
 	{ t = "   RTH   ", f = FLASH, w = "rtl" },
 	{ t = "FAILSAFE",  f = FLASH, w = "fson" },
 	{ t = "THR WARN",  f = FLASH }
@@ -199,6 +199,7 @@ else
 		end
 	end
 	io.close(fh)
+	config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 	config[19].v = math.min(config[19].x, config[19].v)
 end
 
@@ -422,8 +423,8 @@ local function background()
 		if (data.cells == -1 and data.batt > 2) or (data.showCurr and data.fuel >= 95) then
 			data.cells = math.floor(data.batt / 4.3) + 1
 		end
-		data.cell = data.batt/data.cells
-		data.cellMin = data.battMin/data.cells
+		data.cell = data.batt / math.max(data.cells, 1)
+		data.cellMin = data.battMin / math.max(data.cells, 1)
 		data.rssiMin = getValue(data.rssiMin_id)
 		data.accZ = getValue(data.accZ_id)
 		data.txBatt = getValue(data.txBatt_id)
@@ -463,12 +464,6 @@ local function background()
 	end
 end
 
-local function gpsData(txt, y, flags)
-	lcd.drawText(0, 0, txt, SMLSIZE)
-	local x = RIGHT_POS - lcd.getLastPos() - (flags == 0 and 0 or 1)
-	lcd.drawText(x, y, txt, SMLSIZE + flags)
-end
-
 local function drawDirection(heading, width, radius, x, y)
 	local rad1 = math.rad(heading)
 	local rad2 = math.rad(heading + width)
@@ -496,13 +491,11 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
 	else
 		lcd.drawText(0, y, txt, SMLSIZE)
 	end
+	local tmpext = (frac ~= 0 or vc < max) and ext or ""
 	if frac ~= 0 and vc + 0.5 < max then
-		lcd.drawNumber(21, y, vc * 10.02, SMLSIZE + frac + flags)
+		lcd.drawText(21, y, string.format(frac, vc) .. tmpext, SMLSIZE + flags)
 	else
-		lcd.drawText(21, y, math.floor(vc + 0.5), SMLSIZE + flags)
-	end
-	if frac ~= 0 or vc < max then
-		lcd.drawText(lcd.getLastPos(), y, ext, SMLSIZE + flags)
+		lcd.drawText(21, y, math.floor(vc + 0.5) .. tmpext, SMLSIZE + flags)
 	end
 end
 
@@ -512,9 +505,7 @@ local function run(event)
 
 	-- Display system error
 	if data.systemError then
-		lcd.drawText(0, 27, data.systemError)
-		lcd.clear()
-		lcd.drawText((LCD_W - lcd.getLastPos()) / 2, 27, data.systemError)
+		lcd.drawText((LCD_W - string.len(data.systemError) * 5.2) / 2, 27, data.systemError)
 		return 0
 	end
 
@@ -525,9 +516,9 @@ local function run(event)
 	elseif data.startup == 2 then
 		if getTime() - startupTime < 200 then
 			if not SMLCD then
-				lcd.drawText(55, 9, "INAV Lua Telemetry")
+				lcd.drawText(53, 9, "INAV Lua Telemetry")
 			end
-			lcd.drawText(SMLCD and 55 or 93, 17, "v" .. VERSION)
+			lcd.drawText(SMLCD and 51 or 91, 17, "v" .. VERSION)
 		else
 			data.startup = 0
 		end
@@ -536,28 +527,28 @@ local function run(event)
 
 	-- GPS
 	if data.gpsLatLon ~= false then
-		local gpsFlags = (data.telemFlags > 0 or not data.gpsFix) and FLASH or 0
-		gpsData(math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], 17, gpsFlags)
+		local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
+		tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
+		lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 		if config[16].v == 0 then
-			gpsData(math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, 25, gpsFlags)
-			gpsData(math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, 33, gpsFlags)
+			lcd.drawText(tmp, 25, math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, gpsFlags)
+			lcd.drawText(tmp, 33, math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, gpsFlags)
 		else
-			gpsData(config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), 25, gpsFlags)
-			gpsData(config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), 33, gpsFlags)
+			lcd.drawText(tmp, 25, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), gpsFlags)
+			lcd.drawText(tmp, 33, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), gpsFlags)
 		end
 	else
 		lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
 		lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
 		lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
 	end
-	tmp = RIGHT_POS - (data.satellites % 100 > 9 and 10 or 5)
-	lcd.drawLine(tmp - 7, 9, tmp - 3, 13, SOLID, FORCE)
-	lcd.drawLine(tmp - 7, 10, tmp - 4, 13, SOLID, FORCE)
-	lcd.drawLine(tmp - 7, 11, tmp - 5, 13, SOLID, FORCE)
-	lcd.drawLine(tmp - 8, 14, tmp - 4, 10, SOLID, FORCE)
-	lcd.drawPoint(tmp - 7, 14)
-	lcd.drawPoint(tmp - 6, 14)
-	lcd.drawText(tmp, 9, data.satellites % 100, SMLSIZE + data.telemFlags)
+	lcd.drawLine(RIGHT_POS - 17, 9, RIGHT_POS - 13, 13, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS - 17, 10, RIGHT_POS - 14, 13, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS - 17, 11, RIGHT_POS - 15, 13, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS - 18, 14, RIGHT_POS - 14, 10, SOLID, FORCE)
+	lcd.drawPoint(RIGHT_POS - 17, 14)
+	lcd.drawPoint(RIGHT_POS - 16, 14)
+	lcd.drawText(RIGHT_POS - (data.telemFlags == 0 and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 	-- Directionals
 	if data.showHead and data.startup == 0 and data.config == 0 then
@@ -602,10 +593,9 @@ local function run(event)
 	end
 
 	-- Flight mode
-	lcd.drawText(0, 0, modes[data.modeId].t, (SMLCD and SMLSIZE or 0) + modes[data.modeId].f)
-	lcd.drawText(X_CNTR_2 - (lcd.getLastPos() / 2) + 1, 33, modes[data.modeId].t, (SMLCD and SMLSIZE or 0) + modes[data.modeId].f)
+	lcd.drawText((SMLCD and 46 or 83) + (modes[data.modeId].f == FLASH and 1 or 0), 33, modes[data.modeId].t, (SMLCD and SMLSIZE or 0) + modes[data.modeId].f)
 	if data.headFree then
-		lcd.drawText(tmp - 26, 9, " HF ", FLASH + SMLSIZE)
+		lcd.drawText(RIGHT_POS - 37, 9, " HF ", FLASH + SMLSIZE)
 	end
 
 	-- User input
@@ -623,18 +613,17 @@ local function run(event)
 	-- Data & gauges
 	drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
 	if data.altHold then
-		tmp = lcd.getLastPos() + 1
-		lcd.drawRectangle(tmp + 1, 9, 3, 3, FORCE)
-		lcd.drawFilledRectangle(tmp, 11, 5, 4, FORCE)
-		lcd.drawPoint(tmp + 2, 12)
+		lcd.drawRectangle(47, 9, 3, 3, FORCE)
+		lcd.drawFilledRectangle(46, 11, 5, 4, FORCE)
+		lcd.drawPoint(48, 12)
 	end
 	tmp = (data.telemFlags > 0 or data.fuel <= config[17].v or data.cell < config[3].v) and FLASH or 0
 	drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
 	drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
-	drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell * 10 or data.batt, config[1].v == 0 and (data.battMin * 10 / data.cells) or data.battMin, 100, "V", config[1].v == 0 and PREC2 or PREC1, tmp, 1)
+	drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell or data.batt, config[1].v == 0 and data.cellMin or data.battMin, 100, "V", config[1].v == 0 and "%.2f" or "%.1f", tmp, 1)
 	drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
-		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", PREC1, data.telemFlags)
+		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
 		drawData("Fuel", 41, 0, data.fuel, 0, 200, "%", 0, tmp)
 		lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
 		if data.fuel == 0 then
@@ -693,12 +682,10 @@ local function run(event)
 		end
 	end
 	if config[19].v ~= 1 then
-		lcd.drawNumber(SMLCD and (config[14].v == 1 and 90 or LCD_W - 17) or 110 , 1, data.txBatt * 10.01, SMLSIZE + PREC1 + INVERS)
-		lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
+		lcd.drawText(SMLCD and (config[14].v == 1 and 105 or LCD_W) or 128, 1, string.format("%.1f", data.txBatt) .. "V", SMLSIZE + RIGHT + INVERS)
 	end
 	if data.rxBatt > 0 and data.telemetry and config[14].v == 1 then
-		lcd.drawNumber(LCD_W - 17, 1, data.rxBatt * 10.01, SMLSIZE + PREC1 + INVERS)
-		lcd.drawText(lcd.getLastPos(), 1, "V", SMLSIZE + INVERS)
+		lcd.drawText(LCD_W, 1, string.format("%.1f", data.rxBatt) .. "V", SMLSIZE + RIGHT + INVERS)
 	end
 
 	-- Config
@@ -732,10 +719,7 @@ local function run(event)
 				lcd.drawLine(CONFIG_X + 77, y + 3, CONFIG_X + 91, y + 3, SOLID, FORCE)
 			else
 				if config[z].l == nil then
-					lcd.drawNumber(CONFIG_X + 78, y, config[z].d ~= nil and config[z].v * 10 or config[z].v, SMLSIZE + tmp)
-					if config[z].a ~= nil then
-						lcd.drawText(lcd.getLastPos(), y, config[z].a, SMLSIZE + tmp)
-					end
+					lcd.drawText(CONFIG_X + 78, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
 				else
 					if not config[z].l then
 						lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
