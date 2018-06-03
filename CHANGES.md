@@ -4,7 +4,6 @@
 * Transmitter voltage options specific to transmitter's display size and if Rx voltage is displayed
 * Disabled options are now skipped over instead of allowing selection
 * Removed dependency on `getLastPos()` function which cleans up the code, should be faster, and allows future Horus support
-* Transmitter voltage display config value now survives restart on QX7 transmitter
 ## v1.3.1 - 05/29/2018
 * Support added for the X-Lite transmitter (requires OpenTX v2.2.2)
 * Option to set the low and critical warning level for fuel percentage remaining
