@@ -113,8 +113,9 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * **Voice Alerts** - All voice alerts on, off or only critical alerts (default: All)
 * **Feedback** - Turn beeper and/or haptic feedback for alerts on or off (default: All)
 * **RTH Feedback** - Return to home beeper and haptic feedback on or off (default: On)
-* **HF Feedback** - Head free beeper and haptic feedback on or off (default: On)
+* **HeadFree Fback** - Head free beeper and haptic feedback on or off (default: On)
 * **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
+* **Speed Sensor** - Speed sensor to use, GPS or (if available) Pitot air speed (default: GPS)
 * **GPS Coords** - GPS coords as decimal, degrees/minutes or geocoding format (default: Decimal)
 * **GPS** - Not a configuration option, shows a list of the last 5 GPS coordinates
 

@@ -71,11 +71,9 @@ local data = {
 	heading_id = getTelemetryId("Hdg"),
 	altitude_id = getTelemetryId("Alt"),
 	distance_id = getTelemetryId(distanceSensor),
-	speed_id = getTelemetryId("GSpd"),
 	current_id = getTelemetryId("Curr"),
 	altitudeMax_id = getTelemetryId("Alt+"),
 	distanceMax_id = getTelemetryId(distanceSensor .. "+"),
-	speedMax_id = getTelemetryId("GSpd+"),
 	currentMax_id = getTelemetryId("Curr+"),
 	batt_id = getTelemetryId("VFAS"),
 	battMin_id = getTelemetryId("VFAS-"),
@@ -87,7 +85,6 @@ local data = {
 	gpsAlt_unit = getTelemetryUnit("GAlt"),
 	altitude_unit = getTelemetryUnit("Alt"),
 	distance_unit = getTelemetryUnit(distanceSensor),
-	speed_unit = getTelemetryUnit("GSpd"),
 	throttle_id = getTelemetryId("thr"),
 	homeResetPrev = false,
 	gpsFixPrev = false,
@@ -137,6 +134,12 @@ local function reset()
 	data.gpsAltBase = false
 end
 
+local function setSpeedSensor(speedSensor)
+	data.speed_id = getTelemetryId(speedSensor)
+	data.speedMax_id = getTelemetryId(speedSensor .. "+")
+	data.speed_unit = getTelemetryUnit(speedSensor)
+end
+
 local emptyGPS = { lat = 0, lon = 0 }
 
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
@@ -149,19 +152,20 @@ local config = {
 	{ o = 8,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 7 },
 	{ o = 12, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 15, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
-	{ o = 16, t = "HF Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
+	{ o = 16, t = "HeadFree Fback", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
 	{ o = 17, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
 	{ o = 2,  t = "Battery Alerts", c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
 	{ o = 7,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 9,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
 	{ o = 11, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 19, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
-	{ o = 18, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
+	{ o = 20, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+	{ o = 19, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
 	{ o = 6,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
 	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
-	{ o = 10, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} }
+	{ o = 10, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
+	{ o = 18, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} }
 }
-local configValues = 19
+local configValues = 20
 for i = 1, configValues do
 	for ii = 1, configValues do
 		if i == config[ii].o then
@@ -199,9 +203,10 @@ else
 		end
 	end
 	io.close(fh)
-	config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
-	config[19].v = math.min(config[19].x, config[19].v)
 end
+config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
+config[19].v = math.min(config[19].x, config[19].v)
+setSpeedSensor(config[20].v == 0 and "GSpd" or "ASpd")
 
 local function playAudio(file, alert)
 	if config[4].v == 2 or (config[4].v == 1 and alert ~= nil) then
@@ -693,6 +698,7 @@ local function run(event)
 		data.config = 1
 		configSelect = 0
 		configTop = 1
+		config[20].x = getTelemetryId("ASpd") > -1 and 1 or 0
 	end
 	if data.config > 0 then
 		-- Display menu
@@ -712,7 +718,7 @@ local function run(event)
 			if z == 19 then
 				config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 				config[19].v = math.min(config[19].x, config[19].v)
-			end		
+			end
 			lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
 			if config[z].p ~= nil then
 				lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + tmp)
@@ -779,6 +785,8 @@ local function run(event)
 					config[18].v = math.max(config[18].v, config[17].v + 5)
 				elseif z == 17 then -- Fuel critical < low
 					config[17].v = math.min(config[17].v, config[18].v - 5)
+				elseif z == 20 then -- Speed sensor
+					setSpeedSensor(config[20].v == 0 and "GSpd" or "ASpd")
 				elseif config[z].i > 1 then
 					config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
 				end
