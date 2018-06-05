@@ -7,10 +7,12 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 ## Screenshots
 
 #### Taranis QX7 and X-Lite
+
 ![sample](assets/iNavQX71.png "launch/pilot-based model orientation and location indicators")
 ![sample](assets/iNavQX72.png "Compass-based direction indicator")
 
 #### Taranis X9D, X9D+ and X9E
+
 ![sample](assets/iNavX9D.png "View on Taranis X9D, X9D+ and X9E")
 
 ## Features
@@ -48,7 +50,7 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 is required for compatibility with Taranis X-Lite transmitter
 * Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
-	* Lua Telemetry can't fix this, Crossfire has missing flight mode info Lua Telemetry requires
+  * Lua Telemetry can't fix this, Crossfire has missing flight mode info Lua Telemetry requires
 * FrSky Horus transmitters are not currently supported due to the missing draw flags: `ERASE` and `FORCED`
 
 ## Setup
@@ -57,8 +59,8 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 
 1. Setup SmartPort(S.Port), F.Port or D-series telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
 1. If you have an current sensor, in CLI settings set `battery_capacity` to the mAh you want to draw from your battery
-	* If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
-	* If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
+  * If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
+  * If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
 
 #### From Transmitter
 
@@ -76,6 +78,7 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 ## Usage
 
 #### Screen Description
+
 ![sample](assets/iNavKey.png "Screen description")
 ![sample](assets/iNavKeyX9D.png "Screen description for X9D")
 
@@ -90,6 +93,7 @@ FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, 
 * Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
 
 #### Configuration Settings
+
 Press the `Menu` button (`Shift` on X-Lite) to display the configuration options menu:
 
 * Use the dial or +/- buttons to cycle through the menu or select the desired setting
