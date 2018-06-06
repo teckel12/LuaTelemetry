@@ -1,8 +1,6 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.3.2
 
-```
-FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
-```
+    FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 
 ## Screenshots
 
