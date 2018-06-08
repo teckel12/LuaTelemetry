@@ -1,6 +1,6 @@
 # Release History
 
-## v1.3.2 - 06/04/2018
+## v1.3.2 - 06/08/2018
 
 * Transmitter voltage options specific to transmitter's display size and if Rx voltage is displayed
 * Allow speed sensor selection between GPS speed or pitot sensor's air speed (if available)
