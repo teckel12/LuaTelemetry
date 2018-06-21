@@ -1,10 +1,11 @@
 # Release History
 
-## v1.3.2 - 06/08/2018
+## v1.3.2 - 06/20/2018
 
 * Transmitter voltage options specific to transmitter's display size and if Rx voltage is displayed
 * Allow speed sensor selection between GPS speed or pitot sensor's air speed (if available)
-* Disabled options are now skipped over instead of allowing selection
+* Disable (and set to default) setting if sensor isn't present
+* Disabled settings are now skipped over instead of allowing selection
 * Removed `getLastPos()` function dependency which cleans up code, should be faster, and allows future Horus support
 
 ## v1.3.1 - 05/29/2018

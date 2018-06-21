@@ -106,6 +106,7 @@ local data = {
 
 data.showCurr = data.current_id > -1 and true or false
 data.showHead = data.heading_id > -1 and true or false
+data.pitot = getTelemetryId("ASpd") > -1 and true or false
 data.distPos = data.showCurr and 17 or 21
 data.speedPos = data.showCurr and 25 or 33
 data.battPos1 = data.showCurr and 49 or 45
@@ -204,8 +205,10 @@ else
 	end
 	io.close(fh)
 end
+config[7].v = data.accZ_id > -1 and config[7].v or 0
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
+config[20].v = data.pitot and config[20].v or 0
 setSpeedSensor(config[20].v == 0 and "GSpd" or "ASpd")
 
 local function playAudio(file, alert)
@@ -698,16 +701,21 @@ local function run(event)
 		data.config = 1
 		configSelect = 0
 		configTop = 1
-		config[20].x = getTelemetryId("ASpd") > -1 and 1 or 0
 	end
 	if data.config > 0 then
 		-- Display menu
 		lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
 		lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
+		-- Disabled options
 		for line = 1, configValues do
 			local z = config[line].z
 			config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 		end
+		-- Special cases
+		config[7].p = data.accZ_id == -1 and 1 or nil
+		config[17].p = not data.showCurr and 1 or nil
+		config[18].p = config[17].p
+		config[20].p = not data.pitot and 1 or nil
 		for line = configTop, math.min(configValues, configTop + 5) do
 			local y = (line - configTop) * 8 + 10 + 3
 			local z = config[line].z
