@@ -1,13 +1,13 @@
 # Release History
 
-## v1.3.2 - 06/24/2018
+## v1.3.2 - 06/25/2018
 
 * Shows GPS fix accuracy as a signal strength indicator graph
 * Allow speed sensor selection between GPS speed or pitot sensor's air speed (if available)
 * Transmitter voltage options specific to transmitter's display size and if Rx voltage is displayed
 * Disable config setting (and set to default) if sensor isn't present
 * Disabled config settings are now skipped over instead of allowing selection
-* Removed `getLastPos()` function dependency which cleans up code, should be faster, and allows future Horus support
+* Removed `getLastPos()` function dependency which cleans up code, should be faster, and could allow future Horus support
 
 ## v1.3.1 - 05/29/2018
 

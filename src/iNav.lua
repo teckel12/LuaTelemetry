@@ -442,7 +442,7 @@ local function background()
 		data.txBatt = getValue(data.txBatt_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
-		data.gpsFix = data.satellites > 3700 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
+		data.gpsFix = data.satellites > 3200 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
 		if data.gpsFix then
 			data.gpsLatLon = gpsTemp
 			if getTime() > data.gpsLogTimer then
@@ -555,11 +555,12 @@ local function run(event)
 		lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
 	end
 	if data.armed and data.hdop < 8 then
-		lcd.drawText(RIGHT_POS - 20, 9, "  ", SMLSIZE + RIGHT + FLASH)
+		lcd.drawText(RIGHT_POS - 19, 9, "   ", SMLSIZE + RIGHT + FLASH)
 	end
-	lcd.drawLine(RIGHT_POS - 22, 9, RIGHT_POS - 22, 14, data.hdop >= 9 and SOLID or DOTTED, 0)
-	lcd.drawLine(RIGHT_POS - 24, 11, RIGHT_POS - 24, 14, data.hdop >= 8 and SOLID or DOTTED, 0)
-	lcd.drawLine(RIGHT_POS - 26, 13, RIGHT_POS - 26, 14, data.hdop >= 7 and SOLID or DOTTED, 0)
+	lcd.drawLine(RIGHT_POS - 22, 7, RIGHT_POS - 22, 14, data.hdop >= 9 and SOLID or DOTTED, 0)
+	lcd.drawLine(RIGHT_POS - 24, 9, RIGHT_POS - 24, 14, data.hdop >= 8 and SOLID or DOTTED, 0)
+	lcd.drawLine(RIGHT_POS - 26, 11, RIGHT_POS - 26, 14, data.hdop >= 7 and SOLID or DOTTED, 0)
+	lcd.drawLine(RIGHT_POS - 28, 13, RIGHT_POS - 28, 14, data.hdop >= 6 and SOLID or DOTTED, 0)
 	lcd.drawLine(RIGHT_POS - 17, 9, RIGHT_POS - 13, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 17, 10, RIGHT_POS - 14, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 17, 11, RIGHT_POS - 15, 13, SOLID, FORCE)
