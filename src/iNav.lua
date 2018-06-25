@@ -300,6 +300,7 @@ local function flightModes()
 			playAudio(modes[data.modeId].w)
 		end
 	end
+	data.hdop = data.satellites / 100 % 10
 	if data.armed then
 		data.distanceLast = data.distance
 		if config[13].v == 1 then
@@ -376,6 +377,9 @@ local function flightModes()
 			end
 			beep = true
 		end
+		if data.hdop < 8 then
+			beep = true
+		end
 		if vibrate and (config[5].v == 1 or config[5].v == 3) then
 			playHaptic(25, 3000)
 		end
@@ -438,7 +442,7 @@ local function background()
 		data.txBatt = getValue(data.txBatt_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
-		data.gpsFix = data.satellites > 3900 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
+		data.gpsFix = data.satellites > 3700 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
 		if data.gpsFix then
 			data.gpsLatLon = gpsTemp
 			if getTime() > data.gpsLogTimer then
@@ -550,6 +554,12 @@ local function run(event)
 		lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
 		lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
 	end
+	if data.armed and data.hdop < 8 then
+		lcd.drawText(RIGHT_POS - 20, 9, "  ", SMLSIZE + RIGHT + FLASH)
+	end
+	lcd.drawLine(RIGHT_POS - 22, 9, RIGHT_POS - 22, 14, data.hdop >= 9 and SOLID or DOTTED, 0)
+	lcd.drawLine(RIGHT_POS - 24, 11, RIGHT_POS - 24, 14, data.hdop >= 8 and SOLID or DOTTED, 0)
+	lcd.drawLine(RIGHT_POS - 26, 13, RIGHT_POS - 26, 14, data.hdop >= 7 and SOLID or DOTTED, 0)
 	lcd.drawLine(RIGHT_POS - 17, 9, RIGHT_POS - 13, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 17, 10, RIGHT_POS - 14, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 17, 11, RIGHT_POS - 15, 13, SOLID, FORCE)
@@ -603,7 +613,7 @@ local function run(event)
 	-- Flight mode
 	lcd.drawText((SMLCD and 46 or 83) + (modes[data.modeId].f == FLASH and 1 or 0), 33, modes[data.modeId].t, (SMLCD and SMLSIZE or 0) + modes[data.modeId].f)
 	if data.headFree then
-		lcd.drawText(RIGHT_POS - 37, 9, " HF ", FLASH + SMLSIZE)
+		lcd.drawText(RIGHT_POS - 40, 9, "HF", FLASH + SMLSIZE)
 	end
 
 	-- User input
