@@ -7,7 +7,7 @@
 * Transmitter voltage options specific to transmitter's display size and if Rx voltage is displayed
 * Disable config setting (and set to default) if sensor isn't present
 * Disabled config settings are now skipped over instead of allowing selection
-* Removed `getLastPos()` function dependency which cleans up code, should be faster, and could allow for future Horus support
+* Removed `getLastPos()` function dependency which is faster, cleans up code and could allow Horus support
 
 ## v1.3.1 - 05/29/2018
 
