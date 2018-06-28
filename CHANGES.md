@@ -1,9 +1,10 @@
 # Release History
 
-## v1.3.2 - 06/25/2018
+## v1.3.2 - 06/27/2018
 
-* Shows GPS fix accuracy as a signal strength indicator graph
+* Shows GPS fix accuracy as a signal strength indicator graph (required INAV 2.0.0)
 * Allow speed sensor selection between GPS speed or pitot sensor's air speed (if available)
+* On X9D display use grey instead of dotted lines
 * Transmitter voltage options specific to transmitter's display size and if Rx voltage is displayed
 * Disable config setting (and set to default) if sensor isn't present
 * Disabled config settings are now skipped over instead of allowing selection

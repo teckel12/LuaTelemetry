@@ -491,7 +491,7 @@ local function drawDirection(heading, width, radius, x, y)
 	if data.headingHold then
 		lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
 	else
-		lcd.drawLine(x2, y2, x3, y3, DOTTED, FORCE)
+		lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
 	end
 end
 
@@ -554,7 +554,7 @@ local function run(event)
 		lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
 		lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
 	end
-	if data.armed and data.hdop < 8 then
+	if ((data.armed or data.modeId == 6) and data.hdop < 8) or not data.telemetry then
 		lcd.drawText(RIGHT_POS - 28, 9, "   ", FLASH)
 	end
 	for i = 22, 28, 2 do
@@ -582,7 +582,7 @@ local function run(event)
 				if not SMLCD then
 					lcd.drawText(X_CNTR_1 - 2, 32, "S", SMLSIZE)
 				end
-				drawDirection(data.heading, 135, 7, X_CNTR_1, 23)
+				drawDirection(data.heading, 140, 7, X_CNTR_1, 23)
 				indicatorDisplayed = true
 			end
 			if not data.showDir or data.headingRef >= 0 or not SMLCD then
@@ -603,7 +603,7 @@ local function run(event)
 				local rad1 = math.rad(bearing)
 				local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_2
 				local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)
-				lcd.drawLine(X_CNTR_2, 19, x1, y1, DOTTED, FORCE)
+				lcd.drawLine(X_CNTR_2, 19, x1, y1, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
 				lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, ERASE)
 				lcd.drawFilledRectangle(x1 - 1, y1 - 1, 3, 3, SOLID)
 			end
@@ -662,7 +662,7 @@ local function run(event)
 		tmp = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
 		lcd.drawFilledRectangle(l + 1, 56 - tmp, w - 2, tmp, INVERS)
 		tmp = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
-		lcd.drawLine(l + 1, tmp, l + w - 2, tmp, DOTTED, FORCE)
+		lcd.drawLine(l + 1, tmp, l + w - 2, tmp, SOLID, GREY_DEFAULT)
 		lcd.drawText(l + 1, 58, config[7].v == 1 and "A" or "Alt", SMLSIZE)
 	end
 
