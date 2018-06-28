@@ -1,6 +1,6 @@
 # Release History
 
-## v1.3.2 - 06/27/2018
+## v1.3.2 - 06/28/2018
 
 * Shows GPS fix accuracy as a signal strength indicator graph (required INAV 2.0.0)
 * Allow speed sensor selection between GPS speed or pitot sensor's air speed (if available)
