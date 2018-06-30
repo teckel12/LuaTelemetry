@@ -118,6 +118,8 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * **HeadFree Fback** - Head free beeper and haptic feedback on or off (default: On)
 * **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
 * **Speed Sensor** - Speed sensor to use, GPS or (if available) Pitot air speed (default: GPS)
+* **GPS HDOP View** - View the GPS accuracy (HDOP) as a Graph or Decimal (default: Graph)
+* **GPS Warning** - GPS accuracy (HDOP) to trigger warning (default: > 2.5 HDOP [2 bars])
 * **GPS Coords** - GPS coords as decimal, degrees/minutes or geocoding format (default: Decimal)
 * **GPS** - Not a configuration option, shows a list of the last 5 GPS coordinates
 
@@ -125,8 +127,8 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 
 > **Script panic not enough memory error:**
 > Be sure you're following the [INAV Lua Telemetry Screen Setup](#inav-lua-telemetry-screen-setup) instructions.
-> If you're still having memory issues, you can free up memory by turning off OpenTX firmware build options and/or removing other Lua Scripts from screens.
-> Keep in mind that a not enough memory error doesn't indicate a problem with Lua Telemetry, it means exactly what it says, your transmitter is out of memory and therefore can't run Lua Telemetry.
+> If you're still having memory issues, you can free up memory by deleting unused models, turning off OpenTX firmware build options, and removing other Lua Scripts from screens.
+> Keep in mind that a not enough memory error doesn't indicate a problem with Lua Telemetry. It only indicates that your transmitter is out of memory and therefore can't run Lua Telemetry.
 
 * Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
 * If current sensor isn't present or _battery isn't fully charged when plugged in_, fuel gauge will be based on battery voltage

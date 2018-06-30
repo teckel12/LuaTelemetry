@@ -4,7 +4,7 @@ about: Are you getting a "not enough memory error"?
 
 ---
 
-If you're getting a `not enough memory error` it means you're out of memory on your transmitter.  The Taranis series has very little free memory to work with for Lua Scripts, so this error is quite common.  But, there are a couple things that typically cause the error that can be avoided.  These are outlined in the Lua Telemetry README file and listed below:
+If you're getting a `not enough memory error` it means you're out of memory on your transmitter.  The Taranis series has very little free memory to work with for Lua Scripts, so this error is quite common.  But, there are a few things that typically cause the error that can be avoided.  These are outlined in the Lua Telemetry README file and listed below:
 
 1) You must use the release ZIP file for installation and not the Lua script file in the `src` folder.  The script in the `src` folder is not compiled and there's not enough memory on the Taranis transmitter to compile the script.  Please see the following instructions for correct installation:
 
@@ -14,7 +14,8 @@ https://github.com/iNavFlight/LuaTelemetry#inav-lua-telemetry-screen-setup
 
 https://github.com/iNavFlight/LuaTelemetry#tips
 
+3) Too many unused models. Each model slot setup in your transmitter takes up valuable memory.  Many times models are backed up to tweak settings without deleting the backups when finished.  By deleting unused models, memory is freed that can be used for other things, like Lua scripts.
 
-As this is a common issue that seems clear by the error message, is covered in the README file, and not a fault of Lua Telemetry, I would appreciate it if you could let me know how the instructions could be improved to avoid any confusion.  I've tried to do everything I can to explain this in detail, but it seems I still receive issues about this error and I'm not sure what else I can do to be more clear.
+As this is a common issue that seems clear by the error message, is covered in the README file, and not a direct result of Lua Telemetry, I would appreciate it if you could let me know how the instructions could be improved to avoid any confusion.
 
 Thanks!

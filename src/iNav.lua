@@ -150,7 +150,7 @@ local config = {
 	{ o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 2.6, x = 3.8, i = 0.1, a = "V", b = 2 },
 	{ o = 13, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
 	{ o = 14, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "All"} },
-	{ o = 8,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x=9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 7 },
+	{ o = 8,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x = 9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 7 },
 	{ o = 12, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 15, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
 	{ o = 16, t = "HeadFree Fback", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
@@ -159,14 +159,16 @@ local config = {
 	{ o = 7,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 9,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
 	{ o = 11, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 20, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
-	{ o = 19, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
+	{ o = 22, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+	{ o = 21, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
 	{ o = 6,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
 	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
 	{ o = 10, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
-	{ o = 18, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} }
+	{ o = 18, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
+	{ o = 20, t = "GPS Warning     >", c = 2, v = 2.5, d = true, m = 2.0, x = 6.0, i = 0.5, a = " HDOP" },
+	{ o = 19, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 }
-local configValues = 20
+local configValues = 22
 for i = 1, configValues do
 	for ii = 1, configValues do
 		if i == config[ii].o then
@@ -300,7 +302,7 @@ local function flightModes()
 			playAudio(modes[data.modeId].w)
 		end
 	end
-	data.hdop = data.satellites / 100 % 10
+	data.hdop = math.floor(data.satellites / 100) % 10
 	if data.armed then
 		data.distanceLast = data.distance
 		if config[13].v == 1 then
@@ -377,7 +379,7 @@ local function flightModes()
 			end
 			beep = true
 		end
-		if data.hdop < 8 then
+		if data.hdop < 13 - config[21].v * 2 then
 			beep = true
 		end
 		if vibrate and (config[5].v == 1 or config[5].v == 3) then
@@ -554,18 +556,22 @@ local function run(event)
 		lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
 		lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
 	end
-	if ((data.armed or data.modeId == 6) and data.hdop < 8) or not data.telemetry then
-		lcd.drawText(RIGHT_POS - 28, 9, "   ", FLASH)
+	if config[22].v == 0 then
+		if ((data.armed or data.modeId == 6) and data.hdop < 13 - config[21].v * 2) or not data.telemetry then
+			lcd.drawText(RIGHT_POS - 27, 9, "   ", FLASH)
+		end
+		for i = 21, 27, 2 do
+			lcd.drawLine(RIGHT_POS - i, (data.hdop >= 19 - i / 2 or not SMLCD) and i - 13 or 15, RIGHT_POS - i, 15, SOLID, (data.hdop >= 19 - i / 2 or SMLCD) and 0 or GREY_DEFAULT)
+		end
+	else
+		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and 99 or (9 - data.hdop) / 2 + 1.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 8) or not data.telemetry) and FLASH or 0))
 	end
-	for i = 22, 28, 2 do
-		lcd.drawLine(RIGHT_POS - i, (data.hdop >= 20 - i / 2 or not SMLCD) and i - 14 or 15, RIGHT_POS - i, 15, SOLID, (data.hdop >= 20 - i / 2 or SMLCD) and 0 or GREY_DEFAULT)
-	end
-	lcd.drawLine(RIGHT_POS - 17, 9, RIGHT_POS - 13, 13, SOLID, FORCE)
-	lcd.drawLine(RIGHT_POS - 17, 10, RIGHT_POS - 14, 13, SOLID, FORCE)
-	lcd.drawLine(RIGHT_POS - 17, 11, RIGHT_POS - 15, 13, SOLID, FORCE)
-	lcd.drawLine(RIGHT_POS - 18, 14, RIGHT_POS - 14, 10, SOLID, FORCE)
-	lcd.drawPoint(RIGHT_POS - 17, 14)
+	lcd.drawLine(RIGHT_POS - 16, 9, RIGHT_POS - 12, 13, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS - 16, 10, RIGHT_POS - 13, 13, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS - 16, 11, RIGHT_POS - 14, 13, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS - 17, 14, RIGHT_POS - 13, 10, SOLID, FORCE)
 	lcd.drawPoint(RIGHT_POS - 16, 14)
+	lcd.drawPoint(RIGHT_POS - 15, 14)
 	lcd.drawText(RIGHT_POS - (data.telemFlags == 0 and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 	-- Directionals
@@ -738,10 +744,7 @@ local function run(event)
 				config[19].v = math.min(config[19].x, config[19].v)
 			end
 			lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
-			if config[z].p ~= nil then
-				lcd.drawText(CONFIG_X + 78, y, "     ", SMLSIZE + tmp)
-				lcd.drawLine(CONFIG_X + 77, y + 3, CONFIG_X + 91, y + 3, SOLID, FORCE)
-			else
+			if config[z].p == nil then
 				if config[z].l == nil then
 					lcd.drawText(CONFIG_X + 78, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
 				else
