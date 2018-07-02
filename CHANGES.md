@@ -1,12 +1,12 @@
 # Release History
 
-## v1.3.2 - 06/30/2018
+## v1.3.2 - 07/02/2018
 
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
 * You can customize when weak GPS fix accuracy (HDOP) triggers alert
 * Allows speed sensor selection between GPS speed or pitot sensor's air speed (if available)
 * The config menu loads as a separate script to reduce memory
-* Dotted lines are now grey on X9D display 
+* Dotted lines are now grey on X9D display
 * Transmitter voltage options are specific to transmitter's display size and if Rx voltage is displayed
 * Disable config setting (and set to default) if sensor isn't present
 * Disabled config settings are now skipped over instead of allowing selection

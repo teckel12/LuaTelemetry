@@ -18,10 +18,10 @@
 * Works with all FrSky telemetry receivers (X-series and D-series) and all FrSky Taranis transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
-* Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
+* Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
-* GPS info: Satellites locked, GPS altitude, GPS coordinates. Also logs the last 5 GPS coordinates (reviewed from the config menu)
+* GPS info: Satellites locked, GPS accuracy (HDOP), GPS altitude, GPS coordinates. Also logs the last 5 GPS coordinates (reviewed from the config menu)
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
@@ -43,7 +43,7 @@
 
 ## Notes
 
-* INAV v2.0+ is required for FkSky D-series telemetry compatibility
+* INAV v2.0+ is required for FkSky D-series telemetry and proper GPS accuracy (HDOP) display
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 is required for compatibility with Taranis X-Lite transmitter
@@ -119,7 +119,7 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
 * **Speed Sensor** - Speed sensor to use, GPS or (if available) Pitot air speed (default: GPS)
 * **GPS HDOP View** - View the GPS accuracy (HDOP) as a Graph or Decimal (default: Graph)
-* **GPS Warning** - GPS accuracy (HDOP) to trigger warning (default: > 2.5 HDOP [2 bars])
+* **GPS Warning** - GPS accuracy (HDOP) to trigger warning (default: > 2.5 HDOP [at least 3 bars])
 * **GPS Coords** - GPS coords as decimal, degrees/minutes or geocoding format (default: Decimal)
 * **GPS** - Not a configuration option, shows a list of the last 5 GPS coordinates
 
@@ -137,6 +137,7 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
 * If config option `Battery View` is set to `Total` but average cell voltage is displayed, send INAV CLI command: `set report_cell_voltage = OFF`
+* When GPS accuracy (HDOP) is displayed as a decimal value, the value shown is only accurate to the nearest 0.5 HDOP.  This is due to HDOP being sent as a single integer from 0 to 9, not as the actual HDOP decimal value.
 
 ## Support
 

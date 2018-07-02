@@ -155,7 +155,7 @@ local config = {
 	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
 	{ o = 10, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
 	{ o = 18, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
-	{ o = 20, t = "GPS Warning     >", c = 2, v = 2.5, d = true, m = 2.0, x = 6.0, i = 0.5, a = " HDOP" },
+	{ o = 20, t = "GPS Warning     >", c = 2, v = 2.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
 	{ o = 19, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 }
 local configValues = 22
@@ -354,7 +354,7 @@ local function flightModes()
 			end
 			beep = true
 		end
-		if data.hdop < 13 - config[21].v * 2 then
+		if data.hdop < 11 - config[21].v * 2 then
 			beep = true
 		end
 		if vibrate and (config[5].v == 1 or config[5].v == 3) then
@@ -532,14 +532,19 @@ local function run(event)
 		lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
 	end
 	if config[22].v == 0 then
-		if ((data.armed or data.modeId == 6) and data.hdop < 13 - config[21].v * 2) or not data.telemetry then
-			lcd.drawText(RIGHT_POS - 27, 9, "   ", FLASH)
+		if ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry then
+			--lcd.drawText(RIGHT_POS - 27, 9, "   ", FLASH)
+			lcd.drawText(RIGHT_POS - 30, 9, "    ", SMLSIZE + FLASH)
 		end
-		for i = 21, 27, 2 do
-			lcd.drawLine(RIGHT_POS - i, (data.hdop >= 19 - i / 2 or not SMLCD) and i - 13 or 15, RIGHT_POS - i, 15, SOLID, (data.hdop >= 19 - i / 2 or SMLCD) and 0 or GREY_DEFAULT)
+		--for i = 21, 27, 2 do
+		--	lcd.drawLine(RIGHT_POS - i, (data.hdop >= 19 - i / 2 or not SMLCD) and i - 13 or 15, RIGHT_POS - i, 15, SOLID, (data.hdop >= 19 - i / 2 or SMLCD) and 0 or GREY_DEFAULT)
+		--end
+		for i = 4, 9 do
+			lcd.drawLine(RIGHT_POS - (38 - (i * 2)), (data.hdop >= i or not SMLCD) and 17 - i or 14, RIGHT_POS - (38 - (i * 2)), 14, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and 99 or (9 - data.hdop) / 2 + 1.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 8) or not data.telemetry) and FLASH or 0))
+		--lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and 99 or (9 - data.hdop) / 2 + 1.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 8) or not data.telemetry) and FLASH or 0))
+		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and 99 or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
 	end
 	lcd.drawLine(RIGHT_POS - 16, 9, RIGHT_POS - 12, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 16, 10, RIGHT_POS - 13, 13, SOLID, FORCE)
@@ -594,7 +599,7 @@ local function run(event)
 	-- Flight mode
 	lcd.drawText((SMLCD and 46 or 83) + (modes[data.modeId].f == FLASH and 1 or 0), 33, modes[data.modeId].t, (SMLCD and SMLSIZE or 0) + modes[data.modeId].f)
 	if data.headFree then
-		lcd.drawText(RIGHT_POS - 40, 9, "HF", FLASH + SMLSIZE)
+		lcd.drawText(RIGHT_POS - 41, 9, "HF", FLASH + SMLSIZE)
 	end
 
 	-- User input
