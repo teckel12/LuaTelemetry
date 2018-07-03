@@ -21,7 +21,7 @@
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
-* GPS info: Satellites locked, GPS accuracy (HDOP), GPS altitude, GPS coordinates. Also logs the last 5 GPS coordinates (reviewed from the config menu)
+* GPS info: Satellites locked, GPS accuracy (HDOP), GPS altitude, GPS coordinates. Also logs the last GPS location (reviewed from the config menu)
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
@@ -121,7 +121,7 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * **GPS HDOP View** - View the GPS accuracy (HDOP) as a Graph or Decimal (default: Graph)
 * **GPS Warning** - GPS accuracy (HDOP) to trigger warning (default: > 2.5 HDOP [at least 3 bars])
 * **GPS Coords** - GPS coords as decimal, degrees/minutes or geocoding format (default: Decimal)
-* **GPS** - Not a configuration option, shows a list of the last 5 GPS coordinates
+* **GPS** - Not a configuration option, shows the last GPS fix coordinates
 
 ## Tips
 

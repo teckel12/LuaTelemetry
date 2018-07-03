@@ -84,7 +84,7 @@ local data = {
 	throttle_id = getTelemetryId("thr"),
 	homeResetPrev = false,
 	gpsFixPrev = false,
-	gpsLogTimer = 0,
+	--gpsLogTimer = 0,
 	altNextPlay = 0,
 	battNextPlay = 0,
 	battPercentPlayed = 100,
@@ -131,7 +131,7 @@ local function reset()
 	data.gpsAltBase = false
 end
 
-local emptyGPS = { lat = 0, lon = 0 }
+--local emptyGPS = { lat = 0, lon = 0 }
 
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
@@ -149,7 +149,8 @@ local config = {
 	{ o = 7,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 9,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
 	{ o = 11, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 22, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+	--{ o = 22, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
+	{ o = 22, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = { lat = 0, lon = 0 }} },
 	{ o = 21, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
 	{ o = 6,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
 	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
@@ -180,6 +181,7 @@ if fh ~= nil then
 	io.close(fh)
 end
 config[7].v = data.accZ_id > -1 and config[7].v or 0
+config[15].v = 0
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
 config[20].v = data.pitot and config[20].v or 0
@@ -419,17 +421,18 @@ local function background()
 		data.txBatt = getValue(data.txBatt_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
-		data.gpsFix = data.satellites > 3000 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
+		data.gpsFix = data.satellites > 1000 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
 		if data.gpsFix then
 			data.gpsLatLon = gpsTemp
-			if getTime() > data.gpsLogTimer then
-				data.gpsLogTimer = getTime() + 100
-				if gpsTemp ~= config[15].l[config[15].v] then
-					local newPos = config[15].v >= 4 and 0 or config[15].v + 1
-					config[15].l[newPos] = gpsTemp
-					config[15].v = newPos
-				end
-			end
+			config[15].l[0] = gpsTemp
+			--if getTime() > data.gpsLogTimer then
+				--data.gpsLogTimer = getTime() + 100
+				--if gpsTemp ~= config[15].l[config[15].v] then
+					--local newPos = config[15].v >= 4 and 0 or config[15].v + 1
+					--config[15].l[newPos] = gpsTemp
+					--config[15].v = newPos
+				--end
+			--end
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
 		if data.distance_unit == 10 then
@@ -533,17 +536,12 @@ local function run(event)
 	end
 	if config[22].v == 0 then
 		if ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry then
-			--lcd.drawText(RIGHT_POS - 27, 9, "   ", FLASH)
 			lcd.drawText(RIGHT_POS - 30, 9, "    ", SMLSIZE + FLASH)
 		end
-		--for i = 21, 27, 2 do
-		--	lcd.drawLine(RIGHT_POS - i, (data.hdop >= 19 - i / 2 or not SMLCD) and i - 13 or 15, RIGHT_POS - i, 15, SOLID, (data.hdop >= 19 - i / 2 or SMLCD) and 0 or GREY_DEFAULT)
-		--end
 		for i = 4, 9 do
 			lcd.drawLine(RIGHT_POS - (38 - (i * 2)), (data.hdop >= i or not SMLCD) and 17 - i or 14, RIGHT_POS - (38 - (i * 2)), 14, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		--lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and 99 or (9 - data.hdop) / 2 + 1.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 8) or not data.telemetry) and FLASH or 0))
 		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and 99 or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
 	end
 	lcd.drawLine(RIGHT_POS - 16, 9, RIGHT_POS - 12, 13, SOLID, FORCE)

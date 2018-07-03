@@ -72,15 +72,15 @@ if configSelect == 0 then
 		saveConfig()
 		data.config = 0
 	elseif event == NEXT then -- Next option
-		data.config = math.min(data.config + 1, configValues)
-		configTop = data.config > math.min(configValues, configTop + 5) and configTop + 1 or configTop
+		data.config = data.config == configValues and 1 or data.config + 1
+		configTop = data.config > math.min(configValues, configTop + 5) and configTop + 1 or (data.config == 1 and 1 or configTop)
 		while config[config[data.config].z].p ~= nil do
 			data.config = math.min(data.config + 1, configValues)
 			configTop = data.config > math.min(configValues, configTop + 5) and configTop + 1 or configTop
 		end
 	elseif event == PREV then -- Previous option
-		data.config = math.max(data.config - 1, 1)
-		configTop = data.config < configTop and configTop - 1 or configTop
+		data.config = data.config == 1 and configValues or data.config - 1
+		configTop = data.config < configTop and configTop - 1 or (data.config == configValues and configValues - 5 or configTop)
 		while config[config[data.config].z].p ~= nil do
 			data.config = math.max(data.config - 1, 1)
 			configTop = data.config < configTop and configTop - 1 or configTop

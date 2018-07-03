@@ -1,6 +1,6 @@
 # Release History
 
-## v1.3.2 - 07/02/2018
+## v1.3.2 - 07/03/2018
 
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
 * You can customize when weak GPS fix accuracy (HDOP) triggers alert
@@ -9,7 +9,9 @@
 * Dotted lines are now grey on X9D display
 * Transmitter voltage options are specific to transmitter's display size and if Rx voltage is displayed
 * Disable config setting (and set to default) if sensor isn't present
+* Config menu wraps from top to bottom (and vice versa) to more easily locate desired config option
 * Disabled config settings are now skipped over instead of allowing selection
+* Only shows the last good GPS coordinates instead of the last 5 to reduce complexity (didn't provide more useful info either)
 * Removed `getLastPos()` function dependency which is faster, cleans up code and could allow Horus support
 
 ## v1.3.1 - 05/29/2018
