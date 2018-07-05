@@ -84,7 +84,6 @@ local data = {
 	throttle_id = getTelemetryId("thr"),
 	homeResetPrev = false,
 	gpsFixPrev = false,
-	--gpsLogTimer = 0,
 	altNextPlay = 0,
 	battNextPlay = 0,
 	battPercentPlayed = 100,
@@ -112,12 +111,14 @@ data.altitude_unit = data.altitude_id == -1 and data.gpsAlt_unit or data.altitud
 data.distance_unit = data.distance_unit == 0 and 9 or data.distance_unit
 data.systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false
 
+local emptyGPS = { lat = 0, lon = 0 }
+
 local function reset()
 	data.timerStart = 0
 	data.timer = 0
 	data.distanceLast = 0
 	data.gpsHome = false
-	data.gpsLatLon = false
+	data.gpsLatLon = emptyGPS
 	data.gpsFix = false
 	data.headingRef = -1
 	data.battLow = false
@@ -130,8 +131,6 @@ local function reset()
 	data.config = 0
 	data.gpsAltBase = false
 end
-
---local emptyGPS = { lat = 0, lon = 0 }
 
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
@@ -149,8 +148,7 @@ local config = {
 	{ o = 7,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 9,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
 	{ o = 11, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	--{ o = 22, t = "GPS",            c = 1, v = 4, x = 4, i = 1, l = {[0] = emptyGPS, emptyGPS, emptyGPS, emptyGPS, emptyGPS} },
-	{ o = 22, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = { lat = 0, lon = 0 }} },
+	{ o = 22, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = emptyGPS} },
 	{ o = 21, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
 	{ o = 6,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
 	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
@@ -421,18 +419,12 @@ local function background()
 		data.txBatt = getValue(data.txBatt_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
-		data.gpsFix = data.satellites > 1000 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
+		data.gpsFix = data.satellites > 3000 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
 		if data.gpsFix then
 			data.gpsLatLon = gpsTemp
 			config[15].l[0] = gpsTemp
-			--if getTime() > data.gpsLogTimer then
-				--data.gpsLogTimer = getTime() + 100
-				--if gpsTemp ~= config[15].l[config[15].v] then
-					--local newPos = config[15].v >= 4 and 0 or config[15].v + 1
-					--config[15].l[newPos] = gpsTemp
-					--config[15].v = newPos
-				--end
-			--end
+		else
+			data.gpsLatLon = emptyGPS
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
 		if data.distance_unit == 10 then
@@ -493,7 +485,6 @@ end
 
 local function run(event)
 	lcd.clear()
-	background()
 
 	-- Display system error
 	if data.systemError then
@@ -518,21 +509,15 @@ local function run(event)
 	local startupTime = 0
 
 	-- GPS
-	if data.gpsLatLon ~= false then
-		local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
-		tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
-		lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
-		if config[16].v == 0 then
-			lcd.drawText(tmp, 25, math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, gpsFlags)
-			lcd.drawText(tmp, 33, math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, gpsFlags)
-		else
-			lcd.drawText(tmp, 25, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), gpsFlags)
-			lcd.drawText(tmp, 33, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), gpsFlags)
-		end
+	local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
+	tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
+	lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
+	if config[16].v == 0 then
+		lcd.drawText(tmp, 25, math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, gpsFlags)
+		lcd.drawText(tmp, 33, math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, gpsFlags)
 	else
-		lcd.drawFilledRectangle(RIGHT_POS - 41, 17, 41, 23, INVERS)
-		lcd.drawText(RIGHT_POS - 37, 20, "No GPS", INVERS)
-		lcd.drawText(RIGHT_POS - 28, 30, "Fix", INVERS)
+		lcd.drawText(tmp, 25, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), gpsFlags)
+		lcd.drawText(tmp, 33, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), gpsFlags)
 	end
 	if config[22].v == 0 then
 		if ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry then
@@ -575,7 +560,7 @@ local function run(event)
 				end
 			end
 		end
-		if data.gpsLatLon ~= false and data.gpsHome ~= false and data.distanceLast >= data.distRef then
+		if data.gpsHome ~= false and data.distanceLast >= data.distRef then
 			if not data.showDir or not SMLCD then
 				local o1 = math.rad(data.gpsHome.lat)
 				local a1 = math.rad(data.gpsHome.lon)
@@ -704,4 +689,4 @@ local function run(event)
 	return 0
 end
 
-return {run = run, background = background}
+return { run = run, background = background }
