@@ -10,7 +10,7 @@ local RIGHT_POS = SMLCD and 129 or 195
 local GAUGE_WIDTH = SMLCD and 82 or 149
 local X_CNTR_1 = SMLCD and 63 or 68
 local X_CNTR_2 = SMLCD and 63 or 104
-local GPS_DIGITS = SMLCD and 100000 or 1000000
+local GPS_FORMAT = SMLCD and "%.5f" or "%.6f"
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -513,8 +513,8 @@ local function run(event)
 	tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
 	lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	if config[16].v == 0 then
-		lcd.drawText(tmp, 25, math.floor(data.gpsLatLon.lat * GPS_DIGITS) / GPS_DIGITS, gpsFlags)
-		lcd.drawText(tmp, 33, math.floor(data.gpsLatLon.lon * GPS_DIGITS) / GPS_DIGITS, gpsFlags)
+		lcd.drawText(tmp, 25, string.format(GPS_FORMAT, data.gpsLatLon.lat), gpsFlags)
+		lcd.drawText(tmp, 33, string.format(GPS_FORMAT, data.gpsLatLon.lon), gpsFlags)
 	else
 		lcd.drawText(tmp, 25, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), gpsFlags)
 		lcd.drawText(tmp, 33, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), gpsFlags)
@@ -683,7 +683,7 @@ local function run(event)
 	end
 	if data.config > 0 then
 		-- Load config menu
-		configTop, configSelect, config, data = loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, configValues, configTop, configSelect, config, data, event)
+		configTop, configSelect = loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, configValues, configTop, configSelect, config, data, event)
 	end
 	
 	return 0
