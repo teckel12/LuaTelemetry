@@ -10,7 +10,6 @@ local RIGHT_POS = SMLCD and 129 or 195
 local GAUGE_WIDTH = SMLCD and 82 or 149
 local X_CNTR_1 = SMLCD and 63 or 68
 local X_CNTR_2 = SMLCD and 63 or 104
-local GPS_FORMAT = SMLCD and "%.5f" or "%.6f"
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -47,7 +46,7 @@ local tx = string.sub(radio, 0, 2)
 local tmp = tx == "x9" and EVT_PLUS_BREAK or (tx == "xl" and EVT_UP_BREAK)
 local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
 local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
-tmp = tx == "x9" and EVT_MINUS_BREAK or (tx == "xl" and EVT_DOWN_BREAK)
+local tmp = tx == "x9" and EVT_MINUS_BREAK or (tx == "xl" and EVT_DOWN_BREAK)
 local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
 local DECR = tx == "x7" and EVT_ROT_LEFT or tmp
 local MENU = tx == "xl" and EVT_SHIFT_BREAK or EVT_MENU_BREAK
@@ -137,27 +136,28 @@ local config = {
 	{ o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
 	{ o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 2.7, x = 3.9, i = 0.1, a = "V", b = 2 },
 	{ o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 2.6, x = 3.8, i = 0.1, a = "V", b = 2 },
-	{ o = 13, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
-	{ o = 14, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "All"} },
-	{ o = 8,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x = 9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 7 },
-	{ o = 12, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 15, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
-	{ o = 16, t = "HeadFree Fback", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
-	{ o = 17, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 14 },
+	{ o = 14, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
+	{ o = 15, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "All"} },
+	{ o = 9,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x = 9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 8 },
+	{ o = 13, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 16, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 15 },
+	{ o = 17, t = "HeadFree Fback", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 15 },
+	{ o = 18, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 15 },
 	{ o = 2,  t = "Battery Alerts", c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
-	{ o = 7,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 9,  t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
-	{ o = 11, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 22, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = emptyGPS} },
-	{ o = 21, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
+	{ o = 8,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 10, t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
+	{ o = 12, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 23, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = emptyGPS} },
+	{ o = 22, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
 	{ o = 6,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
 	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
-	{ o = 10, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
-	{ o = 18, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
-	{ o = 20, t = "GPS Warning     >", c = 2, v = 2.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
-	{ o = 19, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
+	{ o = 11, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
+	{ o = 19, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
+	{ o = 21, t = "GPS Warning     >", c = 2, v = 2.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
+	{ o = 20, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
+	{ o = 7,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 }
-local configValues = 22
+local configValues = 23
 for i = 1, configValues do
 	for ii = 1, configValues do
 		if i == config[ii].o then
@@ -183,7 +183,7 @@ config[15].v = 0
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
 config[20].v = data.pitot and config[20].v or 0
-tmp = config[20].v == 0 and "GSpd" or "ASpd"
+local tmp = config[20].v == 0 and "GSpd" or "ASpd"
 data.speed_id = getTelemetryId(tmp)
 data.speedMax_id = getTelemetryId(tmp .. "+")
 data.speed_unit = getTelemetryUnit(tmp)
@@ -510,11 +510,11 @@ local function run(event)
 
 	-- GPS
 	local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
-	tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
+	local tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
 	lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	if config[16].v == 0 then
-		lcd.drawText(tmp, 25, string.format(GPS_FORMAT, data.gpsLatLon.lat), gpsFlags)
-		lcd.drawText(tmp, 33, string.format(GPS_FORMAT, data.gpsLatLon.lon), gpsFlags)
+		lcd.drawText(tmp, 25, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat), gpsFlags)
+		lcd.drawText(tmp, 33, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon), gpsFlags)
 	else
 		lcd.drawText(tmp, 25, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), gpsFlags)
 		lcd.drawText(tmp, 33, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), gpsFlags)
@@ -604,7 +604,7 @@ local function run(event)
 		lcd.drawFilledRectangle(46, 11, 5, 4, FORCE)
 		lcd.drawPoint(48, 12)
 	end
-	tmp = (data.telemFlags > 0 or data.fuel <= config[17].v or data.cell < config[3].v) and FLASH or 0
+	local tmp = (data.telemFlags > 0 or data.fuel <= config[17].v or data.cell < config[3].v) and FLASH or 0
 	drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
 	drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
 	drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell or data.batt, config[1].v == 0 and data.cellMin or data.battMin, 100, "V", config[1].v == 0 and "%.2f" or "%.1f", tmp, 1)
@@ -617,20 +617,20 @@ local function run(event)
 			lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
 		end
 	end
-	tmp = 100 / (4.2 - config[3].v + 0.1)
+	local tmp = 100 / (4.2 - config[3].v + 0.1)
 	lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - config[3].v + 0.1, 0) * tmp, 98), 100)
-	tmp = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - config[3].v + 0.1, 0) * tmp, 99) / 100) + 47
+	local tmp = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - config[3].v + 0.1, 0) * tmp, 99) / 100) + 47
 	lcd.drawLine(tmp, data.battPos2 + 1, tmp, 54, SOLID, ERASE)
 	lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0), 100)
-	tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
+	local tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
 	lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
 	if not SMLCD then
 		local w = config[7].v == 1 and 7 or 15
 		local l = config[7].v == 1 and 205 or 197
 		lcd.drawRectangle(l, 9, w, 48, SOLID)
-		tmp = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
+		local tmp = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
 		lcd.drawFilledRectangle(l + 1, 56 - tmp, w - 2, tmp, INVERS)
-		tmp = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
+		local tmp = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
 		lcd.drawLine(l + 1, tmp, l + w - 2, tmp, SOLID, GREY_DEFAULT)
 		lcd.drawText(l + 1, 58, config[7].v == 1 and "A" or "Alt", SMLSIZE)
 	end
@@ -644,7 +644,7 @@ local function run(event)
 			lcd.drawRectangle(197, 9, 7, 48, SOLID)
 			lcd.drawText(198, 58, "V", SMLSIZE)
 			if data.armed then
-				tmp = 33 - math.floor(math.max(math.min(data.accZ - 1, 1), -1) * 23 - 0.5)
+				local tmp = 33 - math.floor(math.max(math.min(data.accZ - 1, 1), -1) * 23 - 0.5)
 				if tmp > 33 then
 					lcd.drawFilledRectangle(198, 33, 5, tmp - 33, INVERS)
 				else
@@ -663,7 +663,7 @@ local function run(event)
 	if config[19].v > 0 then
 		lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
 		lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
-		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
+		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
 		for i = 87, tmp, 2 do
 			lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
 		end
@@ -685,7 +685,7 @@ local function run(event)
 		-- Load config menu
 		configTop, configSelect = loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, configValues, configTop, configSelect, config, data, event)
 	end
-	
+
 	return 0
 end
 

@@ -28,13 +28,17 @@ for line = 1, configValues do
 end
 -- Special cases
 config[7].p = data.accZ_id == -1 and 1 or nil
-config[17].p = not data.showCurr and 1 or nil
-config[18].p = config[17].p
+--nil = on
+--1 = off
+if config[17].p == nil then
+  config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
+  config[18].p = config[17].p
+end
 config[20].p = not data.pitot and 1 or nil
 for line = configTop, math.min(configValues, configTop + 5) do
 	local y = (line - configTop) * 8 + 10 + 3
 	local z = config[line].z
-	tmp = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
+	local tmp = (data.config == line and INVERS + configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
 	if not data.showCurr and z >= 17 and z <= 18 then
 		config[z].p = 1
 	end
@@ -118,4 +122,4 @@ if event == EVT_ENTER_BREAK then
 	configSelect = (configSelect == 0) and BLINK or 0
 end
 
-return configTop, configSelect, config, data
+return configTop, configSelect
