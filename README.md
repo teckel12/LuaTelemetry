@@ -104,6 +104,7 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * **Battery Alert** - All battery alerts on, off or only critical alerts (default: All)
 * **Cell Low** - Cell voltage for low battery warning (default: 3.5V)
 * **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V)
+* **Fuel Unit** - Match to INAV CLI value `smartport_fuel_unit` (default: Percent)
 * **Fuel Low** - Fuel percentage for low battery warning (default: 30%)
 * **Fuel Critical** - Fuel percentage for battery critical warning (default: 20%)
 * **Altitude Alert** - Turn on or off the altitude alert (default: On)
@@ -132,7 +133,7 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 
 * Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
 * If current sensor isn't present or _battery isn't fully charged when plugged in_, fuel gauge will be based on battery voltage
-* If fuel gauge isn't accurate, be sure you've set CLI values `smartport_fuel_unit` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data
+* If fuel gauge isn't shown or accurate, be sure you've set CLI values `smartport_fuel_unit = percent` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data
 * Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes

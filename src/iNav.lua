@@ -94,8 +94,7 @@ local data = {
 	cells = -1,
 	fuel = 100,
 	config = 0,
-	modeId = 1,
-	startup = 1
+	modeId = 1
 }
 
 data.showCurr = data.current_id > -1 and true or false
@@ -111,25 +110,6 @@ data.distance_unit = data.distance_unit == 0 and 9 or data.distance_unit
 data.systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false
 
 local emptyGPS = { lat = 0, lon = 0 }
-
-local function reset()
-	data.timerStart = 0
-	data.timer = 0
-	data.distanceLast = 0
-	data.gpsHome = false
-	data.gpsLatLon = emptyGPS
-	data.gpsFix = false
-	data.headingRef = -1
-	data.battLow = false
-	data.showMax = false
-	data.showDir = true
-	if not data.showCurr then
-		data.cells = -1
-	end
-	data.fuel = 100
-	data.config = 0
-	data.gpsAltBase = false
-end
 
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
@@ -149,13 +129,13 @@ local config = {
 	{ o = 12, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 23, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = emptyGPS} },
 	{ o = 22, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
-	{ o = 6,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
-	{ o = 5,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
+	{ o = 7,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
+	{ o = 6,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
 	{ o = 11, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
 	{ o = 19, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
 	{ o = 21, t = "GPS Warning     >", c = 2, v = 2.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
 	{ o = 20, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
-	{ o = 7,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
+	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 }
 local configValues = 23
 for i = 1, configValues do
@@ -165,6 +145,26 @@ for i = 1, configValues do
 			config[ii].o = nil
 		end
 	end
+end
+
+local function reset()
+	data.startup = 1
+	data.timerStart = 0
+	data.timer = 0
+	data.distanceLast = 0
+	data.gpsHome = false
+	data.gpsLatLon = emptyGPS
+	data.gpsFix = false
+	data.headingRef = -1
+	data.battLow = false
+	data.showMax = false
+	data.showDir = true
+	if not data.showCurr then
+		data.cells = -1
+	end
+	data.fuel = config[23].v == 0 and 100 or 0
+	data.config = 0
+	data.gpsAltBase = false
 end
 
 -- Load config data
@@ -311,7 +311,7 @@ local function flightModes()
 				beep = true
 			end
 		end
-		if data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
+		if config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
 			if data.fuel % 5 == 0 and data.fuel > config[17].v and data.fuel <= config[18].v then
 				playAudio("batlow")
 				playNumber(data.fuel, 13)
@@ -322,10 +322,10 @@ local function flightModes()
 				data.battPercentPlayed = data.fuel
 			end
 		end
-		if (data.fuel <= config[17].v or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
+		if ((config[23].v == 0 and data.fuel <= config[17].v) or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
 			if getTime() > data.battNextPlay then
 				playAudio("batcrt", 1)
-				if data.fuel <= config[17].v and data.battPercentPlayed > data.fuel and config[4].v > 0 then
+				if config[23].v == 0 and data.fuel <= config[17].v and data.battPercentPlayed > data.fuel and config[4].v > 0 then
 					playNumber(data.fuel, 13)
 					data.battPercentPlayed = data.fuel
 				end
@@ -527,7 +527,7 @@ local function run(event)
 			lcd.drawLine(RIGHT_POS - (38 - (i * 2)), (data.hdop >= i or not SMLCD) and 17 - i or 14, RIGHT_POS - (38 - (i * 2)), 14, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and 99 or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
+		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and (data.satellites > 3000 and ">5" or 99) or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
 	end
 	lcd.drawLine(RIGHT_POS - 16, 9, RIGHT_POS - 12, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 16, 10, RIGHT_POS - 13, 13, SOLID, FORCE)
@@ -604,17 +604,19 @@ local function run(event)
 		lcd.drawFilledRectangle(46, 11, 5, 4, FORCE)
 		lcd.drawPoint(48, 12)
 	end
-	local tmp = (data.telemFlags > 0 or data.fuel <= config[17].v or data.cell < config[3].v) and FLASH or 0
+	local tmp = (data.telemFlags > 0 or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
 	drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
 	drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell or data.batt, config[1].v == 0 and data.cellMin or data.battMin, 100, "V", config[1].v == 0 and "%.2f" or "%.1f", tmp, 1)
 	drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
 		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
-		drawData("Fuel", 41, 0, data.fuel, 0, 200, "%", 0, tmp)
-		lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
-		if data.fuel == 0 then
-			lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
+		drawData("Fuel", 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or config[23].l[config[23].v], 0, tmp)
+		if config[23].v == 0 then
+			lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
+			if data.fuel == 0 then
+				lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
+			end
 		end
 	end
 	local tmp = 100 / (4.2 - config[3].v + 0.1)

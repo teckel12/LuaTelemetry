@@ -26,10 +26,8 @@ for line = 1, configValues do
 	local z = config[line].z
 	config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 end
--- Special cases
+-- Special disabled option cases
 config[7].p = data.accZ_id == -1 and 1 or nil
---nil = on
---1 = off
 if config[17].p == nil then
   config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
   config[18].p = config[17].p
