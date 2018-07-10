@@ -120,7 +120,7 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
 * **Speed Sensor** - Speed sensor to use, GPS or (if available) Pitot air speed (default: GPS)
 * **GPS HDOP View** - View the GPS accuracy (HDOP) as a Graph or Decimal (default: Graph)
-* **GPS Warning** - GPS accuracy (HDOP) to trigger warning (default: > 2.5 HDOP [at least 3 bars])
+* **GPS Warning** - GPS accuracy (HDOP) to trigger warning (default: > 3.5 HDOP [at least 1 bar])
 * **GPS Coords** - GPS coords as decimal, degrees/minutes or geocoding format (default: Decimal)
 * **GPS** - Not a configuration option, shows the last GPS fix coordinates
 

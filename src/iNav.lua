@@ -133,7 +133,7 @@ local config = {
 	{ o = 6,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
 	{ o = 11, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
 	{ o = 19, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
-	{ o = 21, t = "GPS Warning     >", c = 2, v = 2.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
+	{ o = 21, t = "GPS Warning     >", c = 2, v = 3.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
 	{ o = 20, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 }
@@ -159,10 +159,7 @@ local function reset()
 	data.battLow = false
 	data.showMax = false
 	data.showDir = true
-	if not data.showCurr then
-		data.cells = -1
-	end
-	data.fuel = config[23].v == 0 and 100 or 0
+	data.cells = -1
 	data.config = 0
 	data.gpsAltBase = false
 end
@@ -409,7 +406,7 @@ local function background()
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		if (data.cells == -1 and data.batt > 2) or (data.showCurr and data.fuel >= 95) then
+		if (data.cells == -1 and data.batt > 2) or data.batt > 5 then
 			data.cells = math.floor(data.batt / 4.3) + 1
 		end
 		data.cell = data.batt / math.max(data.cells, 1)
@@ -423,8 +420,6 @@ local function background()
 		if data.gpsFix then
 			data.gpsLatLon = gpsTemp
 			config[15].l[0] = gpsTemp
-		else
-			data.gpsLatLon = emptyGPS
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
 		if data.distance_unit == 10 then
@@ -611,7 +606,7 @@ local function run(event)
 	drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
 		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
-		drawData("Fuel", 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or config[23].l[config[23].v], 0, tmp)
+		drawData(config[23].v == 0 and "Fuel" or config[23].l[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)
 		if config[23].v == 0 then
 			lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
 			if data.fuel == 0 then
