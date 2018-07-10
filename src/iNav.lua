@@ -159,7 +159,7 @@ local function reset()
 	data.battLow = false
 	data.showMax = false
 	data.showDir = true
-	data.cells = -1
+	data.cells = 1
 	data.config = 0
 	data.gpsAltBase = false
 end
@@ -406,11 +406,9 @@ local function background()
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		if (data.cells == -1 and data.batt > 2) or data.batt > 5 then
-			data.cells = math.floor(data.batt / 4.3) + 1
-		end
-		data.cell = data.batt / math.max(data.cells, 1)
-		data.cellMin = data.battMin / math.max(data.cells, 1)
+		data.cells = (data.batt / data.cells > 4.3) and math.floor(data.batt / 4.3) + 1 or data.cells
+		data.cell = data.batt / data.cells
+		data.cellMin = data.battMin / data.cells
 		data.rssiMin = getValue(data.rssiMin_id)
 		data.accZ = getValue(data.accZ_id)
 		data.txBatt = getValue(data.txBatt_id)
@@ -682,6 +680,8 @@ local function run(event)
 		-- Load config menu
 		configTop, configSelect = loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, configValues, configTop, configSelect, config, data, event)
 	end
+
+	lcd.drawText(LCD_W, data.battPos2, data.cells, SMLSIZE + RIGHT)
 
 	return 0
 end
