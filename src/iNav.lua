@@ -198,12 +198,12 @@ local function flightModes()
 	local altHoldPrev = data.altHold
 	local homeReset = false
 	local modeIdPrev = data.modeId
+	data.modeId = 1 -- No telemetry
 	if data.telemetry then
 		data.armed = false
 		data.headFree = false
 		data.headingHold = false
 		data.altHold = false
-		data.modeId = 1 -- No telemetry
 		local modeA = data.mode / 10000
 		local modeB = data.mode / 1000 % 10
 		local modeC = data.mode / 100 % 10
@@ -680,8 +680,6 @@ local function run(event)
 		-- Load config menu
 		configTop, configSelect = loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, configValues, configTop, configSelect, config, data, event)
 	end
-
-	lcd.drawText(LCD_W, data.battPos2, data.cells, SMLSIZE + RIGHT)
 
 	return 0
 end
