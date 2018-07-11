@@ -102,11 +102,11 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 
 * **Battery View** - Total battery voltage / Cell voltage average (default: Total)
 * **Battery Alert** - All battery alerts on, off or only critical alerts (default: All)
-* **Cell Low** - Cell voltage for low battery warning (default: 3.5V) [help](#suggested-battery-settings)
-* **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V) [help](#suggested-battery-settings)
-* **Fuel Unit** - Match to INAV CLI value `smartport_fuel_unit` (default: Percent) [help](#suggested-battery-settings)
-* **Fuel Low** - Fuel percentage for low battery warning (default: 30%) [help](#suggested-battery-settings)
-* **Fuel Critical** - Fuel percentage for battery critical warning (default: 20%) [help](#suggested-battery-settings)
+* **Cell Low** - Cell voltage for low battery warning (default: 3.5V) [[help](#suggested-battery-settings)]
+* **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V) [[help](#suggested-battery-settings)]
+* **Fuel Unit** - Match to INAV CLI value `smartport_fuel_unit` (default: Percent) [[help](#suggested-battery-settings)]
+* **Fuel Low** - Fuel percentage for low battery warning (default: 30%) [[help](#suggested-battery-settings)]
+* **Fuel Critical** - Fuel percentage for battery critical warning (default: 20%) [[help](#suggested-battery-settings)]
 * **Altitude Alert** - Turn on or off the altitude alert (default: On)
 * **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 120m)
 * **Timer** - Show the automatic flight timer, timer1-3 or turn timer off (default: Auto)
