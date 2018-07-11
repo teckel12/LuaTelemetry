@@ -137,9 +137,9 @@ local config = {
 	{ o = 20, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 }
-local configValues = 23
-for i = 1, configValues do
-	for ii = 1, configValues do
+config.cnt = 23
+for i = 1, config.cnt do
+	for ii = 1, config.cnt do
 		if i == config[ii].o then
 			config[i].z = ii
 			config[ii].o = nil
@@ -160,14 +160,14 @@ local function reset()
 	data.showMax = false
 	data.showDir = true
 	data.cells = 1
-	data.config = 0
 	data.gpsAltBase = false
+	config.status = 0
 end
 
 -- Load config data
 local fh = io.open(FILE_PATH .. "config.dat", "r")
 if fh ~= nil then
-	for line = 1, configValues do
+	for line = 1, config.cnt do
 		local tmp = io.read(fh, config[line].c)
 		if tmp ~= "" then
 			config[line].v = config[line].d == nil and tonumber(tmp) or tmp / 10
@@ -250,7 +250,7 @@ local function flightModes()
 		data.battLow = false
 		data.showMax = false
 		data.showDir = false
-		data.config = 0
+		config.status = 0
 		if not data.gpsAltBase and data.gpsFix then
 			data.gpsAltBase = data.gpsAlt
 		end
@@ -504,7 +504,7 @@ local function run(event)
 	-- GPS
 	local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
 	local tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
-	lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
+	lcd.drawText(tmp, 17, (data.gpsFix and math.floor(data.gpsAlt + 0.5) or "---") .. units[data.gpsAlt_unit], gpsFlags)
 	if config[16].v == 0 then
 		lcd.drawText(tmp, 25, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat), gpsFlags)
 		lcd.drawText(tmp, 33, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon), gpsFlags)
@@ -520,7 +520,7 @@ local function run(event)
 			lcd.drawLine(RIGHT_POS - (38 - (i * 2)), (data.hdop >= i or not SMLCD) and 17 - i or 14, RIGHT_POS - (38 - (i * 2)), 14, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and (data.satellites > 3000 and ">5" or "--") or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
+		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and (data.gpsFix and ">5" or "--") or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
 	end
 	lcd.drawLine(RIGHT_POS - 16, 9, RIGHT_POS - 12, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 16, 10, RIGHT_POS - 13, 13, SOLID, FORCE)
@@ -531,7 +531,7 @@ local function run(event)
 	lcd.drawText(RIGHT_POS - (data.telemFlags == 0 and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 	-- Directionals
-	if data.showHead and data.startup == 0 and data.config == 0 then
+	if data.showHead and data.startup == 0 and config.status == 0 then
 		if event == NEXT or event == PREV then
 			data.showDir = not data.showDir
 		end
@@ -579,7 +579,7 @@ local function run(event)
 	end
 
 	-- User input
-	if not data.armed and data.config == 0 then
+	if not data.armed and config.status == 0 then
 		-- Toggle showing max/min values
 		if event == PREV or event == NEXT then
 			data.showMax = not data.showMax
@@ -671,14 +671,14 @@ local function run(event)
 	end
 
 	-- Config menu
-	if data.config == 0 and event == MENU then
-		data.config = 1
-		configSelect = 0
-		configTop = 1
+	if config.status == 0 and event == MENU then
+		config.status = 1
+		config.select = 0
+		config.top = 1
 	end
-	if data.config > 0 then
+	if config.status > 0 then
 		-- Load config menu
-		configTop, configSelect = loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, configValues, configTop, configSelect, config, data, event)
+		loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, config, data, event)
 	end
 
 	return 0
