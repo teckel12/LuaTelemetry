@@ -520,7 +520,7 @@ local function run(event)
 			lcd.drawLine(RIGHT_POS - (38 - (i * 2)), (data.hdop >= i or not SMLCD) and 17 - i or 14, RIGHT_POS - (38 - (i * 2)), 14, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and (data.satellites > 3000 and ">5" or 99) or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
+		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and (data.satellites > 3000 and ">5" or "--") or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
 	end
 	lcd.drawLine(RIGHT_POS - 16, 9, RIGHT_POS - 12, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 16, 10, RIGHT_POS - 13, 13, SOLID, FORCE)

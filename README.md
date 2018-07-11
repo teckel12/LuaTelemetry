@@ -142,19 +142,19 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 
 ## Suggested Battery Settings
 
-1. Calibrate the voltage with the Voltage Scale in INAV configurator
+1. Using a multi-meter, calibrate the voltage with the "Voltage Scale" in INAV configurator
 1. If you have a current sensor, make sure you [calibrate it](https://www.youtube.com/watch?v=AWjblvHgjjI)!
 
 #### In INAV Configurator
 
 * Voltage source to use for alarms and telemetry: **Raw**
-* Number of cells: **0** (auto)
+* Number of cells: **0** (0=auto, but set if you always use the same cell count)
 * Maximum cell voltage for cell count detection: **4.3**
-* Minimum cell voltage: **3.4**
+* Minimum cell voltage: **3.4** (match "Cell Critical" in Lua Telemetry)
 * Maximum cell voltage: **4.2**
-* Warning cell voltage: **3.5**
+* Warning cell voltage: **3.5** (match "Cell Low" in Lua Telemetry)
 * Set capacity in **mAh** to battery capacity
-* Waning capacity: **30%**
+* Warning capacity: **30%** (match "Fuel Low" in Lua Telemetry)
 * Critical capacity: **10%**
 
 #### In INAV CLI
@@ -163,10 +163,10 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 
 #### In Lua Telemetry
 
-* Cell Low: **3.5v**
-* Cell Critical: **3.4V**
+* Cell Low: **3.5v** (match "Warning cell voltage" in INAV)
+* Cell Critical: **3.4V** (match "Minimum cell voltage" in INAV)
 * Fuel Unit: **Percent**
-* Fuel Low: **30%**
+* Fuel Low: **30%** (match "Warning capacity" in INAV)
 * Fuel Critical: **20%**
 
 ## Support
