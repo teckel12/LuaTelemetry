@@ -140,6 +140,35 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * If config option `Battery View` is set to `Total` but average cell voltage is displayed, send INAV CLI command: `set report_cell_voltage = OFF`
 * When GPS accuracy (HDOP) is displayed as a decimal value, the value shown is only accurate to the nearest 0.5 HDOP.  This is due to HDOP being sent as a single integer from 0 to 9, not as the actual HDOP decimal value.
 
+## Suggested Battery Settings
+
+1. Calibrate the voltage with the Voltage Scale in INAV configurator
+1. If you have a current sensor, make sure you [calibrate it](https://www.youtube.com/watch?v=AWjblvHgjjI)!
+
+#### In INAV Configurator
+
+* Voltage source to use for alarms and telemetry: **Raw**
+* Number of cells: **0** (auto)
+* Maximum cell voltage for cell count detection: **4.3**
+* Minimum cell voltage: **3.4**
+* Maximum cell voltage: **4.2**
+* Warning cell voltage: **3.5**
+* Set capacity in **mAh** to battery capacity
+* Waning capacity: **30%**
+* Critical capacity: **10%**
+
+#### In INAV CLI
+
+* `set smartport_fuel_unit = percent`
+
+#### In Lua Telemetry
+
+* Cell Low: **3.5v**
+* Cell Critical: **3.4V**
+* Fuel Unit: **Percent**
+* Fuel Low: **30%**
+* Fuel Critical: **20%**
+
 ## Support
 
 When opening an issue, please use the form outline as a guide for easier reproduction, diagnosis and a faster resolution
