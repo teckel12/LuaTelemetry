@@ -7,7 +7,7 @@ local function saveConfig()
 	if fh == nil then
 		data.systemError = "Folder \"iNav\" not found"
 	else
-		for line = 1, config.cnt do
+		for line = 1, data.configCnt do
 			if config[line].d == nil then
 				io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
 			else 
@@ -22,7 +22,7 @@ lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
 lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
 
 -- Disabled options
-for line = 1, config.cnt do
+for line = 1, data.configCnt do
 	local z = config[line].z
 	config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 end
@@ -33,10 +33,10 @@ if config[17].p == nil then
   config[18].p = config[17].p
 end
 config[20].p = not data.pitot and 1 or nil
-for line = config.top, math.min(config.cnt, config.top + 5) do
-	local y = (line - config.top) * 8 + 10 + 3
+for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
+	local y = (line - data.configTop) * 8 + 10 + 3
 	local z = config[line].z
-	local tmp = (config.status == line and INVERS + config.select or 0) + (config[z].d ~= nil and PREC1 or 0)
+	local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
 	if not data.showCurr and z >= 17 and z <= 18 then
 		config[z].p = 1
 	end
@@ -70,30 +70,30 @@ for line = config.top, math.min(config.cnt, config.top + 5) do
 	end
 end
 
-if config.select == 0 then
+if data.configSelect == 0 then
 	-- Select config option
 	if event == EVT_EXIT_BREAK then
 		saveConfig()
-		config.status = 0
+		data.configStatus = 0
 	elseif event == NEXT then -- Next option
-		config.status = config.status == config.cnt and 1 or config.status + 1
-		config.top = config.status > math.min(config.cnt, config.top + 5) and config.top + 1 or (config.status == 1 and 1 or config.top)
-		while config[config[config.status].z].p ~= nil do
-			config.status = math.min(config.status + 1, config.cnt)
-			config.top = config.status > math.min(config.cnt, config.top + 5) and config.top + 1 or config.top
+		data.configStatus = data.configStatus == data.configCnt and 1 or data.configStatus + 1
+		data.configTop = data.configStatus > math.min(data.configCnt, data.configTop + 5) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
+		while config[config[data.configStatus].z].p ~= nil do
+			data.configStatus = math.min(data.configStatus + 1, data.configCnt)
+			data.configTop = data.configStatus > math.min(data.configCnt, data.configTop + 5) and data.configTop + 1 or data.configTop
 		end
 	elseif event == PREV then -- Previous option
-		config.status = config.status == 1 and config.cnt or config.status - 1
-		config.top = config.status < config.top and config.top - 1 or (config.status == config.cnt and config.cnt - 5 or config.top)
-		while config[config[config.status].z].p ~= nil do
-			config.status = math.max(config.status - 1, 1)
-			config.top = config.status < config.top and config.top - 1 or config.top
+		data.configStatus = data.configStatus == 1 and data.configCnt or data.configStatus - 1
+		data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == data.configCnt and data.configCnt - 5 or data.configTop)
+		while config[config[data.configStatus].z].p ~= nil do
+			data.configStatus = math.max(data.configStatus - 1, 1)
+			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or data.configTop
 		end
 	end
 else
-	local z = config[config.status].z
+	local z = config[data.configStatus].z
 	if event == EVT_EXIT_BREAK then
-		config.select = 0
+		data.configSelect = 0
 	elseif event == INCR then
 		config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
 	elseif event == DECR then
@@ -119,7 +119,7 @@ else
 end
 
 if event == EVT_ENTER_BREAK then
-	config.select = (config.select == 0) and BLINK or 0
+	data.configSelect = (data.configSelect == 0) and BLINK or 0
 end
 
 return 0

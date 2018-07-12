@@ -13,7 +13,7 @@ local X_CNTR_2 = SMLCD and 63 or 104
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
-	{ t = "NO TELEM",  f = FLASH },
+	{ t = "! TELEM !", f = FLASH },
 	{ t = "HORIZON",   f = 0, w = "hrznmd" },
 	{ t = "  ANGLE",   f = 0, w = "anglmd" },
 	{ t = "   ACRO",   f = 0, w = "acromd" },
@@ -25,7 +25,7 @@ local modes = {
 	{ t = " MANUAL",   f = 0, w = "manmd" },
 	{ t = "   RTH   ", f = FLASH, w = "rtl" },
 	{ t = "FAILSAFE",  f = FLASH, w = "fson" },
-	{ t = "THR WARN",  f = FLASH }
+	{ t = "! THROT !", f = FLASH }
 }
 
 local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
@@ -108,8 +108,7 @@ data.distRef = data.distance_unit == 10 and 20 or 6
 data.altitude_unit = data.altitude_id == -1 and data.gpsAlt_unit or data.altitude_unit
 data.distance_unit = data.distance_unit == 0 and 9 or data.distance_unit
 data.systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false
-
-local emptyGPS = { lat = 0, lon = 0 }
+data.emptyGPS = { lat = 0, lon = 0 }
 
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
@@ -127,7 +126,7 @@ local config = {
 	{ o = 8,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 10, t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
 	{ o = 12, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 23, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = emptyGPS} },
+	{ o = 23, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = data.emptyGPS} },
 	{ o = 22, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
 	{ o = 7,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
 	{ o = 6,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
@@ -137,9 +136,9 @@ local config = {
 	{ o = 20, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 }
-config.cnt = 23
-for i = 1, config.cnt do
-	for ii = 1, config.cnt do
+data.configCnt = 23
+for i = 1, data.configCnt do
+	for ii = 1, data.configCnt do
 		if i == config[ii].o then
 			config[i].z = ii
 			config[ii].o = nil
@@ -153,7 +152,7 @@ local function reset()
 	data.timer = 0
 	data.distanceLast = 0
 	data.gpsHome = false
-	data.gpsLatLon = emptyGPS
+	data.gpsLatLon = data.emptyGPS
 	data.gpsFix = false
 	data.headingRef = -1
 	data.battLow = false
@@ -161,13 +160,13 @@ local function reset()
 	data.showDir = true
 	data.cells = 1
 	data.gpsAltBase = false
-	config.status = 0
+	data.configStatus = 0
 end
 
 -- Load config data
 local fh = io.open(FILE_PATH .. "config.dat", "r")
 if fh ~= nil then
-	for line = 1, config.cnt do
+	for line = 1, data.configCnt do
 		local tmp = io.read(fh, config[line].c)
 		if tmp ~= "" then
 			config[line].v = config[line].d == nil and tonumber(tmp) or tmp / 10
@@ -223,10 +222,10 @@ local function flightModes()
 			data.altHold = bit32.band(modeC, 2) == 2 and true or false
 			homeReset = data.satellites >= 4000 and true or false
 			if bit32.band(modeC, 4) == 4 then
-				data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold else pos hold
+				data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold(8) else pos hold(7)
 			end
 		else
-			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 13 or 5) or 6 -- Not OK to arm / Throttle warning / Ready to fly
+			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 13 or 5) or 6 -- Not OK to arm(5) / Throttle warning(13) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
 			data.modeId = 12 -- Failsafe
@@ -250,7 +249,7 @@ local function flightModes()
 		data.battLow = false
 		data.showMax = false
 		data.showDir = false
-		config.status = 0
+		data.configStatus = 0
 		if not data.gpsAltBase and data.gpsFix then
 			data.gpsAltBase = data.gpsAlt
 		end
@@ -414,7 +413,7 @@ local function background()
 		data.txBatt = getValue(data.txBatt_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
-		data.gpsFix = data.satellites > 3000 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil
+		data.gpsFix = data.satellites > 1000 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0
 		if data.gpsFix then
 			data.gpsLatLon = gpsTemp
 			config[15].l[0] = gpsTemp
@@ -504,7 +503,7 @@ local function run(event)
 	-- GPS
 	local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
 	local tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
-	lcd.drawText(tmp, 17, (data.gpsFix and math.floor(data.gpsAlt + 0.5) or "---") .. units[data.gpsAlt_unit], gpsFlags)
+	lcd.drawText(tmp, 17, (data.gpsFix and math.floor(data.gpsAlt + 0.5) or "0") .. units[data.gpsAlt_unit], gpsFlags)
 	if config[16].v == 0 then
 		lcd.drawText(tmp, 25, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat), gpsFlags)
 		lcd.drawText(tmp, 33, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon), gpsFlags)
@@ -512,15 +511,16 @@ local function run(event)
 		lcd.drawText(tmp, 25, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), gpsFlags)
 		lcd.drawText(tmp, 33, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), gpsFlags)
 	end
+	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry
 	if config[22].v == 0 then
-		if ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry then
+		if tmp then
 			lcd.drawText(RIGHT_POS - 30, 9, "    ", SMLSIZE + FLASH)
 		end
 		for i = 4, 9 do
 			lcd.drawLine(RIGHT_POS - (38 - (i * 2)), (data.hdop >= i or not SMLCD) and 17 - i or 14, RIGHT_POS - (38 - (i * 2)), 14, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		lcd.drawText(RIGHT_POS - 18, 9, data.hdop == 0 and (data.gpsFix and ">5" or "--") or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + ((((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry) and FLASH or 0))
+		lcd.drawText(RIGHT_POS - 18, 9, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + (tmp and FLASH or 0))
 	end
 	lcd.drawLine(RIGHT_POS - 16, 9, RIGHT_POS - 12, 13, SOLID, FORCE)
 	lcd.drawLine(RIGHT_POS - 16, 10, RIGHT_POS - 13, 13, SOLID, FORCE)
@@ -531,7 +531,7 @@ local function run(event)
 	lcd.drawText(RIGHT_POS - (data.telemFlags == 0 and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 	-- Directionals
-	if data.showHead and data.startup == 0 and config.status == 0 then
+	if data.showHead and data.startup == 0 and data.configStatus == 0 then
 		if event == NEXT or event == PREV then
 			data.showDir = not data.showDir
 		end
@@ -579,7 +579,7 @@ local function run(event)
 	end
 
 	-- User input
-	if not data.armed and config.status == 0 then
+	if not data.armed and data.configStatus == 0 then
 		-- Toggle showing max/min values
 		if event == PREV or event == NEXT then
 			data.showMax = not data.showMax
@@ -671,12 +671,12 @@ local function run(event)
 	end
 
 	-- Config menu
-	if config.status == 0 and event == MENU then
-		config.status = 1
-		config.select = 0
-		config.top = 1
+	if data.configStatus == 0 and event == MENU then
+		data.configStatus = 1
+		data.configSelect = 0
+		data.configTop = 1
 	end
-	if config.status > 0 then
+	if data.configStatus > 0 then
 		-- Load config menu
 		loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, config, data, event)
 	end

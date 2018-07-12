@@ -138,7 +138,7 @@ Press the `Menu` button (`Shift` on X-Lite) to display the configuration options
 * Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
 * If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
 * If config option `Battery View` is set to `Total` but average cell voltage is displayed, send INAV CLI command: `set report_cell_voltage = OFF`
-* When GPS accuracy (HDOP) is displayed as a decimal value, the value shown is only accurate to the nearest 0.5 HDOP.  This is due to HDOP being sent as a single integer from 0 to 9, not as the actual HDOP decimal value.
+* When GPS accuracy (HDOP) is displayed as a decimal, the range is 0.8 - 5.3 and it's rounded to the nearest 0.5 HDOP.  This is due to HDOP being sent as a single integer from 0 to 9, not as the actual HDOP decimal value.
 
 ## Suggested Battery Settings
 
