@@ -84,6 +84,7 @@ local data = {
 	homeResetPrev = false,
 	gpsFixPrev = false,
 	altNextPlay = 0,
+	altLastAlt = 0,
 	battNextPlay = 0,
 	battPercentPlayed = 100,
 	armed = false,
@@ -118,7 +119,7 @@ local config = {
 	{ o = 14, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
 	{ o = 15, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "All"} },
 	{ o = 9,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x = 9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 8 },
-	{ o = 13, t = "Variometer",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 13, t = "Variometer",     c = 1, v = 0, i = 1, x = 3, l = {[0] = "Off", "Display", "Beeper", "Voice"} },
 	{ o = 16, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 15 },
 	{ o = 17, t = "HeadFree Fback", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 15 },
 	{ o = 18, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 15 },
@@ -135,8 +136,9 @@ local config = {
 	{ o = 21, t = "GPS Warning     >", c = 2, v = 3.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
 	{ o = 20, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
+	{ o = 24, t = "Vario Steps",    c = 2, v = 10, m = 5, x = 50, i = 5, a = units[data.altitude_unit] },
 }
-data.configCnt = 23
+data.configCnt = 24
 for i = 1, data.configCnt do
 	for ii = 1, data.configCnt do
 		if i == config[ii].o then
@@ -305,6 +307,18 @@ local function flightModes()
 				data.altNextPlay = getTime() + 1000
 			else
 				beep = true
+			end
+		elseif config[7].v == 2 then -- Vario altitude
+			local tmp = math.abs(math.max(math.min(data.accZ - 1, 1), -1))
+			if tmp > 0.05 then
+				playTone(2000 * math.min(math.max(data.accZ, 0.5), 1.5), 50, 1000 - (tmp * 900), PLAY_BACKGROUND)
+			end
+		else
+			local tmp = math.floor((data.altitude + 0.5 + config[24].v / 2) / config[24].v) * config[24].v
+			if config[7].v == 3 and tmp ~= altLastAlt and data.altitude >= config[24].v / 2 and getTime() > data.altNextPlay then
+				playNumber(tmp, data.altitude_unit)
+				data.altLastAlt = tmp
+				data.altNextPlay = getTime() + 1000
 			end
 		end
 		if config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
