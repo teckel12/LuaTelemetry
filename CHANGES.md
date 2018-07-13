@@ -1,6 +1,6 @@
 # Release History
 
-## v1.3.2 - 07/11/2018
+## v1.3.2 - 07/13/2018
 
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
 * You can customize when weak GPS fix accuracy (HDOP) triggers alert
@@ -17,6 +17,7 @@
 * Only shows the last good GPS coordinates instead of the last 5 to reduce complexity (didn't provide more useful info either)
 * Removed `getLastPos()` function dependency which is faster, cleans up code and could allow Horus support
 * Fixed an issue with "NO TELEM" and "THR WARN" being displayed incorrectly
+* Cleaned up readme, broke up into Wiki pages
 
 ## v1.3.1 - 05/29/2018
 

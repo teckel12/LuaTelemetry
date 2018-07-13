@@ -1,6 +1,6 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.3.2
 
-    FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
+### FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 
 ## Screenshots
 
@@ -35,10 +35,10 @@
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
-#### Suggested Sensors
+## Suggested Sensors
 
 * Altimeter/barometer (GPS altitude used if barometer not present)
-* Magnetometer/compass (fixed-wing craft use GPS for some directional info)
+* Magnetometer/compass for multi-rotor (fixed-wing craft use GPS for directional info)
 * Current/amperage (for fuel gauge)
 
 ## Notes
@@ -53,133 +53,21 @@
 
 ## Setup
 
-#### In INAV Configurator
+* [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
+* [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
 
-1. Setup SmartPort(S.Port), F.Port or D-series telemetry to send to your transmitter - [INAV telemetry docs](https://github.com/iNavFlight/inav/blob/master/docs/Telemetry.md)
-1. If you have an current sensor, in CLI settings set `battery_capacity` to the mAh you want to draw from your battery
-    * If running INAV v1.9.0+: `set smartport_fuel_unit = PERCENT` in CLI settings
-    * If running INAV previous to v1.9.0: `set smartport_fuel_percent = ON` in CLI settings
+## Information & Settings
 
-#### From Transmitter
-
-1. With battery connected and **after GPS fix** [discover telemetry sensors](https://www.youtube.com/watch?v=n09q26Gh858) so all telemetry sensors are discovered
-1. Telemetry distance sensor name `0420` (or `0007` with D-series receivers) should be changed to `Dist` and set to the desired unit: `m` or `ft`
-1. The sensors `Dist`, `Alt`, `GAlt` and `Gspd` can be changed to the desired unit: `m` or `ft` / `kmh` or `mph`
-1. **Don't** change `Tmp1` or `Tmp2` from Celsius to Fahrenheit! They're not temps (used for flight modes and GPS info)
-
-#### INAV Lua Telemetry Screen Setup
-
-1. Download the latest [LuaTelemetry_v###.zip](https://github.com/iNavFlight/LuaTelemetry/releases/latest) ZIP file (Note: **NOT** the source code)
-1. Copy the contents of the ZIP file (both the `iNav.lua` file and `iNav` folder) to the transmitter's SD card's `\SCRIPTS\TELEMETRY\` folder
-1. In model setup, page to `DISPLAY`, set desired screen to `Script` and select `iNav`
-
-## Usage
-
-#### Screen Description
-
-![sample](assets/iNavKey.png "Screen description")
-![sample](assets/iNavKeyX9D.png "Screen description for X9D")
-
-* From transmitter's main screen, long hold the `Page` button (down d-pad on X-Lite) to show custom screens, short press `Page` to the iNav screen
-* If you get a `Script panic not enough memory` error when starting Lua Telemetry, please see the [Tips](#tips) section
-* Flashing values indicate a warning (for example: no telemetry, battery low, altitude too high)
-* When not armed you can flip between max/min and current values by using the dial or +/- buttons
-* To flip between compass-based direction and launch/pilot-based orientation and location, use the dial
-* The launch/pilot-based orientation view is useful if model orientation is unknown
-* If model is further than 25 feet away, the launch/pilot-based view will show the direction of the model based on launch/pilot position and orientation (useful to locate a lost model)
-* The script gives voice feedback for flight modes, battery levels and warnings (no need to manually set this up)
-* Voice alerts will play in background even if iNav Lua Telemetry screen is not displayed
-
-#### Configuration Settings
-
-Press the `Menu` button (`Shift` on X-Lite) to display the configuration options menu:
-
-* Use the dial or +/- buttons to cycle through the menu or select the desired setting
-* Press Enter/dial to select and deselect a menu option
-* Press `Exit` to deselect a menu option or escape the configuration menu
-
-![sample](assets/iNavConfig.png "Configuration menu")
-
-* **Battery View** - Total battery voltage / Cell voltage average (default: Total)
-* **Battery Alert** - All battery alerts on, off or only critical alerts (default: All)
-* **Cell Low** - Cell voltage for low battery warning (default: 3.5V) [[help](#suggested-battery-settings)]
-* **Cell Critical** - Cell voltage for battery critical warning (default: 3.4V) [[help](#suggested-battery-settings)]
-* **Fuel Unit** - Match to INAV CLI value `smartport_fuel_unit` (default: Percent) [[help](#suggested-battery-settings)]
-* **Fuel Low** - Fuel percentage for low battery warning (default: 30%) [[help](#suggested-battery-settings)]
-* **Fuel Critical** - Fuel percentage for battery critical warning (default: 20%) [[help](#suggested-battery-settings)]
-* **Altitude Alert** - Turn on or off the altitude alert (default: On)
-* **Max Altitude** - Altitude warning starts when over this value (default: 400ft or 120m)
-* **Timer** - Show the automatic flight timer, timer1-3 or turn timer off (default: Auto)
-* **Tx Voltage** - Display transmitter voltage as a graph and/or the numerical value (default: Both or Graph)
-* **Rx Voltage** - Turn on or off the receiver voltage in the title (default: On)
-* **Variometer** - Show if model is gaining or decreasing altitude (default: On)
-* **Voice Alerts** - All voice alerts on, off or only critical alerts (default: All)
-* **Feedback** - Turn beeper and/or haptic feedback for alerts on or off (default: All)
-* **RTH Feedback** - Return to home beeper and haptic feedback on or off (default: On)
-* **HeadFree Fback** - Head free beeper and haptic feedback on or off (default: On)
-* **RSSI Feedback** - RSSI beeper and haptic feedback on or off (default: On)
-* **Speed Sensor** - Speed sensor to use, GPS or (if available) Pitot air speed (default: GPS)
-* **GPS HDOP View** - View the GPS accuracy (HDOP) as a Graph or Decimal (default: Graph)
-* **GPS Warning** - GPS accuracy (HDOP) to trigger warning (default: > 3.5 HDOP [at least 1 bar])
-* **GPS Coords** - GPS coords as decimal, degrees/minutes or geocoding format (default: Decimal)
-* **GPS** - Not a configuration option, shows the last GPS fix coordinates
-
-## Tips
-
-> **Script panic not enough memory error:**
-> Be sure you're following the [INAV Lua Telemetry Screen Setup](#inav-lua-telemetry-screen-setup) instructions.
-> If you're still having memory issues, you can free up memory by deleting unused models, turning off OpenTX firmware build options, and removing other Lua Scripts from screens.
-> Keep in mind that a not enough memory error doesn't indicate a problem with Lua Telemetry. It only indicates that your transmitter is out of memory and therefore can't run Lua Telemetry.
-
-* Between flights (before armed), long-press Enter/dial and select `Reset telemetry` to reset telemetry values
-* If current sensor isn't present or _battery isn't fully charged when plugged in_, fuel gauge will be based on battery voltage
-* If fuel gauge isn't shown or accurate, be sure you've set CLI values `smartport_fuel_unit = percent` and `battery_capacity` correctly. Also, current sensor settings in the configurator need to be calibrated for proper amperage and fuel % data
-* Uses transmitter settings for RSSI warning/critical levels for bar gauge range and audio/haptic warnings
-* Uses transmitter settings for transmitter voltage min/max for battery bar gauge in screen title
-* If you change a telemetry sensor's unit (for example m to ft), power cycle the transmitter to see changes
-* If config option `Battery View` is set to `Total` but average cell voltage is displayed, send INAV CLI command: `set report_cell_voltage = OFF`
-* When GPS accuracy (HDOP) is displayed as a decimal, the range is 0.8 - 5.3 and it's rounded to the nearest 0.5 HDOP.  This is due to HDOP being sent as a single integer from 0 to 9, not as the actual HDOP decimal value.
-
-## Suggested Battery Settings
-
-1. Using a multimeter, calibrate the voltage with the "Voltage Scale" in INAV configurator
-1. If you have a current sensor, make sure you [calibrate it](https://www.youtube.com/watch?v=AWjblvHgjjI)
-
-#### In INAV Configurator
-
-* Voltage source to use for alarms and telemetry: **Raw**
-* Number of cells: **0** (0=auto, set if you always use the same cell count)
-* Maximum cell voltage for cell count detection: **4.3**
-* Minimum cell voltage: **3.4** (match "Cell Critical" in Lua Telemetry)
-* Maximum cell voltage: **4.2**
-* Warning cell voltage: **3.5** (match "Cell Low" in Lua Telemetry)
-* Set capacity in **mAh** to battery capacity
-* Warning capacity: **30%** (match "Fuel Low" in Lua Telemetry)
-* Critical capacity: **10%**
-
-#### In INAV CLI
-
-* `set smartport_fuel_unit = percent`
-
-#### In Lua Telemetry
-
-* Cell Low: **3.5V** (match "Warning cell voltage" in INAV)
-* Cell Critical: **3.4V** (match "Minimum cell voltage" in INAV)
-* Fuel Unit: **Percent**
-* Fuel Low: **30%** (match "Warning capacity" in INAV)
-* Fuel Critical: **20%**
+* [Screen Description](https://github.com/iNavFlight/LuaTelemetry/wiki/Screen-Description)
+* [Configuration Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Configuration-Settings)
+* [Suggested Battery Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Suggested-Battery-Settings)
 
 ## Support
 
-When opening an issue, please use the form outline as a guide for easier reproduction, diagnosis and a faster resolution
+* [Tips & Common Problems](https://github.com/iNavFlight/LuaTelemetry/wiki/Tips-&-Common-Problems)
+* [Support Issues](https://github.com/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
 
-* [All issues](https://github.com/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
-* [Open issues](https://github.com/iNavFlight/LuaTelemetry/issues)
+## Other
 
-## Change Log
-
-* [Release history](CHANGES.md)
-
-## License
-
-* [MIT license](LICENSE)
+* [Change Log - Release History](CHANGES.md)
+* [License](LICENSE)
