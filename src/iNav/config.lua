@@ -62,7 +62,7 @@ for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
 						lcd.drawText(CONFIG_X + 22, y, gpsGeocoding(config[z].l[config[z].v].lat, true) .. " " .. gpsGeocoding(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 					end
 				else
-					--lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
+					lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
 				end
 			end
 		end
