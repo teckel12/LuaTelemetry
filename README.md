@@ -32,7 +32,7 @@
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X-Lite, X9D, X9D+ or X9E
 * FkSky X-series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, D8R-II plus, D8R-XP, D4R-II, etc.
-* [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller
+* [INAV v1.7.3+](/iNavFlight/inav/releases) running on your flight controller
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
 ## Suggested Sensors
@@ -53,19 +53,19 @@
 
 ## Setup
 
-* [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
-* [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
+* [Installation Instructions](/iNavFlight/LuaTelemetry/wiki/Installation)
+* [Upgrade Instructions](/iNavFlight/LuaTelemetry/wiki/Upgrade)
 
 ## Information & Settings
 
-* [Screen Description](https://github.com/iNavFlight/LuaTelemetry/wiki/Screen-Description)
-* [Configuration Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Configuration-Settings)
-* [Suggested Battery Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Suggested-Battery-Settings)
+* [Screen Description](/iNavFlight/LuaTelemetry/wiki/Screen-Description)
+* [Configuration Settings](/iNavFlight/LuaTelemetry/wiki/Configuration-Settings)
+* [Suggested Battery Settings](/iNavFlight/LuaTelemetry/wiki/Suggested-Battery-Settings)
 
 ## Support
 
-* [Tips & Common Problems](https://github.com/iNavFlight/LuaTelemetry/wiki/Tips-&-Common-Problems)
-* [Support Issues](https://github.com/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
+* [Tips & Common Problems](/iNavFlight/LuaTelemetry/wiki/Tips-&-Common-Problems)
+* [Support Issues](/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
 
 ## Other
 

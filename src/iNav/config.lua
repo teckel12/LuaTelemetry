@@ -1,4 +1,4 @@
-local FILE_PATH, LCD_W, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, config, data, event = ...
+local FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, config, data, event = ...
 
 local CONFIG_X = LCD_W < 212 and 6 or 48
 
@@ -26,12 +26,14 @@ for line = 1, data.configCnt do
 	local z = config[line].z
 	config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 end
--- Special disabled option cases
+-- Special disabled option and limit cases
 config[7].p = data.accZ_id == -1 and 1 or nil
 if config[17].p == nil then
-  config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
-  config[18].p = config[17].p
+	config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
+	config[18].p = config[17].p
 end
+config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
+config[19].v = math.min(config[19].x, config[19].v)
 config[24].p = config[7].v < 3 and 1 or nil
 config[20].p = not data.pitot and 1 or nil
 for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
@@ -40,10 +42,6 @@ for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
 	local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
 	if not data.showCurr and z >= 17 and z <= 18 then
 		config[z].p = 1
-	end
-	if z == 19 then
-		config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
-		config[19].v = math.min(config[19].x, config[19].v)
 	end
 	lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
 	if config[z].p == nil then

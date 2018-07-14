@@ -1,12 +1,13 @@
 # Release History
 
-## v1.3.2 - 07/13/2018
+## v1.3.2 - 07/14/2018
 
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
 * You can customize when weak GPS fix accuracy (HDOP) triggers alert
 * Allows speed sensor selection between GPS speed or pitot sensor's air speed (if available)
 * GPS coordinates and altitude are displayed before launch even if there's no GPS fix
 * Fuel can report mAh or mWh used instead of percent fuel remaining (percent highly suggested for fuel level alerts)
+* Variometer config options adds beeping or voice alerts for altitude changes
 * The config menu loads as a separate script to reduce memory
 * Dotted lines are now grey on X9D display
 * Transmitter voltage options are specific to transmitter's display size and if Rx voltage is displayed
