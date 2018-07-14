@@ -314,8 +314,8 @@ local function flightModes()
 				playTone(2000 * math.min(math.max(data.accZ, 0.5), 1.5), 50, 1000 - (tmp * 900), PLAY_BACKGROUND)
 			end
 		elseif config[7].v == 3 then -- Vario voice
-			local tmp = math.floor((data.altitude + 0.5 + config[24].l[config[24].v] / 2) / config[24].l[config[24].v]) * config[24].l[config[24].v]
-			if tmp ~= data.altLastAlt and data.altitude >= config[24].l[config[24].v] / 2 and getTime() > data.altNextPlay then
+			local tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
+			if tmp ~= data.altLastAlt and tmp > 0 and getTime() > data.altNextPlay then
 				playNumber(tmp, data.altitude_unit)
 				data.altLastAlt = tmp
 				data.altNextPlay = getTime() + 1000
