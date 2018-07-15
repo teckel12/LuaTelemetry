@@ -21,10 +21,10 @@ local modes = {
 	{ t = "  READY",   f = 0, w = "ready" },
 	{ t = "POS HOLD",  f = 0, w = "poshld" },
 	{ t = "3D HOLD",   f = 0, w = "3dhold" },
-	{ t = "WAYPOINT",  f = 0, w = "waypt" },
+	{ t = "WAYPONT",   f = 0, w = "waypt" },
 	{ t = " MANUAL",   f = 0, w = "manmd" },
 	{ t = "   RTH   ", f = FLASH, w = "rtl" },
-	{ t = "FAILSAFE",  f = FLASH, w = "fson" },
+	{ t = "! FAIL !",  f = FLASH, w = "fson" },
 	{ t = "! THROT !", f = FLASH }
 }
 
@@ -427,10 +427,12 @@ local function background()
 		data.txBatt = getValue(data.txBatt_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
-		data.gpsFix = data.satellites > 1000 and type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0
-		if data.gpsFix then
+		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
 			data.gpsLatLon = gpsTemp
-			config[15].l[0] = gpsTemp
+			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
+				data.gpsFix = true
+				config[15].l[0] = gpsTemp
+			end
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
 		if data.distance_unit == 10 then
@@ -517,7 +519,7 @@ local function run(event)
 	-- GPS
 	local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
 	local tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
-	lcd.drawText(tmp, 17, (data.gpsFix and math.floor(data.gpsAlt + 0.5) or "0") .. units[data.gpsAlt_unit], gpsFlags)
+	lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	if config[16].v == 0 then
 		lcd.drawText(tmp, 25, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat), gpsFlags)
 		lcd.drawText(tmp, 33, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon), gpsFlags)
