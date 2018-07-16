@@ -20,7 +20,7 @@ local modes = {
 	{ t = " NOT OK ",  f = FLASH },
 	{ t = "  READY",   f = 0, w = "ready" },
 	{ t = "POS HOLD",  f = 0, w = "poshld" },
-	{ t = "3D HOLD",   f = 0, w = "3dhold" },
+	{ },
 	{ t = "WAYPONT",   f = 0, w = "waypt" },
 	{ t = " MANUAL",   f = 0, w = "manmd" },
 	{ t = "   RTH   ", f = FLASH, w = "rtl" },
@@ -136,7 +136,7 @@ local config = {
 	{ o = 22, t = "GPS Warning     >", c = 2, v = 3.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
 	{ o = 21, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
-	{ o = 14, t = "Vario Steps",    c = 1, v = 3, m = 1, x = 10, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}, a = units[data.altitude_unit] },
+	{ o = 14, t = "Vario Steps",    c = 1, v = 3, m = 1, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}, a = units[data.altitude_unit] },
 }
 data.configCnt = 24
 for i = 1, data.configCnt do
@@ -221,11 +221,13 @@ local function flightModes()
 			end
 			data.headFree = bit32.band(modeB, 4) == 4 and true or false
 			data.headingHold = bit32.band(modeC, 1) == 1 and true or false
-			data.altHold = bit32.band(modeC, 2) == 2 and true or false
+			--data.altHold = bit32.band(modeC, 2) == 2 and true or false
+			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
 			homeReset = data.satellites >= 4000 and true or false
-			if bit32.band(modeC, 4) == 4 then
-				data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold(8) else pos hold(7)
-			end
+			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold(7)
+			--if bit32.band(modeC, 4) == 4 then
+			--	data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold(8) else pos hold(7)
+			--end
 		else
 			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 13 or 5) or 6 -- Not OK to arm(5) / Throttle warning(13) / Ready to fly(6)
 		end
