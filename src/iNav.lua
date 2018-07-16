@@ -127,7 +127,7 @@ local config = {
 	{ o = 10, t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
 	{ o = 12, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 24, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = data.emptyGPS} },
-	{ o = 23, t = "GPS Coords",     c = 1, v = 0, x = 2, i = 1, l = {[0] = "Decimal", "Deg/Min", "Geocode"} },
+	{ o = 23, t = "GPS Coords",     c = 1, v = 0, i = 1, l = {[0] = "Decimal", "Deg/Min"} },
 	{ o = 7,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
 	{ o = 6,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
 	{ o = 11, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
@@ -384,11 +384,6 @@ local function gpsDegMin(coord, lat)
 	return gpsD .. string.format("\64%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
 end
 
-local function gpsGeocoding(coord, lat)
-	local gpsD = math.floor(math.abs(coord))
-	return (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W")) .. gpsD .. string.format("\64%05.2f", (math.abs(coord) - gpsD) * 60)
-end
-
 local function background()
 	data.rssi = getValue(data.rssi_id)
 	if data.telemFlags == -1 then
@@ -518,13 +513,8 @@ local function run(event)
 	local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
 	local tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
 	lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
-	if config[16].v == 0 then
-		lcd.drawText(tmp, 25, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat), gpsFlags)
-		lcd.drawText(tmp, 33, string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon), gpsFlags)
-	else
-		lcd.drawText(tmp, 25, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lat, true) or gpsGeocoding(data.gpsLatLon.lat, true), gpsFlags)
-		lcd.drawText(tmp, 33, config[16].v == 1 and gpsDegMin(data.gpsLatLon.lon, false) or gpsGeocoding(data.gpsLatLon.lon, false), gpsFlags)
-	end
+	lcd.drawText(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+	lcd.drawText(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry
 	if config[22].v == 0 then
 		if tmp then
@@ -692,7 +682,7 @@ local function run(event)
 	end
 	if data.configStatus > 0 then
 		-- Load config menu
-		loadScript(FILE_PATH .. "config.luac", "bT")(FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, config, data, event)
+		loadScript(FILE_PATH .. "config.luac", "bT")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	end
 
 	return 0

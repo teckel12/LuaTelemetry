@@ -1,4 +1,4 @@
-local FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR, gpsDegMin, gpsGeocoding, config, data, event = ...
+local data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR = ...
 
 local CONFIG_X = LCD_W < 212 and 6 or 48
 
@@ -52,13 +52,7 @@ for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
 				lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
 			else
 				if z == 15 then
-					if config[16].v == 0 then
-						lcd.drawText(CONFIG_X + 22, y, string.format("%9.5f %10.5f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon), SMLSIZE + tmp)
-					elseif config[16].v == 1 then
-						lcd.drawText(CONFIG_X + 22, y, gpsDegMin(config[z].l[config[z].v].lat, true) .. " " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
-					else
-						lcd.drawText(CONFIG_X + 22, y, gpsGeocoding(config[z].l[config[z].v].lat, true) .. " " .. gpsGeocoding(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
-					end
+					lcd.drawText(CONFIG_X + 22, y, config[16].v == 0 and string.format("%9.5f %10.5f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or gpsDegMin(config[z].l[config[z].v].lat, true) .. " " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 				else
 					lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
 				end
