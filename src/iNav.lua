@@ -20,7 +20,6 @@ local modes = {
 	{ t = " NOT OK ",  f = FLASH },
 	{ t = "  READY",   f = 0, w = "ready" },
 	{ t = "POS HOLD",  f = 0, w = "poshld" },
-	{ },
 	{ t = "WAYPONT",   f = 0, w = "waypt" },
 	{ t = " MANUAL",   f = 0, w = "manmd" },
 	{ t = "   RTH   ", f = FLASH, w = "rtl" },
@@ -224,7 +223,7 @@ local function flightModes()
 			--data.altHold = bit32.band(modeC, 2) == 2 and true or false
 			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
 			homeReset = data.satellites >= 4000 and true or false
-			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold(7)
+			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold
 			--if bit32.band(modeC, 4) == 4 then
 			--	data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold(8) else pos hold(7)
 			--end
@@ -232,13 +231,13 @@ local function flightModes()
 			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 13 or 5) or 6 -- Not OK to arm(5) / Throttle warning(13) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
-			data.modeId = 12 -- Failsafe
+			data.modeId = 11 -- Failsafe
 		elseif bit32.band(modeB, 1) == 1 then
-			data.modeId = 11 -- RTH
+			data.modeId = 10 -- RTH
 		elseif bit32.band(modeD, 4) == 4 then
-			data.modeId = 10 -- Passthru
+			data.modeId = 9 -- Passthru
 		elseif bit32.band(modeB, 2) == 2 then
-			data.modeId = 9 -- Waypoint
+			data.modeId = 8 -- Waypoint
 		end
 	end
 	
@@ -285,7 +284,7 @@ local function flightModes()
 		elseif config[13].v > 1 then
 			data.timer = model.getTimer(config[13].v - 2)["value"]
 		end
-		if data.altHold ~= altHoldPrev and data.modeId ~= 8 then -- Alt hold status change
+		if data.altHold ~= altHoldPrev and data.modeId ~= 7 then -- Alt hold status change
 			playAudio("althld")
 			playAudio(data.altHold and "active" or "off")
 		end
@@ -356,7 +355,7 @@ local function flightModes()
 			data.battNextPlay = 0
 		end
 		if (data.headFree and config[9].v == 1) or modes[data.modeId].f ~= 0 then
-			if data.modeId ~= 11 or (data.modeId == 11 and config[8].v == 1) then
+			if data.modeId ~= 10 or (data.modeId == 10 and config[8].v == 1) then
 				beep = true
 				vibrate = true
 			end
@@ -406,7 +405,7 @@ local function background()
 		data.gpsAlt = getValue(data.gpsAlt_id)
 		data.heading = getValue(data.heading_id)
 		data.altitude = getValue(data.altitude_id)
-		if data.altitude_id == -1 and data.gpsAltBase and data.gpsFix then
+		if data.altitude_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 			data.altitude = data.gpsAlt - data.gpsAltBase
 		end
 		data.distance = getValue(data.distance_id)
