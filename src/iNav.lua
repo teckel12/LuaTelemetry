@@ -224,9 +224,6 @@ local function flightModes()
 			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
 			homeReset = data.satellites >= 4000 and true or false
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold
-			--if bit32.band(modeC, 4) == 4 then
-			--	data.modeId = data.altHold and 8 or 7 -- If also alt hold 3D hold(8) else pos hold(7)
-			--end
 		else
 			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 13 or 5) or 6 -- Not OK to arm(5) / Throttle warning(13) / Ready to fly(6)
 		end
@@ -284,7 +281,7 @@ local function flightModes()
 		elseif config[13].v > 1 then
 			data.timer = model.getTimer(config[13].v - 2)["value"]
 		end
-		if data.altHold ~= altHoldPrev and data.modeId ~= 7 then -- Alt hold status change
+		if data.altHold ~= altHoldPrev then -- Alt hold status change
 			playAudio("althld")
 			playAudio(data.altHold and "active" or "off")
 		end
