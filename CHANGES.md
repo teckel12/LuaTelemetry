@@ -1,6 +1,6 @@
 # Release History
 
-## v1.3.2 - 07/17/2018
+## v1.4.0 - 07/17/2018
 
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
 * You can customize when weak GPS fix accuracy (HDOP) triggers alert
