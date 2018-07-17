@@ -74,10 +74,11 @@ local data = {
 	fuel_id = getTelemetryId("Fuel"),
 	rssi_id = getTelemetryId("RSSI"),
 	rssiMin_id = getTelemetryId("RSSI-"),
-	accZ_id = getTelemetryId("AccZ"),
+	vspeed_id = getTelemetryId("VSpd"),
 	txBatt_id = getTelemetryId("tx-voltage"),
 	gpsAlt_unit = getTelemetryUnit("GAlt"),
 	altitude_unit = getTelemetryUnit("Alt"),
+	vspeed_unit = getTelemetryUnit("VSpd"),
 	distance_unit = getTelemetryUnit(distanceSensor),
 	throttle_id = getTelemetryId("thr"),
 	homeResetPrev = false,
@@ -175,7 +176,6 @@ if fh ~= nil then
 	end
 	io.close(fh)
 end
-config[7].v = data.accZ_id > -1 and config[7].v or 0
 config[15].v = 0
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
@@ -411,7 +411,7 @@ local function background()
 		data.cell = data.batt / data.cells
 		data.cellMin = data.battMin / data.cells
 		data.rssiMin = getValue(data.rssiMin_id)
-		data.accZ = getValue(data.accZ_id)
+		data.vspeed = getValue(data.vspeed_id)
 		data.txBatt = getValue(data.txBatt_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
@@ -631,14 +631,15 @@ local function run(event)
 
 	-- Variometer
 	if config[7].v == 1 and data.startup == 0 then
+		local varioSpeed = math.log(1 + math.min(math.abs(0.1 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 		if SMLCD and data.armed and not data.showDir then
 			lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 19, 21, SOLID, FORCE)
-			lcd.drawLine(X_CNTR_2 + 18, 21, X_CNTR_2 + 18, 21 - math.max(math.min(data.accZ - 1, 1), -1) * 12, SOLID, FORCE)
+			lcd.drawLine(X_CNTR_2 + 18, 21, X_CNTR_2 + 18, 21 - (varioSpeed * 12 - 0.5), SOLID, FORCE)
 		elseif not SMLCD then
 			lcd.drawRectangle(197, 9, 7, 48, SOLID)
 			lcd.drawText(198, 58, "V", SMLSIZE)
 			if data.armed then
-				local tmp = 33 - math.floor(math.max(math.min(data.accZ - 1, 1), -1) * 23 - 0.5)
+				local tmp = 33 - math.floor(varioSpeed * 23 - 0.5)
 				if tmp > 33 then
 					lcd.drawFilledRectangle(198, 33, 5, tmp - 33, INVERS)
 				else
