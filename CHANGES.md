@@ -7,7 +7,7 @@
 * Allows speed sensor selection between GPS speed or pitot sensor's air speed (if available)
 * GPS coordinates and altitude are displayed before launch even if there's no GPS fix
 * Fuel can report mAh or mWh used instead of percent fuel remaining (percent highly suggested for fuel level alerts)
-* Config option under Variometer for altitude change voice alerts
+* Config option under Variometer to report altitude as voice notifications
 * Variometer graph now correctly uses vertical speed as source instead of Z-axis accelerometer
 * The config menu loads as a separate script to reduce memory
 * Dotted lines are now grey on X9D display
