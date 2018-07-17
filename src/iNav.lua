@@ -2,7 +2,7 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.3.2"
+local VERSION = "1.4.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
@@ -222,7 +222,6 @@ local function flightModes()
 			end
 			data.headFree = bit32.band(modeB, 4) == 4 and true or false
 			data.headingHold = bit32.band(modeC, 1) == 1 and true or false
-			--data.altHold = bit32.band(modeC, 2) == 2 and true or false
 			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
 			homeReset = data.satellites >= 4000 and true or false
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold
@@ -391,7 +390,7 @@ local function background()
 		data.mode = getValue(data.mode_id)
 		data.rxBatt = getValue(data.rxBatt_id)
 		data.satellites = getValue(data.satellites_id)
-		data.gpsAlt = getValue(data.gpsAlt_id)
+		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
 		data.heading = getValue(data.heading_id)
 		data.altitude = getValue(data.altitude_id)
 		if data.altitude_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
