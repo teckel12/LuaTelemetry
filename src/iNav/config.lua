@@ -34,7 +34,7 @@ if config[17].p == nil then
 end
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
-config[24].p = config[7].v < 3 and 1 or nil
+config[24].p = config[7].v < 2 and 1 or nil
 config[20].p = not data.pitot and 1 or nil
 for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
 	local y = (line - data.configTop) * 8 + 10 + 3

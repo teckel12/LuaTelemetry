@@ -118,7 +118,7 @@ local config = {
 	{ o = 15, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
 	{ o = 16, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "All"} },
 	{ o = 9,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x = 9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 8 },
-	{ o = 13, t = "Variometer",     c = 1, v = 0, i = 1, x = 3, l = {[0] = "Off", "Display", "Beeper", "Voice"} },
+	{ o = 13, t = "Variometer",     c = 1, v = 0, i = 1, x = 2, l = {[0] = "Off", "Display", "Voice"} },
 	{ o = 17, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
 	{ o = 18, t = "HeadFree Fback", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
 	{ o = 19, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
@@ -170,7 +170,7 @@ if fh ~= nil then
 	for line = 1, data.configCnt do
 		local tmp = io.read(fh, config[line].c)
 		if tmp ~= "" then
-			config[line].v = config[line].d == nil and tonumber(tmp) or tmp / 10
+			config[line].v = config[line].d == nil and math.min(tonumber(tmp), config[line].x == nil and 1 or config[line].x) or tmp / 10
 		end
 	end
 	io.close(fh)
@@ -306,12 +306,7 @@ local function flightModes()
 			else
 				beep = true
 			end
-		elseif config[7].v == 2 then -- Vario beeper
-			local tmp = math.abs(math.max(math.min(data.accZ - 1, 1), -1))
-			if tmp > 0.05 then
-				playTone(2000 * math.min(math.max(data.accZ, 0.5), 1.5), 50, 1000 - (tmp * 900), PLAY_BACKGROUND)
-			end
-		elseif config[7].v == 3 then -- Vario voice
+		elseif config[7].v == 2 then -- Vario voice
 			local tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
 			if tmp ~= data.altLastAlt and tmp > 0 and getTime() > data.altNextPlay then
 				playNumber(tmp, data.altitude_unit)
