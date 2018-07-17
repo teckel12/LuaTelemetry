@@ -185,6 +185,8 @@ data.speed_id = getTelemetryId(tmp)
 data.speedMax_id = getTelemetryId(tmp .. "+")
 data.speed_unit = getTelemetryUnit(tmp)
 
+collectgarbage()
+
 local function playAudio(file, alert)
 	if config[4].v == 2 or (config[4].v == 1 and alert ~= nil) then
 		playFile(FILE_PATH .. file .. ".wav")
@@ -439,7 +441,7 @@ local function background()
 
 	flightModes()
 
-	if data.armed and data.gpsFix and data.gpsHome == false then
+	if data.armed and data.gpsFix and data.satellites > 3000 and data.gpsHome == false then
 		data.gpsHome = data.gpsLatLon
 	end
 end
@@ -680,7 +682,7 @@ local function run(event)
 		-- Load config menu
 		loadScript(FILE_PATH .. "config.luac", "bT")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	end
-
+	
 	return 0
 end
 

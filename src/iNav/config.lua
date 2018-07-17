@@ -115,4 +115,6 @@ if event == EVT_ENTER_BREAK then
 	data.configSelect = (data.configSelect == 0) and BLINK or 0
 end
 
+collectgarbage()
+
 return 0
