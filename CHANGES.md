@@ -1,6 +1,6 @@
 # Release History
 
-## v1.4.0 - 07/17/2018
+## v1.4.0 - 07/18/2018
 
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
 * You can customize when weak GPS fix accuracy (HDOP) triggers alert
@@ -9,7 +9,7 @@
 * Fuel can report mAh or mWh used instead of percent fuel remaining (percent highly suggested for fuel level alerts)
 * Config option under Variometer to report altitude as voice notifications
 * Variometer graph now correctly uses vertical speed as source instead of Z-axis accelerometer
-* Preliminary alternate pilot view added (not complete, but should be by release)
+* Preliminary alternate pilot view mode added (not complete, but should be by release)
 * The config menu and views loads as separate scripts, greatly reducing memory used
 * Dotted lines are now grey on X9D display
 * Transmitter voltage options are specific to transmitter's display size and if Rx voltage is displayed

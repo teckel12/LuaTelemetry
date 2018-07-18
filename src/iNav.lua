@@ -6,6 +6,7 @@ local VERSION = "1.4.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
+local startupTime, frames
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -41,7 +42,7 @@ local tx = string.sub(radio, 0, 2)
 local tmp = tx == "x9" and EVT_PLUS_BREAK or (tx == "xl" and EVT_UP_BREAK)
 local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
 local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
-local tmp = tx == "x9" and EVT_MINUS_BREAK or (tx == "xl" and EVT_DOWN_BREAK)
+tmp = tx == "x9" and EVT_MINUS_BREAK or (tx == "xl" and EVT_DOWN_BREAK)
 local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
 local DECR = tx == "x7" and EVT_ROT_LEFT or tmp
 local MENU = tx == "xl" and EVT_SHIFT_BREAK or EVT_MENU_BREAK
@@ -136,7 +137,7 @@ local config = {
 	{ o = 22, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 	{ o = 14, t = "Vario Steps",    c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}, a = units[data.altitude_unit] },
-	{ o = 21, t = "View",           c = 1, v = 0, i = 1, l = {[0] = "Classic", "Pilot"} },
+	{ o = 21, t = "View Mode",      c = 1, v = 0, i = 1, l = {[0] = "Classic", "Pilot"} },
 }
 data.configCnt = 25
 for i = 1, data.configCnt do
@@ -163,13 +164,15 @@ local function reset()
 	data.cells = 1
 	data.gpsAltBase = false
 	data.configStatus = 0
+	startupTime = 0
+	frames = 0
 end
 
 -- Load config data
 local fh = io.open(FILE_PATH .. "config.dat", "r")
 if fh ~= nil then
 	for line = 1, data.configCnt do
-		local tmp = io.read(fh, config[line].c)
+		tmp = io.read(fh, config[line].c)
 		if tmp ~= "" then
 			config[line].v = config[line].d == nil and math.min(tonumber(tmp), config[line].x == nil and 1 or config[line].x) or tmp / 10
 		end
@@ -180,7 +183,7 @@ config[15].v = 0
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
 config[20].v = data.pitot and config[20].v or 0
-local tmp = config[20].v == 0 and "GSpd" or "ASpd"
+tmp = config[20].v == 0 and "GSpd" or "ASpd"
 data.speed_id = getTelemetryId(tmp)
 data.speedMax_id = getTelemetryId(tmp .. "+")
 data.speed_unit = getTelemetryUnit(tmp)
@@ -308,7 +311,7 @@ local function flightModes()
 				beep = true
 			end
 		elseif config[7].v == 2 then -- Vario voice
-			local tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
+			tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
 			if tmp ~= data.altLastAlt and tmp > 0 and getTime() > data.altNextPlay then
 				playNumber(tmp, data.altitude_unit)
 				data.altLastAlt = tmp
@@ -464,7 +467,6 @@ local function run(event)
 	elseif data.startup == 2 and getTime() - startupTime >= 200 then
 		data.startup = 0
 	end
-	local startupTime = 0
 
 	-- Title
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
@@ -475,7 +477,7 @@ local function run(event)
 	if config[19].v > 0 then
 		lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
 		lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
-		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
+		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
 		for i = 87, tmp, 2 do
 			lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
 		end
@@ -497,12 +499,27 @@ local function run(event)
 	if data.configStatus > 0 then
 		loadScript(FILE_PATH .. "config.luac", "bT")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	else
+		-- User input
+		if not data.armed and data.configStatus == 0 then
+			-- Toggle showing max/min values
+			if event == PREV or event == NEXT then
+				data.showMax = not data.showMax
+			end
+			-- Initalize variables on long <Enter>
+			if event == EVT_ENTER_LONG then
+				reset()
+			end
+		end
+		-- View modes
 		if config[25].v == 1 then
-			loadScript(FILE_PATH .. "pilot.luac", "bT")(data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+			loadScript(FILE_PATH .. "pilot.luac", "bT")(data, config, modes, units, event, reset, gpsDegMin, VERSION, SMLCD, FLASH)
 		else
-			loadScript(FILE_PATH .. "view.luac", "bT")(data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+			loadScript(FILE_PATH .. "view.luac", "bT")(data, config, modes, units, event, reset, gpsDegMin, VERSION, SMLCD, FLASH, PREV, NEXT)
 		end
 	end
+
+	--frames = frames + 1
+	--lcd.drawText(48, 9, string.format("%.1f", (getTime() - startupTime) / frames), SMLSIZE + INVERS)
 	
 	return 0
 end

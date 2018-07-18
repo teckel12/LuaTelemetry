@@ -1,13 +1,8 @@
-local data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR = ...
+local data, config, modes, units, event, reset, gpsDegMin, VERSION, SMLCD, FLASH = ...
 
 local RIGHT_POS = LCD_W - 20
 local X_CNTR = RIGHT_POS / 2
 local PIXEL_DEG = (RIGHT_POS - 14) / 180
-
-local function getTelemetryId(name)
-	local field = getFieldInfo(name)
-	return field and field.id or -1
-end
 
 -- Startup message
 if data.startup == 2 then

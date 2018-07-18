@@ -1,4 +1,4 @@
-local data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR = ...
+local data, config, modes, units, event, reset, gpsDegMin, VERSION, SMLCD, FLASH, PREV, NEXT = ...
 
 local RIGHT_POS = SMLCD and 129 or 195
 local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -119,18 +119,6 @@ end
 lcd.drawText((SMLCD and 46 or 83) + (modes[data.modeId].f == FLASH and 1 or 0), 33, modes[data.modeId].t, (SMLCD and SMLSIZE or 0) + modes[data.modeId].f)
 if data.headFree then
 	lcd.drawText(RIGHT_POS - 41, 9, "HF", FLASH + SMLSIZE)
-end
-
--- User input
-if not data.armed and data.configStatus == 0 then
-	-- Toggle showing max/min values
-	if event == PREV or event == NEXT then
-		data.showMax = not data.showMax
-	end
-	-- Initalize variables on long <Enter>
-	if event == EVT_ENTER_LONG then
-		reset()
-	end
 end
 
 -- Data & gauges
