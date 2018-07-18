@@ -6,7 +6,6 @@ local VERSION = "1.4.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
-local ALT_DISPLAY = true
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -73,6 +72,9 @@ local data = {
 	rssiMin_id = getTelemetryId("RSSI-"),
 	vspeed_id = getTelemetryId("VSpd"),
 	txBatt_id = getTelemetryId("tx-voltage"),
+	accx_id = getTelemetryId("AccX"),
+	accy_id = getTelemetryId("AccY"),
+	accz_id = getTelemetryId("AccZ"),
 	gpsAlt_unit = getTelemetryUnit("GAlt"),
 	altitude_unit = getTelemetryUnit("Alt"),
 	vspeed_unit = getTelemetryUnit("VSpd"),
@@ -124,18 +126,19 @@ local config = {
 	{ o = 8,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 10, t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
 	{ o = 12, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 24, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = data.emptyGPS} },
-	{ o = 23, t = "GPS Coords",     c = 1, v = 0, i = 1, l = {[0] = "Decimal", "Deg/Min"} },
+	{ o = 25, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = data.emptyGPS} },
+	{ o = 24, t = "GPS Coords",     c = 1, v = 0, i = 1, l = {[0] = "Decimal", "Deg/Min"} },
 	{ o = 7,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
 	{ o = 6,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
 	{ o = 11, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
 	{ o = 20, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
-	{ o = 22, t = "GPS Warning     >", c = 2, v = 3.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
-	{ o = 21, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
+	{ o = 23, t = "GPS Warning     >", c = 2, v = 3.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
+	{ o = 22, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 	{ o = 14, t = "Vario Steps",    c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}, a = units[data.altitude_unit] },
+	{ o = 21, t = "View",           c = 1, v = 0, i = 1, l = {[0] = "Classic", "Pilot"} },
 }
-data.configCnt = 24
+data.configCnt = 25
 for i = 1, data.configCnt do
 	for ii = 1, data.configCnt do
 		if i == config[ii].o then
@@ -411,6 +414,11 @@ local function background()
 		data.rssiMin = getValue(data.rssiMin_id)
 		data.vspeed = getValue(data.vspeed_id)
 		data.txBatt = getValue(data.txBatt_id)
+		if config[25].v == 1 then
+			data.accx = getValue(data.accx_id)
+			data.accy = getValue(data.accy_id)
+			data.accz = getValue(data.accz_id)
+		end
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
@@ -455,15 +463,8 @@ local function run(event)
 	if data.startup == 1 then
 		startupTime = getTime()
 		data.startup = 2
-	elseif data.startup == 2 then
-		if getTime() - startupTime < 200 then
-			if not SMLCD then
-				lcd.drawText(53, 9, "INAV Lua Telemetry")
-			end
-			lcd.drawText(SMLCD and 51 or 91, 17, "v" .. VERSION)
-		else
-			data.startup = 0
-		end
+	elseif data.startup == 2 and getTime() - startupTime >= 200 then
+		data.startup = 0
 	end
 	local startupTime = 0
 
@@ -498,10 +499,10 @@ local function run(event)
 	if data.configStatus > 0 then
 		loadScript(FILE_PATH .. "config.luac", "bT")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	else
-		if ALT_DISPLAY then
-			loadScript(FILE_PATH .. "pilot.luac", "t")(data, config, modes, units, event, gpsDegMin, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+		if config[25].v == 1 then
+			loadScript(FILE_PATH .. "pilot.luac", "t")(data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 		else
-			loadScript(FILE_PATH .. "view.luac", "t")(data, config, modes, units, event, gpsDegMin, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+			loadScript(FILE_PATH .. "view.luac", "t")(data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 		end
 	end
 	

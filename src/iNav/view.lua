@@ -1,4 +1,4 @@
-local data, config, modes, units, event, gpsDegMin, SMLCD, FLASH, PREV, INCR, NEXT, DECR = ...
+local data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR = ...
 
 local RIGHT_POS = SMLCD and 129 or 195
 local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -40,6 +40,14 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
 	end
 end
 
+-- Startup message
+if data.startup == 2 then
+	if not SMLCD then
+		lcd.drawText(53, 9, "INAV Lua Telemetry")
+	end
+	lcd.drawText(SMLCD and 51 or 91, 17, "v" .. VERSION)
+end
+
 -- GPS
 local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
 local tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
@@ -66,7 +74,7 @@ lcd.drawPoint(RIGHT_POS - 15, 14)
 lcd.drawText(RIGHT_POS - (data.telemFlags == 0 and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 -- Directionals
-if data.showHead and data.startup == 0 and data.configStatus == 0 then
+if data.showHead and data.startup == 0 then
 	if event == NEXT or event == PREV then
 		data.showDir = not data.showDir
 	end
