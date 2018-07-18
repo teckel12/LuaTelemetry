@@ -8,24 +8,6 @@ local FLASH = 3
 local SMLCD = LCD_W < 212
 local startupTime, frames
 
--- Modes: t=text / f=flags for text / w=wave file
-local modes = {
-	{ t = "! TELEM !", f = FLASH },
-	{ t = "HORIZON",   f = 0, w = "hrznmd" },
-	{ t = "  ANGLE",   f = 0, w = "anglmd" },
-	{ t = "   ACRO",   f = 0, w = "acromd" },
-	{ t = " NOT OK ",  f = FLASH },
-	{ t = "  READY",   f = 0, w = "ready" },
-	{ t = "POS HOLD",  f = 0, w = "poshld" },
-	{ t = "WAYPONT",   f = 0, w = "waypt" },
-	{ t = " MANUAL",   f = 0, w = "manmd" },
-	{ t = "   RTH   ", f = FLASH, w = "rtl" },
-	{ t = "! FAIL !",  f = FLASH, w = "fson" },
-	{ t = "! THROT !", f = FLASH }
-}
-
-local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
-
 local function getTelemetryId(name)
 	local field = getFieldInfo(name)
 	return field and field.id or -1
@@ -111,6 +93,24 @@ data.distance_unit = data.distance_unit == 0 and 9 or data.distance_unit
 data.systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false
 data.emptyGPS = { lat = 0, lon = 0 }
 
+-- Modes: t=text / f=flags for text / w=wave file
+local modes = {
+	{ t = "! TELEM !", f = FLASH },
+	{ t = "HORIZON",   f = 0, w = "hrznmd" },
+	{ t = "  ANGLE",   f = 0, w = "anglmd" },
+	{ t = "   ACRO",   f = 0, w = "acromd" },
+	{ t = " NOT OK ",  f = FLASH },
+	{ t = "  READY",   f = 0, w = "ready" },
+	{ t = "POS HOLD",  f = 0, w = "poshld" },
+	{ t = "WAYPONT",   f = 0, w = "waypt" },
+	{ t = " MANUAL",   f = 0, w = "manmd" },
+	{ t = "   RTH   ", f = FLASH, w = "rtl" },
+	{ t = "! FAIL !",  f = FLASH, w = "fson" },
+	{ t = "! THROT !", f = FLASH }
+}
+
+local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
+
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
 	{ o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
@@ -149,25 +149,6 @@ for i = 1, data.configCnt do
 	end
 end
 
-local function reset()
-	data.startup = 1
-	data.timerStart = 0
-	data.timer = 0
-	data.distanceLast = 0
-	data.gpsHome = false
-	data.gpsLatLon = data.emptyGPS
-	data.gpsFix = false
-	data.headingRef = -1
-	data.battLow = false
-	data.showMax = false
-	data.showDir = true
-	data.cells = 1
-	data.gpsAltBase = false
-	data.configStatus = 0
-	startupTime = 0
-	frames = 0
-end
-
 -- Load config data
 local fh = io.open(FILE_PATH .. "config.dat", "r")
 if fh ~= nil then
@@ -190,10 +171,34 @@ data.speed_unit = getTelemetryUnit(tmp)
 
 collectgarbage()
 
+local function reset()
+	data.startup = 1
+	data.timerStart = 0
+	data.timer = 0
+	data.distanceLast = 0
+	data.gpsHome = false
+	data.gpsLatLon = data.emptyGPS
+	data.gpsFix = false
+	data.headingRef = -1
+	data.battLow = false
+	data.showMax = false
+	data.showDir = true
+	data.cells = 1
+	data.gpsAltBase = false
+	data.configStatus = 0
+	startupTime = 0
+	frames = 0
+end
+
 local function playAudio(file, alert)
 	if config[4].v == 2 or (config[4].v == 1 and alert ~= nil) then
 		playFile(FILE_PATH .. file .. ".wav")
 	end
+end
+
+local function gpsDegMin(coord, lat)
+	local gpsD = math.floor(math.abs(coord))
+	return gpsD .. string.format("\64%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
 end
 
 local function flightModes()
@@ -378,11 +383,6 @@ local function flightModes()
 	data.homeResetPrev = homeReset
 end
 
-local function gpsDegMin(coord, lat)
-	local gpsD = math.floor(math.abs(coord))
-	return gpsD .. string.format("\64%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
-end
-
 local function background()
 	data.rssi = getValue(data.rssi_id)
 	if data.telemFlags == -1 then
@@ -510,11 +510,14 @@ local function run(event)
 				reset()
 			end
 		end
-		-- View modes
+		if event == NEXT or event == PREV then
+			data.showDir = not data.showDir
+		end
+			-- View modes
 		if config[25].v == 1 then
-			loadScript(FILE_PATH .. "pilot.luac", "bT")(data, config, modes, units, event, reset, gpsDegMin, VERSION, SMLCD, FLASH)
+			loadScript(FILE_PATH .. "pilot.luac", "bT")(data, config, modes, units, gpsDegMin, VERSION, SMLCD, FLASH)
 		else
-			loadScript(FILE_PATH .. "view.luac", "bT")(data, config, modes, units, event, reset, gpsDegMin, VERSION, SMLCD, FLASH, PREV, NEXT)
+			loadScript(FILE_PATH .. "view.luac", "bT")(data, config, modes, units, gpsDegMin, VERSION, SMLCD, FLASH)
 		end
 	end
 
