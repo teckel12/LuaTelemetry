@@ -226,7 +226,7 @@ local function flightModes()
 			homeReset = data.satellites >= 4000 and true or false
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold
 		else
-			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 13 or 5) or 6 -- Not OK to arm(5) / Throttle warning(13) / Ready to fly(6)
+			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
 			data.modeId = 11 -- Failsafe
