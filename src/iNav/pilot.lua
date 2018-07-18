@@ -13,18 +13,22 @@ if data.startup == 2 then
 	lcd.drawText(SMLCD and 42 or 84, SMLCD and 27 or 33, "v" .. VERSION)
 end
 
-lcd.drawRectangle(0, 7, RIGHT_POS + 1, 57, SOLID)
-
 -- Artificial horizon
 if data.startup == 0 then
 	local pitch = math.atan2(-data.accx, (math.sqrt((data.accy * data.accy) + (data.accz * data.accz)))) * 16
 	local roll = math.atan2(data.accy, (math.sqrt((data.accx * data.accx) + (data.accz * data.accz)))) * 16
 	lcd.drawLine(21, 35 + roll - pitch, RIGHT_POS - 24, 35 - roll - pitch, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
-	lcd.drawLine(X_CNTR - 12, 35, X_CNTR - 3, 35, SOLID, FORCE)
-	lcd.drawLine(X_CNTR + 12, 35, X_CNTR + 3, 35, SOLID, FORCE)
-	lcd.drawLine(X_CNTR - 3, 35, X_CNTR - 3, 38, SOLID, FORCE)
-	lcd.drawLine(X_CNTR + 3, 35, X_CNTR + 3, 38, SOLID, FORCE)
-	lcd.drawLine(X_CNTR - 3, 38, X_CNTR + 3, 38, SOLID, FORCE)
+--[[ This creates a solid ground, but there would be work to fully implement and not sure about speed of rendering. Other ways of doing it that *could* be faster too
+	for i = 0, 65, 1 do
+		local y1 = math.min(35 + roll - pitch + i, 62)
+		local y2 = math.min(35 - roll - pitch + i, 62)
+		lcd.drawLine(1, y1, RIGHT_POS - 1, y2, SMLCD and DOTTED or SOLID, (SMLCD and 0 or GREY_DEFAULT) + FORCE)
+		if y1 + y2 == 124 then break end
+	end
+]]
+	lcd.drawLine(X_CNTR - 12, 35, X_CNTR - 4, 35, SOLID, FORCE)
+	lcd.drawLine(X_CNTR + 12, 35, X_CNTR + 4, 35, SOLID, FORCE)
+	lcd.drawPoint(X_CNTR, 35)
 end
 
 -- Flight mode
@@ -47,7 +51,7 @@ end
 --if data.telemFlags > 0 then
 	lcd.drawText(1, 33, "      ", SMLSIZE + data.telemFlags)
 --end
-lcd.drawRectangle(0, 31, 20, 10, SOLID)
+lcd.drawRectangle(0, 31, 20, 10, SOLID + FORCE)
 lcd.drawText(19, 33, data.speed >= 99.5 and math.floor(data.speed + 0.5) or string.format("%.1f", data.speed), SMLSIZE + RIGHT + data.telemFlags)
 lcd.drawText(4, 24, units[data.speed_unit], SMLSIZE)
 
@@ -60,7 +64,7 @@ end
 --if data.telemFlags > 0 then
 	lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + data.telemFlags)
 --end
-lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, SOLID)
+lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, SOLID + FORCE)
 lcd.drawText(RIGHT_POS, 33, math.floor(data.altitude + 0.5), SMLSIZE + RIGHT + data.telemFlags)
 lcd.drawText(RIGHT_POS - 2, 24, "Alt", SMLSIZE + RIGHT)
 
@@ -78,10 +82,11 @@ if data.showHead then
 			end
 		end
 	end
-	lcd.drawRectangle(X_CNTR - 11, 54, 22, 9, SOLID)
+	lcd.drawRectangle(X_CNTR - 11, 54, 22, 9, SOLID + FORCE)
 	lcd.drawText(X_CNTR - 10, 56, "      ", SMLSIZE + data.telemFlags)
 	lcd.drawText(X_CNTR + 10, 56, math.floor(data.heading + 0.5) .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 end
+lcd.drawRectangle(0, 7, RIGHT_POS + 1, 57, SOLID)
 
 -- Variometer
 if config[7].v == 1 then
