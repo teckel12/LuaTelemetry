@@ -15,8 +15,8 @@ end
 
 -- Artificial horizon
 if data.startup == 0 then
-	local pitch = math.atan2(-data.accx, (math.sqrt((data.accy * data.accy) + (data.accz * data.accz)))) * 16
-	local roll = math.atan2(data.accy, (math.sqrt((data.accx * data.accx) + (data.accz * data.accz)))) * 16
+	local pitch = math.atan2(-data.accx, (math.sqrt((data.accy * data.accy) + (data.accz * data.accz)))) * 15
+	local roll = math.atan2(data.accy, (math.sqrt((data.accx * data.accx) + (data.accz * data.accz)))) * 15
 	lcd.drawLine(21, 35 + roll - pitch, RIGHT_POS - 24, 35 - roll - pitch, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
 --[[ This creates a solid ground, but there would be work to fully implement and not sure about speed of rendering. Other ways of doing it that *could* be faster too
 	for i = 0, 65, 1 do
@@ -51,7 +51,7 @@ end
 --if data.telemFlags > 0 then
 	lcd.drawText(1, 33, "      ", SMLSIZE + data.telemFlags)
 --end
-lcd.drawRectangle(0, 31, 20, 10, SOLID + FORCE)
+lcd.drawRectangle(0, 31, 20, 10, SOLID)
 lcd.drawText(19, 33, data.speed >= 99.5 and math.floor(data.speed + 0.5) or string.format("%.1f", data.speed), SMLSIZE + RIGHT + data.telemFlags)
 lcd.drawText(4, 24, units[data.speed_unit], SMLSIZE)
 
@@ -64,7 +64,7 @@ end
 --if data.telemFlags > 0 then
 	lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + data.telemFlags)
 --end
-lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, SOLID + FORCE)
+lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, SOLID)
 lcd.drawText(RIGHT_POS, 33, math.floor(data.altitude + 0.5), SMLSIZE + RIGHT + data.telemFlags)
 lcd.drawText(RIGHT_POS - 2, 24, "Alt", SMLSIZE + RIGHT)
 
@@ -82,7 +82,7 @@ if data.showHead then
 			end
 		end
 	end
-	lcd.drawRectangle(X_CNTR - 11, 54, 22, 9, SOLID + FORCE)
+	lcd.drawRectangle(X_CNTR - 11, 54, 22, 9, SOLID)
 	lcd.drawText(X_CNTR - 10, 56, "      ", SMLSIZE + data.telemFlags)
 	lcd.drawText(X_CNTR + 10, 56, math.floor(data.heading + 0.5) .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 end
