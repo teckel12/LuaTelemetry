@@ -414,11 +414,9 @@ local function background()
 		data.rssiMin = getValue(data.rssiMin_id)
 		data.vspeed = getValue(data.vspeed_id)
 		data.txBatt = getValue(data.txBatt_id)
-		if config[25].v == 1 then
-			data.accx = getValue(data.accx_id)
-			data.accy = getValue(data.accy_id)
-			data.accz = getValue(data.accz_id)
-		end
+		data.accx = getValue(data.accx_id)
+		data.accy = getValue(data.accy_id)
+		data.accz = getValue(data.accz_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
@@ -500,9 +498,9 @@ local function run(event)
 		loadScript(FILE_PATH .. "config.luac", "bT")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	else
 		if config[25].v == 1 then
-			loadScript(FILE_PATH .. "pilot.luac", "t")(data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+			loadScript(FILE_PATH .. "pilot.luac", "bT")(data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 		else
-			loadScript(FILE_PATH .. "view.luac", "t")(data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+			loadScript(FILE_PATH .. "view.luac", "bT")(data, config, modes, units, event, gpsDegMin, VERSION, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 		end
 	end
 	
