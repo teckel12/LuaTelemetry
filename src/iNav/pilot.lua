@@ -13,22 +13,22 @@ if data.startup == 2 then
 	lcd.drawText(SMLCD and 42 or 84, SMLCD and 27 or 33, "v" .. VERSION)
 end
 
--- Artificial horizon
+-- Attitude
 if data.startup == 0 then
 	local pitch = math.atan2(-data.accx, (math.sqrt((data.accy * data.accy) + (data.accz * data.accz)))) * 15
 	local roll = math.atan2(data.accy, (math.sqrt((data.accx * data.accx) + (data.accz * data.accz)))) * 15
 	lcd.drawLine(21, 35 + roll - pitch, RIGHT_POS - 24, 35 - roll - pitch, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
---[[ This creates a solid ground, but there would be work to fully implement and not sure about speed of rendering. Other ways of doing it that *could* be faster too
-	for i = 0, 65, 1 do
-		local y1 = math.min(35 + roll - pitch + i, 62)
-		local y2 = math.min(35 - roll - pitch + i, 62)
-		lcd.drawLine(1, y1, RIGHT_POS - 1, y2, SMLCD and DOTTED or SOLID, (SMLCD and 0 or GREY_DEFAULT) + FORCE)
-		if y1 + y2 == 124 then break end
+--[[
+	for i = 0, 54, 1 do
+		local y1 = math.min(35 + roll - pitch + i, 54)
+		local y2 = math.min(35 - roll - pitch + i, 54)
+		lcd.drawLine(1, y1, RIGHT_POS - 1, y2, SOLID, GREY_DEFAULT + FORCE)
+		if y1 + y2 == 108 then break end
 	end
 ]]
 	lcd.drawLine(X_CNTR - 12, 35, X_CNTR - 4, 35, SOLID, FORCE)
 	lcd.drawLine(X_CNTR + 12, 35, X_CNTR + 4, 35, SOLID, FORCE)
-	lcd.drawPoint(X_CNTR, 35)
+	lcd.drawLine(X_CNTR, 35, X_CNTR, 35, SOLID, FORCE)
 end
 
 -- Flight mode
@@ -43,7 +43,8 @@ if data.altHold then
 end
 
 -- Speed
-for i = data.speed % 10 + 8, 63, 10 do
+lcd.drawLine(0, 8, 0, 54, SOLID, 0)
+for i = data.speed % 10 + 8, 56, 10 do
 	if i < 31 or i > 41 then
 		lcd.drawLine(1, i, 2, i, SOLID, FORCE)
 	end
@@ -56,7 +57,7 @@ lcd.drawText(19, 33, data.speed >= 99.5 and math.floor(data.speed + 0.5) or stri
 lcd.drawText(4, 24, units[data.speed_unit], SMLSIZE)
 
 -- Altitude
-for i = data.altitude % 10 + 8, 63, 10 do
+for i = data.altitude % 10 + 8, 56, 10 do
 	if i < 31 or i > 41 then
 		lcd.drawLine(RIGHT_POS - 2, i, RIGHT_POS - 1, i, SOLID, FORCE)
 	end
@@ -68,30 +69,32 @@ lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, SOLID)
 lcd.drawText(RIGHT_POS, 33, math.floor(data.altitude + 0.5), SMLSIZE + RIGHT + data.telemFlags)
 lcd.drawText(RIGHT_POS - 2, 24, "Alt", SMLSIZE + RIGHT)
 
--- Orientation
+-- Heading
+lcd.drawLine(0, 55, RIGHT_POS - 1, 55, SOLID, FORCE)
 if data.showHead then
-	for i = 0, 359, SMLCD and 22.5 or 11.25 do
+	for i = 0, 345, SMLCD and 30 or 15 do
 		tmp = ((i - data.heading + 450) % 360) * PIXEL_DEG + 7
-		if tmp >= 5 and  tmp <= RIGHT_POS - 7 then
+		if tmp >= 0 and  tmp <= RIGHT_POS then
 			if i % 90 == 0 then
-				lcd.drawText(tmp - 2, 56, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
+				lcd.drawText(tmp - 2, 57, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
 			elseif not SMLCD and i % 45 == 0 then
-				lcd.drawText(tmp - 5, 56, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
+				lcd.drawText(tmp - 5, 57, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
+			elseif SMLCD and (tmp < X_CNTR - 11 or tmp > X_CNTR + 10) then
+				lcd.drawLine(tmp, 56, tmp, 57, SOLID, FORCE)
 			else
-				lcd.drawLine(tmp, 61, tmp, 62, SOLID, FORCE)
+				lcd.drawText(tmp - (i < 100 and 2 or 5), 57, i / 10, SMLSIZE)
 			end
 		end
 	end
-	lcd.drawRectangle(X_CNTR - 11, 54, 22, 9, SOLID)
-	lcd.drawText(X_CNTR - 10, 56, "      ", SMLSIZE + data.telemFlags)
-	lcd.drawText(X_CNTR + 10, 56, math.floor(data.heading + 0.5) .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+	lcd.drawLine(X_CNTR - 11, 56, X_CNTR - 11, 63, SOLID, FORCE)
+	lcd.drawLine(X_CNTR + 10, 56, X_CNTR + 10, 63, SOLID, FORCE)
+	lcd.drawText(X_CNTR - 10, 57, "      ", SMLSIZE + data.telemFlags)
+	lcd.drawText(X_CNTR + 10, 57, math.floor(data.heading + 0.5) .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 end
-lcd.drawRectangle(0, 7, RIGHT_POS + 1, 57, SOLID)
 
 -- Variometer
+lcd.drawRectangle(RIGHT_POS, 7, 4, 57, SOLID, FORCED)
 if config[7].v == 1 then
-	lcd.drawLine(RIGHT_POS + 3, 8, RIGHT_POS + 3, 63, SOLID, FORCE)
-	lcd.drawLine(RIGHT_POS + 1, 63, RIGHT_POS + 2, 63, SOLID, FORCE)
 	local varioSpeed = math.log(1 + math.min(math.abs(0.1 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 	if data.armed then
 		tmp = 35 - math.floor(varioSpeed * 27 - 0.5)
@@ -106,27 +109,27 @@ end
 -- GPS
 local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
 tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry
-lcd.drawText(RIGHT_POS - 2, 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
+lcd.drawText(RIGHT_POS - 3, 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 if config[22].v == 0 then
 	if tmp then
-		lcd.drawText(RIGHT_POS - 16, 17, "    ", SMLSIZE + FLASH)
+		lcd.drawText(RIGHT_POS - 15, 17, "    ", SMLSIZE + FLASH)
 	end
 	for i = 4, 9 do
-		lcd.drawLine(RIGHT_POS - (24 - (i * 2)), (data.hdop >= i or not SMLCD) and 25 - i or 22, RIGHT_POS - (24 - (i * 2)), 22, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
+		lcd.drawLine(RIGHT_POS - (23 - (i * 2)), (data.hdop >= i or not SMLCD) and 25 - i or 22, RIGHT_POS - (23 - (i * 2)), 22, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 	end
 else
 	lcd.drawText(RIGHT_POS - 18, 9, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + (tmp and FLASH or 0))
 end
-lcd.drawLine(RIGHT_POS - 18, 9, RIGHT_POS - 14, 13, SOLID, FORCE)
-lcd.drawLine(RIGHT_POS - 18, 10, RIGHT_POS - 15, 13, SOLID, FORCE)
-lcd.drawLine(RIGHT_POS - 18, 11, RIGHT_POS - 16, 13, SOLID, FORCE)
-lcd.drawLine(RIGHT_POS - 19, 14, RIGHT_POS - 15, 10, SOLID, FORCE)
-lcd.drawPoint(RIGHT_POS - 18, 14)
-lcd.drawPoint(RIGHT_POS - 17, 14)
+lcd.drawLine(RIGHT_POS - 20, 9, RIGHT_POS - 16, 13, SOLID, FORCE)
+lcd.drawLine(RIGHT_POS - 20, 10, RIGHT_POS - 17, 13, SOLID, FORCE)
+lcd.drawLine(RIGHT_POS - 20, 11, RIGHT_POS - 18, 13, SOLID, FORCE)
+lcd.drawLine(RIGHT_POS - 21, 14, RIGHT_POS - 17, 10, SOLID, FORCE)
+lcd.drawPoint(RIGHT_POS - 20, 14)
+lcd.drawPoint(RIGHT_POS - 19, 14)
 
 if data.showDir then
-	lcd.drawText(SMLCD and X_CNTR - 2 or 48, 47, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
-	lcd.drawText(RIGHT_POS - 5, 47, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
+	lcd.drawText(SMLCD and X_CNTR - 2 or 48, 48, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+	lcd.drawText(RIGHT_POS - 5, 48, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 end
 
 return 0

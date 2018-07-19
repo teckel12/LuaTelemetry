@@ -6,7 +6,7 @@ local VERSION = "1.4.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
-local startupTime, frames
+local startupTime
 
 local function getTelemetryId(name)
 	local field = getFieldInfo(name)
@@ -187,7 +187,6 @@ local function reset()
 	data.gpsAltBase = false
 	data.configStatus = 0
 	startupTime = 0
-	frames = 0
 end
 
 local function playAudio(file, alert)
@@ -521,9 +520,6 @@ local function run(event)
 		end
 	end
 
-	--frames = frames + 1
-	--lcd.drawText(48, 9, string.format("%.1f", (getTime() - startupTime) / frames), SMLSIZE + INVERS)
-	
 	return 0
 end
 
