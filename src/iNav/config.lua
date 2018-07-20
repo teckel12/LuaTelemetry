@@ -1,118 +1,89 @@
-local data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR = ...
+local data, FLASH, SMLCD, FILE_PATH = ...
 
-local CONFIG_X = LCD_W < 212 and 6 or 48
+-- Modes: t=text / f=flags for text / w=wave file
+local modes = {
+	{ t = "! TELEM !", f = FLASH },
+	{ t = "HORIZON",   f = 0, w = "hrznmd" },
+	{ t = "  ANGLE",   f = 0, w = "anglmd" },
+	{ t = "   ACRO",   f = 0, w = "acromd" },
+	{ t = " NOT OK ",  f = FLASH },
+	{ t = "  READY",   f = 0, w = "ready" },
+	{ t = "POS HOLD",  f = 0, w = "poshld" },
+	{ t = "WAYPONT",   f = 0, w = "waypt" },
+	{ t = " MANUAL",   f = 0, w = "manmd" },
+	{ t = "   RTH   ", f = FLASH, w = "rtl" },
+	{ t = "! FAIL !",  f = FLASH, w = "fson" },
+	{ t = "! THROT !", f = FLASH }
+}
 
-local function saveConfig()
-	local fh = io.open(FILE_PATH .. "config.dat", "w")
-	if fh == nil then
-		data.systemError = "Folder \"iNav\" not found"
-	else
-		for line = 1, data.configCnt do
-			if config[line].d == nil then
-				io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
-			else 
-				io.write(fh, math.floor(config[line].v * 10))
-			end
+local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
+
+-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
+local config = {
+	{ o = 1,  t = "Battery View",   c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
+	{ o = 3,  t = "Cell Low",       c = 2, v = 3.5, d = true, m = 2.7, x = 3.9, i = 0.1, a = "V", b = 2 },
+	{ o = 4,  t = "Cell Critical",  c = 2, v = 3.4, d = true, m = 2.6, x = 3.8, i = 0.1, a = "V", b = 2 },
+	{ o = 15, t = "Voice Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
+	{ o = 16, t = "Feedback",       c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "All"} },
+	{ o = 9,  t = "Max Altitude",   c = 4, v = data.altitude_unit == 10 and 400 or 120, x = 9999, i = data.altitude_unit == 10 and 10 or 1, a = units[data.altitude_unit], b = 8 },
+	{ o = 13, t = "Variometer",     c = 1, v = 0, i = 1, x = 2, l = {[0] = "Off", "Graph", "Voice"} },
+	{ o = 17, t = "RTH Feedback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
+	{ o = 18, t = "HeadFree Fback", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
+	{ o = 19, t = "RSSI Feedback",  c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
+	{ o = 2,  t = "Battery Alerts", c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
+	{ o = 8,  t = "Altitude Alert", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 10, t = "Timer",          c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
+	{ o = 12, t = "Rx Voltage",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 25, t = "GPS",            c = 1, v = 0, x = 0, i = 0, l = {[0] = data.emptyGPS} },
+	{ o = 24, t = "GPS Coords",     c = 1, v = 0, i = 1, l = {[0] = "Decimal", "Deg/Min"} },
+	{ o = 7,  t = "Fuel Critical",  c = 2, v = 20, m = 5, x = 30, i = 5, a = "%", b = 2 },
+	{ o = 6,  t = "Fuel Low",       c = 2, v = 30, m = 10, x = 50, i = 5, a = "%", b = 2 },
+	{ o = 11, t = "Tx Voltage",     c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
+	{ o = 20, t = "Speed Sensor",   c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
+	{ o = 23, t = "GPS Warning     >", c = 2, v = 3.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
+	{ o = 22, t = "GPS HDOP View",  c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
+	{ o = 5,  t = "Fuel Unit",      c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
+	{ o = 14, t = "Vario Steps",    c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}, a = units[data.altitude_unit] },
+	{ o = 21, t = "View Mode",      c = 1, v = 0, i = 1, l = {[0] = "Classic", "Pilot"} },
+}
+data.configCnt = 25
+for i = 1, data.configCnt do
+	for ii = 1, data.configCnt do
+		if i == config[ii].o then
+			config[i].z = ii
+			config[ii].o = nil
 		end
-		io.close(fh)
 	end
 end
 
-lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
-lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
+local function getTelemetryId(name)
+	local field = getFieldInfo(name)
+	return field and field.id or -1
+end
 
--- Disabled options
-for line = 1, data.configCnt do
-	local z = config[line].z
-	config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
+local function getTelemetryUnit(name)
+	local field = getFieldInfo(name)
+	return (field and field.unit <= 10) and field.unit or 0
 end
--- Special disabled option and limit cases
-config[7].p = data.accZ_id == -1 and 1 or nil
-if config[17].p == nil then
-	config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
-	config[18].p = config[17].p
+
+-- Load config data
+local fh = io.open(FILE_PATH .. "config.dat", "r")
+if fh ~= nil then
+	for line = 1, data.configCnt do
+		tmp = io.read(fh, config[line].c)
+		if tmp ~= "" then
+			config[line].v = config[line].d == nil and math.min(tonumber(tmp), config[line].x == nil and 1 or config[line].x) or tmp / 10
+		end
+	end
+	io.close(fh)
 end
+config[15].v = 0
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
-config[24].p = config[7].v < 2 and 1 or nil
-config[20].p = not data.pitot and 1 or nil
-for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
-	local y = (line - data.configTop) * 8 + 10 + 3
-	local z = config[line].z
-	local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
-	if not data.showCurr and z >= 17 and z <= 18 then
-		config[z].p = 1
-	end
-	lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
-	if config[z].p == nil then
-		if config[z].l == nil then
-			lcd.drawText(CONFIG_X + 78, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
-		else
-			if not config[z].l then
-				lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
-			else
-				if z == 15 then
-					lcd.drawText(CONFIG_X + 22, y, config[16].v == 0 and string.format("%9.5f %10.5f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or gpsDegMin(config[z].l[config[z].v].lat, true) .. " " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
-				else
-					lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
-				end
-			end
-		end
-	else
-		lcd.drawText(CONFIG_X + 78, y, "--", SMLSIZE + tmp)
-	end
-end
+config[20].v = data.pitot and config[20].v or 0
+tmp = config[20].v == 0 and "GSpd" or "ASpd"
+data.speed_id = getTelemetryId(tmp)
+data.speedMax_id = getTelemetryId(tmp .. "+")
+data.speed_unit = getTelemetryUnit(tmp)
 
-if data.configSelect == 0 then
-	-- Select config option
-	if event == EVT_EXIT_BREAK then
-		saveConfig()
-		data.configStatus = 0
-	elseif event == NEXT then -- Next option
-		data.configStatus = data.configStatus == data.configCnt and 1 or data.configStatus + 1
-		data.configTop = data.configStatus > math.min(data.configCnt, data.configTop + 5) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
-		while config[config[data.configStatus].z].p ~= nil do
-			data.configStatus = math.min(data.configStatus + 1, data.configCnt)
-			data.configTop = data.configStatus > math.min(data.configCnt, data.configTop + 5) and data.configTop + 1 or data.configTop
-		end
-	elseif event == PREV then -- Previous option
-		data.configStatus = data.configStatus == 1 and data.configCnt or data.configStatus - 1
-		data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == data.configCnt and data.configCnt - 5 or data.configTop)
-		while config[config[data.configStatus].z].p ~= nil do
-			data.configStatus = math.max(data.configStatus - 1, 1)
-			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or data.configTop
-		end
-	end
-else
-	local z = config[data.configStatus].z
-	if event == EVT_EXIT_BREAK then
-		data.configSelect = 0
-	elseif event == INCR then
-		config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
-	elseif event == DECR then
-		config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
-	end
-
-	-- Special cases
-	if event then
-		if z == 2 then -- Cell low > critical
-			config[2].v = math.max(config[2].v, config[3].v + 0.1)
-		elseif z == 3 then -- Cell critical < low
-			config[3].v = math.min(config[3].v, config[2].v - 0.1)
-		elseif z == 18 then -- Fuel low > critical
-			config[18].v = math.max(config[18].v, config[17].v + 5)
-		elseif z == 17 then -- Fuel critical < low
-			config[17].v = math.min(config[17].v, config[18].v - 5)
-		elseif z == 20 then -- Speed sensor
-			setSpeedSensor(config[20].v == 0 and "GSpd" or "ASpd")
-		elseif config[z].i > 1 then
-			config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
-		end
-	end
-end
-
-if event == EVT_ENTER_BREAK then
-	data.configSelect = (data.configSelect == 0) and BLINK or 0
-end
-
-return 0
+return modes, units, config
