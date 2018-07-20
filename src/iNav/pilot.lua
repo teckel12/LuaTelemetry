@@ -5,6 +5,25 @@ local X_CNTR = RIGHT_POS / 2 - 2
 local PIXEL_DEG = (RIGHT_POS - 14) / 180
 local tmp
 
+local function attitude(pitch, roll, radius, pitchAdj, dotted)
+	local pitchRadius = 45
+
+	local pitch1 = math.rad(pitch + pitchAdj)
+
+	local roll1 = math.rad(roll)
+	local roll2 = math.rad(roll + 180)
+
+	local py = 35 - math.cos(pitch1) * pitchRadius
+
+	local x1 = math.floor(math.sin(roll1) * radius + X_CNTR + 0.5)
+	local y1 = math.floor(py - (math.cos(roll1) * radius) + 0.5)
+
+	local x2 = math.floor(math.sin(roll2) * radius + X_CNTR + 0.5)
+	local y2 = math.floor(py - (math.cos(roll2) * radius) + 0.5)
+
+	lcd.drawLine(x1, y1, x2, y2, (SMLCD or dotted) and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
+end
+
 -- Startup message
 if data.startup == 2 then
 	if not SMLCD then
@@ -15,90 +34,16 @@ end
 
 -- Attitude
 if data.startup == 0 then
-	local pitch = math.deg(math.atan2(-data.accx, (math.sqrt((data.accy * data.accy) + (data.accz * data.accz)))))
-	local roll = math.deg(math.atan2(data.accy, (math.sqrt((data.accx * data.accx) + (data.accz * data.accz)))))
+	local pitch = 90 - math.deg(math.atan2(-data.accx, (math.sqrt((data.accy * data.accy) + (data.accz * data.accz)))))
+	local roll = 90 - math.deg(math.atan2(data.accy, (math.sqrt((data.accx * data.accx) + (data.accz * data.accz)))))
 
-	lcd.drawText(5, 9, math.floor(-pitch) .. "\64", SMLSIZE)
+	attitude(pitch, roll, 27, 0, false)
+	attitude(pitch, roll, 5, 10, true)
+	attitude(pitch, roll, 5, -10, true)
+	attitude(pitch, roll, 10, 20, false)
+	attitude(pitch, roll, 10, -20, false)
 
-	local radius = 27
-	local pitchRadius = 45
-
-	local pitch1 = math.rad(90 - pitch)
-	local p1 = 35 - math.floor(math.cos(pitch1) * pitchRadius + 0.5)
-
-	local roll1 = math.rad(270 - roll)
-	local x1 = math.floor(math.sin(roll1) * radius + 0.5) + X_CNTR
-	local y1 = p1 - math.floor(math.cos(roll1) * radius + 0.5)
-
-	local roll2 = math.rad(90 - roll)
-	local x2 = math.floor(math.sin(roll2) * radius + 0.5) + X_CNTR
-	local y2 = p1 - math.floor(math.cos(roll2) * radius + 0.5)
-
-	lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
-
-	local radius = 5
-
-	local pitch1 = math.rad(80 - pitch)
-	local p1 = 35 - math.floor(math.cos(pitch1) * pitchRadius + 0.5)
-
-	local roll1 = math.rad(270 - roll)
-	local x1 = math.floor(math.sin(roll1) * radius + 0.5) + X_CNTR
-	local y1 = p1 - math.floor(math.cos(roll1) * radius + 0.5)
-
-	local roll2 = math.rad(90 - roll)
-	local x2 = math.floor(math.sin(roll2) * radius + 0.5) + X_CNTR
-	local y2 = p1 - math.floor(math.cos(roll2) * radius + 0.5)
-
-	lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
-
-	local radius = 10
-
-	local pitch1 = math.rad(70 - pitch)
-	local p1 = 35 - math.floor(math.cos(pitch1) * pitchRadius + 0.5)
-
-	local roll1 = math.rad(270 - roll)
-	local x1 = math.floor(math.sin(roll1) * radius + 0.5) + X_CNTR
-	local y1 = p1 - math.floor(math.cos(roll1) * radius + 0.5)
-
-	local roll2 = math.rad(90 - roll)
-	local x2 = math.floor(math.sin(roll2) * radius + 0.5) + X_CNTR
-	local y2 = p1 - math.floor(math.cos(roll2) * radius + 0.5)
-
-	lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
-
-	local radius = 5
-
-	local pitch1 = math.rad(100 - pitch)
-	local p1 = 35 - math.floor(math.cos(pitch1) * pitchRadius + 0.5)
-
-	local roll1 = math.rad(270 - roll)
-	local x1 = math.floor(math.sin(roll1) * radius + 0.5) + X_CNTR
-	local y1 = p1 - math.floor(math.cos(roll1) * radius + 0.5)
-
-	local roll2 = math.rad(90 - roll)
-	local x2 = math.floor(math.sin(roll2) * radius + 0.5) + X_CNTR
-	local y2 = p1 - math.floor(math.cos(roll2) * radius + 0.5)
-
-	lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
-
-	local radius = 10
-
-	local pitch1 = math.rad(110 - pitch)
-	local p1 = 35 - math.floor(math.cos(pitch1) * pitchRadius + 0.5)
-
-	local roll1 = math.rad(270 - roll)
-	local x1 = math.floor(math.sin(roll1) * radius + 0.5) + X_CNTR
-	local y1 = p1 - math.floor(math.cos(roll1) * radius + 0.5)
-
-	local roll2 = math.rad(90 - roll)
-	local x2 = math.floor(math.sin(roll2) * radius + 0.5) + X_CNTR
-	local y2 = p1 - math.floor(math.cos(roll2) * radius + 0.5)
-
-	lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
-
-	--local pitch = math.atan2(-data.accx, (math.sqrt((data.accy * data.accy) + (data.accz * data.accz)))) * 15
-	--local roll = math.atan2(data.accy, (math.sqrt((data.accx * data.accx) + (data.accz * data.accz)))) * 15
-	--lcd.drawLine(21, 35 + roll - pitch, RIGHT_POS - 24, 35 - roll - pitch, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
+	lcd.drawText(4, 9, math.floor(pitch - 90) .. "\64", SMLSIZE)
 --[[
 	for i = 0, 54, 1 do
 		local y1 = math.min(35 + roll - pitch + i, 54)
@@ -109,8 +54,6 @@ if data.startup == 0 then
 ]]
 	lcd.drawLine(X_CNTR - 20, 35, X_CNTR - 5, 35, SOLID, FORCE)
 	lcd.drawLine(X_CNTR + 20, 35, X_CNTR + 5, 35, SOLID, FORCE)
-	--lcd.drawLine(X_CNTR, 35, X_CNTR, 35, SOLID, FORCE)
-	--lcd.drawFilledRectangle(X_CNTR - 1, 34, 3, 3, FORCE)
 	lcd.drawLine(X_CNTR - 1, 35, X_CNTR + 1, 35, SOLID, FORCE)
 	lcd.drawLine(X_CNTR, 34, X_CNTR, 36, SOLID, FORCE)
 end
@@ -154,6 +97,7 @@ lcd.drawText(RIGHT_POS, 33, math.floor(data.altitude + 0.5), SMLSIZE + RIGHT + d
 lcd.drawText(RIGHT_POS - 2, 24, "Alt", SMLSIZE + RIGHT)
 
 -- Heading
+lcd.drawFilledRectangle(0, 55, RIGHT_POS, 9, ERASE)
 lcd.drawLine(0, 55, RIGHT_POS - 1, 55, SOLID, FORCE)
 if data.showHead then
 	for i = 0, 345, SMLCD and 30 or 11.25 do
@@ -172,6 +116,7 @@ if data.showHead then
 	lcd.drawLine(X_CNTR + 10, 56, X_CNTR + 10, 63, SOLID, FORCE)
 	lcd.drawText(X_CNTR - 10, 57, "      ", SMLSIZE + data.telemFlags)
 	lcd.drawText(X_CNTR + 10, 57, math.floor(data.heading + 0.5) .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+	lcd.drawFilledRectangle(RIGHT_POS, 55, 5, 9, ERASE)
 end
 
 -- Variometer

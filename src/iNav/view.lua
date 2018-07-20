@@ -33,11 +33,11 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
 	else
 		lcd.drawText(0, y, txt, SMLSIZE)
 	end
-	local tmpext = (frac ~= 0 or vc < max) and ext or ""
+	tmp = (frac ~= 0 or vc < max) and ext or ""
 	if frac ~= 0 and vc + 0.5 < max then
-		lcd.drawText(21, y, string.format(frac, vc) .. tmpext, SMLSIZE + flags)
+		lcd.drawText(21, y, string.format(frac, vc) .. tmp, SMLSIZE + flags)
 	else
-		lcd.drawText(21, y, math.floor(vc + 0.5) .. tmpext, SMLSIZE + flags)
+		lcd.drawText(21, y, math.floor(vc + 0.5) .. tmp, SMLSIZE + flags)
 	end
 end
 

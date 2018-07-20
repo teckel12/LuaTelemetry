@@ -1,4 +1,4 @@
-local data, FLASH, SMLCD, FILE_PATH = ...
+local data, getTelemetryId, getTelemetryUnit, FLASH, SMLCD, FILE_PATH = ...
 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
@@ -56,21 +56,11 @@ for i = 1, data.configCnt do
 	end
 end
 
-local function getTelemetryId(name)
-	local field = getFieldInfo(name)
-	return field and field.id or -1
-end
-
-local function getTelemetryUnit(name)
-	local field = getFieldInfo(name)
-	return (field and field.unit <= 10) and field.unit or 0
-end
-
 -- Load config data
 local fh = io.open(FILE_PATH .. "config.dat", "r")
 if fh ~= nil then
 	for line = 1, data.configCnt do
-		tmp = io.read(fh, config[line].c)
+		local tmp = io.read(fh, config[line].c)
 		if tmp ~= "" then
 			config[line].v = config[line].d == nil and math.min(tonumber(tmp), config[line].x == nil and 1 or config[line].x) or tmp / 10
 		end
@@ -81,7 +71,7 @@ config[15].v = 0
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
 config[20].v = data.pitot and config[20].v or 0
-tmp = config[20].v == 0 and "GSpd" or "ASpd"
+local tmp = config[20].v == 0 and "GSpd" or "ASpd"
 data.speed_id = getTelemetryId(tmp)
 data.speedMax_id = getTelemetryId(tmp .. "+")
 data.speed_unit = getTelemetryUnit(tmp)
