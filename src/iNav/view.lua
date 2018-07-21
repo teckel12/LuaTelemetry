@@ -1,4 +1,4 @@
-local data, config, modes, units, gpsDegMin, VERSION, SMLCD, FLASH = ...
+local data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, hdopGraph, VERSION, SMLCD, FLASH = ...
 
 local RIGHT_POS = SMLCD and 129 or 195
 local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -33,7 +33,7 @@ local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
 	else
 		lcd.drawText(0, y, txt, SMLSIZE)
 	end
-	tmp = (frac ~= 0 or vc < max) and ext or ""
+	local tmp = (frac ~= 0 or vc < max) and ext or ""
 	if frac ~= 0 and vc + 0.5 < max then
 		lcd.drawText(21, y, string.format(frac, vc) .. tmp, SMLSIZE + flags)
 	else
@@ -55,23 +55,8 @@ tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
 lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 lcd.drawText(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 lcd.drawText(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
-tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry
-if config[22].v == 0 then
-	if tmp then
-		lcd.drawText(RIGHT_POS - 30, 9, "    ", SMLSIZE + FLASH)
-	end
-	for i = 4, 9 do
-		lcd.drawLine(RIGHT_POS - (38 - (i * 2)), (data.hdop >= i or not SMLCD) and 17 - i or 14, RIGHT_POS - (38 - (i * 2)), 14, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
-	end
-else
-	lcd.drawText(RIGHT_POS - 18, 9, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + (tmp and FLASH or 0))
-end
-lcd.drawLine(RIGHT_POS - 16, 9, RIGHT_POS - 12, 13, SOLID, FORCE)
-lcd.drawLine(RIGHT_POS - 16, 10, RIGHT_POS - 13, 13, SOLID, FORCE)
-lcd.drawLine(RIGHT_POS - 16, 11, RIGHT_POS - 14, 13, SOLID, FORCE)
-lcd.drawLine(RIGHT_POS - 17, 14, RIGHT_POS - 13, 10, SOLID, FORCE)
-lcd.drawPoint(RIGHT_POS - 16, 14)
-lcd.drawPoint(RIGHT_POS - 15, 14)
+hdopGraph(RIGHT_POS - 30, 9)
+gpsIcon(RIGHT_POS - 17, 9)
 lcd.drawText(RIGHT_POS - (data.telemFlags == 0 and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 -- Directionals
@@ -121,11 +106,7 @@ end
 
 -- Data & gauges
 drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
-if data.altHold then
-	lcd.drawRectangle(47, 9, 3, 3, FORCE)
-	lcd.drawFilledRectangle(46, 11, 5, 4, FORCE)
-	lcd.drawPoint(48, 12)
-end
+if data.altHold then lockIcon(46, 9) end
 tmp = (data.telemFlags > 0 or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
 drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
@@ -161,7 +142,7 @@ end
 
 -- Variometer
 if config[7].v == 1 and data.startup == 0 then
-	local varioSpeed = math.log(1 + math.min(math.abs(0.1 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
+	local varioSpeed = math.log(1 + math.min(math.abs(0.9 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 	if SMLCD and data.armed and not data.showDir then
 		lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 19, 21, SOLID, FORCE)
 		lcd.drawLine(X_CNTR_2 + 18, 21, X_CNTR_2 + 18, 21 - (varioSpeed * 12 - 0.5), SOLID, FORCE)

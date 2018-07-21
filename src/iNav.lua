@@ -18,10 +18,10 @@ local function getTelemetryUnit(name)
 	return (field and field.unit <= 10) and field.unit or 0
 end
 
-local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac")(getTelemetryId, getTelemetryUnit)
+local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")(getTelemetryId, getTelemetryUnit)
 collectgarbage()
 
-local modes, units, config = loadScript(FILE_PATH .. "config.luac")(data, getTelemetryId, getTelemetryUnit, FLASH, SMLCD, FILE_PATH)
+local modes, units, config = loadScript(FILE_PATH .. "config.luac", "T")(data, getTelemetryId, getTelemetryUnit, FLASH, SMLCD, FILE_PATH)
 collectgarbage()
 
 local function reset()
@@ -51,6 +51,35 @@ end
 local function gpsDegMin(coord, lat)
 	local gpsD = math.floor(math.abs(coord))
 	return gpsD .. string.format("\64%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
+end
+
+local function gpsIcon(x, y)
+	lcd.drawLine(x + 1, y, x + 5, y + 4, SOLID, FORCE)
+	lcd.drawLine(x + 1, y + 1, x + 4, y + 4, SOLID, FORCE)
+	lcd.drawLine(x + 1, y + 2, x + 3, y + 4, SOLID, FORCE)
+	lcd.drawLine(x, y + 5, x + 4, y + 1, SOLID, FORCE)
+	lcd.drawPoint(x + 1, y + 5)
+	lcd.drawPoint(x + 2, y + 5)
+end
+
+local function lockIcon(x, y)
+	lcd.drawRectangle(x + 1, y, 3, 3, FORCE)
+	lcd.drawFilledRectangle(x, y + 2, 5, 4, FORCE)
+	lcd.drawPoint(x + 2, y + 3)
+end
+
+local function hdopGraph(x, y)
+	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry
+	if config[22].v == 0 then
+		if tmp then
+			lcd.drawText(x, y, "    ", SMLSIZE + FLASH)
+		end
+		for i = 4, 9 do
+			lcd.drawLine(x - 8 + (i * 2), (data.hdop >= i or not SMLCD) and y + 8 - i or y + 5, x - 8 + (i * 2), y + 5, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
+		end
+	else
+		lcd.drawText(x + 12, y, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + (tmp and FLASH or 0))
+	end
 end
 
 local function flightModes()
@@ -328,7 +357,7 @@ local function run(event)
 	end
 	collectgarbage()
 	if data.configStatus > 0 then
-		loadScript(FILE_PATH .. "menu.luac")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
+		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	else
 		-- User input
 		if not data.armed and data.configStatus == 0 then
@@ -346,9 +375,9 @@ local function run(event)
 		end
 			-- View modes
 		if config[25].v == 1 then
-			loadScript(FILE_PATH .. "pilot.luac")(data, config, modes, units, gpsDegMin, VERSION, SMLCD, FLASH)
+			loadScript(FILE_PATH .. "pilot.luac", "T")(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, hdopGraph, VERSION, SMLCD, FLASH)
 		else
-			loadScript(FILE_PATH .. "view.luac")(data, config, modes, units, gpsDegMin, VERSION, SMLCD, FLASH)
+			loadScript(FILE_PATH .. "view.luac", "T")(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, hdopGraph, VERSION, SMLCD, FLASH)
 		end
 	end
 
