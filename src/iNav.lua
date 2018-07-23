@@ -54,18 +54,20 @@ local function gpsDegMin(coord, lat)
 end
 
 local function gpsIcon(x, y)
-	lcd.drawLine(x + 1, y, x + 5, y + 4, SOLID, FORCE)
-	lcd.drawLine(x + 1, y + 1, x + 4, y + 4, SOLID, FORCE)
-	lcd.drawLine(x + 1, y + 2, x + 3, y + 4, SOLID, FORCE)
-	lcd.drawLine(x, y + 5, x + 4, y + 1, SOLID, FORCE)
-	lcd.drawPoint(x + 1, y + 5)
-	lcd.drawPoint(x + 2, y + 5)
+	lcd.drawLine(x + 1, y, x + 5, y + 4, SOLID, 0)
+	lcd.drawLine(x + 1, y + 1, x + 4, y + 4, SOLID, 0)
+	lcd.drawLine(x + 1, y + 2, x + 3, y + 4, SOLID, 0)
+	lcd.drawLine(x, y + 5, x + 2, y + 5, SOLID, 0)
+	lcd.drawPoint(x + 4, y + 1)
+	lcd.drawPoint(x + 1, y + 4)
 end
 
 local function lockIcon(x, y)
-	lcd.drawRectangle(x + 1, y, 3, 3, FORCE)
-	lcd.drawFilledRectangle(x, y + 2, 5, 4, FORCE)
-	lcd.drawPoint(x + 2, y + 3)
+	lcd.drawFilledRectangle(x, y + 2, 5, 4, 0)
+	lcd.drawLine(x + 1, y, x + 3, y, SOLID, 0)
+	lcd.drawPoint(x + 1, y + 1)
+	lcd.drawPoint(x + 3, y + 1)
+	lcd.drawPoint(x + 2, y + 3, ERASE)
 end
 
 local function hdopGraph(x, y)
