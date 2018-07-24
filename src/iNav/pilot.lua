@@ -46,6 +46,8 @@ end
 lcd.drawText(LEFT_POS + 4, 42, units[data.speed_unit], SMLSIZE)
 if not SMLCD or not data.showDir then
 	lcd.drawText(RIGHT_POS - 2, 42, "Alt", SMLSIZE + RIGHT)
+end
+if not SMLCD then
 	lcd.drawText(RIGHT_POS - 11, 50, data.distanceLast .. units[data.distance_unit], (data.showCurr and SMLSIZE or 0) + RIGHT + data.telemFlags)
 	homeIcon(RIGHT_POS - 10, 50)
 end
@@ -184,11 +186,7 @@ lcd.drawText(RIGHT_POS, 33, math.floor(data.altitude + 0.5), SMLSIZE + RIGHT + d
 
 -- Variometer
 if config[7].v == 1 then
-	if SMLCD then
-		lcd.drawLine(RIGHT_POS, 7, RIGHT_POS, 63, SOLID, FORCE)
-	else
-		lcd.drawRectangle(RIGHT_POS, 7, SMLCD and 4 or 6, 57, SOLID, FORCE)
-	end
+	lcd.drawRectangle(RIGHT_POS, 7, SMLCD and 4 or 6, 57, SOLID, FORCE)
 	if config[7].v == 1 then
 		local varioSpeed = math.log(1 + math.min(math.abs(0.9 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 		if data.armed then
@@ -213,12 +211,12 @@ hdopGraph(SMLCD and LCD_W - 12 or LCD_W - 33, SMLCD and 18 or 9)
 lcd.drawText(tmp, SMLCD and 27 or 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 if not SMLCD or data.showDir then
 	lcd.drawText(SMLCD and RIGHT_POS + (bit32.band(gpsFlags, FLASH) ~= FLASH and 1 or 0) or tmp, SMLCD and 41 or 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags + ((SMLCD and bit32.band(gpsFlags, FLASH) ~= FLASH) and INVERS or 0))
-	lcd.drawText(SMLCD and RIGHT_POS + (bit32.band(gpsFlags, FLASH) ~= FLASH and 1 or 0) or tmp, SMLCD and 48 or 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags + ((SMLCD and bit32.band(gpsFlags, FLASH) ~= FLASH) and INVERS or 0))
+	lcd.drawText(SMLCD and RIGHT_POS + (bit32.band(gpsFlags, FLASH) ~= FLASH and 1 or 0) or tmp, SMLCD and 49 or 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags + ((SMLCD and bit32.band(gpsFlags, FLASH) ~= FLASH) and INVERS or 0))
 end
 
 -- Other data
 if SMLCD then
-	lcd.drawLine(RIGHT_POS + 3, 35, LCD_W, 35, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS, 35, LCD_W, 35, SOLID, FORCE)
 	lcd.drawText(tmp, data.showCurr and 39 or 41, data.distanceLast .. units[data.distance_unit], (data.showCurr and SMLSIZE or 0) + RIGHT + data.telemFlags)
 	if data.showCurr then
 		lcd.drawText(tmp, 48, string.format("%.1f", data.current) .. "A", SMLSIZE + RIGHT + data.telemFlags)
