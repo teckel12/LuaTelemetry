@@ -124,9 +124,11 @@ local function flightModes()
 		elseif bit32.band(modeB, 1) == 1 then
 			data.modeId = 10 -- RTH
 		elseif bit32.band(modeD, 4) == 4 then
-			data.modeId = 9 -- Passthru
+			data.modeId = 9 -- Manual
 		elseif bit32.band(modeB, 2) == 2 then
 			data.modeId = 8 -- Waypoint
+		elseif bit32.band(modeB, 8) == 8 then
+			data.modeId = 13 -- Cruise
 		end
 	end
 	

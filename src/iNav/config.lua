@@ -13,7 +13,8 @@ local modes = {
 	{ t = " MANUAL",   f = 0, w = "manmd" },
 	{ t = "   RTH   ", f = FLASH, w = "rtl" },
 	{ t = "! FAIL !",  f = FLASH, w = "fson" },
-	{ t = "! THROT !", f = FLASH }
+	{ t = "! THROT !", f = FLASH },
+	{ t = " CRUISE",   f = 0 }
 }
 
 local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
