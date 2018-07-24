@@ -64,7 +64,7 @@ if data.showHead and data.startup == 0 then
 	if data.telemetry then
 		local indicatorDisplayed = false
 		if data.showDir or data.headingRef < 0 or not SMLCD then
-			lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) .. "\64", SMLSIZE)
+			lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE)
 			lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
 			lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
 			if not SMLCD then
