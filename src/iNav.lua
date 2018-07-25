@@ -81,7 +81,7 @@ local function homeIcon(x, y)
 	lcd.drawPoint(x + 3, y + 4)
 end
 
-local function hdopGraph(x, y)
+local function hdopGraph(x, y, size)
 	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry
 	if config[22].v == 0 then
 		if tmp then
@@ -91,7 +91,7 @@ local function hdopGraph(x, y)
 			lcd.drawLine(x - 8 + (i * 2), (data.hdop >= i or not SMLCD) and y + 8 - i or y + 5, x - 8 + (i * 2), y + 5, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		lcd.drawText(x + 12, y, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, SMLSIZE + RIGHT + (tmp and FLASH or 0))
+		lcd.drawText(x + 12, size == SMLSIZE and y or y - 2, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, size + RIGHT + (tmp and FLASH or 0))
 	end
 end
 

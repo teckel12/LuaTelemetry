@@ -55,7 +55,7 @@ tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
 lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 lcd.drawText(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 lcd.drawText(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
-hdopGraph(RIGHT_POS - 30, 9)
+hdopGraph(RIGHT_POS - 30, 9, SMLSIZE)
 gpsIcon(RIGHT_POS - 17, 9)
 lcd.drawText(RIGHT_POS - (data.telemFlags == 0 and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
