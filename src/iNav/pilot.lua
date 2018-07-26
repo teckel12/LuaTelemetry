@@ -26,9 +26,7 @@ local function attitude(pitch, roll, radius, pitchAdj)
 		local a2 = (y4 - y3) / (RIGHT_POS - 1 - LEFT_POS)
 		local y = y4
 		for x = LEFT_POS + 1, RIGHT_POS - 1 do
-			if y < 63 then
-				lcd.drawLine(x, math.max(y, 7), x, 63, SOLID, SMLCD and 0 or GREY_DEFAULT)
-			end
+			lcd.drawLine(x, math.min(math.max(y, 7), 63), x, data.accz >= 0 and 63 or 7, SOLID, SMLCD and 0 or GREY_DEFAULT)
 			y = y + a1
 		end
 	elseif (y1 > 15 or y2 > 15) and (y1 < 56 or y2 < 56) then
@@ -88,7 +86,7 @@ local long = SMLCD and 12 or 18
 if data.startup == 0 then
 	tmp = pitch - 90
 	local tmp2 = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
-	lcd.drawText(X_CNTR - (SMLCD and 14 or long * 2), 33, SMLCD and math.abs(tmp2) or tmp2 .. "\64", SMLSIZE + RIGHT)
+	lcd.drawText(X_CNTR - (SMLCD and 14 or long * 2), 33, SMLCD and math.abs(tmp2) or (tmp2 .. "\64"), SMLSIZE + RIGHT)
 	if tmp <= 25 and tmp >= -10 then
 		attitude(pitch, roll, short, 5)
 		attitude(pitch, roll, long - 1, 10)
@@ -131,11 +129,7 @@ if data.showHead then
 end
 
 -- Attitude part 2
-if data.telemetry then
-	attitude(pitch, roll, 200, 0)
-else
-	lcd.drawFilledRectangle(LEFT_POS + 1, 35, RIGHT_POS - LEFT_POS - 1, 28, GREY_DEFAULT)
-end
+attitude(pitch, roll, 200, 0)
 if data.startup == 0 then
 	lcd.drawLine(X_CNTR - (SMLCD and 14 or long * 2), 35, X_CNTR - (SMLCD and 6 or long), 35, SOLID, SMLCD and 0 or FORCE)
 	lcd.drawLine(X_CNTR + (SMLCD and 14 or long * 2 + 1), 35, X_CNTR + (SMLCD and 6 or long + 1), 35, SOLID, SMLCD and 0 or FORCE)
@@ -162,7 +156,7 @@ lcd.drawText(tmp + 1, 9, modes[data.modeId].t, SMLSIZE + modes[data.modeId].f)
 if data.headFree then
 	lcd.drawText(tmp, 9, "HF", SMLSIZE + FLASH + RIGHT)
 end
-if data.altHold and (not SMLCD or not data.showDir) then
+if data.altHold then
 	lockIcon(RIGHT_POS - 28, 33)
 end
 if data.headingHold then
