@@ -10,7 +10,6 @@
 * Fuel can report mAh or mWh used instead of percent fuel remaining (percent highly suggested for fuel level alerts)
 * Config option under Variometer to report altitude as voice notifications
 * Variometer graph now correctly uses vertical speed as source instead of Z-axis accelerometer
-* Preliminary alternate pilot view mode added (not complete, but should be by release)
 * The config menu and views loads as separate scripts, greatly reducing memory used
 * Dotted lines are now grey on X9D display
 * Transmitter voltage options are specific to transmitter's display size and if Rx voltage is displayed
