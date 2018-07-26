@@ -13,6 +13,8 @@
 
 ![sample](assets/iNavX9D.png "Classic view on Taranis X9D, X9D+ and X9E")
 
+#### Pilot view for fixed wing pilots
+
 ![sample](assets/iNavQX7pilot.png "Pilot view on QX7 and X-Lite")
 ![sample](assets/iNavX9Dpilot.png "Pilot view on Taranis X9D, X9D+ and X9E")
 

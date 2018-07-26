@@ -49,7 +49,7 @@ homeIcon(LEFT_POS + 4, 46)
 lcd.drawText(LEFT_POS + 12, 46, data.distanceLast < 1000 and data.distanceLast .. units[data.distance_unit] or (string.format("%.1f", data.distanceLast / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
 lcd.drawText(RIGHT_POS - 7, 8, data.fuel, MIDSIZE + RIGHT + data.telemFlags)
 lcd.drawText(RIGHT_POS - 2, 13, "%", SMLSIZE + RIGHT + data.telemFlags)
-lcd.drawText(RIGHT_POS - 7, 19, string.format("%.1f", config[1].v == 0 and data.cell or data.batt), MIDSIZE + RIGHT + data.telemFlags)
+lcd.drawText(RIGHT_POS - 7, 19, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and data.cell or data.batt), MIDSIZE + RIGHT + data.telemFlags)
 lcd.drawText(RIGHT_POS - 2, 24, "V", SMLSIZE + RIGHT + data.telemFlags)
 if data.showCurr and (not SMLCD or not data.showDir) then
 	lcd.drawText(RIGHT_POS - 7, 43, data.current >= 99.5 and math.floor(data.current + 0.5) or string.format("%.1f", data.current), MIDSIZE + RIGHT + data.telemFlags)
@@ -194,15 +194,15 @@ lcd.drawText(RIGHT_POS, 33, math.floor(data.altitude + 0.5), SMLSIZE + RIGHT + d
 
 -- Variometer
 if config[7].v == 1 then
-	lcd.drawRectangle(RIGHT_POS, 7, SMLCD and 4 or 6, 57, SOLID, FORCE)
+	lcd.drawRectangle(RIGHT_POS, 7, SMLCD and 5 or 6, 57, SOLID, FORCE)
 	if config[7].v == 1 then
 		local varioSpeed = math.log(1 + math.min(math.abs(0.9 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 		if data.armed then
 			tmp = 35 - math.floor(varioSpeed * 27 - 0.5)
 			if tmp > 35 then
-				lcd.drawFilledRectangle(RIGHT_POS + 1, 35, SMLCD and 2 or 4, tmp - 35, FORCE)
+				lcd.drawFilledRectangle(RIGHT_POS + 1, 35, SMLCD and 3 or 4, tmp - 35, FORCE)
 			else
-				lcd.drawFilledRectangle(RIGHT_POS + 1, tmp - 1, SMLCD and 2 or 4, 35 - tmp + 2, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+				lcd.drawFilledRectangle(RIGHT_POS + 1, tmp - 1, SMLCD and 3 or 4, 35 - tmp + 2, FORCE + (SMLCD and 0 or GREY_DEFAULT))
 			end
 		end
 	end
@@ -225,7 +225,7 @@ else
 	lcd.drawText(RIGHT_POS + 8, 57, "RSSI", SMLSIZE)
 end
 lcd.drawText(tmp, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
-lcd.drawLine(RIGHT_POS + (config[7].v == 1 and (SMLCD and 4 or 6) or 0), 50, LCD_W, 50, SOLID, FORCE)
+lcd.drawLine(RIGHT_POS + (config[7].v == 1 and (SMLCD and 5 or 6) or 0), 50, LCD_W, 50, SOLID, FORCE)
 lcd.drawText(LCD_W - 10, 52, math.min(data.rssiLast, 99), MIDSIZE + RIGHT + data.telemFlags)
 lcd.drawText(tmp, 57, "dB", SMLSIZE + RIGHT + data.telemFlags)
 
