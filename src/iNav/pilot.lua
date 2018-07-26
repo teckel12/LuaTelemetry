@@ -139,8 +139,8 @@ end
 if data.startup == 0 then
 	lcd.drawLine(X_CNTR - (SMLCD and 14 or long * 2), 35, X_CNTR - (SMLCD and 6 or long), 35, SOLID, SMLCD and 0 or FORCE)
 	lcd.drawLine(X_CNTR + (SMLCD and 14 or long * 2 + 1), 35, X_CNTR + (SMLCD and 6 or long + 1), 35, SOLID, SMLCD and 0 or FORCE)
-	lcd.drawLine(X_CNTR - (SMLCD and 6 or long), 36, X_CNTR - (SMLCD and 6 or long), 38, SOLID, SMLCD and 0 or FORCE)
-	lcd.drawLine(X_CNTR + (SMLCD and 6 or long + 1), 36, X_CNTR + (SMLCD and 6 or long + 1), 38, SOLID, SMLCD and 0 or FORCE)
+	lcd.drawLine(X_CNTR - (SMLCD and 6 or long), 36, X_CNTR - (SMLCD and 6 or long), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
+	lcd.drawLine(X_CNTR + (SMLCD and 6 or long + 1), 36, X_CNTR + (SMLCD and 6 or long + 1), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
 	lcd.drawLine(X_CNTR - 1, 35, X_CNTR + 1, 35, SOLID, SMLCD and 0 or FORCE)
 	lcd.drawPoint(X_CNTR, 34, SMLCD and 0 or FORCE)
 	lcd.drawPoint(X_CNTR, 36, SMLCD and 0 or FORCE)

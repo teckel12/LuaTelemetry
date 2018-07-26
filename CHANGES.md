@@ -2,6 +2,7 @@
 
 ## v1.4.0 - 07/18/2018
 
+* Pilot view which includes attitude indicator as well as pilot-familiar layout of additional data
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
 * You can customize when weak GPS fix accuracy (HDOP) triggers alert
 * Allows speed sensor selection between GPS speed or pitot sensor's air speed (if available)
