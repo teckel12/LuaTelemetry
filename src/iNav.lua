@@ -212,11 +212,17 @@ local function flightModes()
 				beep = true
 			end
 		elseif config[7].v == 2 then -- Vario voice
-			tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
-			if tmp ~= data.altLastAlt and tmp > 0 and getTime() > data.altNextPlay then
-				playNumber(tmp, data.altitude_unit)
-				data.altLastAlt = tmp
-				data.altNextPlay = getTime() + 1000
+			if math.abs(data.altitude - data.altLastAlt) + 0.5 >= config[24].l[config[24].v] then
+				if math.abs(data.altitude + 0.5 - data.altLastAlt) / config[24].l[config[24].v] > 1.5 then
+					tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
+				else
+					tmp = math.floor(data.altitude / config[24].l[config[24].v] + 0.5) * config[24].l[config[24].v]
+				end
+				if tmp > 0 and getTime() > data.altNextPlay then
+					playNumber(tmp, data.altitude_unit)
+					data.altLastAlt = tmp
+					data.altNextPlay = getTime() + 500
+				end
 			end
 		end
 		if config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
