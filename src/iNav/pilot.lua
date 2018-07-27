@@ -25,9 +25,13 @@ local function attitude(pitch, roll, radius, pitchAdj)
 		local y4 = y2 - ((x2 - LEFT_POS + 1) * a1)
 		local a2 = (y4 - y3) / (RIGHT_POS - 1 - LEFT_POS)
 		local y = y4
+		data.homeY = false
 		for x = LEFT_POS + 1, RIGHT_POS - 1 do
 			lcd.drawLine(x, math.min(math.max(y, 7), 63), x, data.accz >= 0 and 63 or 7, SOLID, SMLCD and 0 or GREY_DEFAULT)
 			y = y + a1
+			if x == data.homeX then
+				data.homeY = math.min(math.max(y, 7), 63)
+			end
 		end
 	elseif (y1 > 15 or y2 > 15) and (y1 < 56 or y2 < 56) then
 		lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or (pitchAdj % 10 == 0 and SOLID or DOTTED), SMLCD and 0 or (pitchAdj > 0 and GREY_DEFAULT or 0))
@@ -40,6 +44,20 @@ end
 -- Startup message
 if data.startup == 2 then
 	lcd.drawText(X_CNTR - 12, 32, "v" .. VERSION)
+end
+
+-- Calculate home direction
+if data.gpsHome ~= false and data.distanceLast >= data.distRef then
+	local o1 = math.rad(data.gpsHome.lat)
+	local a1 = math.rad(data.gpsHome.lon)
+	local o2 = math.rad(data.gpsLatLon.lat)
+	local a2 = math.rad(data.gpsLatLon.lon)
+	local y = math.sin(a2 - a1) * math.cos(o2)
+	local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+	local bearing = (((900 + math.deg(math.atan2(y, x)) - data.heading) % 360) / 2)
+	data.homeX = bearing < 90 and math.floor(bearing + X_CNTR) or math.floor(bearing - 180 + X_CNTR)
+else
+	data.homeX = false
 end
 
 -- Inside attitude info
@@ -57,6 +75,13 @@ end
 if SMLCD and data.showDir then
 	lcd.drawText(RIGHT_POS - 2, 41, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 	lcd.drawText(RIGHT_POS - 2, 49, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
+end
+
+-- Show home direction
+if data.homeY and data.homeX >= LEFT_POS + 18 and data.homeX <= RIGHT_POS - 35 then
+	local x = data.homeX - 3
+	local y = data.homeY - 6
+	homeIcon(x, y)
 end
 
 -- Orientation
