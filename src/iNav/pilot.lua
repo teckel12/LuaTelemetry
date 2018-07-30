@@ -63,8 +63,11 @@ if data.telemetry and data.headingRef >= 0 then
 end
 
 -- Attitude part 1
-local pitch = 90 - math.deg(math.atan2(-data.accx, (math.sqrt((data.accy * data.accy) + (data.accz * data.accz)))))
-local roll = 90 - math.deg(math.atan2(data.accy, (math.sqrt((data.accx * data.accx) + (data.accz * data.accz)))))
+-- Which one is correct?
+local pitch = 90 - math.deg(math.atan2(-data.accx, math.sqrt(data.accy * data.accy + data.accz * data.accz)))
+local roll = 90 - math.deg(math.atan2(data.accy, math.sqrt(data.accx * data.accx + data.accz * data.accz)))
+--local pitch = 90 - math.deg(math.atan(-data.accx / math.sqrt(data.accy * data.accy + data.accz * data.accz)))
+--local roll = 90 - math.deg(math.atan(data.accy / math.sqrt(data.accx * data.accx + data.accz * data.accz)))
 local short = SMLCD and 4 or 6
 local long = 12
 if data.startup == 0 then
@@ -206,15 +209,27 @@ lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(data.altitude + 0.
 
 -- Variometer
 if config[7].v == 1 then
-	lcd.drawRectangle(RIGHT_POS, 7, SMLCD and 5 or 6, 57, SOLID, FORCE)
+	lcd.drawRectangle(RIGHT_POS, 7, SMLCD and 5 or 7, 57, SOLID, FORCE)
 	if config[7].v == 1 then
 		local varioSpeed = math.log(1 + math.min(math.abs(0.9 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 		if data.armed then
 			tmp = 35 - math.floor(varioSpeed * 27 - 0.5)
 			if tmp > 35 then
-				lcd.drawFilledRectangle(RIGHT_POS + 1, 35, SMLCD and 3 or 4, tmp - 35, FORCE)
+				--lcd.drawFilledRectangle(RIGHT_POS + 1, 35, SMLCD and 3 or 4, tmp - 35, FORCE)
+				for i = 35, tmp do
+					local w = SMLCD and (i + 1) % 3 or (i + 1) % 4
+					if w < (SMLCD and 2 or 3) then
+						lcd.drawLine(RIGHT_POS + 1 + w, i, RIGHT_POS + (SMLCD and 3 or 5) - w, i, SOLID, 0)
+					end
+				end
 			else
-				lcd.drawFilledRectangle(RIGHT_POS + 1, tmp - 1, SMLCD and 3 or 4, 35 - tmp + 2, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+				--lcd.drawFilledRectangle(RIGHT_POS + 1, tmp - 1, SMLCD and 3 or 4, 35 - tmp + 2, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+				for i = 35, tmp, -1 do
+					local w = SMLCD and (35 - i) % 3 or (35 - i) % 4
+					if w < (SMLCD and 2 or 3) then
+						lcd.drawLine(RIGHT_POS + 1 + w, i, RIGHT_POS + (SMLCD and 3 or 5) - w, i, SOLID, 0)
+					end
+				end
 			end
 		end
 	end
