@@ -113,7 +113,7 @@ if data.gpsHome ~= false then
 	local home = LEFT_POS + ((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 3
 	if home >= LEFT_POS - (SMLCD and 0 or 7) and home <= RIGHT_POS - 1 then
 		tmp = (home > X_CNTR - 15 and home < X_CNTR + 10) and 49 or 50
-		lcd.drawFilledRectangle(home - 1, tmp - 1, 9, 8, ERASE)
+		lcd.drawFilledRectangle(home, tmp - 1, 7, 8, ERASE)
 		homeIcon(home, tmp)
 	end
 end
@@ -167,14 +167,19 @@ if data.headingHold then
 end
 
 -- Attitude part 2
+lcd.drawFilledRectangle(X_CNTR - 1, 34, 3, 3, ERASE)
 attitude(pitch, roll, 200, 0)
 lcd.drawLine(X_CNTR - (SMLCD and 14 or long * 2), 35, X_CNTR - (SMLCD and 6 or long), 35, SOLID, SMLCD and 0 or FORCE)
 lcd.drawLine(X_CNTR + (SMLCD and 14 or long * 2 + 1), 35, X_CNTR + (SMLCD and 6 or long + 1), 35, SOLID, SMLCD and 0 or FORCE)
 lcd.drawLine(X_CNTR - (SMLCD and 6 or long), 36, X_CNTR - (SMLCD and 6 or long), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
 lcd.drawLine(X_CNTR + (SMLCD and 6 or long + 1), 36, X_CNTR + (SMLCD and 6 or long + 1), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
 lcd.drawLine(X_CNTR - 1, 35, X_CNTR + 1, 35, SOLID, SMLCD and 0 or FORCE)
-lcd.drawPoint(X_CNTR, 34, SMLCD and 0 or FORCE)
-lcd.drawPoint(X_CNTR, 36, SMLCD and 0 or FORCE)
+if SMLCD then
+	lcd.drawPoint(X_CNTR, 34, 0)
+	lcd.drawPoint(X_CNTR, 36, 0)
+else
+	lcd.drawLine(X_CNTR, 34, X_CNTR, 36, SOLID, FORCE)
+end
 
 -- Heading part 2
 if data.showHead then
