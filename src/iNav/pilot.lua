@@ -26,7 +26,10 @@ local function attitude(pitch, roll, radius, pitchAdj)
 		local a2 = (y4 - y3) / (RIGHT_POS - 1 - LEFT_POS)
 		local y = y4
 		for x = LEFT_POS + 1, RIGHT_POS - 1 do
-			lcd.drawLine(x, math.min(math.max(y, 7), 64), x, data.accz >= 0 and 64 or 7, SOLID, SMLCD and 0 or GREY_DEFAULT)
+			local yy = math.floor(y + 0.5)
+			if (data.accz >= 0 and yy < 64) or (data.accz < 0 and yy > 7) then
+				lcd.drawLine(x, math.min(math.max(yy, 8), 63), x, data.accz >= 0 and 63 or 8, SOLID, SMLCD and 0 or GREY_DEFAULT)
+			end
 			y = y + a1
 		end
 	elseif (y1 > 15 or y2 > 15) and (y1 < 56 or y2 < 56) then
@@ -39,11 +42,14 @@ end
 
 -- Startup message
 if data.startup == 2 then
-	lcd.drawText(X_CNTR - 12, 27, "v" .. VERSION)
+	if not SMLCD then
+		lcd.drawText(50, 17, "INAV Lua Telemetry")
+	end
+	lcd.drawText(X_CNTR - 12, 26, "v" .. VERSION)
 end
 
 -- Orientation
-if data.telemetry and data.headingRef >= 0 then
+if data.telemetry and data.headingRef >= 0 and data.startup == 0 then
 	local width = 145
 	local radius = 7
 	local x = LEFT_POS + 13
@@ -160,15 +166,13 @@ end
 
 -- Attitude part 2
 attitude(pitch, roll, 200, 0)
-if data.startup == 0 then
-	lcd.drawLine(X_CNTR - (SMLCD and 14 or long * 2), 35, X_CNTR - (SMLCD and 6 or long), 35, SOLID, SMLCD and 0 or FORCE)
-	lcd.drawLine(X_CNTR + (SMLCD and 14 or long * 2 + 1), 35, X_CNTR + (SMLCD and 6 or long + 1), 35, SOLID, SMLCD and 0 or FORCE)
-	lcd.drawLine(X_CNTR - (SMLCD and 6 or long), 36, X_CNTR - (SMLCD and 6 or long), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
-	lcd.drawLine(X_CNTR + (SMLCD and 6 or long + 1), 36, X_CNTR + (SMLCD and 6 or long + 1), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
-	lcd.drawLine(X_CNTR - 1, 35, X_CNTR + 1, 35, SOLID, SMLCD and 0 or FORCE)
-	lcd.drawPoint(X_CNTR, 34, SMLCD and 0 or FORCE)
-	lcd.drawPoint(X_CNTR, 36, SMLCD and 0 or FORCE)
-end
+lcd.drawLine(X_CNTR - (SMLCD and 14 or long * 2), 35, X_CNTR - (SMLCD and 6 or long), 35, SOLID, SMLCD and 0 or FORCE)
+lcd.drawLine(X_CNTR + (SMLCD and 14 or long * 2 + 1), 35, X_CNTR + (SMLCD and 6 or long + 1), 35, SOLID, SMLCD and 0 or FORCE)
+lcd.drawLine(X_CNTR - (SMLCD and 6 or long), 36, X_CNTR - (SMLCD and 6 or long), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
+lcd.drawLine(X_CNTR + (SMLCD and 6 or long + 1), 36, X_CNTR + (SMLCD and 6 or long + 1), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
+lcd.drawLine(X_CNTR - 1, 35, X_CNTR + 1, 35, SOLID, SMLCD and 0 or FORCE)
+lcd.drawPoint(X_CNTR, 34, SMLCD and 0 or FORCE)
+lcd.drawPoint(X_CNTR, 36, SMLCD and 0 or FORCE)
 
 -- Heading part 2
 if data.showHead then
@@ -209,26 +213,21 @@ end
 
 -- Variometer
 if config[7].v == 1 then
-	lcd.drawRectangle(RIGHT_POS, 7, SMLCD and 5 or 7, 57, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS, 8, RIGHT_POS, 63, SOLID, FORCE)
+	lcd.drawLine(RIGHT_POS + (SMLCD and 4 or 6), 8, RIGHT_POS + (SMLCD and 4 or 6), 63, SOLID, FORCE)
 	if config[7].v == 1 then
-		local varioSpeed = math.log(1 + math.min(math.abs(0.9 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
+		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 		if data.armed then
-			tmp = 35 - math.floor(varioSpeed * 27 - 0.5)
-			if tmp > 35 then
-				--lcd.drawFilledRectangle(RIGHT_POS + 1, 35, SMLCD and 3 or 4, tmp - 35, FORCE)
-				for i = 35, tmp do
-					local w = SMLCD and (i + 1) % 3 or (i + 1) % 4
-					if w < (SMLCD and 2 or 3) then
-						lcd.drawLine(RIGHT_POS + 1 + w, i, RIGHT_POS + (SMLCD and 3 or 5) - w, i, SOLID, 0)
-					end
-				end
-			else
-				--lcd.drawFilledRectangle(RIGHT_POS + 1, tmp - 1, SMLCD and 3 or 4, 35 - tmp + 2, FORCE + (SMLCD and 0 or GREY_DEFAULT))
-				for i = 35, tmp, -1 do
-					local w = SMLCD and (35 - i) % 3 or (35 - i) % 4
-					if w < (SMLCD and 2 or 3) then
-						lcd.drawLine(RIGHT_POS + 1 + w, i, RIGHT_POS + (SMLCD and 3 or 5) - w, i, SOLID, 0)
-					end
+			tmp = 35 - math.floor(varioSpeed * 27 + 0.5)
+			--if tmp > 35 then
+			--	lcd.drawFilledRectangle(RIGHT_POS + 1, 35, SMLCD and 3 or 4, tmp - 35, FORCE)
+			--else
+			--	lcd.drawFilledRectangle(RIGHT_POS + 1, tmp - 1, SMLCD and 3 or 4, 35 - tmp + 2, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+			--end
+			for i = 35, tmp, (tmp > 35 and 1 or -1) do
+				local w = SMLCD and (tmp > 35 and i + 1 or 35 - i) % 3 or (tmp > 35 and i + 1 or 35 - i) % 4
+				if w < (SMLCD and 2 or 3) then
+					lcd.drawLine(RIGHT_POS + 1 + w, i, RIGHT_POS + (SMLCD and 3 or 5) - w, i, SOLID, 0)
 				end
 			end
 		end
@@ -251,7 +250,7 @@ else
 	lcd.drawText(RIGHT_POS + 8, 57, "RSSI", SMLSIZE)
 end
 lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
-lcd.drawLine(RIGHT_POS + (config[7].v == 1 and (SMLCD and 5 or 6) or 0), 50, LCD_W, 50, SOLID, FORCE)
+lcd.drawLine(RIGHT_POS + (config[7].v == 1 and (SMLCD and 5 or 7) or 0), 50, LCD_W, 50, SOLID, FORCE)
 local rssiFlags = RIGHT + ((data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
 lcd.drawText(LCD_W - 10, 52, math.min(data.rssiLast, 99), MIDSIZE + rssiFlags)
 lcd.drawText(LCD_W, 57, "dB", SMLSIZE + rssiFlags)
