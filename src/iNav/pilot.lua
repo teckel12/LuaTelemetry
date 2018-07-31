@@ -63,7 +63,7 @@ if data.telemetry and data.headingRef >= 0 then
 end
 
 -- Attitude part 1
-local pitch = 90 - math.deg(math.atan2(-data.accx, math.sqrt(data.accy * data.accy + data.accz * data.accz)))
+local pitch = 90 - math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
 local roll = 90 - math.deg(math.atan2(data.accy * (data.accz >= 0 and 1 or -1), math.sqrt(data.accx * data.accx + data.accz * data.accz)))
 local short = SMLCD and 4 or 6
 local long = 12
