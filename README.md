@@ -6,7 +6,7 @@
 
 #### Classic view on Taranis QX7 and X-Lite
 
-![sample](assets/iNavQX71.png "Launch/pilot-based model orientation and location indicators")
+![sample](assets/iNavQX71.png "Launch/pilot-based model orientation and location indicators")&nbsp;&nbsp;
 ![sample](assets/iNavQX72.png "Compass-based direction indicator")
 
 #### Classic view on Taranis X9D, X9D+ and X9E
@@ -15,8 +15,7 @@
 
 #### Pilot view for fixed wing pilots
 
-![sample](assets/iNavQX7pilot.png "Pilot view on QX7 and X-Lite")
-
+![sample](assets/iNavQX7pilot.png "Pilot view on QX7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dpilot.png "Pilot view on Taranis X9D, X9D+ and X9E")
 
 ## Features
