@@ -63,11 +63,8 @@ if data.telemetry and data.headingRef >= 0 then
 end
 
 -- Attitude part 1
--- Which one is correct?
 local pitch = 90 - math.deg(math.atan2(-data.accx, math.sqrt(data.accy * data.accy + data.accz * data.accz)))
 local roll = 90 - math.deg(math.atan2(data.accy * (data.accz >= 0 and 1 or -1), math.sqrt(data.accx * data.accx + data.accz * data.accz)))
---local pitch = 90 - math.deg(math.atan(-data.accx / math.sqrt(data.accy * data.accy + data.accz * data.accz)))
---local roll = 90 - math.deg(math.atan(data.accy * (data.accz >= 0 and 1 or -1) / math.sqrt(data.accx * data.accx + data.accz * data.accz)))
 local short = SMLCD and 4 or 6
 local long = 12
 if data.startup == 0 then
@@ -99,7 +96,7 @@ if data.startup == 0 then
 end
 
 -- Home direction
-if data.gpsHome ~= false and data.distanceLast >= data.distRef then
+if data.gpsHome ~= false then
 	local o1 = math.rad(data.gpsHome.lat)
 	local a1 = math.rad(data.gpsHome.lon)
 	local o2 = math.rad(data.gpsLatLon.lat)
