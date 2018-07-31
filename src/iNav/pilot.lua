@@ -26,7 +26,7 @@ local function attitude(pitch, roll, radius, pitchAdj)
 		local a2 = (y4 - y3) / (RIGHT_POS - 1 - LEFT_POS)
 		local y = y4
 		for x = LEFT_POS + 1, RIGHT_POS - 1 do
-			lcd.drawLine(x, math.min(math.max(y, 7), 63), x, data.accz >= 0 and 63 or 7, SOLID, SMLCD and 0 or GREY_DEFAULT)
+			lcd.drawLine(x, math.min(math.max(y, 7), 64), x, data.accz >= 0 and 64 or 7, SOLID, SMLCD and 0 or GREY_DEFAULT)
 			y = y + a1
 		end
 	elseif (y1 > 15 or y2 > 15) and (y1 < 56 or y2 < 56) then
@@ -39,7 +39,7 @@ end
 
 -- Startup message
 if data.startup == 2 then
-	lcd.drawText(X_CNTR - 12, 32, "v" .. VERSION)
+	lcd.drawText(X_CNTR - 12, 27, "v" .. VERSION)
 end
 
 -- Orientation
@@ -65,9 +65,9 @@ end
 -- Attitude part 1
 -- Which one is correct?
 local pitch = 90 - math.deg(math.atan2(-data.accx, math.sqrt(data.accy * data.accy + data.accz * data.accz)))
-local roll = 90 - math.deg(math.atan2(data.accy, math.sqrt(data.accx * data.accx + data.accz * data.accz)))
+local roll = 90 - math.deg(math.atan2(data.accy * (data.accz >= 0 and 1 or -1), math.sqrt(data.accx * data.accx + data.accz * data.accz)))
 --local pitch = 90 - math.deg(math.atan(-data.accx / math.sqrt(data.accy * data.accy + data.accz * data.accz)))
---local roll = 90 - math.deg(math.atan(data.accy / math.sqrt(data.accx * data.accx + data.accz * data.accz)))
+--local roll = 90 - math.deg(math.atan(data.accy * (data.accz >= 0 and 1 or -1) / math.sqrt(data.accx * data.accx + data.accz * data.accz)))
 local short = SMLCD and 4 or 6
 local long = 12
 if data.startup == 0 then
@@ -193,7 +193,6 @@ for i = data.speed % 10 + 8, 56, 10 do
 end
 lcd.drawLine(LEFT_POS + 1, 32, LEFT_POS + 18, 32, SOLID, ERASE)
 lcd.drawText(LEFT_POS + 1, 33, "      ", SMLSIZE + data.telemFlags)
-lcd.drawRectangle(LEFT_POS, 31, 20, 10, FORCE)
 lcd.drawText(LEFT_POS + 19, 33, data.startup == 0 and (data.speed >= 99.5 and math.floor(data.speed + 0.5) or string.format("%.1f", data.speed)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
 
 -- Altitude
@@ -204,8 +203,12 @@ for i = data.altitude % 10 + 8, 56, 10 do
 end
 lcd.drawLine(RIGHT_POS - 21, 32, RIGHT_POS, 32, SOLID, ERASE)
 lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + ((data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
-lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, FORCE)
 lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(data.altitude + 0.5)) or "Alt", SMLSIZE + RIGHT + ((data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
+
+if data.telemFlags == 0 or not SMLCD then
+	lcd.drawRectangle(LEFT_POS, 31, 20, 10, FORCE)
+	lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, FORCE)
+end
 
 -- Variometer
 if config[7].v == 1 then
