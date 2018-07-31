@@ -113,7 +113,7 @@ if data.gpsHome ~= false then
 	local home = LEFT_POS + ((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 3
 	if home >= LEFT_POS - (SMLCD and 0 or 7) and home <= RIGHT_POS - 1 then
 		tmp = (home > X_CNTR - 15 and home < X_CNTR + 10) and 49 or 50
-		lcd.drawFilledRectangle(home + 1, tmp, 5, 6, ERASE)
+		lcd.drawFilledRectangle(home - 1, tmp - 1, 9, 8, ERASE)
 		homeIcon(home, tmp)
 	end
 end
