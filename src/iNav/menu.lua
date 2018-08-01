@@ -27,7 +27,7 @@ for line = 1, data.configCnt do
 	config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 end
 -- Special disabled option and limit cases
-config[7].p = data.accZ_id == -1 and 1 or nil
+config[7].p = data.vspeed_id == -1 and 1 or nil
 if config[17].p == nil then
 	config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
 	config[18].p = config[17].p

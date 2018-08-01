@@ -130,18 +130,18 @@ lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, math.max(math.min((data.rssiLast - data.rs
 tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
 lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
 if not SMLCD then
-	local w = config[7].v == 1 and 7 or 15
-	local l = config[7].v == 1 and 205 or 197
+	local w = config[7].v % 2 == 1 and 7 or 15
+	local l = config[7].v % 2 == 1 and 205 or 197
 	lcd.drawRectangle(l, 9, w, 48, SOLID)
 	tmp = math.max(math.min(math.ceil(data.altitude / config[6].v * 46), 46), 0)
 	lcd.drawFilledRectangle(l + 1, 56 - tmp, w - 2, tmp, INVERS)
 	tmp = 56 - math.max(math.min(math.ceil(data.altitudeMax / config[6].v * 46), 46), 0)
 	lcd.drawLine(l + 1, tmp, l + w - 2, tmp, SOLID, GREY_DEFAULT)
-	lcd.drawText(l + 1, 58, config[7].v == 1 and "A" or "Alt", SMLSIZE)
+	lcd.drawText(l + 1, 58, config[7].v % 2 == 1 and "A" or "Alt", SMLSIZE)
 end
 
 -- Variometer
-if config[7].v == 1 and data.startup == 0 then
+if config[7].v % 2 == 1 and data.startup == 0 then
 	local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 	if SMLCD and data.armed and not data.showDir then
 		lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 19, 21, SOLID, FORCE)

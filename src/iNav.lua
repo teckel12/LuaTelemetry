@@ -211,7 +211,7 @@ local function flightModes()
 			else
 				beep = true
 			end
-		elseif config[7].v == 2 then -- Vario voice
+		elseif config[7].v > 1 then -- Vario voice
 			if math.abs(data.altitude - data.altLastAlt) + 0.5 >= config[24].l[config[24].v] then
 				if math.abs(data.altitude + 0.5 - data.altLastAlt) / config[24].l[config[24].v] > 1.5 then
 					tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
