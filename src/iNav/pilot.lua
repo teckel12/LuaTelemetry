@@ -102,7 +102,7 @@ if data.startup == 0 and data.telemetry then
 end
 
 -- Home direction
-if data.gpsHome ~= false then
+if data.gpsHome ~= false and data.startup == 0 then
 	local home = X_CNTR - 3
 	if data.distanceLast >= data.distRef then
 		local o1 = math.rad(data.gpsHome.lat)
@@ -143,8 +143,14 @@ if SMLCD then
 	homeIcon(LEFT_POS + 4, 42)
 	lcd.drawText(LEFT_POS + 12, 42, data.distanceLast < 1000 and data.distanceLast .. units[data.distance_unit] or (string.format("%.1f", data.distanceLast / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
 	tmp = (data.telemFlags > 0 or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
-	lcd.drawText(RIGHT_POS - 7, 8, data.fuel, MIDSIZE + RIGHT + tmp)
-	lcd.drawText(RIGHT_POS - 2, 13, "%", SMLSIZE + RIGHT + tmp)
+	if config[23].v == 0 then
+		lcd.drawText(RIGHT_POS - 7, 8, data.fuel, MIDSIZE + RIGHT + tmp)
+		lcd.drawText(RIGHT_POS - 2, 13, "%", SMLSIZE + RIGHT + tmp)
+	else
+		lcd.drawText(RIGHT_POS - 2, 9, data.fuel, SMLSIZE + RIGHT + tmp)
+		--lcd.drawText(LEFT_POS, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
+		--lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, config[23].l[config[23].v], SMLSIZE + RIGHT + tmp)
+	end
 	lcd.drawText(RIGHT_POS - 7, 19, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and data.cell or data.batt), MIDSIZE + RIGHT + tmp)
 	lcd.drawText(RIGHT_POS - 2, 24, "V", SMLSIZE + RIGHT + tmp)
 	if data.showDir then
@@ -266,8 +272,13 @@ lcd.drawText(LCD_W, 57, "dB", SMLSIZE + rssiFlags)
 if not SMLCD then
 	lcd.drawFilledRectangle(LEFT_POS - 7, 49, 7, 14, ERASE)
 	tmp = (data.telemFlags > 0 or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
-	lcd.drawText(LEFT_POS - 5, data.showCurr and 8 or 12, data.fuel, DBLSIZE + RIGHT + tmp)
-	lcd.drawText(LEFT_POS, data.showCurr and 16 or 20, "%", SMLSIZE + RIGHT + tmp)
+	if config[23].v == 0 then
+		lcd.drawText(LEFT_POS - 5, data.showCurr and 8 or 12, data.fuel, DBLSIZE + RIGHT + tmp)
+		lcd.drawText(LEFT_POS, data.showCurr and 16 or 20, "%", SMLSIZE + RIGHT + tmp)
+	else
+		lcd.drawText(LEFT_POS, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
+		lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, config[23].l[config[23].v], SMLSIZE + RIGHT + tmp)
+	end
 	lcd.drawText(LEFT_POS - 5, data.showCurr and 25 or 32, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and data.cell or data.batt), DBLSIZE + RIGHT + tmp)
 	lcd.drawText(LEFT_POS, data.showCurr and 34 or 41, "V", SMLSIZE + RIGHT + tmp)
 	if data.showCurr then
