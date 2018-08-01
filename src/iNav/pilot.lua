@@ -148,8 +148,6 @@ if SMLCD then
 		lcd.drawText(RIGHT_POS - 2, 13, "%", SMLSIZE + RIGHT + tmp)
 	else
 		lcd.drawText(RIGHT_POS - 2, 9, data.fuel, SMLSIZE + RIGHT + tmp)
-		--lcd.drawText(LEFT_POS, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
-		--lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, config[23].l[config[23].v], SMLSIZE + RIGHT + tmp)
 	end
 	lcd.drawText(RIGHT_POS - 7, 19, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and data.cell or data.batt), MIDSIZE + RIGHT + tmp)
 	lcd.drawText(RIGHT_POS - 2, 24, "V", SMLSIZE + RIGHT + tmp)
@@ -177,9 +175,7 @@ end
 
 -- Attitude part 2
 lcd.drawFilledRectangle(X_CNTR - 1, 34, 3, 3, ERASE)
-if data.telemetry then
-	attitude(pitch, roll, 200, 0)
-end
+attitude(pitch, roll, 200, 0)
 lcd.drawLine(X_CNTR - (SMLCD and 14 or long * 2), 35, X_CNTR - (SMLCD and 6 or long), 35, SOLID, SMLCD and 0 or FORCE)
 lcd.drawLine(X_CNTR + (SMLCD and 14 or long * 2 + 1), 35, X_CNTR + (SMLCD and 6 or long + 1), 35, SOLID, SMLCD and 0 or FORCE)
 lcd.drawLine(X_CNTR - (SMLCD and 6 or long), 36, X_CNTR - (SMLCD and 6 or long), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
@@ -233,11 +229,6 @@ if config[7].v % 2 == 1 then
 	local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 	if data.armed then
 		tmp = 35 - math.floor(varioSpeed * 27 + 0.5)
-		--if tmp > 35 then
-		--	lcd.drawFilledRectangle(RIGHT_POS + 1, 35, SMLCD and 3 or 4, tmp - 35, FORCE)
-		--else
-		--	lcd.drawFilledRectangle(RIGHT_POS + 1, tmp - 1, SMLCD and 3 or 4, 35 - tmp + 2, FORCE + (SMLCD and 0 or GREY_DEFAULT))
-		--end
 		for i = 35, tmp, (tmp > 35 and 1 or -1) do
 			local w = SMLCD and (tmp > 35 and i + 1 or 35 - i) % 3 or (tmp > 35 and i + 1 or 35 - i) % 4
 			if w < (SMLCD and 2 or 3) then
