@@ -121,6 +121,22 @@ if data.gpsHome ~= false and data.startup == 0 then
 	end
 end
 
+-- Flight path vector
+if data.gpsFix then
+	local o1 = math.rad(config[15].l[1].lat)
+	local a1 = math.rad(config[15].l[1].lon)
+	local o2 = math.rad(config[15].l[0].lat)
+	local a2 = math.rad(config[15].l[0].lon)
+	local y = math.sin(a2 - a1) * math.cos(o2)
+	local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+	local bearing = (math.deg(math.atan2(y, x)) + 360) % 360
+	local heading = math.floor(X_CNTR - ((bearing - data.heading) * PIXEL_DEG) - 1.5)
+	lcd.drawText(LEFT_POS + 4, 50, heading, SMLSIZE)
+	if heading >= LEFT_POS - (SMLCD and 0 or 7) and heading <= RIGHT_POS - 1 then
+		lcd.drawText(heading, 27, "v", SMLSIZE)
+	end
+end
+
 -- Heading part 1
 if data.showHead then
 	for i = 0, 348.75, 11.25 do
@@ -249,8 +265,8 @@ if SMLCD then
 else
 	hdopGraph(LCD_W - 39, 10, MIDSIZE)
 	lcd.drawText(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
-	lcd.drawText(LCD_W + 1, 33, config[16].v == 0 and string.format("%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
-	lcd.drawText(LCD_W + 1, 42, config[16].v == 0 and string.format("%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
+	lcd.drawText(LCD_W + 1, 33, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+	lcd.drawText(LCD_W + 1, 42, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 	lcd.drawText(RIGHT_POS + 8, 57, "RSSI", SMLSIZE)
 end
 lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)

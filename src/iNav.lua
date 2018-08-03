@@ -328,7 +328,10 @@ local function background()
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
-				config[15].l[0] = gpsTemp
+				if gpsTemp.lat ~= config[15].l[0].lat or gpsTemp.lon ~= config[15].l[0].lon then
+					config[15].l[1] = config[15].l[0]
+					config[15].l[0] = gpsTemp
+				end
 			end
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
