@@ -59,6 +59,8 @@ local data = {
 	cells = -1,
 	fuel = 100,
 	config = 0,
+	configLast = 1,
+	configTop = 1,
 	modeId = 1
 }
 

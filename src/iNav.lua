@@ -372,9 +372,8 @@ local function run(event)
 
 	-- Config menu
 	if data.configStatus == 0 and event == MENU then
-		data.configStatus = 1
+		data.configStatus = data.configLast
 		data.configSelect = 0
-		data.configTop = 1
 	end
 	collectgarbage()
 	if data.configStatus > 0 then

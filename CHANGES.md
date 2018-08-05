@@ -1,22 +1,19 @@
 # Release History
 
-## v1.4.0 - 07/31/2018
+## v1.4.0 - 08/04/2018
 
-* Pilot view which includes attitude indicator as well as pilot-familiar layout of additional data
+* Pilot view (glass cockpit) which includes attitude indicator as well as pilot-familiar layout of additional data
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
 * You can customize when weak GPS fix accuracy (HDOP) triggers alert
 * Allows speed sensor selection between GPS speed or pitot sensor's air speed (if available)
 * GPS coordinates and altitude are displayed before launch even if there's no GPS fix
 * Fuel can report mAh or mWh used instead of percent fuel remaining (percent highly suggested for fuel level alerts)
-* Config option under Variometer to report altitude as voice notifications
+* Config option under Variometer to also report altitude as voice notifications
 * Variometer graph now correctly uses vertical speed as source instead of Z-axis accelerometer
 * The config menu and views loads as separate scripts, greatly reducing memory used
-* Dotted lines are now grey on X9D display
-* Transmitter voltage options are specific to transmitter's display size and if Rx voltage is displayed
-* Simplified how battery cell count is calculated
+* X9D display now uses gray when appropriate to enhance view clarity
 * Disable config setting (and set to default) if sensor isn't present
 * Config menu wraps from top to bottom (and vice versa) to more easily locate desired config option
-* Disabled config settings are now skipped over instead of allowing selection
 * Only shows the last good GPS coordinates instead of the last 5 to reduce complexity (didn't provide more useful info either)
 * Removed `getLastPos()` function dependency which is faster, cleans up code and could allow Horus support
 * Fixed an issue with "NO TELEM" and "THR WARN" being displayed incorrectly
