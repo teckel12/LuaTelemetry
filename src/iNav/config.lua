@@ -1,6 +1,5 @@
 local data, getTelemetryId, getTelemetryUnit, FLASH, SMLCD, FILE_PATH = ...
 
-local bla = 0 
 -- Modes: t=text / f=flags for text / w=wave file
 local modes = {
 	{ t = "! TELEM !", f = FLASH },
