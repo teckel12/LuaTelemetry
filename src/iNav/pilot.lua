@@ -6,7 +6,7 @@ local X_CNTR = math.floor((RIGHT_POS + LEFT_POS) / 2 + 0.5) - 2
 local HEADING_DEG = SMLCD and 170 or 190
 local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
 local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
-local tmp, pitch, roll, upsideDown
+local tmp, pitch, roll
 
 local function attitude(pitch, roll, radius, pitchAdj)
 	local pitch1 = math.rad(pitch - pitchAdj)
@@ -18,13 +18,9 @@ local function attitude(pitch, roll, radius, pitchAdj)
 	local x2 = math.floor(math.sin(roll2) * radius + X_CNTR + 0.5)
 	local y2 = math.floor(py - (math.cos(roll2) * radius) + 0.5)
 	if pitchAdj == 0 then
-		local a1 = (y1 - y2) / (x1 - x2 + .001)
-		local x3 = RIGHT_POS - 1
-		local x4 = LEFT_POS + 1
-		local y3 = y1 - ((x1 - RIGHT_POS - 1) * a1)
-		local y4 = y2 - ((x2 - LEFT_POS + 1) * a1)
-		local a2 = (y4 - y3) / (RIGHT_POS - 1 - LEFT_POS)
-		local y = y4
+		local a = (y1 - y2) / (x1 - x2 + .001)
+		local y = y2 - ((x2 - LEFT_POS + 1) * a)
+		local upsideDown
 		if data.pitchRoll then
 			upsideDown = math.abs(data.roll) > 900
 		else
@@ -35,7 +31,7 @@ local function attitude(pitch, roll, radius, pitchAdj)
 			if (not upsideDown and yy < 64) or (upsideDown and yy > 7) then
 				lcd.drawLine(x, math.min(math.max(yy, 8), 63), x, upsideDown and 8 or 63, SOLID, SMLCD and 0 or GREY_DEFAULT)
 			end
-			y = y + a1
+			y = y + a
 		end
 	elseif (y1 > 15 or y2 > 15) and (y1 < 56 or y2 < 56) then
 		lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or (pitchAdj % 10 == 0 and SOLID or DOTTED), SMLCD and 0 or (pitchAdj > 0 and GREY_DEFAULT or 0))
@@ -50,7 +46,7 @@ if data.startup == 2 then
 	if not SMLCD then
 		lcd.drawText(50, 20, "INAV Lua Telemetry")
 	end
-	lcd.drawText(X_CNTR - 12, SMLCD and 26 or 42, "v" .. VERSION)
+	lcd.drawText(X_CNTR - 12, SMLCD and 24 or 42, "v" .. VERSION)
 end
 
 -- Orientation
