@@ -46,7 +46,7 @@ if data.startup == 2 then
 	if not SMLCD then
 		lcd.drawText(50, 20, "INAV Lua Telemetry")
 	end
-	lcd.drawText(X_CNTR - 12, SMLCD and 24 or 42, "v" .. VERSION)
+	lcd.drawText(X_CNTR - 12, SMLCD and 20 or 42, "v" .. VERSION)
 end
 
 -- Orientation
@@ -108,7 +108,7 @@ if data.startup == 0 and data.telemetry then
 end
 
 -- Home direction
-if data.gpsHome ~= false and data.startup == 0 then
+if data.gpsHome ~= false and data.startup == 0 and ((SMLCD and not data.showDir) or not SMLCD) then
 	local home = X_CNTR - 3
 	if data.distanceLast >= data.distRef then
 		local o1 = math.rad(data.gpsHome.lat)

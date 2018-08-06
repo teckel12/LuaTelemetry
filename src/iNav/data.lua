@@ -3,13 +3,15 @@ local getTelemetryId, getTelemetryUnit = ...
 local rssi, low, crit = getRSSI()
 local ver, radio, maj, minor, rev = getVersion()
 local tx = string.sub(radio, 0, 2)
-local tmp = tx == "x9" and EVT_PLUS_BREAK or (tx == "xl" and EVT_UP_BREAK)
+local tmp = tx == "x9" and EVT_PLUS_FIRST or (tx == "xl" and EVT_UP_FIRST)
 local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
 local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
-tmp = tx == "x9" and EVT_MINUS_BREAK or (tx == "xl" and EVT_DOWN_BREAK)
+tmp = tx == "x9" and EVT_MINUS_FIRST or (tx == "xl" and EVT_DOWN_FIRST)
 local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
 local DECR = tx == "x7" and EVT_ROT_LEFT or tmp
 local MENU = tx == "xl" and EVT_SHIFT_BREAK or EVT_MENU_BREAK
+local UPHOLD = tx == "xl" and EVT_UP_REPT or EVT_PLUS_REPT
+local DOWNHOLD = tx == "xl" and EVT_DOWN_REPT or EVT_MINUS_REPT
 local general = getGeneralSettings()
 local distanceSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
@@ -86,4 +88,4 @@ else
 	data.accz_id = getTelemetryId("AccZ")
 end
 
-return data, PREV, INCR, NEXT, DECR, MENU
+return data, PREV, INCR, NEXT, DECR, MENU, UPHOLD, DOWNHOLD
