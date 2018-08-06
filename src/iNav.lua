@@ -319,19 +319,21 @@ local function background()
 		data.rssiMin = getValue(data.rssiMin_id)
 		data.vspeed = getValue(data.vspeed_id)
 		data.txBatt = getValue(data.txBatt_id)
-		data.accx = getValue(data.accx_id)
-		data.accy = getValue(data.accy_id)
-		data.accz = getValue(data.accz_id)
+		if data.pitchRoll then
+			data.pitch = getValue(data.pitch_id)
+			data.roll = getValue(data.roll_id)
+		else
+			data.accx = getValue(data.accx_id)
+			data.accy = getValue(data.accy_id)
+			data.accz = getValue(data.accz_id)
+		end
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
-				if gpsTemp.lat ~= config[15].l[0].lat or gpsTemp.lon ~= config[15].l[0].lon then
-					config[15].l[1] = config[15].l[0]
-					config[15].l[0] = gpsTemp
-				end
+				config[15].l[0] = gpsTemp
 			end
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
@@ -373,11 +375,9 @@ local function run(event)
 		data.startup = 0
 	end
 
-	-- Config menu
+	-- Config menu or views
 	if data.configStatus == 0 and event == MENU then
-		data.configStatus = 1
-		data.configSelect = 0
-		data.configTop = 1
+		data.configStatus = data.configLast
 	end
 	collectgarbage()
 	if data.configStatus > 0 then
@@ -397,7 +397,7 @@ local function run(event)
 		if event == NEXT or event == PREV then
 			data.showDir = not data.showDir
 		end
-			-- View modes
+		-- Views
 		if config[25].v == 1 then
 			loadScript(FILE_PATH .. "pilot.luac", "T")(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH)
 		else

@@ -67,6 +67,7 @@ if data.configSelect == 0 then
 	-- Select config option
 	if event == EVT_EXIT_BREAK then
 		saveConfig()
+		data.configLast = data.configStatus
 		data.configStatus = 0
 	elseif event == NEXT then -- Next option
 		data.configStatus = data.configStatus == data.configCnt and 1 or data.configStatus + 1

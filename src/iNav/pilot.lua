@@ -6,7 +6,7 @@ local X_CNTR = math.floor((RIGHT_POS + LEFT_POS) / 2 + 0.5) - 2
 local HEADING_DEG = SMLCD and 170 or 190
 local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
 local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
-local tmp
+local tmp, pitch, roll, upsideDown
 
 local function attitude(pitch, roll, radius, pitchAdj)
 	local pitch1 = math.rad(pitch - pitchAdj)
@@ -25,10 +25,15 @@ local function attitude(pitch, roll, radius, pitchAdj)
 		local y4 = y2 - ((x2 - LEFT_POS + 1) * a1)
 		local a2 = (y4 - y3) / (RIGHT_POS - 1 - LEFT_POS)
 		local y = y4
+		if data.pitchRoll then
+			upsideDown = math.abs(data.roll) > 900
+		else
+			upsideDown = data.accz < 0
+		end
 		for x = LEFT_POS + 1, RIGHT_POS - 1 do
 			local yy = math.floor(y + 0.5)
-			if (data.accz >= 0 and yy < 64) or (data.accz < 0 and yy > 7) then
-				lcd.drawLine(x, math.min(math.max(yy, 8), 63), x, data.accz >= 0 and 63 or 8, SOLID, SMLCD and 0 or GREY_DEFAULT)
+			if (not upsideDown and yy < 64) or (upsideDown and yy > 7) then
+				lcd.drawLine(x, math.min(math.max(yy, 8), 63), x, upsideDown and 8 or 63, SOLID, SMLCD and 0 or GREY_DEFAULT)
 			end
 			y = y + a1
 		end
@@ -69,8 +74,13 @@ if data.telemetry and data.headingRef >= 0 and data.startup == 0 then
 end
 
 -- Attitude part 1
-local pitch = 90 - math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
-local roll = 90 - math.deg(math.atan2(data.accy * (data.accz >= 0 and 1 or -1), math.sqrt(data.accx * data.accx + data.accz * data.accz)))
+if data.pitchRoll then
+	pitch = (math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180
+	roll = (270 - data.roll / 10) % 180
+else
+	pitch = 90 - math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
+	roll = 90 - math.deg(math.atan2(data.accy * (data.accz >= 0 and 1 or -1), math.sqrt(data.accx * data.accx + data.accz * data.accz)))
+end
 local short = SMLCD and 4 or 6
 local long = 12
 if data.startup == 0 and data.telemetry then
@@ -115,25 +125,12 @@ if data.gpsHome ~= false and data.startup == 0 then
 		home = math.floor(LEFT_POS + ((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 	end
 	if home >= LEFT_POS - (SMLCD and 0 or 7) and home <= RIGHT_POS - 1 then
-		tmp = data.distanceLast >= data.distRef and ((home > X_CNTR - 15 and home < X_CNTR + 10) and 49 or 50) or 17
+		tmp = (home > X_CNTR - 15 and home < X_CNTR + 10) and 49 or 50
 		lcd.drawFilledRectangle(home, tmp - 1, 7, 8, ERASE)
+		if data.distanceLast < data.distRef then
+			lcd.drawText(home + 1, tmp, "  ", SMLSIZE + FLASH)
+		end
 		homeIcon(home, tmp)
-	end
-end
-
--- Flight path vector
-if data.gpsFix then
-	local o1 = math.rad(config[15].l[1].lat)
-	local a1 = math.rad(config[15].l[1].lon)
-	local o2 = math.rad(config[15].l[0].lat)
-	local a2 = math.rad(config[15].l[0].lon)
-	local y = math.sin(a2 - a1) * math.cos(o2)
-	local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-	local bearing = (math.deg(math.atan2(y, x)) + 360) % 360
-	local heading = math.floor(X_CNTR - ((bearing - data.heading) * PIXEL_DEG) - 1.5)
-	lcd.drawText(LEFT_POS + 4, 50, heading, SMLSIZE)
-	if heading >= LEFT_POS - (SMLCD and 0 or 7) and heading <= RIGHT_POS - 1 then
-		lcd.drawText(heading, 27, "v", SMLSIZE)
 	end
 end
 

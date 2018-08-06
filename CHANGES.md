@@ -1,6 +1,6 @@
 # Release History
 
-## v1.4.0 - 08/03/2018
+## v1.4.0 - 08/06/2018
 
 * Pilot view (glass cockpit) which includes attitude indicator as well as pilot-familiar layout of additional data
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
@@ -13,7 +13,7 @@
 * The config menu and views loads as separate scripts, greatly reducing memory used
 * X9D display now uses gray when appropriate to enhance view clarity
 * Disable config setting (and set to default) if sensor isn't present
-* Config menu wraps from top to bottom (and vice versa) to more easily locate desired config option
+* Config menu wraps from top to bottom (and vice versa) to more easily locate desired config option, also remembers last menu option
 * Only shows the last good GPS coordinates instead of the last 5 to reduce complexity (didn't provide more useful info either)
 * Removed `getLastPos()` function dependency which is faster, cleans up code and could allow Horus support
 * Fixed an issue with "NO TELEM" and "THR WARN" being displayed incorrectly
