@@ -10,8 +10,6 @@ tmp = tx == "x9" and EVT_MINUS_FIRST or (tx == "xl" and EVT_DOWN_FIRST)
 local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
 local DECR = tx == "x7" and EVT_ROT_LEFT or tmp
 local MENU = tx == "xl" and EVT_SHIFT_BREAK or EVT_MENU_BREAK
-local UPHOLD = tx == "xl" and EVT_UP_REPT or EVT_PLUS_REPT
-local DOWNHOLD = tx == "xl" and EVT_DOWN_REPT or EVT_MINUS_REPT
 local general = getGeneralSettings()
 local distanceSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
@@ -88,4 +86,4 @@ else
 	data.accz_id = getTelemetryId("AccZ")
 end
 
-return data, PREV, INCR, NEXT, DECR, MENU, UPHOLD, DOWNHOLD
+return data, PREV, INCR, NEXT, DECR, MENU

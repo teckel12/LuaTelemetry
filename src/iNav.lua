@@ -18,7 +18,7 @@ local function getTelemetryUnit(name)
 	return (field and field.unit <= 10) and field.unit or 0
 end
 
-local data, PREV, INCR, NEXT, DECR, MENU, UPHOLD, DOWNHOLD = loadScript(FILE_PATH .. "data.luac", "T")(getTelemetryId, getTelemetryUnit)
+local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")(getTelemetryId, getTelemetryUnit)
 collectgarbage()
 
 local modes, units, config = loadScript(FILE_PATH .. "config.luac", "T")(data, getTelemetryId, getTelemetryUnit, FLASH, SMLCD, FILE_PATH)
@@ -381,7 +381,7 @@ local function run(event)
 	end
 	collectgarbage()
 	if data.configStatus > 0 then
-		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR, UPHOLD, DOWNHOLD)
+		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	else
 		-- User input
 		if not data.armed and data.configStatus == 0 then

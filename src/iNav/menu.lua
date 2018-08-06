@@ -1,4 +1,4 @@
-local data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR, UPHOLD, DOWNHOLD = ...
+local data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR = ...
 
 local CONFIG_X = LCD_W < 212 and 6 or 48
 
@@ -69,14 +69,14 @@ if data.configSelect == 0 then
 		saveConfig()
 		data.configLast = data.configStatus
 		data.configStatus = 0
-	elseif event == NEXT or event == DOWNHOLD then -- Next option
+	elseif event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
 		data.configStatus = data.configStatus == data.configCnt and 1 or data.configStatus + 1
 		data.configTop = data.configStatus > math.min(data.configCnt, data.configTop + 5) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
 		while config[config[data.configStatus].z].p ~= nil do
 			data.configStatus = math.min(data.configStatus + 1, data.configCnt)
 			data.configTop = data.configStatus > math.min(data.configCnt, data.configTop + 5) and data.configTop + 1 or data.configTop
 		end
-	elseif event == PREV or event == UPHOLD then -- Previous option
+	elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
 		data.configStatus = data.configStatus == 1 and data.configCnt or data.configStatus - 1
 		data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == data.configCnt and data.configCnt - 5 or data.configTop)
 		while config[config[data.configStatus].z].p ~= nil do
@@ -88,9 +88,9 @@ else
 	local z = config[data.configStatus].z
 	if event == EVT_EXIT_BREAK then
 		data.configSelect = 0
-	elseif event == INCR or event == UPHOLD then
+	elseif event == INCR or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
 		config[z].v = math.min(math.floor(config[z].v * 10 + config[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
-	elseif event == DECR or event == DOWNHOLD then
+	elseif event == DECR or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
 		config[z].v = math.max(math.floor(config[z].v * 10 - config[z].i * 10) / 10, config[z].m == nil and 0 or config[z].m)
 	end
 
