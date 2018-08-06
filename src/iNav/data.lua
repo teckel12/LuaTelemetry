@@ -55,6 +55,7 @@ local data = {
 	telemFlags = -1,
 	cells = -1,
 	fuel = 100,
+	configCnt = 0,
 	config = 0,
 	configLast = 1,
 	configTop = 1,

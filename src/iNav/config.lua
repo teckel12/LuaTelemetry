@@ -47,14 +47,14 @@ local config = {
 	{ o = 14, t = "Vario Steps",    c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}, a = units[data.altitude_unit] },
 	{ o = 21, t = "View Mode",      c = 1, v = 0, i = 1, l = {[0] = "Classic", "Pilot"} },
 }
-data.configCnt = 25
-for i = 1, data.configCnt do
-	for ii = 1, data.configCnt do
-		if i == config[ii].o then
-			config[i].z = ii
-			config[ii].o = nil
+for i, value in ipairs(config) do
+	for ii, value2 in ipairs(config) do
+		if i == value2.o then
+			value.z = ii
+			value2.o = nil
 		end
 	end
+	data.configCnt = data.configCnt + 1
 end
 
 -- Load config data
