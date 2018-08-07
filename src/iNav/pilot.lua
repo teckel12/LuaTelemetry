@@ -2,32 +2,24 @@ local data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGr
 
 local LEFT_POS = SMLCD and 0 or 36
 local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
-local X_CNTR = math.floor((RIGHT_POS + LEFT_POS) / 2 + 0.5) - 2
+local X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 2
 local HEADING_DEG = SMLCD and 170 or 190
 local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
 local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
-local tmp, pitch, roll
+local tmp, pitch, roll, roll1, roll2, upsideDown
 
-local function attitude(pitch, roll, radius, pitchAdj)
+local function attitude(radius, pitchAdj)
 	local pitch1 = math.rad(pitch - pitchAdj)
-	local roll1 = math.rad(roll)
-	local roll2 = math.rad(roll + 180)
 	local py = 35 - math.cos(pitch1) * 85
-	local x1 = math.floor(math.sin(roll1) * radius + X_CNTR + 0.5)
-	local y1 = math.floor(py - (math.cos(roll1) * radius) + 0.5)
-	local x2 = math.floor(math.sin(roll2) * radius + X_CNTR + 0.5)
-	local y2 = math.floor(py - (math.cos(roll2) * radius) + 0.5)
+	local x1 = math.sin(roll1) * radius + X_CNTR
+	local y1 = py - (math.cos(roll1) * radius)
+	local x2 = math.sin(roll2) * radius + X_CNTR
+	local y2 = py - (math.cos(roll2) * radius)
 	if pitchAdj == 0 then
 		local a = (y1 - y2) / (x1 - x2 + .001)
 		local y = y2 - ((x2 - LEFT_POS + 1) * a)
-		local upsideDown
-		if data.pitchRoll then
-			upsideDown = math.abs(data.roll) > 900
-		else
-			upsideDown = data.accz < 0
-		end
 		for x = LEFT_POS + 1, RIGHT_POS - 1 do
-			local yy = math.floor(y + 0.5)
+			local yy = y + 0.5
 			if (not upsideDown and yy < 64) or (upsideDown and yy > 7) then
 				lcd.drawLine(x, math.min(math.max(yy, 8), 63), x, upsideDown and 8 or 63, SOLID, SMLCD and 0 or GREY_DEFAULT)
 			end
@@ -35,9 +27,9 @@ local function attitude(pitch, roll, radius, pitchAdj)
 		end
 	elseif (y1 > 15 or y2 > 15) and (y1 < 56 or y2 < 56) then
 		lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or (pitchAdj % 10 == 0 and SOLID or DOTTED), SMLCD and 0 or (pitchAdj > 0 and GREY_DEFAULT or 0))
-	end
-	if not SMLCD and pitchAdj % 10 == 0 and pitchAdj ~= 0 and y2 > 15 and y2 < 56 then
-		lcd.drawText(x2 - 2, y2 - 3, math.abs(pitchAdj), SMLSIZE + RIGHT)
+		if not SMLCD and pitchAdj % 10 == 0 and pitchAdj ~= 0 and y2 > 15 and y2 < 56 then
+			lcd.drawText(x2 - 2, y2 - 3, math.abs(pitchAdj), SMLSIZE + RIGHT)
+		end
 	end
 end
 
@@ -51,19 +43,16 @@ end
 
 -- Orientation
 if data.telemetry and data.headingRef >= 0 and data.startup == 0 then
-	local width = 145
-	local radius = 7
-	local x = LEFT_POS + 13
-	local y = 21
+	local x = LEFT_POS + 13.5
 	local rad1 = math.rad(data.heading - data.headingRef)
-	local rad2 = math.rad(data.heading - data.headingRef + width)
-	local rad3 = math.rad(data.heading - data.headingRef - width)
-	local x1 = math.floor(math.sin(rad1) * radius + 0.5) + x
-	local y1 = y - math.floor(math.cos(rad1) * radius + 0.5)
-	local x2 = math.floor(math.sin(rad2) * radius + 0.5) + x
-	local y2 = y - math.floor(math.cos(rad2) * radius + 0.5)
-	local x3 = math.floor(math.sin(rad3) * radius + 0.5) + x
-	local y3 = y - math.floor(math.cos(rad3) * radius + 0.5)
+	local rad2 = math.rad(data.heading - data.headingRef + 145)
+	local rad3 = math.rad(data.heading - data.headingRef - 145)
+	local x1 = math.sin(rad1) * 7 + x
+	local y1 = 21 - math.cos(rad1) * 7
+	local x2 = math.sin(rad2) * 7 + x
+	local y2 = 21 - math.cos(rad2) * 7
+	local x3 = math.sin(rad3) * 7 + x
+	local y3 = 21 - math.cos(rad3) * 7
 	lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
 	lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
 	lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
@@ -77,33 +66,39 @@ else
 	pitch = 90 - math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
 	roll = 90 - math.deg(math.atan2(data.accy * (data.accz >= 0 and 1 or -1), math.sqrt(data.accx * data.accx + data.accz * data.accz)))
 end
-local short = SMLCD and 4 or 6
-local long = 12
+roll1 = math.rad(roll)
+roll2 = math.rad(roll + 180)
+if data.pitchRoll then
+	upsideDown = math.abs(data.roll) > 900
+else
+	upsideDown = data.accz < 0
+end
 if data.startup == 0 and data.telemetry then
 	tmp = pitch - 90
+	local short = SMLCD and 4 or 6
 	local tmp2 = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
-	lcd.drawText(X_CNTR - (SMLCD and 14 or long * 2), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
+	lcd.drawText(X_CNTR - (SMLCD and 14 or 24), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
 	if tmp <= 25 and tmp >= -10 then
-		attitude(pitch, roll, short, 5)
-		attitude(pitch, roll, long - 1, 10)
+		attitude(short, 5)
+		attitude(11, 10)
 	end
 	if tmp <= 10 and tmp >= -25 then	
-		attitude(pitch, roll, short, -5)
-		attitude(pitch, roll, long - 1, -10)
+		attitude(short, -5)
+		attitude(11, -10)
 	end
 	if tmp >= 0 then
-		attitude(pitch, roll, short, 15)
-		attitude(pitch, roll, long - 1, 20)
+		attitude(short, 15)
+		attitude(11, 20)
 	else
-		attitude(pitch, roll, short, -15)
-		attitude(pitch, roll, long - 1, -20)
+		attitude(short, -15)
+		attitude(11, -20)
 	end
 	if tmp >= 10 then
-		attitude(pitch, roll, short, 25)
-		attitude(pitch, roll, long - 1, 30)
+		attitude(short, 25)
+		attitude(11, 30)
 	elseif tmp <= -10 then
-		attitude(pitch, roll, short, -25)
-		attitude(pitch, roll, long - 1, -30)
+		attitude(short, -25)
+		attitude(11, -30)
 	end
 end
 
@@ -184,11 +179,13 @@ end
 
 -- Attitude part 2
 lcd.drawFilledRectangle(X_CNTR - 1, 34, 3, 3, ERASE)
-attitude(pitch, roll, 200, 0)
-lcd.drawLine(X_CNTR - (SMLCD and 14 or long * 2), 35, X_CNTR - (SMLCD and 6 or long), 35, SOLID, SMLCD and 0 or FORCE)
-lcd.drawLine(X_CNTR + (SMLCD and 14 or long * 2 + 1), 35, X_CNTR + (SMLCD and 6 or long + 1), 35, SOLID, SMLCD and 0 or FORCE)
-lcd.drawLine(X_CNTR - (SMLCD and 6 or long), 36, X_CNTR - (SMLCD and 6 or long), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
-lcd.drawLine(X_CNTR + (SMLCD and 6 or long + 1), 36, X_CNTR + (SMLCD and 6 or long + 1), SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
+attitude(200, 0)
+local inside = SMLCD and 6 or 13
+local outside = SMLCD and 14 or 24
+lcd.drawLine(X_CNTR - outside, 35, X_CNTR - inside, 35, SOLID, SMLCD and 0 or FORCE)
+lcd.drawLine(X_CNTR + outside, 35, X_CNTR + inside, 35, SOLID, SMLCD and 0 or FORCE)
+lcd.drawLine(X_CNTR - inside, 36, X_CNTR - inside, SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
+lcd.drawLine(X_CNTR + inside, 36, X_CNTR + inside, SMLCD and 37 or 38, SOLID, SMLCD and 0 or FORCE)
 lcd.drawLine(X_CNTR - 1, 35, X_CNTR + 1, 35, SOLID, SMLCD and 0 or FORCE)
 if SMLCD then
 	lcd.drawPoint(X_CNTR, 34, 0)
@@ -199,33 +196,33 @@ end
 
 -- Heading part 2
 if data.showHead then
-	lcd.drawLine(X_CNTR - 10, 56, X_CNTR + 9, 56, SOLID, ERASE)
+	lcd.drawLine(X_CNTR - 9, 56, X_CNTR + 10, 56, SOLID, ERASE)
 	lcd.drawLine(X_CNTR - 10, 56, X_CNTR - 10, 63, SOLID, ERASE)
 	lcd.drawText(X_CNTR - 9, 57, "      ", SMLSIZE + data.telemFlags)
-	lcd.drawText(X_CNTR + 10, 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+	lcd.drawText(X_CNTR + 11, 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	if not SMLCD then
-		lcd.drawRectangle(X_CNTR - 11, 55, 22, 10, FORCE)
+		lcd.drawRectangle(X_CNTR - 11, 55, 23, 10, FORCE)
+	end
+end
+
+local function tics(value, pos)
+	for i = value % 10 + 8, 56, 10 do
+		if i < 31 or i > 41 then
+			lcd.drawLine(pos, i, pos + 1, i, SOLID, 0)
+		end
 	end
 end
 
 -- Speed
 lcd.drawLine(LEFT_POS, 8, LEFT_POS, 63, SOLID, FORCE)
-for i = data.speed % 10 + 8, 56, 10 do
-	if i < 31 or i > 41 then
-		lcd.drawLine(LEFT_POS + 1, i, LEFT_POS + 2, i, SOLID, 0)
-	end
-end
+tics(data.speed, LEFT_POS + 1)
 lcd.drawLine(LEFT_POS + 1, 32, LEFT_POS + 18, 32, SOLID, ERASE)
 lcd.drawText(LEFT_POS + 1, 33, "      ", SMLSIZE + data.telemFlags)
 lcd.drawText(LEFT_POS + 19, 33, data.startup == 0 and (data.speed >= 99.5 and math.floor(data.speed + 0.5) or string.format("%.1f", data.speed)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
 lcd.drawRectangle(LEFT_POS, 31, 20, 10, FORCE)
 
 -- Altitude
-for i = data.altitude % 10 + 8, 56, 10 do
-	if i < 31 or i > 41 then
-		lcd.drawLine(RIGHT_POS - 2, i, RIGHT_POS - 1, i, SOLID, 0)
-	end
-end
+tics(data.altitude, RIGHT_POS - 2)
 lcd.drawLine(RIGHT_POS - 21, 32, RIGHT_POS, 32, SOLID, ERASE)
 lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + ((data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
 lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(data.altitude + 0.5)) or "Alt", SMLSIZE + RIGHT + ((data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
@@ -274,7 +271,7 @@ if not SMLCD then
 	tmp = (data.telemFlags > 0 or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if config[23].v == 0 then
 		lcd.drawText(LEFT_POS - 5, data.showCurr and 8 or 12, data.fuel, DBLSIZE + RIGHT + tmp)
-		lcd.drawText(LEFT_POS, data.showCurr and 16 or 20, "%", SMLSIZE + RIGHT + tmp)
+		lcd.drawText(LEFT_POS, data.showCurr and 17 or 21, "%", SMLSIZE + RIGHT + tmp)
 	else
 		lcd.drawText(LEFT_POS, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
 		lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, config[23].l[config[23].v], SMLSIZE + RIGHT + tmp)

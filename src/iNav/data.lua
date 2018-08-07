@@ -1,4 +1,12 @@
-local getTelemetryId, getTelemetryUnit = ...
+local function getTelemetryId(name)
+	local field = getFieldInfo(name)
+	return field and field.id or -1
+end
+
+local function getTelemetryUnit(name)
+	local field = getFieldInfo(name)
+	return (field and field.unit <= 10) and field.unit or 0
+end
 
 local rssi, low, crit = getRSSI()
 local ver, radio, maj, minor, rev = getVersion()

@@ -1,6 +1,6 @@
 local data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR = ...
 
-local CONFIG_X = LCD_W < 212 and 6 or 48
+local CONFIG_X = LCD_W < 212 and 2 or 48
 
 local function saveConfig()
 	local fh = io.open(FILE_PATH .. "config.dat", "w")
@@ -18,8 +18,7 @@ local function saveConfig()
 	end
 end
 
-lcd.drawFilledRectangle(CONFIG_X, 10, 116, 52, ERASE)
-lcd.drawRectangle(CONFIG_X, 10, 116, 52, SOLID)
+lcd.drawRectangle(CONFIG_X, 10, 124, 52, SOLID)
 
 -- Disabled options
 for line = 1, data.configCnt do
@@ -46,20 +45,20 @@ for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
 	lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
 	if config[z].p == nil then
 		if config[z].l == nil then
-			lcd.drawText(CONFIG_X + 78, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
+			lcd.drawText(CONFIG_X + 84, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
 		else
 			if not config[z].l then
-				lcd.drawText(CONFIG_X + 78, y, config[z].v, SMLSIZE + tmp)
+				lcd.drawText(CONFIG_X + 84, y, config[z].v, SMLSIZE + tmp)
 			else
 				if z == 15 then
-					lcd.drawText(CONFIG_X + 22, y, config[16].v == 0 and string.format("%9.5f %10.5f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or gpsDegMin(config[z].l[config[z].v].lat, true) .. " " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+					lcd.drawText(CONFIG_X + 22, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 				else
-					lcd.drawText(CONFIG_X + 78, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
+					lcd.drawText(CONFIG_X + 84, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
 				end
 			end
 		end
 	else
-		lcd.drawText(CONFIG_X + 78, y, "--", SMLSIZE + tmp)
+		lcd.drawText(CONFIG_X + 84, y, "--", SMLSIZE + tmp)
 	end
 end
 

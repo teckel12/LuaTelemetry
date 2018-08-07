@@ -8,20 +8,13 @@ local FLASH = 3
 local SMLCD = LCD_W < 212
 local startupTime, tmp
 
-local function getTelemetryId(name)
-	local field = getFieldInfo(name)
-	return field and field.id or -1
-end
-
-local function getTelemetryUnit(name)
-	local field = getFieldInfo(name)
-	return (field and field.unit <= 10) and field.unit or 0
-end
-
-local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")(getTelemetryId, getTelemetryUnit)
+local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")()
 collectgarbage()
 
-local modes, units, config = loadScript(FILE_PATH .. "config.luac", "T")(data, getTelemetryId, getTelemetryUnit, FLASH, SMLCD, FILE_PATH)
+local config, units = loadScript(FILE_PATH .. "config.luac", "T")(data, SMLCD)
+collectgarbage()
+
+local modes = loadScript(FILE_PATH .. "modes.luac", "T")(data, config, FLASH, SMLCD, FILE_PATH)
 collectgarbage()
 
 local function reset()
@@ -379,7 +372,6 @@ local function run(event)
 	if data.configStatus == 0 and event == MENU then
 		data.configStatus = data.configLast
 	end
-	collectgarbage()
 	if data.configStatus > 0 then
 		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	else
@@ -404,6 +396,7 @@ local function run(event)
 			loadScript(FILE_PATH .. "view.luac", "T")(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, hdopGraph, VERSION, SMLCD, FLASH)
 		end
 	end
+	collectgarbage()
 
 	-- Title
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
