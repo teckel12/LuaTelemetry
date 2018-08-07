@@ -9,8 +9,7 @@ local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and
 local tmp, pitch, roll, roll1, roll2, upsideDown
 
 local function attitude(radius, pitchAdj)
-	local pitch1 = math.rad(pitch - pitchAdj)
-	local py = 35 - math.cos(pitch1) * 85
+	local py = 35 - math.cos(math.rad(pitch - pitchAdj)) * 85
 	local x1 = math.sin(roll1) * radius + X_CNTR
 	local y1 = py - (math.cos(roll1) * radius)
 	local x2 = math.sin(roll2) * radius + X_CNTR
@@ -29,6 +28,14 @@ local function attitude(radius, pitchAdj)
 		lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or (pitchAdj % 10 == 0 and SOLID or DOTTED), SMLCD and 0 or (pitchAdj > 0 and GREY_DEFAULT or 0))
 		if not SMLCD and pitchAdj % 10 == 0 and pitchAdj ~= 0 and y2 > 15 and y2 < 56 then
 			lcd.drawText(x2 - 2, y2 - 3, math.abs(pitchAdj), SMLSIZE + RIGHT)
+		end
+	end
+end
+
+local function tics(value, pos)
+	for i = value % 10 + 8, 56, 10 do
+		if i < 31 or i > 41 then
+			lcd.drawLine(pos, i, pos + 1, i, SOLID, 0)
 		end
 	end
 end
@@ -62,17 +69,14 @@ end
 if data.pitchRoll then
 	pitch = (math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180
 	roll = (270 - data.roll / 10) % 180
+	upsideDown = math.abs(data.roll) > 900
 else
 	pitch = 90 - math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
 	roll = 90 - math.deg(math.atan2(data.accy * (data.accz >= 0 and 1 or -1), math.sqrt(data.accx * data.accx + data.accz * data.accz)))
+	upsideDown = data.accz < 0
 end
 roll1 = math.rad(roll)
 roll2 = math.rad(roll + 180)
-if data.pitchRoll then
-	upsideDown = math.abs(data.roll) > 900
-else
-	upsideDown = data.accz < 0
-end
 if data.startup == 0 and data.telemetry then
 	tmp = pitch - 90
 	local short = SMLCD and 4 or 6
@@ -202,14 +206,6 @@ if data.showHead then
 	lcd.drawText(X_CNTR + 11, 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	if not SMLCD then
 		lcd.drawRectangle(X_CNTR - 11, 55, 23, 10, FORCE)
-	end
-end
-
-local function tics(value, pos)
-	for i = value % 10 + 8, 56, 10 do
-		if i < 31 or i > 41 then
-			lcd.drawLine(pos, i, pos + 1, i, SOLID, 0)
-		end
 	end
 end
 
