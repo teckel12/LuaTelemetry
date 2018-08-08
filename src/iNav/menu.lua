@@ -100,9 +100,9 @@ else
 		elseif z == 3 then -- Cell critical < low
 			config[3].v = math.min(config[3].v, config[2].v - 0.1)
 		elseif z == 18 then -- Fuel low > critical
-			config[18].v = math.max(config[18].v, config[17].v + 5)
+			config[18].v = math.max(config[18].v, config[17].v + 1)
 		elseif z == 17 then -- Fuel critical < low
-			config[17].v = math.min(config[17].v, config[18].v - 5)
+			config[17].v = math.min(config[17].v, config[18].v - 1)
 		elseif z == 20 then -- Speed sensor
 			setSpeedSensor(config[20].v == 0 and "GSpd" or "ASpd")
 		elseif config[z].i > 1 then

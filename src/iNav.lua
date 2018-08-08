@@ -218,12 +218,12 @@ local function flightModes()
 				end
 			end
 		end
-		if config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notification
-			if data.fuel % 5 == 0 and data.fuel > config[17].v and data.fuel <= config[18].v then
+		if config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notifications
+			if data.fuel >= config[17].v and data.fuel <= config[18].v and data.fuel > config[17].v then -- Fuel low
 				playAudio("batlow")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
-			elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel > config[17].v + 10 then
+			elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel > config[18].v then -- Fuel 10% notification
 				playAudio("battry")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
