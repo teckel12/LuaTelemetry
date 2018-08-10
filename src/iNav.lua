@@ -95,17 +95,17 @@ local function flightModes()
 	local altHoldPrev = data.altHold
 	local homeReset = false
 	local modeIdPrev = data.modeId
+	local modeA = data.mode / 10000
+	local modeB = data.mode / 1000 % 10
+	local modeC = data.mode / 100 % 10
+	local modeD = data.mode / 10 % 10
+	local modeE = data.mode % 10
 	data.modeId = 1 -- No telemetry
 	if data.telemetry then
 		data.armed = false
 		data.headFree = false
 		data.headingHold = false
 		data.altHold = false
-		local modeA = data.mode / 10000
-		local modeB = data.mode / 1000 % 10
-		local modeC = data.mode / 100 % 10
-		local modeD = data.mode / 10 % 10
-		local modeE = data.mode % 10
 		if bit32.band(modeE, 4) == 4 then
 			data.armed = true
 			if bit32.band(modeD, 2) == 2 then
@@ -169,6 +169,17 @@ local function flightModes()
 			playAudio(modes[data.modeId].w, modes[data.modeId].f > 0 and 1 or nil)
 		elseif not data.armed and data.modeId == 6 and modeIdPrev == 5 then
 			playAudio(modes[data.modeId].w)
+		end
+	end
+	if data.modePrev ~= data.mode and not data.armed then
+		if bit32.band(modeC, 4) == 4 then
+			playAudio(modes[7].w) -- Pos hold
+		elseif bit32.band(modeD, 2) == 2 then
+			playAudio(modes[2].w) -- Horizon
+		elseif bit32.band(modeD, 1) == 1 then
+			playAudio(modes[3].w) -- Angle
+		else
+			playAudio(modes[4].w) -- Acro
 		end
 	end
 	data.hdop = math.floor(data.satellites / 100) % 10
@@ -276,6 +287,7 @@ local function flightModes()
 	end
 	data.gpsFixPrev = data.gpsFix
 	data.homeResetPrev = homeReset
+	data.modePrev = data.mode
 end
 
 local function background()
