@@ -95,32 +95,34 @@ local function flightModes()
 	local altHoldPrev = data.altHold
 	local homeReset = false
 	local modeIdPrev = data.modeId
-	local modeA = data.mode / 10000
-	local modeB = data.mode / 1000 % 10
-	local modeC = data.mode / 100 % 10
-	local modeD = data.mode / 10 % 10
-	local modeE = data.mode % 10
+	local preArmMode = false
 	data.modeId = 1 -- No telemetry
 	if data.telemetry then
 		data.armed = false
 		data.headFree = false
 		data.headingHold = false
 		data.altHold = false
+		local modeA = data.mode / 10000
+		local modeB = data.mode / 1000 % 10
+		local modeC = data.mode / 100 % 10
+		local modeD = data.mode / 10 % 10
+		local modeE = data.mode % 10
+		if bit32.band(modeD, 2) == 2 then
+			data.modeId = 2 -- Horizon
+		elseif bit32.band(modeD, 1) == 1 then
+			data.modeId = 3 -- Angle
+		else
+			data.modeId = 4 -- Acro
+		end
+		data.headFree = bit32.band(modeB, 4) == 4 and true or false
+		data.headingHold = bit32.band(modeC, 1) == 1 and true or false
 		if bit32.band(modeE, 4) == 4 then
 			data.armed = true
-			if bit32.band(modeD, 2) == 2 then
-				data.modeId = 2 -- Horizon
-			elseif bit32.band(modeD, 1) == 1 then
-				data.modeId = 3 -- Angle
-			else
-				data.modeId = 4 -- Acro
-			end
-			data.headFree = bit32.band(modeB, 4) == 4 and true or false
-			data.headingHold = bit32.band(modeC, 1) == 1 and true or false
 			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
 			homeReset = data.satellites >= 4000 and true or false
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold
 		else
+			preArmMode = data.modeId
 			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
@@ -170,19 +172,17 @@ local function flightModes()
 		elseif not data.armed and data.modeId == 6 and modeIdPrev == 5 then
 			playAudio(modes[data.modeId].w)
 		end
-	end
-	if data.modePrev ~= data.mode and not data.armed then
-		if bit32.band(modeC, 4) == 4 then
-			playAudio(modes[7].w) -- Pos hold
-		elseif bit32.band(modeD, 2) == 2 then
-			playAudio(modes[2].w) -- Horizon
-		elseif bit32.band(modeD, 1) == 1 then
-			playAudio(modes[3].w) -- Angle
-		else
-			playAudio(modes[4].w) -- Acro
-		end
+	elseif preArmMode ~= false and data.preArmModePrev ~= preArmMode then
+		playAudio(modes[preArmMode].w)
 	end
 	data.hdop = math.floor(data.satellites / 100) % 10
+	if data.headingHold ~= headingHoldPrev then -- Heading hold status change
+		playAudio("hedhld")
+		playAudio(data.headingHold and "active" or "off")
+	end
+	if data.headFree ~= headFreePrev then -- Head free status change
+		playAudio(data.headFree and "hfact" or "hfoff", 1)
+	end
 	if data.armed then
 		data.distanceLast = data.distance
 		if config[13].v == 1 then
@@ -193,13 +193,6 @@ local function flightModes()
 		if data.altHold ~= altHoldPrev then -- Alt hold status change
 			playAudio("althld")
 			playAudio(data.altHold and "active" or "off")
-		end
-		if data.headingHold ~= headingHoldPrev then -- Heading hold status change
-			playAudio("hedhld")
-			playAudio(data.headingHold and "active" or "off")
-		end
-		if data.headFree ~= headFreePrev then -- Head free status change
-			playAudio(data.headFree and "hfact" or "hfoff", 1)
 		end
 		if homeReset and not data.homeResetPrev then -- Home reset
 			playAudio("homrst")
@@ -287,7 +280,7 @@ local function flightModes()
 	end
 	data.gpsFixPrev = data.gpsFix
 	data.homeResetPrev = homeReset
-	data.modePrev = data.mode
+	data.preArmModePrev = preArmMode
 end
 
 local function background()
