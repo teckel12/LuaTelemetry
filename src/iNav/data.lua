@@ -50,6 +50,31 @@ local data = {
 	vspeed_unit = getTelemetryUnit("VSpd"),
 	distance_unit = getTelemetryUnit(distanceSensor),
 	throttle_id = getTelemetryId("thr"),
+	mode = 0,
+	rxBatt = 0,
+	satellites = 0,
+	gpsAlt = 0,
+	heading = 0,
+	altitude = 0,
+	distance = 0,
+	speed = 0,
+	current = 0,
+	currentMax = 0,
+	fuel = 0,
+	altitudeMax = 0,
+	distanceMax = 0,
+	speedMax = 0,
+	batt = 0,
+	battMin = 0,
+	cells = 0,
+	cell = 0,
+	cellMin = 0,
+	rssiMin = 0,
+	vspeed = 0,
+	rssiLast = 0,
+	gpsLatLon = 0,
+	gpsFix = 0,
+	distanceLast = 0,
 	homeResetPrev = false,
 	gpsFixPrev = false,
 	altNextPlay = 0,
@@ -60,7 +85,7 @@ local data = {
 	headFree = false,
 	headingHold = false,
 	altHold = false,
-	telemFlags = -1,
+	telemFlags = 0,
 	cells = -1,
 	fuel = 100,
 	configCnt = 0,
@@ -89,10 +114,15 @@ if data.pitchRoll then
 	local rollSensor = getTelemetryId("Roll") > -1 and "Roll" or (getTelemetryId("0440") > -1 and "0440" or "0020")
 	data.pitch_id = getTelemetryId(pitchSensor)
 	data.roll_id = getTelemetryId(rollSensor)
+	data.pitch = 0
+	data.roll = 0
 else
 	data.accx_id = getTelemetryId("AccX")
 	data.accy_id = getTelemetryId("AccY")
 	data.accz_id = getTelemetryId("AccZ")
+	data.accx = 0
+	data.accy = 0
+	data.accz = 1
 end
 
 return data, PREV, INCR, NEXT, DECR, MENU
