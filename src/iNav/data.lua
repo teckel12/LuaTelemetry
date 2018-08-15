@@ -1,3 +1,5 @@
+local config, units = ...
+
 local function getTelemetryId(name)
 	local field = getFieldInfo(name)
 	return field and field.id or -1
@@ -51,30 +53,27 @@ local data = {
 	distance_unit = getTelemetryUnit(distanceSensor),
 	throttle_id = getTelemetryId("thr"),
 	mode = 0,
-	rxBatt = 0,
+	modeId = 1,
 	satellites = 0,
 	gpsAlt = 0,
 	heading = 0,
 	altitude = 0,
+	altitudeMax = 0,
 	distance = 0,
+	distanceMax = 0,
 	speed = 0,
+	speedMax = 0,
 	current = 0,
 	currentMax = 0,
 	fuel = 0,
-	altitudeMax = 0,
-	distanceMax = 0,
-	speedMax = 0,
 	batt = 0,
 	battMin = 0,
-	cells = 0,
 	cell = 0,
 	cellMin = 0,
+	rxBatt = 0,
+	rssiLast = 0,
 	rssiMin = 0,
 	vspeed = 0,
-	rssiLast = 0,
-	gpsLatLon = 0,
-	gpsFix = 0,
-	distanceLast = 0,
 	homeResetPrev = false,
 	gpsFixPrev = false,
 	altNextPlay = 0,
@@ -86,14 +85,11 @@ local data = {
 	headingHold = false,
 	altHold = false,
 	telemFlags = 0,
-	cells = -1,
-	fuel = 100,
-	configCnt = 0,
 	config = 0,
 	configLast = 1,
 	configTop = 1,
 	configSelect = 0,
-	modeId = 1
+	emptyGPS = { lat = 0, lon = 0 },
 }
 
 data.showCurr = data.current_id > -1 and true or false
@@ -107,7 +103,6 @@ data.distRef = data.distance_unit == 10 and 20 or 6
 data.altitude_unit = data.altitude_id == -1 and data.gpsAlt_unit or data.altitude_unit
 data.distance_unit = data.distance_unit == 0 and 9 or data.distance_unit
 data.systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false
-data.emptyGPS = { lat = 0, lon = 0 }
 data.pitchRoll = ((getTelemetryId("0430") > -1 or getTelemetryId("0008") > -1 or getTelemetryId("Ptch") > -1) and (getTelemetryId("0440") > -1 or getTelemetryId("0020") > -1 or getTelemetryId("Roll") > -1)) and true or false
 if data.pitchRoll then
 	local pitchSensor = getTelemetryId("Ptch") > -1 and "Ptch" or (getTelemetryId("0430") > -1 and "0430" or "0008")
@@ -124,5 +119,16 @@ else
 	data.accy = 0
 	data.accz = 1
 end
+
+-- Config special cases
+config[6].v = data.altitude_unit == 10 and 400 or 120
+config[6].i = data.altitude_unit == 10 and 10 or 1
+config[6].a = units[data.altitude_unit]
+config[24].a = units[data.altitude_unit]
+config[20].v = data.pitot and config[20].v or 0
+tmp = config[20].v == 0 and "GSpd" or "ASpd"
+data.speed_id = getTelemetryId(tmp)
+data.speedMax_id = getTelemetryId(tmp .. "+")
+data.speed_unit = getTelemetryUnit(tmp)
 
 return data, PREV, INCR, NEXT, DECR, MENU

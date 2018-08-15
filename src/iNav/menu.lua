@@ -1,4 +1,4 @@
-local data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR = ...
+local data, config, event, gpsDegMin, configCnt, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR = ...
 
 local CONFIG_X = LCD_W < 212 and 2 or 48
 
@@ -7,7 +7,7 @@ local function saveConfig()
 	if fh == nil then
 		data.systemError = "Folder \"iNav\" not found"
 	else
-		for line = 1, data.configCnt do
+		for line = 1, configCnt do
 			if config[line].d == nil then
 				io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
 			else 
@@ -21,7 +21,7 @@ end
 lcd.drawRectangle(CONFIG_X, 10, 124, 52, SOLID)
 
 -- Disabled options
-for line = 1, data.configCnt do
+for line = 1, configCnt do
 	local z = config[line].z
 	config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 end
@@ -35,7 +35,7 @@ config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
 config[24].p = config[7].v < 2 and 1 or nil
 config[20].p = not data.pitot and 1 or nil
-for line = data.configTop, math.min(data.configCnt, data.configTop + 5) do
+for line = data.configTop, math.min(configCnt, data.configTop + 5) do
 	local y = (line - data.configTop) * 8 + 10 + 3
 	local z = config[line].z
 	local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
@@ -69,15 +69,15 @@ if data.configSelect == 0 then
 		data.configLast = data.configStatus
 		data.configStatus = 0
 	elseif event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
-		data.configStatus = data.configStatus == data.configCnt and 1 or data.configStatus + 1
-		data.configTop = data.configStatus > math.min(data.configCnt, data.configTop + 5) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
+		data.configStatus = data.configStatus == configCnt and 1 or data.configStatus + 1
+		data.configTop = data.configStatus > math.min(configCnt, data.configTop + 5) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
 		while config[config[data.configStatus].z].p ~= nil do
-			data.configStatus = math.min(data.configStatus + 1, data.configCnt)
-			data.configTop = data.configStatus > math.min(data.configCnt, data.configTop + 5) and data.configTop + 1 or data.configTop
+			data.configStatus = math.min(data.configStatus + 1, configCnt)
+			data.configTop = data.configStatus > math.min(configCnt, data.configTop + 5) and data.configTop + 1 or data.configTop
 		end
 	elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
-		data.configStatus = data.configStatus == 1 and data.configCnt or data.configStatus - 1
-		data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == data.configCnt and data.configCnt - 5 or data.configTop)
+		data.configStatus = data.configStatus == 1 and configCnt or data.configStatus - 1
+		data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == configCnt and configCnt - 5 or data.configTop)
 		while config[config[data.configStatus].z].p ~= nil do
 			data.configStatus = math.max(data.configStatus - 1, 1)
 			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or data.configTop

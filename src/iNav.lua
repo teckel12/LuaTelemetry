@@ -6,15 +6,12 @@ local VERSION = "1.4.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
-local startupTime, tmp
+local tmp
 
-local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")()
+local config, units, modes, configCnt = loadScript(FILE_PATH .. "config.luac", "T")(SMLCD, FLASH, FILE_PATH)
 collectgarbage()
 
-local config, units = loadScript(FILE_PATH .. "config.luac", "T")(data, SMLCD)
-collectgarbage()
-
-local modes = loadScript(FILE_PATH .. "modes.luac", "T")(data, config, FLASH, SMLCD, FILE_PATH)
+local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")(config, units)
 collectgarbage()
 
 local function reset()
@@ -32,9 +29,8 @@ local function reset()
 	data.cells = 1
 	data.gpsAltBase = false
 	data.configStatus = 0
-	startupTime = 0
+	data.startupTime = 0
 end
-
 reset()
 
 local function gpsDegMin(coord, lat)
@@ -107,9 +103,9 @@ local function run(event)
 
 	-- Startup message
 	if data.startup == 1 then
-		startupTime = getTime()
+		data.startupTime = getTime()
 		data.startup = 2
-	elseif data.startup == 2 and getTime() - startupTime >= 200 then
+	elseif data.startup == 2 and getTime() - data.startupTime >= 200 then
 		data.startup = 0
 	end
 
@@ -118,7 +114,7 @@ local function run(event)
 		data.configStatus = data.configLast
 	end
 	if data.configStatus > 0 then
-		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, gpsDegMin, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
+		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, gpsDegMin, configCnt, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
 	else
 		-- User input
 		if not data.armed and data.configStatus == 0 then

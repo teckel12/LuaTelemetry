@@ -1,8 +1,9 @@
 local data, reset, config, FLASH = ...
 
 data.rssi = getValue(data.rssi_id)
-if data.rssi > 0 or data.telemFlags < 0 then
+if data.rssi > 0 then
 	data.telemetry = true
+	data.telemFlags = 0
 	data.mode = getValue(data.mode_id)
 	data.rxBatt = getValue(data.rxBatt_id)
 	data.satellites = getValue(data.satellites_id)
@@ -54,7 +55,6 @@ if data.rssi > 0 or data.telemFlags < 0 then
 	if data.distance > 0 then
 		data.distanceLast = data.distance
 	end
-	data.telemFlags = 0
 else
 	data.telemetry = false
 	data.telemFlags = FLASH
