@@ -1,12 +1,14 @@
-local data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH = ...
+local data, config, modes, units, VERSION, SMLCD, FLASH, FILE_PATH = ...
 
 local LEFT_POS = SMLCD and 0 or 36
 local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
 local X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 2
 local HEADING_DEG = SMLCD and 170 or 190
 local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
-local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
+local gpsFlags = SMLSIZE + RIGHT + ((not data.telemetry or not data.gpsFix) and FLASH or 0)
 local tmp, pitch, roll, roll1, roll2, upsideDown
+
+local gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph = loadScript(FILE_PATH .. "widgets.luac", "T")(data, config, SMLCD, FLASH)
 
 local function attitude(radius, pitchAdj)
 	local py = 35 - math.cos(math.rad(pitch - pitchAdj)) * 85
@@ -107,7 +109,7 @@ if data.startup == 0 and data.telemetry then
 end
 
 -- Home direction
-if data.gpsHome ~= false and data.startup == 0 and ((SMLCD and not data.showDir) or not SMLCD) then
+if data.showHead and data.armed and data.telemetry and data.gpsHome ~= false and data.startup == 0 and ((SMLCD and not data.showDir) or not SMLCD) then
 	local home = X_CNTR - 3
 	if data.distanceLast >= data.distRef then
 		local o1 = math.rad(data.gpsHome.lat)
@@ -150,7 +152,7 @@ end
 if SMLCD then
 	homeIcon(LEFT_POS + 4, 42)
 	lcd.drawText(LEFT_POS + 12, 42, data.distanceLast < 1000 and data.distanceLast .. units[data.distance_unit] or (string.format("%.1f", data.distanceLast / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
-	tmp = (data.telemFlags > 0 or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
+	tmp = (not data.telemetry or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if config[23].v == 0 then
 		lcd.drawText(RIGHT_POS - 7, 8, data.fuel, MIDSIZE + RIGHT + tmp)
 		lcd.drawText(RIGHT_POS - 2, 13, "%", SMLSIZE + RIGHT + tmp)
@@ -220,8 +222,8 @@ lcd.drawRectangle(LEFT_POS, 31, 20, 10, FORCE)
 -- Altitude
 tics(data.altitude, RIGHT_POS - 2)
 lcd.drawLine(RIGHT_POS - 21, 32, RIGHT_POS, 32, SOLID, ERASE)
-lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + ((data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
-lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(data.altitude + 0.5)) or "Alt", SMLSIZE + RIGHT + ((data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
+lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + ((not data.telemetry or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
+lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(data.altitude + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telemetry or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
 lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, FORCE)
 
 -- Variometer
@@ -257,14 +259,14 @@ else
 end
 lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 lcd.drawLine(RIGHT_POS + (config[7].v % 2 == 1 and (SMLCD and 5 or 7) or 0), 50, LCD_W, 50, SOLID, FORCE)
-local rssiFlags = RIGHT + ((data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
+local rssiFlags = RIGHT + ((not data.telemetry or data.rssi < data.rssiLow) and FLASH or 0)
 lcd.drawText(LCD_W - 10, 52, math.min(data.rssiLast, 99), MIDSIZE + rssiFlags)
 lcd.drawText(LCD_W, 57, "dB", SMLSIZE + rssiFlags)
 
 -- Left data - Battery
 if not SMLCD then
 	lcd.drawFilledRectangle(LEFT_POS - 7, 49, 7, 14, ERASE)
-	tmp = (data.telemFlags > 0 or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
+	tmp = (not data.telemetry or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if config[23].v == 0 then
 		lcd.drawText(LEFT_POS - 5, data.showCurr and 8 or 12, data.fuel, DBLSIZE + RIGHT + tmp)
 		lcd.drawText(LEFT_POS, data.showCurr and 17 or 21, "%", SMLSIZE + RIGHT + tmp)

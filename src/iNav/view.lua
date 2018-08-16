@@ -1,10 +1,12 @@
-local data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, hdopGraph, VERSION, SMLCD, FLASH = ...
+local data, config, modes, units, VERSION, SMLCD, FLASH, FILE_PATH = ...
 
 local RIGHT_POS = SMLCD and 129 or 195
 local GAUGE_WIDTH = SMLCD and 82 or 149
 local X_CNTR_1 = SMLCD and 63 or 68
 local X_CNTR_2 = SMLCD and 63 or 104
 local tmp
+
+local gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph = loadScript(FILE_PATH .. "widgets.luac", "T")(data, config, SMLCD, FLASH)
 
 local function drawDirection(heading, width, radius, x, y)
 	local rad1 = math.rad(heading)
@@ -50,14 +52,14 @@ if data.startup == 2 then
 end
 
 -- GPS
-local gpsFlags = SMLSIZE + RIGHT + ((data.telemFlags > 0 or not data.gpsFix) and FLASH or 0)
+local gpsFlags = SMLSIZE + RIGHT + ((not data.telemetry or not data.gpsFix) and FLASH or 0)
 tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
 lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 lcd.drawText(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 lcd.drawText(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 hdopGraph(RIGHT_POS - 30, 9, SMLSIZE)
 gpsIcon(RIGHT_POS - 17, 9)
-lcd.drawText(RIGHT_POS - (data.telemFlags == 0 and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
+lcd.drawText(RIGHT_POS - (data.telemetry and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 -- Directionals
 if data.showHead and data.startup == 0 then
@@ -105,18 +107,18 @@ if data.headFree then
 end
 
 -- Data & gauges
-drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.altitude_unit], 0, (data.telemFlags > 0 or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
+drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.altitude_unit], 0, (not data.telemetry or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
 if data.altHold then lockIcon(46, 9) end
-tmp = (data.telemFlags > 0 or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
+tmp = (not data.telemetry or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
 drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
 drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell or data.batt, config[1].v == 0 and data.cellMin or data.battMin, 100, "V", config[1].v == 0 and "%.2f" or "%.1f", tmp, 1)
-drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (data.telemFlags > 0 or data.rssi < data.rssiLow) and FLASH or 0)
+drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (not data.telemetry or data.rssi < data.rssiLow) and FLASH or 0)
 if data.showCurr then
 	drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
 	drawData(config[23].v == 0 and "Fuel" or config[23].l[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)
 	if config[23].v == 0 then
-		lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 98), 100)
+		lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 99), 100)
 		if data.fuel == 0 then
 			lcd.drawLine(47, 42, 47, 46, SOLID, ERASE)
 		end
