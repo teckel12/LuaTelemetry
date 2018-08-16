@@ -5,7 +5,7 @@ data.timerStart = 0
 data.timer = 0
 data.distanceLast = 0
 data.gpsHome = false
-data.gpsLatLon = data.emptyGPS
+data.gpsLatLon = { lat = 0, lon = 0 }
 data.gpsFix = false
 data.headingRef = -1
 data.battLow = false
