@@ -1,10 +1,12 @@
-local data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, hdopGraph, VERSION, SMLCD, FLASH = ...
+local data, config, modes, units, VERSION, SMLCD, FLASH, FILE_PATH = ...
 
 local RIGHT_POS = SMLCD and 129 or 195
 local GAUGE_WIDTH = SMLCD and 82 or 149
 local X_CNTR_1 = SMLCD and 63 or 68
 local X_CNTR_2 = SMLCD and 63 or 104
 local tmp
+
+local gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph = loadScript(FILE_PATH .. "widgets.luac", "T")(data, config, SMLCD, FLASH)
 
 local function drawDirection(heading, width, radius, x, y)
 	local rad1 = math.rad(heading)

@@ -1,13 +1,8 @@
-local config, data, units = ...
+local config, data, units, FILE_PATH = ...
 
 local function getTelemetryId(name)
 	local field = getFieldInfo(name)
 	return field and field.id or -1
-end
-
-local function getTelemetryUnit(name)
-	local field = getFieldInfo(name)
-	return (field and field.unit <= 10) and field.unit or 0
 end
 
 data.showCurr = data.current_id > -1 and true or false
@@ -48,9 +43,6 @@ config[6].i = data.altitude_unit == 10 and 10 or 1
 config[6].a = units[data.altitude_unit]
 config[24].a = units[data.altitude_unit]
 config[20].v = data.pitot and config[20].v or 0
-tmp = config[20].v == 0 and "GSpd" or "ASpd"
-data.speed_id = getTelemetryId(tmp)
-data.speedMax_id = getTelemetryId(tmp .. "+")
-data.speed_unit = getTelemetryUnit(tmp)
+loadScript(FILE_PATH .. "setspeed.luac", "T")(data, config)
 
 return 0

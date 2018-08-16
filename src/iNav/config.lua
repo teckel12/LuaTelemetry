@@ -1,6 +1,4 @@
-local SMLCD, FLASH, FILE_PATH = ...
-
-local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
+local SMLCD = ...
 
 -- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 local config = {
@@ -30,46 +28,4 @@ local config = {
 	{ o = 14, t = "Vario Steps",    c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
 	{ o = 21, t = "View Mode",      c = 1, v = 0, i = 1, l = {[0] = "Classic", "Pilot"} },
 }
-
--- Modes: t=text / f=flags for text / w=wave file
-local modes = {
-	{ t = "! TELEM !", f = FLASH },
-	{ t = "HORIZON",   f = 0, w = "hrznmd" },
-	{ t = "  ANGLE",   f = 0, w = "anglmd" },
-	{ t = "   ACRO",   f = 0, w = "acromd" },
-	{ t = " NOT OK ",  f = FLASH },
-	{ t = "  READY",   f = 0, w = "ready" },
-	{ t = "POS HOLD",  f = 0, w = "poshld" },
-	{ t = "WAYPONT",   f = 0, w = "waypt" },
-	{ t = " MANUAL",   f = 0, w = "manmd" },
-	{ t = "   RTH   ", f = FLASH, w = "rtl" },
-	{ t = "! FAIL !",  f = FLASH, w = "fson" },
-	{ t = "! THROT !", f = FLASH },
-	{ t = " CRUISE",   f = 0, w = "cruzmd" }
-}
-
--- Sort config menus
-configCnt = 0
-for i, value in ipairs(config) do
-	for ii, value2 in ipairs(config) do
-		if i == value2.o then
-			value.z = ii
-			value2.o = nil
-		end
-	end
-	configCnt = configCnt + 1
-end
-
--- Load config data
-local fh = io.open(FILE_PATH .. "config.dat", "r")
-if fh ~= nil then
-	for line = 1, configCnt do
-		local tmp = io.read(fh, config[line].c)
-		if tmp ~= "" then
-			config[line].v = config[line].d == nil and math.min(tonumber(tmp), config[line].x == nil and 1 or config[line].x) or tmp / 10
-		end
-	end
-	io.close(fh)
-end
-
-return config, units, modes, configCnt
+return config

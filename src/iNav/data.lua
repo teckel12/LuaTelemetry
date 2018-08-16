@@ -88,8 +88,7 @@ local data = {
 	configTop = 1,
 	configSelect = 0,
 	emptyGPS = { lat = 0, lon = 0 },
+	systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }
-
-data.systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false
 
 return data, PREV, INCR, NEXT, DECR, MENU
