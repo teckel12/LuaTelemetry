@@ -11,7 +11,7 @@ local tmp
 local config, units, modes, configCnt = loadScript(FILE_PATH .. "config.luac", "T")(SMLCD, FLASH, FILE_PATH)
 collectgarbage()
 
-local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")(config, units)
+local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")()
 collectgarbage()
 
 local function reset()
@@ -32,6 +32,9 @@ local function reset()
 	data.startupTime = 0
 end
 reset()
+
+loadScript(FILE_PATH .. "other.luac", "T")(config, data, units)
+collectgarbage()
 
 local function gpsDegMin(coord, lat)
 	local gpsD = math.floor(math.abs(coord))

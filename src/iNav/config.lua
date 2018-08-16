@@ -72,9 +72,4 @@ if fh ~= nil then
 	io.close(fh)
 end
 
--- Saved config adjustments
-config[15].v = 0
-config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
-config[19].v = math.min(config[19].x, config[19].v)
-
 return config, units, modes, configCnt
