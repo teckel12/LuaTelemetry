@@ -12,8 +12,6 @@ local config = loadScript(FILE_PATH .. "config.luac", "T")(SMLCD)
 collectgarbage()
 
 local modes, units = loadScript(FILE_PATH .. "modes.luac", "T")(FLASH)
---collectgarbage()
-
 local configCnt = loadScript(FILE_PATH .. "load.luac", "T")(config, FILE_PATH)
 collectgarbage()
 
@@ -21,8 +19,6 @@ local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", 
 collectgarbage()
 
 loadScript(FILE_PATH .. "reset.luac", "T")(data)
---collectgarbage()
-
 loadScript(FILE_PATH .. "other.luac", "T")(config, data, units, FILE_PATH)
 collectgarbage()
 
@@ -60,7 +56,7 @@ local function run(event)
 		data.configStatus = data.configLast
 	end
 	if data.configStatus > 0 then
-		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, gpsDegMin, configCnt, FILE_PATH, SMLCD, PREV, INCR, NEXT, DECR)
+		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, configCnt, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 	else
 		-- User input
 		if not data.armed and data.configStatus == 0 then
