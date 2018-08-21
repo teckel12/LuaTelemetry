@@ -1,6 +1,6 @@
 # Release History
 
-## v1.4.0 - 08/16/2018
+## v1.4.0 - 08/21/2018
 
 * Pilot view (glass cockpit) which includes attitude indicator as well as pilot-familiar layout of additional data
 * Shows GPS fix accuracy (HDOP) as strength indicator graph or decimal value (required INAV 2.0.0)
