@@ -23,7 +23,7 @@
 * Works with all FrSky telemetry receivers (X-series and D-series) and all FrSky Taranis transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
-* Pilot view which includes attitude indicator as well as pilot-familiar layout of additional data
+* Pilot view (glass cockpit) which includes attitude indicator as well as pilot-familiar layout of additional data
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
@@ -50,7 +50,7 @@
 ## Notes
 
 * INAV v2.0+ is required for FkSky D-series telemetry and proper GPS accuracy (HDOP) display
-* If using pilot view (glass cockpit) and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
+* If using pilot view and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 is required for compatibility with Taranis X-Lite transmitter
