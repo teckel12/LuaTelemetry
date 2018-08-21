@@ -50,6 +50,7 @@
 ## Notes
 
 * INAV v2.0+ is required for FkSky D-series telemetry and proper GPS accuracy (HDOP) display
+* If using pilot view (glass cockpit) and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 is required for compatibility with Taranis X-Lite transmitter
