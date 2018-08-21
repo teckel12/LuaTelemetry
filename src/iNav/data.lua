@@ -87,7 +87,6 @@ local data = {
 	configLast = 1,
 	configTop = 1,
 	configSelect = 0,
-	--refresh = getTime() + 20,
 	systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }
 
