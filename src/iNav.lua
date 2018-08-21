@@ -35,6 +35,14 @@ local function background()
 end
 
 local function run(event)
+	--[[ Lock display at 5fps
+	if event == 0 then
+		if getTime() < data.refresh then
+			return 0
+		end
+		data.refresh = getTime() + 20 (100 / 20 = 5fps)
+	end
+	]]
 	lcd.clear()
 
 	-- Display system error
@@ -101,6 +109,11 @@ local function run(event)
 	if data.rxBatt > 0 and data.telemetry and config[14].v == 1 then
 		lcd.drawText(LCD_W, 1, string.format("%.1f", data.rxBatt) .. "V", SMLSIZE + RIGHT + INVERS)
 	end
+
+	--[[ Show FPS
+	data.frames = data.frames + 1
+	lcd.drawText(SMLCD and 57 or 80, 1, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), SMLSIZE + RIGHT + INVERS)
+	]]
 
 	return 0
 end
