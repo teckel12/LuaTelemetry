@@ -1,5 +1,5 @@
 ---
-name: 2 - Bug report
+name: Bug report
 about: Report a bug or issue with Lua Telemetry
 
 ---
