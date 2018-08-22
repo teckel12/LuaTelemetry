@@ -1,5 +1,9 @@
 # Release History
 
+## v1.4.1 - 08/22/2018
+
+* 
+
 ## v1.4.0 - 08/21/2018
 
 * Pilot view (glass cockpit) which includes attitude indicator as well as pilot-familiar layout of additional data
