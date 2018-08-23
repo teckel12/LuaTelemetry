@@ -61,6 +61,8 @@
 
 ## Setup
 
+* [Lua Telemetry Wiki](https://github.com/iNavFlight/LuaTelemetry/wiki)
+* [Download latest release](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
 * [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
 * [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
 
@@ -69,6 +71,7 @@
 * [Screen Description](https://github.com/iNavFlight/LuaTelemetry/wiki/Screen-Description)
 * [Configuration Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Configuration-Settings)
 * [Suggested Battery Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Suggested-Battery-Settings)
+* [Change Log - Release History](https://github.com/iNavFlight/LuaTelemetry/wiki/Change-Log)
 
 ## Support
 
@@ -77,5 +80,5 @@
 
 ## Other
 
-* [Change Log - Release History](CHANGES.md)
-* [License](LICENSE)
+* [Upgrade to Development Build](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade-to-Development-Build)
+* [License](https://github.com/iNavFlight/LuaTelemetry/blob/master/LICENSE)
