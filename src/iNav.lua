@@ -35,14 +35,6 @@ local function background()
 end
 
 local function run(event)
-	--[[ Lock display at 5fps
-	if event == 0 then
-		if getTime() < data.refresh then
-			return 0
-		end
-		data.refresh = getTime() + 20 (100 / 20 = 5fps)
-	end
-	]]
 	lcd.clear()
 
 	-- Display system error
