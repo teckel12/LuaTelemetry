@@ -83,7 +83,9 @@ if data.startup == 0 and data.telemetry then
 	tmp = pitch - 90
 	local short = SMLCD and 4 or 6
 	local tmp2 = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
-	lcd.drawText(X_CNTR - (SMLCD and 14 or 24), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
+	if not data.showMax then
+		lcd.drawText(X_CNTR - (SMLCD and 14 or 24), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
+	end
 	if tmp <= 25 and tmp >= -10 then
 		attitude(short, 5)
 		attitude(11, 10)
@@ -130,8 +132,8 @@ if data.showHead and data.armed and data.telemetry and data.gpsHome ~= false and
 		homeIcon(home, tmp)
 	end
 elseif data.showMax then
-	lcd.drawText(LEFT_POS + 9, 13, "\192", SMLSIZE)
-	lcd.drawText(LEFT_POS + 9, 19, "\193", SMLSIZE)
+	lcd.drawText(LEFT_POS + 21, 33, "\192", SMLSIZE)
+	lcd.drawText(RIGHT_POS - 22, 33, "\192", SMLSIZE + RIGHT)
 end
 
 -- Heading part 1
@@ -155,7 +157,7 @@ end
 if SMLCD then
 	homeIcon(LEFT_POS + 4, 42)
 	tmp = data.showMax and data.distanceMax or data.distanceLast
-	lcd.drawText(LEFT_POS + 12, 42, tmp < 1000 and tmp .. units[data.distance_unit] or (string.format("%.1f", tmp / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
+	lcd.drawText(LEFT_POS + 12, 42, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.distance_unit] or (string.format("%.1f", tmp / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
 	tmp = (not data.telemetry or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if config[23].v == 0 then
 		lcd.drawText(RIGHT_POS - 7, 8, data.fuel, MIDSIZE + RIGHT + tmp)
@@ -171,6 +173,9 @@ if SMLCD then
 	elseif data.showCurr then
 		lcd.drawText(RIGHT_POS - 2, 42, string.format("%.1fA", data.showMax and data.currentMax or data.current), SMLSIZE + RIGHT + data.telemFlags)
 	end
+elseif not data.armed and data.startup == 0 then
+	lcd.drawText(LEFT_POS + 19, 24, "Spd", SMLSIZE + RIGHT)
+	lcd.drawText(RIGHT_POS - 2, 24, "Alt", SMLSIZE + RIGHT)
 end
 
 -- Flight modes
@@ -290,7 +295,7 @@ if not SMLCD then
 	lcd.drawLine(0, data.showCurr and 54 or 53, LEFT_POS, data.showCurr and 54 or 53, SOLID, FORCE)
 	homeIcon(0, 57)
 	tmp = data.showMax and data.distanceMax or data.distanceLast
-	lcd.drawText(LEFT_POS, 57, tmp < 1000 and tmp .. units[data.distance_unit] or (string.format("%.1f", tmp / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
+	lcd.drawText(LEFT_POS, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.distance_unit] or (string.format("%.1f", tmp / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
 end
 
 return 0
