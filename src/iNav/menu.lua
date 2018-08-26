@@ -1,4 +1,4 @@
-local data, config, event, configCnt, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR = ...
+local data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR = ...
 
 local CONFIG_X = LCD_W < 212 and 2 or 48
 
@@ -50,8 +50,6 @@ for line = data.configTop, math.min(configCnt, data.configTop + 5) do
 			if not config[z].l then
 				lcd.drawText(CONFIG_X + 84, y, config[z].v, SMLSIZE + tmp)
 			else
-				local gpsDegMin = loadScript(FILE_PATH .. "widgets.luac", "T")(data, config, SMLCD, FLASH)
-				collectgarbage()
 				if z == 15 then
 					lcd.drawText(CONFIG_X + 22, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 				else

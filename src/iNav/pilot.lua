@@ -1,4 +1,4 @@
-local data, config, modes, units, VERSION, SMLCD, FLASH, FILE_PATH = ...
+local data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH = ...
 
 local LEFT_POS = SMLCD and 0 or 36
 local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
@@ -7,8 +7,6 @@ local HEADING_DEG = SMLCD and 170 or 190
 local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
 local gpsFlags = SMLSIZE + RIGHT + ((not data.telemetry or not data.gpsFix) and FLASH or 0)
 local tmp, pitch, roll, roll1, roll2, upsideDown
-
-local gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph = loadScript(FILE_PATH .. "widgets.luac", "T")(data, config, SMLCD, FLASH)
 
 local function attitude(radius, pitchAdj)
 	local py = 35 - math.cos(math.rad(pitch - pitchAdj)) * 85
@@ -83,7 +81,9 @@ if data.startup == 0 and data.telemetry then
 	tmp = pitch - 90
 	local short = SMLCD and 4 or 6
 	local tmp2 = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
-	lcd.drawText(X_CNTR - (SMLCD and 14 or 24), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
+	if not data.showMax then
+		lcd.drawText(X_CNTR - (SMLCD and 14 or 24), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
+	end
 	if tmp <= 25 and tmp >= -10 then
 		attitude(short, 5)
 		attitude(11, 10)
@@ -129,6 +129,9 @@ if data.showHead and data.armed and data.telemetry and data.gpsHome ~= false and
 		end
 		homeIcon(home, tmp)
 	end
+elseif data.showMax then
+	lcd.drawText(LEFT_POS + 21, 33, "\192", SMLSIZE)
+	lcd.drawText(RIGHT_POS - 22, 33, "\192", SMLSIZE + RIGHT)
 end
 
 -- Heading part 1
@@ -151,7 +154,8 @@ end
 -- Battery and GPS overlay
 if SMLCD then
 	homeIcon(LEFT_POS + 4, 42)
-	lcd.drawText(LEFT_POS + 12, 42, data.distanceLast < 1000 and data.distanceLast .. units[data.distance_unit] or (string.format("%.1f", data.distanceLast / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
+	tmp = data.showMax and data.distanceMax or data.distanceLast
+	lcd.drawText(LEFT_POS + 12, 42, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.distance_unit] or (string.format("%.1f", tmp / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
 	tmp = (not data.telemetry or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if config[23].v == 0 then
 		lcd.drawText(RIGHT_POS - 7, 8, data.fuel, MIDSIZE + RIGHT + tmp)
@@ -159,14 +163,17 @@ if SMLCD then
 	else
 		lcd.drawText(RIGHT_POS - 2, 9, data.fuel, SMLSIZE + RIGHT + tmp)
 	end
-	lcd.drawText(RIGHT_POS - 7, 19, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and data.cell or data.batt), MIDSIZE + RIGHT + tmp)
+	lcd.drawText(RIGHT_POS - 7, 19, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
 	lcd.drawText(RIGHT_POS - 2, 24, "V", SMLSIZE + RIGHT + tmp)
 	if data.showDir then
 		lcd.drawText(RIGHT_POS - 2, 42, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 		lcd.drawText(RIGHT_POS - 2, 49, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 	elseif data.showCurr then
-		lcd.drawText(RIGHT_POS - 2, 42, string.format("%.1fA", data.current), SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(RIGHT_POS - 2, 42, string.format("%.1fA", data.showMax and data.currentMax or data.current), SMLSIZE + RIGHT + data.telemFlags)
 	end
+elseif not data.armed and data.startup == 0 then
+	lcd.drawText(LEFT_POS + 19, 24, "Spd", SMLSIZE + RIGHT)
+	lcd.drawText(RIGHT_POS - 2, 24, "Alt", SMLSIZE + RIGHT)
 end
 
 -- Flight modes
@@ -216,14 +223,16 @@ lcd.drawLine(LEFT_POS, 8, LEFT_POS, 63, SOLID, FORCE)
 tics(data.speed, LEFT_POS + 1)
 lcd.drawLine(LEFT_POS + 1, 32, LEFT_POS + 18, 32, SOLID, ERASE)
 lcd.drawText(LEFT_POS + 1, 33, "      ", SMLSIZE + data.telemFlags)
-lcd.drawText(LEFT_POS + 19, 33, data.startup == 0 and (data.speed >= 99.5 and math.floor(data.speed + 0.5) or string.format("%.1f", data.speed)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
+tmp = data.showMax and data.speedMax or data.speed
+lcd.drawText(LEFT_POS + 19, 33, data.startup == 0 and (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
 lcd.drawRectangle(LEFT_POS, 31, 20, 10, FORCE)
 
 -- Altitude
 tics(data.altitude, RIGHT_POS - 2)
 lcd.drawLine(RIGHT_POS - 21, 32, RIGHT_POS, 32, SOLID, ERASE)
-lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + ((not data.telemetry or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
-lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(data.altitude + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telemetry or data.altitude + 0.5 >= config[6].v) and FLASH or 0))
+tmp = data.showMax and data.altitudeMax or data.altitude
+lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + ((not data.telemetry or tmp + 0.5 >= config[6].v) and FLASH or 0))
+lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(tmp + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telemetry or tmp + 0.5 >= config[6].v) and FLASH or 0))
 lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, FORCE)
 
 -- Variometer
@@ -260,7 +269,7 @@ end
 lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 lcd.drawLine(RIGHT_POS + (config[7].v % 2 == 1 and (SMLCD and 5 or 7) or 0), 50, LCD_W, 50, SOLID, FORCE)
 local rssiFlags = RIGHT + ((not data.telemetry or data.rssi < data.rssiLow) and FLASH or 0)
-lcd.drawText(LCD_W - 10, 52, math.min(data.rssiLast, 99), MIDSIZE + rssiFlags)
+lcd.drawText(LCD_W - 10, 52, math.min(data.showMax and data.rssiMin or data.rssiLast, 99), MIDSIZE + rssiFlags)
 lcd.drawText(LCD_W, 57, "dB", SMLSIZE + rssiFlags)
 
 -- Left data - Battery
@@ -274,15 +283,17 @@ if not SMLCD then
 		lcd.drawText(LEFT_POS, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
 		lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, config[23].l[config[23].v], SMLSIZE + RIGHT + tmp)
 	end
-	lcd.drawText(LEFT_POS - 5, data.showCurr and 25 or 32, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and data.cell or data.batt), DBLSIZE + RIGHT + tmp)
+	lcd.drawText(LEFT_POS - 5, data.showCurr and 25 or 32, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), DBLSIZE + RIGHT + tmp)
 	lcd.drawText(LEFT_POS, data.showCurr and 34 or 41, "V", SMLSIZE + RIGHT + tmp)
 	if data.showCurr then
-		lcd.drawText(LEFT_POS - 5, 42, data.current >= 99.5 and math.floor(data.current + 0.5) or string.format("%.1f", data.current), MIDSIZE + RIGHT + data.telemFlags)
+		tmp = data.showMax and data.currentMax or data.current
+		lcd.drawText(LEFT_POS - 5, 42, tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp), MIDSIZE + RIGHT + data.telemFlags)
 		lcd.drawText(LEFT_POS, 47, "A", SMLSIZE + RIGHT + data.telemFlags)
 	end
 	lcd.drawLine(0, data.showCurr and 54 or 53, LEFT_POS, data.showCurr and 54 or 53, SOLID, FORCE)
 	homeIcon(0, 57)
-	lcd.drawText(LEFT_POS, 57, data.distanceLast < 1000 and data.distanceLast .. units[data.distance_unit] or (string.format("%.1f", data.distanceLast / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
+	tmp = data.showMax and data.distanceMax or data.distanceLast
+	lcd.drawText(LEFT_POS, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.distance_unit] or (string.format("%.1f", tmp / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
 end
 
 return 0
