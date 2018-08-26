@@ -20,7 +20,7 @@
 
 ## Features
 
-* Works with all FrSky telemetry receivers (X-series and D-series) and all FrSky Taranis transmitters
+* Works with all FrSky telemetry receivers (X-series, R9 series and D-series) and all FrSky Taranis transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Pilot view (glass cockpit) which includes attitude indicator as well as pilot-familiar layout of additional data
@@ -38,7 +38,7 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X9D, X9D+, X9E or X-Lite (with OpenTX v2.2.2+)
-* FkSky X-series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, D8R-II plus, D8R-XP, D4R-II, etc.
+* FkSky X-series, R9 series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, R9, R9 Slim, R9M, D8R-II plus, D8R-XP, D4R-II, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.0+ is suggested for full functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 

@@ -1,4 +1,4 @@
-local data, config, modes, units, VERSION, SMLCD, FLASH, FILE_PATH = ...
+local data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH = ...
 
 local LEFT_POS = SMLCD and 0 or 36
 local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
@@ -7,8 +7,6 @@ local HEADING_DEG = SMLCD and 170 or 190
 local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
 local gpsFlags = SMLSIZE + RIGHT + ((not data.telemetry or not data.gpsFix) and FLASH or 0)
 local tmp, pitch, roll, roll1, roll2, upsideDown
-
-local gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph = loadScript(FILE_PATH .. "widgets.luac", "T")(data, config, SMLCD, FLASH)
 
 local function attitude(radius, pitchAdj)
 	local py = 35 - math.cos(math.rad(pitch - pitchAdj)) * 85
