@@ -104,7 +104,7 @@ else
 		elseif z == 17 then -- Fuel critical < low
 			config[17].v = math.min(config[17].v, config[18].v - 1)
 		elseif z == 20 then -- Speed sensor
-			loadScript(FILE_PATH .. "setspeed.luac", "T")(data, config)
+			loadScript(FILE_PATH .. "setspeed.luac", "bT")(data, config)
 		elseif config[z].i > 1 then
 			config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
 		end
