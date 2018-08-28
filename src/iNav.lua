@@ -2,7 +2,7 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.4.1"
+local VERSION = "1.4.2"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
@@ -361,11 +361,11 @@ local function run(event)
 		if data.v ~= 9 then
 			view = nil
 			collectgarbage()
-			if data.simu then
+			--if data.simu then
 				view = loadScript(FILE_PATH .. "menu", "bT")()
-			else
-				view = loadfile(FILE_PATH .. "menu.luac")()
-			end
+			--else
+			--	view = loadfile(FILE_PATH .. "menu.luac")()
+			--end
 			data.v = 9
 		end
 		view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
@@ -389,11 +389,11 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			if data.simu then
-				view = loadScript(FILE_PATH .. (config[25].v == 1 and "pilot" or "view"), "T")()
-			else
-				view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or "view.luac"))()
-			end
+			--if data.simu then
+				view = loadScript(FILE_PATH .. (config[25].v == 1 and "pilot" or "view"), "bT")()
+			--else
+			--	view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or "view.luac"))()
+			--end
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
@@ -421,10 +421,10 @@ local function run(event)
 		lcd.drawText(LCD_W, 1, string.format("%.1f", data.rxBatt) .. "V", SMLSIZE + RIGHT + INVERS)
 	end
 
-	-- Show FPS
+	--[[ Show FPS
 	data.frames = data.frames + 1
 	lcd.drawText(SMLCD and 57 or 80, 1, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), SMLSIZE + RIGHT + INVERS)
-	
+	]]
 
 	return 0
 end

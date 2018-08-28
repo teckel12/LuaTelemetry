@@ -91,7 +91,7 @@ local data = {
 	configSelect = 0,
 	v = -1,
 	systemError = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
-	simu = string.sub(radio, -4) == "simu" and true or false,
+	--simu = string.sub(radio, -4) == "simu" and true or false,
 }
 
 return data, PREV, INCR, NEXT, DECR, MENU
