@@ -43,6 +43,6 @@ config[6].i = data.altitude_unit == 10 and 10 or 1
 config[6].a = units[data.altitude_unit]
 config[24].a = units[data.altitude_unit]
 config[20].v = data.pitot and config[20].v or 0
-loadScript(FILE_PATH .. "setspeed", "bT")(data, config)
+loadfile(FILE_PATH .. "setspeed.luac")(data, config)
 
 return 0

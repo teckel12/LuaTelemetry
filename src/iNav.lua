@@ -8,18 +8,24 @@ local FLASH = 3
 local SMLCD = LCD_W < 212
 local tmp, view
 
-local config = loadScript(FILE_PATH .. "config", "bT")(SMLCD)
+-- Compile if running Companion
+local v, r, m, i, e = getVersion()
+if string.sub(r, -4) == "simu" then
+	loadScript(FILE_PATH .. "compile", "tx")(SMLCD, FLASH, FILE_PATH)
+end
+
+local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
 collectgarbage()
 
-local modes, units = loadScript(FILE_PATH .. "modes", "bT")(FLASH)
-local configCnt = loadScript(FILE_PATH .. "load", "bT")(config, FILE_PATH)
+local modes, units = loadfile(FILE_PATH .. "modes.luac")(FLASH)
+local configCnt = loadfile(FILE_PATH .. "load.luac")(config, FILE_PATH)
 collectgarbage()
 
-local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", "bT")()
+local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")()
 collectgarbage()
 
-loadScript(FILE_PATH .. "reset", "bT")(data)
-loadScript(FILE_PATH .. "other", "bT")(config, data, units, FILE_PATH)
+loadfile(FILE_PATH .. "reset.luac")(data)
+loadfile(FILE_PATH .. "other.luac")(config, data, units, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -339,17 +345,18 @@ end
 local function run(event)
 	--[[ Lock display at 10fps
 	if event == 0 then
-		if getTime() < data.refresh then
+		if getTime() - data.last < 10 then
 			return 0
 		end
-		data.refresh = getTime() + 10
+		data.last = getTime()
 	end
 	]]
+
 	lcd.clear()
 
 	-- Display system error
-	if data.systemError then
-		lcd.drawText((LCD_W - string.len(data.systemError) * 5.2) / 2, 27, data.systemError)
+	if data.msg then
+		lcd.drawText((LCD_W - string.len(data.msg) * 5.2) / 2, 27, data.msg)
 		return 0
 	end
 
@@ -369,11 +376,7 @@ local function run(event)
 		if data.v ~= 9 then
 			view = nil
 			collectgarbage()
-			--if data.simu then
-				view = loadScript(FILE_PATH .. "menu", "bT")()
-			--else
-			--	view = loadfile(FILE_PATH .. "menu.luac")()
-			--end
+			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
 		view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
@@ -386,7 +389,7 @@ local function run(event)
 			end
 			-- Initalize variables on long <Enter>
 			if event == EVT_ENTER_LONG then
-				loadScript(FILE_PATH .. "reset", "bT")(data)
+				loadfile(FILE_PATH .. "reset.luac")(data)
 			end
 		end
 		if event == NEXT or event == PREV then
@@ -397,11 +400,7 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			--if data.simu then
-				view = loadScript(FILE_PATH .. (config[25].v == 1 and "pilot" or "view"), "bT")()
-			--else
-			--	view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or "view.luac"))()
-			--end
+			view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or "view.luac"))()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)

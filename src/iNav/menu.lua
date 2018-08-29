@@ -1,5 +1,3 @@
---local data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR = ...
-
 local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 
 	local CONFIG_X = LCD_W < 212 and 2 or 48
@@ -7,7 +5,7 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 	local function saveConfig()
 		local fh = io.open(FILE_PATH .. "config.dat", "w")
 		if fh == nil then
-			data.systemError = "Folder \"iNav\" not found"
+			data.msg = "Folder \"iNav\" not found"
 		else
 			for line = 1, configCnt do
 				if config[line].d == nil then
@@ -106,7 +104,7 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 			elseif z == 17 then -- Fuel critical < low
 				config[17].v = math.min(config[17].v, config[18].v - 1)
 			elseif z == 20 then -- Speed sensor
-				loadScript(FILE_PATH .. "setspeed", "bT")(data, config)
+				loadfile(FILE_PATH .. "setspeed.luac")(data, config)
 			elseif config[z].i > 1 then
 				config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
 			end
