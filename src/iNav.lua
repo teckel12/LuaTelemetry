@@ -337,6 +337,14 @@ local function background()
 end
 
 local function run(event)
+	--[[ Lock display at 10fps
+	if event == 0 then
+		if getTime() < data.refresh then
+			return 0
+		end
+		data.refresh = getTime() + 10
+	end
+	]]
 	lcd.clear()
 
 	-- Display system error

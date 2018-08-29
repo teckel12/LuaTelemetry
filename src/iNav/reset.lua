@@ -16,6 +16,7 @@ data.gpsAltBase = false
 data.configStatus = 0
 data.startupTime = 0
 --[[ FPS stuff
+data.refresh = 0
 data.fpsStart = getTime()
 data.frames = 0
 ]]
