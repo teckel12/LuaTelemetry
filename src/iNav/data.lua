@@ -1,3 +1,5 @@
+local r, m, i = ...
+
 local function getTelemetryId(n)
 	local field = getFieldInfo(n)
 	return field and field.id or -1
@@ -9,8 +11,7 @@ local function getTelemetryUnit(n)
 end
 
 local rssi, low, crit = getRSSI()
-local ver, radio, maj, minor, rev = getVersion()
-local tx = string.sub(radio, 0, 2)
+local tx = string.sub(r, 0, 2)
 local tmp = tx == "x9" and EVT_PLUS_FIRST or (tx == "xl" and EVT_UP_FIRST)
 local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
 local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
@@ -90,7 +91,7 @@ local data = {
 	configTop = 1,
 	configSelect = 0,
 	v = -1,
-	msg = maj + minor / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
+	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }
 
 return data, PREV, INCR, NEXT, DECR, MENU

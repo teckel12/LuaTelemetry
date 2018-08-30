@@ -8,10 +8,10 @@ local FLASH = 3
 local SMLCD = LCD_W < 212
 local tmp, view
 
--- Compile if running Companion
+-- Build with Companion
 local v, r, m, i, e = getVersion()
 if string.sub(r, -4) == "simu" then
-	loadScript(FILE_PATH .. "compile", "tx")(SMLCD, FLASH, FILE_PATH)
+	loadScript(FILE_PATH .. "build", "tx")()
 end
 
 local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
@@ -21,7 +21,7 @@ local modes, units = loadfile(FILE_PATH .. "modes.luac")(FLASH)
 local configCnt = loadfile(FILE_PATH .. "load.luac")(config, FILE_PATH)
 collectgarbage()
 
-local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")()
+local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
 collectgarbage()
 
 loadfile(FILE_PATH .. "reset.luac")(data)
