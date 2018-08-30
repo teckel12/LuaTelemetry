@@ -343,7 +343,7 @@ local function background()
 end
 
 local function run(event)
-	--[[ Lock display at 10fps
+	--[[ Lock display at ~10fps
 	if event == 0 then
 		if getTime() - data.last < 10 then
 			return 0
