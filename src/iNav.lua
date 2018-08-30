@@ -2,6 +2,7 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
+local b = ...
 local VERSION = "1.4.2"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
@@ -10,8 +11,10 @@ local tmp, view
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
-if string.sub(r, -4) == "simu" then
-	loadScript(FILE_PATH .. "build", "tx")()
+if b ~= false then 
+	if string.sub(r, -4) == "simu" then
+		loadScript(FILE_PATH .. "build", "tx")()
+	end
 end
 
 local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)

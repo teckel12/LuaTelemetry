@@ -16,5 +16,6 @@ loadScript(FILE_PATH .. "setspeed", env)(data, config)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "menu", env)()
+loadScript("/SCRIPTS/TELEMETRY/iNav", env)(false)
 
 return 0
