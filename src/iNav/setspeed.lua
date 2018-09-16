@@ -1,12 +1,12 @@
 local data, config = ...
 
-local function getTelemetryId(name)
-	local field = getFieldInfo(name)
+local function getTelemetryId(n)
+	local field = getFieldInfo(n)
 	return field and field.id or -1
 end
 
-local function getTelemetryUnit(name)
-	local field = getFieldInfo(name)
+local function getTelemetryUnit(n)
+	local field = getFieldInfo(n)
 	return (field and field.unit <= 10) and field.unit or 0
 end
 

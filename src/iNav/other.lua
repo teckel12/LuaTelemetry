@@ -1,7 +1,7 @@
 local config, data, units, FILE_PATH = ...
 
-local function getTelemetryId(name)
-	local field = getFieldInfo(name)
+local function getTelemetryId(n)
+	local field = getFieldInfo(n)
 	return field and field.id or -1
 end
 
@@ -43,6 +43,6 @@ config[6].i = data.altitude_unit == 10 and 10 or 1
 config[6].a = units[data.altitude_unit]
 config[24].a = units[data.altitude_unit]
 config[20].v = data.pitot and config[20].v or 0
-loadScript(FILE_PATH .. "setspeed.luac", "T")(data, config)
+loadfile(FILE_PATH .. "setspeed.luac")(data, config)
 
 return 0
