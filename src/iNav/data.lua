@@ -12,6 +12,9 @@ end
 
 local rssi, low, crit = getRSSI()
 local tx = string.sub(r, 0, 2)
+if string.sub(r, 0, 3) == "x9e" then
+	tx = "x7"
+end
 local tmp = tx == "x9" and EVT_PLUS_FIRST or (tx == "xl" and EVT_UP_FIRST)
 local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
 local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
