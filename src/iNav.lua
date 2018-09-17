@@ -103,9 +103,12 @@ local function background()
 		if data.showCurr then
 			data.current = getValue(data.current_id)
 			data.currentMax = getValue(data.currentMax_id)
-			data.fuel = getValue(data.fuel_id)
 		end
-		data.altitudeMax = getValue(data.altitudeMax_id)
+		if data.showFuel then
+			data.fuel = getValue(data.fuel_id)
+		else
+			data.fuel = 100
+		end
 		data.distanceMax = getValue(data.distanceMax_id)
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
@@ -280,7 +283,7 @@ local function background()
 				end
 			end
 		end
-		if config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notifications
+		if data.showCurr and config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notifications
 			if data.fuel >= config[17].v and data.fuel <= config[18].v and data.fuel > config[17].v then -- Fuel low
 				playAudio("batlow")
 				playNumber(data.fuel, 13)
@@ -291,10 +294,10 @@ local function background()
 				data.battPercentPlayed = data.fuel
 			end
 		end
-		if ((config[23].v == 0 and data.fuel <= config[17].v) or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
+		if ((data.showCurr and config[23].v == 0 and data.fuel <= config[17].v) or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
 			if getTime() > data.battNextPlay then
 				playAudio("batcrt", 1)
-				if config[23].v == 0 and data.fuel <= config[17].v and data.battPercentPlayed > data.fuel and config[4].v > 0 then
+				if data.showCurr and config[23].v == 0 and data.fuel <= config[17].v and data.battPercentPlayed > data.fuel and config[4].v > 0 then
 					playNumber(data.fuel, 13)
 					data.battPercentPlayed = data.fuel
 				end

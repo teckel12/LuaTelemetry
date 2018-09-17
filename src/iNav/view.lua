@@ -107,10 +107,10 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	-- Data & gauges
 	drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.altitude_unit], 0, (not data.telemetry or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
 	if data.altHold then lockIcon(46, 9) end
-	tmp = (not data.telemetry or data.cell < config[3].v or (config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
-	drawData("Dist", data.distPos, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
-	drawData(units[data.speed_unit], data.speedPos, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
-	drawData("Batt", data.battPos1, 2, config[1].v == 0 and data.cell or data.batt, config[1].v == 0 and data.cellMin or data.battMin, 100, "V", config[1].v == 0 and "%.2f" or "%.1f", tmp, 1)
+	tmp = (not data.telemetry or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
+	drawData("Dist", data.showCurr and 17 or 21, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
+	drawData(units[data.speed_unit], data.showCurr and 25 or 33, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
+	drawData("Batt", data.showCurr and 49 or 45, 2, config[1].v == 0 and data.cell or data.batt, config[1].v == 0 and data.cellMin or data.battMin, 100, "V", config[1].v == 0 and "%.2f" or "%.1f", tmp, 1)
 	drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (not data.telemetry or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
 		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
@@ -123,9 +123,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		end
 	end
 	tmp = 100 / (4.2 - config[3].v + 0.1)
-	lcd.drawGauge(46, data.battPos2, GAUGE_WIDTH, 56 - data.battPos2, math.min(math.max(data.cell - config[3].v + 0.1, 0) * tmp, 98), 100)
+	lcd.drawGauge(46, data.showCurr and 49 or 41, GAUGE_WIDTH, data.showCurr and 7 or 15, math.min(math.max(data.cell - config[3].v + 0.1, 0) * tmp, 98), 100)
 	tmp = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - config[3].v + 0.1, 0) * tmp, 99) / 100) + 47
-	lcd.drawLine(tmp, data.battPos2 + 1, tmp, 54, SOLID, ERASE)
+	lcd.drawLine(tmp, data.showCurr and 50 or 42, tmp, 54, SOLID, ERASE)
 	lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0), 100)
 	tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
 	lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
