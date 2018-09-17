@@ -106,8 +106,6 @@ local function background()
 		end
 		if data.showFuel then
 			data.fuel = getValue(data.fuel_id)
-		else
-			data.fuel = 100
 		end
 		data.distanceMax = getValue(data.distanceMax_id)
 		data.speedMax = getValue(data.speedMax_id)
@@ -375,9 +373,6 @@ local function run(event)
 	end
 
 	-- Config menu or views
-	if data.configStatus == 0 and event == MENU then
-		data.configStatus = data.configLast
-	end
 	if data.configStatus > 0 then
 		if data.v ~= 9 then
 			view = nil
@@ -388,20 +383,25 @@ local function run(event)
 		view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 	else
 		-- User input
-		if not data.armed and data.configStatus == 0 then
-			-- Toggle showing max/min values
+		if not data.armed then
 			if event == PREV or event == NEXT then
+				-- Toggle showing max/min values
 				data.showMax = not data.showMax
-			end
-			-- Initalize variables on long <Enter>
-			if event == EVT_ENTER_LONG then
+			elseif event == EVT_ENTER_LONG then
+				-- Initalize variables on long <Enter>
 				loadfile(FILE_PATH .. "reset.luac")(data)
 			end
 		end
 		if event == NEXT or event == PREV then
 			data.showDir = not data.showDir
+		elseif event == EVT_ENTER_BREAK then
+			-- Cycle through views
+			config[25].v = config[25].v >= config[25].x and 0 or config[25].v + 1
+		elseif event == MENU then
+			-- Config menu
+			data.configStatus = data.configLast
 		end
-
+		
 		-- Views
 		if data.v ~= config[25].v then
 			view = nil

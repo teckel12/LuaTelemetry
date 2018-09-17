@@ -5,7 +5,7 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 	local function saveConfig()
 		local fh = io.open(FILE_PATH .. "config.dat", "w")
 		if fh == nil then
-			data.msg = "Folder \"iNav\" not found"
+			data.systemError = "Folder \"iNav\" not found"
 		else
 			for line = 1, configCnt do
 				if config[line].d == nil then
