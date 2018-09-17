@@ -21,8 +21,7 @@ about: Report a bug or issue with Lua Telemetry
 <!-- If applicable, add screenshots to help explain your problem.  -->
 
 ### Radio and model settings
-<!-- 
-Below are the instructions for exporting radio and model settings that are needed to simulate (and hopefully reproduce) your problem:
+<!-- Below are the instructions for exporting radio and model settings that are needed to simulate (and hopefully reproduce) your problem:
 
 1. Connect transmitter to PC using standard method (trim in, power, connect USB) see: https://youtu.be/GAETmZsKqwY?t=2m13s
 2. From your transmitter's '\SCRIPTS\TELEMETRY\iNav' folder, copy the 'config.dat' file to your PC
