@@ -35,6 +35,7 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 	config[19].v = math.min(config[19].x, config[19].v)
 	config[24].p = config[7].v < 2 and 1 or nil
 	config[20].p = not data.pitot and 1 or nil
+	config[23].p = not data.showFuel and 1 or nil
 	for line = data.configTop, math.min(configCnt, data.configTop + 5) do
 		local y = (line - data.configTop) * 8 + 10 + 3
 		local z = config[line].z
