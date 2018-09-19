@@ -5,7 +5,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	local X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 2
 	local HEADING_DEG = SMLCD and 170 or 190
 	local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
-	local gpsFlags = SMLSIZE + RIGHT + ((not data.telemetry or not data.gpsFix) and FLASH or 0)
+	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
 	local tmp, pitch, roll, roll1, roll2, upsideDown
 
 	local function attitude(r, adj)
@@ -49,7 +49,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	-- Orientation
-	if data.telemetry and data.headingRef >= 0 and data.startup == 0 then
+	if data.telem and data.headingRef >= 0 and data.startup == 0 then
 		local x = LEFT_POS + 13.5
 		local rad1 = math.rad(data.heading - data.headingRef)
 		local rad2 = math.rad(data.heading - data.headingRef + 145)
@@ -77,7 +77,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 	roll1 = math.rad(roll)
 	roll2 = math.rad(roll + 180)
-	if data.startup == 0 and data.telemetry then
+	if data.startup == 0 and data.telem then
 		tmp = pitch - 90
 		local short = SMLCD and 4 or 6
 		local tmp2 = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
@@ -109,7 +109,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	-- Home direction
-	if data.showHead and data.armed and data.telemetry and data.gpsHome ~= false and data.startup == 0 and ((SMLCD and not data.showDir) or not SMLCD) then
+	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 and ((SMLCD and not data.showDir) or not SMLCD) then
 		local home = X_CNTR - 3
 		if data.distanceLast >= data.distRef then
 			local o1 = math.rad(data.gpsHome.lat)
@@ -155,8 +155,8 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	if SMLCD then
 		homeIcon(LEFT_POS + 4, 42)
 		tmp = data.showMax and data.distanceMax or data.distanceLast
-		lcd.drawText(LEFT_POS + 12, 42, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.distance_unit] or (string.format("%.1f", tmp / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
-		tmp = (not data.telemetry or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
+		lcd.drawText(LEFT_POS + 12, 42, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
+		tmp = (not data.telem or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 		if data.showFuel then
 			if config[23].v == 0 then
 				lcd.drawText(RIGHT_POS - 7, 8, data.fuel, MIDSIZE + RIGHT + tmp)
@@ -233,8 +233,8 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	tics(data.altitude, RIGHT_POS - 2)
 	lcd.drawLine(RIGHT_POS - 21, 32, RIGHT_POS, 32, SOLID, ERASE)
 	tmp = data.showMax and data.altitudeMax or data.altitude
-	lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + ((not data.telemetry or tmp + 0.5 >= config[6].v) and FLASH or 0))
-	lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(tmp + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telemetry or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	lcd.drawText(RIGHT_POS - 21, 33, "       ", SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	lcd.drawText(RIGHT_POS, 33, data.startup == 0 and (math.floor(tmp + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	lcd.drawRectangle(RIGHT_POS - 22, 31, 23, 10, FORCE)
 
 	-- Variometer
@@ -270,14 +270,14 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 	lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	lcd.drawLine(RIGHT_POS + (config[7].v % 2 == 1 and (SMLCD and 5 or 7) or 0), 50, LCD_W, 50, SOLID, FORCE)
-	local rssiFlags = RIGHT + ((not data.telemetry or data.rssi < data.rssiLow) and FLASH or 0)
+	local rssiFlags = RIGHT + ((not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
 	lcd.drawText(LCD_W - 10, 52, math.min(data.showMax and data.rssiMin or data.rssiLast, 99), MIDSIZE + rssiFlags)
 	lcd.drawText(LCD_W, 57, "dB", SMLSIZE + rssiFlags)
 
 	-- Left data - Battery
 	if not SMLCD then
 		lcd.drawFilledRectangle(LEFT_POS - 7, 49, 7, 14, ERASE)
-		tmp = (not data.telemetry or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
+		tmp = (not data.telem or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 		if data.showFuel then
 			if config[23].v == 0 then
 				lcd.drawText(LEFT_POS - 5, data.showCurr and 8 or 12, data.fuel, DBLSIZE + RIGHT + tmp)
@@ -297,7 +297,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.drawLine(0, data.showCurr and 54 or 53, LEFT_POS, data.showCurr and 54 or 53, SOLID, FORCE)
 		homeIcon(0, 57)
 		tmp = data.showMax and data.distanceMax or data.distanceLast
-		lcd.drawText(LEFT_POS, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.distance_unit] or (string.format("%.1f", tmp / (data.distance_unit == 9 and 1000 or 5280)) .. (data.distance_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(LEFT_POS, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
 	end
 
 end

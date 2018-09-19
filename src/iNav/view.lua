@@ -50,18 +50,18 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	-- GPS
-	local gpsFlags = SMLSIZE + RIGHT + ((not data.telemetry or not data.gpsFix) and FLASH or 0)
+	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
 	tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
 	lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	lcd.drawText(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 	lcd.drawText(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 	hdopGraph(RIGHT_POS - 30, 9, SMLSIZE)
 	gpsIcon(RIGHT_POS - 17, 9)
-	lcd.drawText(RIGHT_POS - (data.telemetry and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
+	lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 	-- Directionals
 	if data.showHead and data.startup == 0 then
-		if data.telemetry then
+		if data.telem then
 			local indicatorDisplayed = false
 			if data.showDir or data.headingRef < 0 or not SMLCD then
 				lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE)
@@ -105,13 +105,13 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	-- Data & gauges
-	drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.altitude_unit], 0, (not data.telemetry or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
+	drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.alt_unit], 0, (not data.telem or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
 	if data.altHold then lockIcon(46, 9) end
-	tmp = (not data.telemetry or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
-	drawData("Dist", data.showCurr and 17 or 21, 1, data.distanceLast, data.distanceMax, 10000, units[data.distance_unit], 0, data.telemFlags)
+	tmp = (not data.telem or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
+	drawData("Dist", data.showCurr and 17 or 21, 1, data.distanceLast, data.distanceMax, 10000, units[data.dist_unit], 0, data.telemFlags)
 	drawData(units[data.speed_unit], data.showCurr and 25 or 33, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
 	drawData("Batt", data.showCurr and 49 or 45, 2, config[1].v == 0 and data.cell or data.batt, config[1].v == 0 and data.cellMin or data.battMin, 100, "V", config[1].v == 0 and "%.2f" or "%.1f", tmp, 1)
-	drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (not data.telemetry or data.rssi < data.rssiLow) and FLASH or 0)
+	drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
 		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
 		drawData(config[23].v == 0 and "Fuel" or config[23].l[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)

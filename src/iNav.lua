@@ -33,7 +33,7 @@ collectgarbage()
 
 local function playAudio(f, a)
 	if config[4].v == 2 or (config[4].v == 1 and a ~= nil) then
-		playFile(FILE_PATH .. f .. ".wav")
+		playFile(FILE_PATH .. data.voice .. f .. ".wav")
 	end
 end
 
@@ -71,7 +71,7 @@ local function homeIcon(x, y)
 end
 
 local function hdopGraph(x, y, s)
-	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry
+	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
 	if config[22].v == 0 then
 		if tmp then
 			lcd.drawText(x, y, "    ", SMLSIZE + FLASH)
@@ -87,31 +87,46 @@ end
 local function background()
 	data.rssi = getValue(data.rssi_id)
 	if data.rssi > 0 then
-		data.telemetry = true
+		data.telem = true
 		data.telemFlags = 0
 		data.mode = getValue(data.mode_id)
 		data.rxBatt = getValue(data.rxBatt_id)
-		data.satellites = getValue(data.satellites_id)
+		data.satellites = getValue(data.sat_id)
 		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
-		data.heading = getValue(data.heading_id)
-		data.altitude = getValue(data.altitude_id)
-		if data.altitude_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
+		data.heading = getValue(data.hdg_id)
+		data.altitude = getValue(data.alt_id)
+		if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 			data.altitude = data.gpsAlt - data.gpsAltBase
 		end
-		data.distance = getValue(data.distance_id)
+		data.distance = getValue(data.dist_id)
 		data.speed = getValue(data.speed_id)
 		if data.showCurr then
-			data.current = getValue(data.current_id)
-			data.currentMax = getValue(data.currentMax_id)
+			data.current = getValue(data.curr_id)
+			data.currentMax = getValue(data.currMax_id)
 		end
 		if data.showFuel then
 			data.fuel = getValue(data.fuel_id)
 		end
-		data.distanceMax = getValue(data.distanceMax_id)
+		data.altitudeMax = getValue(data.altMax_id)
+		data.distanceMax = getValue(data.distMax_id)
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		data.cells = (data.batt / data.cells > 4.3) and math.floor(data.batt / 4.3) + 1 or data.cells
+		--[[
+		if data.a4_id > -1 then
+			data.cell = getValue(data.a4_id)
+			data.cellMin = getValue(data.a4Min_id)
+		else
+			if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
+				data.cells = math.floor(data.batt / 4.3) + 1
+			end
+			data.cell = data.batt / data.cells
+			data.cellMin = data.battMin / data.cells
+		end
+		]]
+		if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
+			data.cells = math.floor(data.batt / 4.3) + 1
+		end
 		data.cell = data.batt / data.cells
 		data.cellMin = data.battMin / data.cells
 		data.rssiMin = getValue(data.rssiMin_id)
@@ -134,7 +149,7 @@ local function background()
 			end
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
-		if data.distance_unit == 10 then
+		if data.dist_unit == 10 then
 			data.distance = math.floor(data.distance * 3.28084 + 0.5)
 			data.distanceMax = data.distanceMax * 3.28084
 		end
@@ -142,11 +157,11 @@ local function background()
 			data.distanceLast = data.distance
 		end
 	else
-		data.telemetry = false
+		data.telem = false
 		data.telemFlags = FLASH
 	end
 	data.txBatt = getValue(data.txBatt_id)
-	data.throttle = getValue(data.throttle_id)
+	data.throttle = getValue(data.thr_id)
 
 	local armedPrev = data.armed
 	local headFreePrev = data.headFree
@@ -156,7 +171,7 @@ local function background()
 	local modeIdPrev = data.modeId
 	local preArmMode = false
 	data.modeId = 1 -- No telemetry
-	if data.telemetry then
+	if data.telem then
 		data.armed = false
 		data.headFree = false
 		data.headingHold = false
@@ -261,7 +276,7 @@ local function background()
 		if data.altitude + 0.5 >= config[6].v and config[12].v > 0 then -- Altitude alert
 			if getTime() > data.altNextPlay then
 				if config[4].v > 0 then
-					playNumber(data.altitude + 0.5, data.altitude_unit)
+					playNumber(data.altitude + 0.5, data.alt_unit)
 				end
 				data.altNextPlay = getTime() + 1000
 			else
@@ -275,7 +290,7 @@ local function background()
 					tmp = math.floor(data.altitude / config[24].l[config[24].v] + 0.5) * config[24].l[config[24].v]
 				end
 				if tmp > 0 and getTime() > data.altNextPlay then
-					playNumber(tmp, data.altitude_unit)
+					playNumber(tmp, data.alt_unit)
 					data.altLastAlt = tmp
 					data.altNextPlay = getTime() + 500
 				end
@@ -430,7 +445,7 @@ local function run(event)
 	if config[19].v ~= 1 then
 		lcd.drawText(SMLCD and (config[14].v == 1 and 105 or LCD_W) or 128, 1, string.format("%.1f", data.txBatt) .. "V", SMLSIZE + RIGHT + INVERS)
 	end
-	if data.rxBatt > 0 and data.telemetry and config[14].v == 1 then
+	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
 		lcd.drawText(LCD_W, 1, string.format("%.1f", data.rxBatt) .. "V", SMLSIZE + RIGHT + INVERS)
 	end
 
