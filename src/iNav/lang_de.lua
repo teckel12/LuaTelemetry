@@ -34,7 +34,7 @@ config[23].t = "Kapazität"          -- Fuel Unit
 config[24].t = "Vario Schritte"     -- Vario Steps
 config[25].t = "Ansichtsmodus"      -- View Mode
 
--- Max 8 characters
+-- Max 9 characters
 config[1].l =  {[0] = "Zelle", "Total"}                    -- "Cell", "Total"
 config[4].l =  {[0] = "Aus", "Kritisch", "Alle"}           -- "Off", "Critical", "All"
 config[5].l =  {[0] = "Aus", "Haptisch", "Pieper", "Alle"} -- "Off", "Haptic", "Beeper", "All"

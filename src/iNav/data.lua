@@ -30,7 +30,7 @@ local data = {
 	txBattMin = general.battMin,
 	txBattMax = general.battMax,
 	lang = string.lower(general.language),
-	voice = "en",
+	voice = general.voice,
 	modelName = model.getInfo().name,
 	mode_id = getTelemetryId("Tmp1"),
 	rxBatt_id = getTelemetryId("RxBt"),
@@ -101,9 +101,8 @@ local data = {
 	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }
 
-if general.voice == "de" then
-	data.voice = general.voice
-	--data.lang = data.voice
-end
+--if string.sub(r, -4) == "simu" then
+--	data.lang = general.voice
+--end
 
 return data, PREV, INCR, NEXT, DECR, MENU

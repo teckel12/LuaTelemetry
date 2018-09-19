@@ -27,8 +27,8 @@ collectgarbage()
 local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
 collectgarbage()
 
-if data.lang == "de" then
-	loadfile(FILE_PATH .. "lang_" .. data.lang .. ".luac")(modes, config)
+if data.lang ~= "en" or data.voice ~= "en" then
+	loadfile(FILE_PATH .. "lang.luac")(modes, config, data, FILE_PATH)
 	collectgarbage()
 end
 
