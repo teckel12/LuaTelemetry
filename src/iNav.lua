@@ -27,13 +27,18 @@ collectgarbage()
 local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
 collectgarbage()
 
+if data.lang == "de" then
+	loadfile(FILE_PATH .. "lang_" .. data.lang .. ".luac")(modes, config)
+	collectgarbage()
+end
+
 loadfile(FILE_PATH .. "reset.luac")(data)
 loadfile(FILE_PATH .. "other.luac")(config, data, units, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
 	if config[4].v == 2 or (config[4].v == 1 and a ~= nil) then
-		playFile(FILE_PATH .. data.voice .. f .. ".wav")
+		playFile(FILE_PATH .. data.voice .. "/" .. f .. ".wav")
 	end
 end
 

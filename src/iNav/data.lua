@@ -29,8 +29,8 @@ local data = {
 	rssiCrit = crit,
 	txBattMin = general.battMin,
 	txBattMax = general.battMax,
-	--lang = general.language,
-	voice = "",
+	lang = string.lower(general.language),
+	voice = "en",
 	modelName = model.getInfo().name,
 	mode_id = getTelemetryId("Tmp1"),
 	rxBatt_id = getTelemetryId("RxBt"),
@@ -102,7 +102,8 @@ local data = {
 }
 
 if general.voice == "de" then
-	data.voice = general.voice .. "/"
+	data.voice = general.voice
+	--data.lang = data.voice
 end
 
 return data, PREV, INCR, NEXT, DECR, MENU

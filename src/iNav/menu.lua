@@ -1,6 +1,6 @@
 local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 
-	local CONFIG_X = LCD_W < 212 and 2 or 48
+	local CONFIG_X = LCD_W < 212 and 0 or 46
 
 	local function saveConfig()
 		local fh = io.open(FILE_PATH .. "config.dat", "w")
@@ -18,7 +18,7 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 		end
 	end
 
-	lcd.drawRectangle(CONFIG_X, 10, 124, 52, SOLID)
+	lcd.drawRectangle(CONFIG_X - (SMLCD and 0 or 2), 10, SMLCD and 128 or 132, 52, SOLID)
 
 	-- Disabled options
 	for line = 1, configCnt do
@@ -43,7 +43,7 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 		if not data.showCurr and z >= 17 and z <= 18 then
 			config[z].p = 1
 		end
-		lcd.drawText(CONFIG_X + 4, y, config[z].t, SMLSIZE)
+		lcd.drawText(CONFIG_X + 2, y, config[z].t, SMLSIZE)
 		if config[z].p == nil then
 			if config[z].l == nil then
 				lcd.drawText(CONFIG_X + 84, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
@@ -52,7 +52,7 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 					lcd.drawText(CONFIG_X + 84, y, config[z].v, SMLSIZE + tmp)
 				else
 					if z == 15 then
-						lcd.drawText(CONFIG_X + 22, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+						lcd.drawText(CONFIG_X + 21, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 					else
 						lcd.drawText(CONFIG_X + 84, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
 					end
