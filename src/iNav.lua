@@ -362,18 +362,11 @@ local function background()
 				end
 				if math.abs(data.throttle - data.thrCntr) < 40 then
 					if not data.trCnSt then
-						if config[5].v >= 2 then
-							playTone(3000, 75, 0, PLAY_NOW + PLAY_BACKGROUND)
-						end
-						if config[5].v == 1 or config[5].v == 3 then
-							playHaptic(15, 0)
-						end
+						playHaptic(15, 0)
 						data.trCnSt = true
 					end
 				elseif data.trCnSt then
-					if config[5].v >= 2 then
-						playTone(500, 75, 0, PLAY_NOW + PLAY_BACKGROUND)
-					end
+					playTone(500, 75, 0, PLAY_NOW + PLAY_BACKGROUND)
 					data.trCnSt = false
 				end
 			else
