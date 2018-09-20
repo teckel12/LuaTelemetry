@@ -81,4 +81,5 @@
 ## Other
 
 * [Upgrade to Development Build](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade-to-Development-Build)
+* [Multilingual Support](https://github.com/iNavFlight/LuaTelemetry/wiki/Multilingual-Support)
 * [License](https://github.com/iNavFlight/LuaTelemetry/blob/master/LICENSE)
