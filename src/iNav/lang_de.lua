@@ -1,11 +1,19 @@
 local modes, config = ...
 
 -- Max 7 characters
-modes[5].t = "NICHT OK"   -- NOT OK
-modes[6].t = " BEREIT"    -- READY
-modes[8].t = "WEGPUNKT"   -- WAYPOINT
-modes[9].t = "MANUELL"    -- MANUAL
-modes[12].t = " ! GAS ! " -- ! THROT !
+--modes[1].t  = "! TELEM !"  -- ! TELEM !
+--modes[2].t  = "HORIZON"    -- HORIZON
+--modes[3].t  = "  ANGLE"    -- ANGLE
+--modes[4].t  = "   ACRO"    -- ACRO
+modes[5].t  = "NICHT OK"   -- NOT OK
+modes[6].t  = " BEREIT"    -- READY
+--modes[7].t  = "POS HOLD"   -- POS HOLD
+modes[8].t  = "WEGPUNKT"   -- WAYPOINT
+modes[9].t  = "MANUELL"    -- MANUAL
+--modes[10].t = "   RTH   "  -- RTH
+--modes[11].t = "! FAIL !"   -- ! FAIL !
+modes[12].t = " ! GAS ! "  -- ! THROT !
+--modes[13].t = " CRUISE"    -- CRUISE
 
 -- Max 16 characters
 config[1].t  = "Batterie Übersicht" -- Battery View
