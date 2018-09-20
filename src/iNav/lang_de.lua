@@ -41,6 +41,7 @@ config[22].t = "GPS HDOP"           -- GPS HDOP View
 config[23].t = "Kapazität"          -- Fuel Unit
 config[24].t = "Vario Schritte"     -- Vario Steps
 config[25].t = "Ansichtsmodus"      -- View Mode
+config[26].t = "AH Cntr Meldung"    -- Alt Hold Center Feedback
 
 -- Max 9 characters
 config[1].l =  {[0] = "Zelle", "Total"}                    -- "Cell", "Total"
@@ -60,5 +61,6 @@ config[19].l = {[0] = "Nummer", "Graph", "Beide"}          -- "Number", "Graph",
 config[22].l = {[0] = "Graph", "Dezimal"}                  -- "Graph", "Decimal"
 --config[23].l = {[0] = "Percent", "mAh", "mWh"}             -- "Percent", "mAh", "mWh"
 config[25].l = {[0] = "Klassisch", "Pilot"}                -- "Classic", "Pilot"
+config[26].l = {[0] = "Aus", "An"}                         -- "Off", "On"
 
 return 0

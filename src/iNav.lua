@@ -353,6 +353,34 @@ local function background()
 		if beep and config[5].v >= 2 then
 			playTone(2000, 100, 3000, PLAY_NOW)
 		end
+		-- Altitude hold center feedback
+		if config[26].v == 1 and config[5].v > 0 then
+			if data.altHold then
+				if data.thrCntr == -2000 then
+					data.thrCntr = data.throttle
+					data.trCnSt = true
+				end
+				if math.abs(data.throttle - data.thrCntr) < 40 then
+					if not data.trCnSt then
+						if config[5].v >= 2 then
+							playTone(3000, 75, 0, PLAY_NOW + PLAY_BACKGROUND)
+						end
+						if config[5].v == 1 or config[5].v == 3 then
+							playHaptic(15, 0)
+						end
+						data.trCnSt = true
+					end
+				elseif data.trCnSt then
+					if config[5].v >= 2 then
+						playTone(500, 75, 0, PLAY_NOW + PLAY_BACKGROUND)
+					end
+					data.trCnSt = false
+				end
+			else
+				data.thrCntr = -2000
+				data.trCnSt = false
+			end
+		end
 	else
 		data.battLow = false
 		data.battPercentPlayed = 100

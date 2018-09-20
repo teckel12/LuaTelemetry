@@ -15,6 +15,8 @@ data.cells = 1
 data.gpsAltBase = false
 data.configStatus = 0
 data.startupTime = 0
+data.thrCntr = -2000
+data.trCnSt = false
 --[[ FPS stuff
 data.last = 0
 data.fpsStart = getTime()
