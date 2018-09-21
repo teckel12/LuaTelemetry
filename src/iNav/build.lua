@@ -24,8 +24,8 @@ for abv = 1, 12 do
 end
 
 loadScript(FILE_PATH .. "reset", env)(data)
-loadScript(FILE_PATH .. "other", env)(config, data, units, FILE_PATH)
 loadScript(FILE_PATH .. "setspeed", env)(data, config)
+loadScript(FILE_PATH .. "other", env)(config, data, units, FILE_PATH)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "menu", env)()
