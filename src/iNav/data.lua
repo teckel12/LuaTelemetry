@@ -102,7 +102,8 @@ local data = {
 }
 
 --if string.sub(r, -4) == "simu" then
---	data.lang = general.voice
+--	data.lang = "de"
+--	data.voice = "de"
 --end
 
 return data, PREV, INCR, NEXT, DECR, MENU

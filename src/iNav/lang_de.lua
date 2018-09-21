@@ -16,18 +16,18 @@ modes[12].t = " ! GAS ! "	-- ! THROT !
 --modes[13].t = " CRUISE"	-- CRUISE
 
 -- Max 16 characters
-config[1].t  = "Bat. Übersicht"		-- Battery View
+config[1].t  = "Batterie"	    	-- Battery View
 config[2].t  = "Zelle Niedrig"		-- Cell Low
 config[3].t  = "Zelle Kritisch"		-- Cell Critical
 config[4].t  = "Sprach Alarme"		-- Voice Alerts
 config[5].t  = "Meldungen"			-- Feedback
-config[6].t  = "Max Höhe"			-- Max Altitude
+config[6].t  = "Max Hoehe"			-- Max Altitude
 --config[7].t  = "Variometer"		-- Variometer
 config[8].t  = "RTH Meldung"		-- RTH Feedback
 config[9].t  = "HeadFree Meld."		-- HeadFree Feedback
 config[10].t = "RSSI Meldung"		-- RSSI Feedback
 config[11].t = "Bat. Warnung"		-- Battery Alert
-config[12].t = "Höhen Warnung"		-- Altitude Alert
+config[12].t = "Hoehen Warnung"		-- Altitude Alert
 --config[13].t = "Timer"			-- Timer
 config[14].t = "Rx Spng."			-- Rx Voltage
 --config[15].t = "GPS"				-- GPS
