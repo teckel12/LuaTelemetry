@@ -2,53 +2,136 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.4.1"
+local b = ...
+local VERSION = "1.4.2"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
-local tmp
+local tmp, view
 
-local config = loadScript(FILE_PATH .. "config.luac", "T")(SMLCD)
+-- Build with Companion
+local v, r, m, i, e = getVersion()
+if b ~= false then 
+	if string.sub(r, -4) == "simu" then
+		loadScript(FILE_PATH .. "build", "tx")()
+	end
+end
+
+local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
 collectgarbage()
 
-local modes, units = loadScript(FILE_PATH .. "modes.luac", "T")(FLASH)
-local configCnt = loadScript(FILE_PATH .. "load.luac", "T")(config, FILE_PATH)
+local modes, units = loadfile(FILE_PATH .. "modes.luac")(FLASH)
+local configCnt = loadfile(FILE_PATH .. "load.luac")(config, FILE_PATH)
 collectgarbage()
 
-local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data.luac", "T")()
+local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
 collectgarbage()
 
-loadScript(FILE_PATH .. "reset.luac", "T")(data)
-loadScript(FILE_PATH .. "other.luac", "T")(config, data, units, FILE_PATH)
+if data.lang ~= "en" or data.voice ~= "en" then
+	loadfile(FILE_PATH .. "lang.luac")(modes, config, data, FILE_PATH)
+	collectgarbage()
+end
+
+loadfile(FILE_PATH .. "reset.luac")(data)
+loadfile(FILE_PATH .. "other.luac")(config, data, units, FILE_PATH)
 collectgarbage()
+
+local function playAudio(f, a)
+	if config[4].v == 2 or (config[4].v == 1 and a ~= nil) then
+		playFile(FILE_PATH .. data.voice .. "/" .. f .. ".wav")
+	end
+end
+
+local function gpsDegMin(c, lat)
+	local gpsD = math.floor(math.abs(c))
+	return gpsD .. string.format("\64%05.2f", (math.abs(c) - gpsD) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+end
+
+local function gpsIcon(x, y)
+	lcd.drawLine(x + 1, y, x + 5, y + 4, SOLID, 0)
+	lcd.drawLine(x + 1, y + 1, x + 4, y + 4, SOLID, 0)
+	lcd.drawLine(x + 1, y + 2, x + 3, y + 4, SOLID, 0)
+	lcd.drawLine(x, y + 5, x + 2, y + 5, SOLID, 0)
+	lcd.drawPoint(x + 4, y + 1)
+	lcd.drawPoint(x + 1, y + 4)
+end
+
+local function lockIcon(x, y)
+	lcd.drawFilledRectangle(x, y + 2, 5, 4, 0)
+	lcd.drawLine(x + 1, y, x + 3, y, SOLID, 0)
+	lcd.drawPoint(x + 1, y + 1)
+	lcd.drawPoint(x + 3, y + 1)
+	lcd.drawPoint(x + 2, y + 3, ERASE)
+end
+
+local function homeIcon(x, y)
+	lcd.drawPoint(x + 3, y - 1)
+	lcd.drawLine(x + 2, y, x + 4, y, SOLID, 0)
+	lcd.drawLine(x + 1, y + 1, x + 5, y + 1, SOLID, 0)
+	lcd.drawLine(x, y + 2, x + 6, y + 2, SOLID, 0)
+	lcd.drawLine(x + 1, y + 3, x + 1, y + 5, SOLID, 0)
+	lcd.drawLine(x + 5, y + 3, x + 5, y + 5, SOLID, 0)
+	lcd.drawLine(x + 2, y + 5, x + 4, y + 5, SOLID, 0)
+	lcd.drawPoint(x + 3, y + 4)
+end
+
+local function hdopGraph(x, y, s)
+	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
+	if config[22].v == 0 then
+		if tmp then
+			lcd.drawText(x, y, "    ", SMLSIZE + FLASH)
+		end
+		for i = 4, 9 do
+			lcd.drawLine(x - 8 + (i * 2), (data.hdop >= i or not SMLCD) and y + 8 - i or y + 5, x - 8 + (i * 2), y + 5, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
+		end
+	else
+		lcd.drawText(x + 12, s == SMLSIZE and y or y - 2, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, s + RIGHT + (tmp and FLASH or 0))
+	end
+end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
 	if data.rssi > 0 then
-		data.telemetry = true
+		data.telem = true
 		data.telemFlags = 0
 		data.mode = getValue(data.mode_id)
 		data.rxBatt = getValue(data.rxBatt_id)
-		data.satellites = getValue(data.satellites_id)
+		data.satellites = getValue(data.sat_id)
 		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
-		data.heading = getValue(data.heading_id)
-		data.altitude = getValue(data.altitude_id)
-		if data.altitude_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
+		data.heading = getValue(data.hdg_id)
+		data.altitude = getValue(data.alt_id)
+		if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 			data.altitude = data.gpsAlt - data.gpsAltBase
 		end
-		data.distance = getValue(data.distance_id)
+		data.distance = getValue(data.dist_id)
 		data.speed = getValue(data.speed_id)
 		if data.showCurr then
-			data.current = getValue(data.current_id)
-			data.currentMax = getValue(data.currentMax_id)
+			data.current = getValue(data.curr_id)
+			data.currentMax = getValue(data.currMax_id)
+		end
+		if data.showFuel then
 			data.fuel = getValue(data.fuel_id)
 		end
-		data.altitudeMax = getValue(data.altitudeMax_id)
-		data.distanceMax = getValue(data.distanceMax_id)
+		data.altitudeMax = getValue(data.altMax_id)
+		data.distanceMax = getValue(data.distMax_id)
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		data.cells = (data.batt / data.cells > 4.3) and math.floor(data.batt / 4.3) + 1 or data.cells
+		--[[
+		if data.a4_id > -1 then
+			data.cell = getValue(data.a4_id)
+			data.cellMin = getValue(data.a4Min_id)
+		else
+			if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
+				data.cells = math.floor(data.batt / 4.3) + 1
+			end
+			data.cell = data.batt / data.cells
+			data.cellMin = data.battMin / data.cells
+		end
+		]]
+		if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
+			data.cells = math.floor(data.batt / 4.3) + 1
+		end
 		data.cell = data.batt / data.cells
 		data.cellMin = data.battMin / data.cells
 		data.rssiMin = getValue(data.rssiMin_id)
@@ -71,7 +154,7 @@ local function background()
 			end
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
-		if data.distance_unit == 10 then
+		if data.dist_unit == 10 then
 			data.distance = math.floor(data.distance * 3.28084 + 0.5)
 			data.distanceMax = data.distanceMax * 3.28084
 		end
@@ -79,11 +162,11 @@ local function background()
 			data.distanceLast = data.distance
 		end
 	else
-		data.telemetry = false
+		data.telem = false
 		data.telemFlags = FLASH
 	end
 	data.txBatt = getValue(data.txBatt_id)
-	data.throttle = getValue(data.throttle_id)
+	data.throttle = getValue(data.thr_id)
 
 	local armedPrev = data.armed
 	local headFreePrev = data.headFree
@@ -93,7 +176,7 @@ local function background()
 	local modeIdPrev = data.modeId
 	local preArmMode = false
 	data.modeId = 1 -- No telemetry
-	if data.telemetry then
+	if data.telem then
 		data.armed = false
 		data.headFree = false
 		data.headingHold = false
@@ -131,12 +214,6 @@ local function background()
 			data.modeId = 8 -- Waypoint
 		elseif bit32.band(modeB, 8) == 8 then
 			data.modeId = 13 -- Cruise
-		end
-	end
-
-	local function playAudio(file, alert)
-		if config[4].v == 2 or (config[4].v == 1 and alert ~= nil) then
-			playFile(FILE_PATH .. file .. ".wav")
 		end
 	end
 
@@ -204,7 +281,7 @@ local function background()
 		if data.altitude + 0.5 >= config[6].v and config[12].v > 0 then -- Altitude alert
 			if getTime() > data.altNextPlay then
 				if config[4].v > 0 then
-					playNumber(data.altitude + 0.5, data.altitude_unit)
+					playNumber(data.altitude + 0.5, data.alt_unit)
 				end
 				data.altNextPlay = getTime() + 1000
 			else
@@ -218,13 +295,13 @@ local function background()
 					tmp = math.floor(data.altitude / config[24].l[config[24].v] + 0.5) * config[24].l[config[24].v]
 				end
 				if tmp > 0 and getTime() > data.altNextPlay then
-					playNumber(tmp, data.altitude_unit)
+					playNumber(tmp, data.alt_unit)
 					data.altLastAlt = tmp
 					data.altNextPlay = getTime() + 500
 				end
 			end
 		end
-		if config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notifications
+		if data.showCurr and config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notifications
 			if data.fuel >= config[17].v and data.fuel <= config[18].v and data.fuel > config[17].v then -- Fuel low
 				playAudio("batlow")
 				playNumber(data.fuel, 13)
@@ -235,10 +312,10 @@ local function background()
 				data.battPercentPlayed = data.fuel
 			end
 		end
-		if ((config[23].v == 0 and data.fuel <= config[17].v) or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
+		if ((data.showCurr and config[23].v == 0 and data.fuel <= config[17].v) or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
 			if getTime() > data.battNextPlay then
 				playAudio("batcrt", 1)
-				if config[23].v == 0 and data.fuel <= config[17].v and data.battPercentPlayed > data.fuel and config[4].v > 0 then
+				if data.showCurr and config[23].v == 0 and data.fuel <= config[17].v and data.battPercentPlayed > data.fuel and config[4].v > 0 then
 					playNumber(data.fuel, 13)
 					data.battPercentPlayed = data.fuel
 				end
@@ -276,6 +353,27 @@ local function background()
 		if beep and config[5].v >= 2 then
 			playTone(2000, 100, 3000, PLAY_NOW)
 		end
+		-- Altitude hold center feedback
+		if config[26].v == 1 and config[5].v > 0 then
+			if data.altHold then
+				if data.thrCntr == -2000 then
+					data.thrCntr = data.throttle
+					data.trCnSt = true
+				end
+				if math.abs(data.throttle - data.thrCntr) < 40 then
+					if not data.trCnSt then
+						playHaptic(15, 0)
+						data.trCnSt = true
+					end
+				elseif data.trCnSt then
+					playTone(500, 75, 0, PLAY_NOW + PLAY_BACKGROUND)
+					data.trCnSt = false
+				end
+			else
+				data.thrCntr = -2000
+				data.trCnSt = false
+			end
+		end
 	else
 		data.battLow = false
 		data.battPercentPlayed = 100
@@ -290,11 +388,20 @@ local function background()
 end
 
 local function run(event)
+	--[[ Lock display at ~10fps
+	if event == 0 then
+		if getTime() - data.last < 10 then
+			return 0
+		end
+		data.last = getTime()
+	end
+	]]
+
 	lcd.clear()
 
 	-- Display system error
-	if data.systemError then
-		lcd.drawText((LCD_W - string.len(data.systemError) * 5.2) / 2, 27, data.systemError)
+	if data.msg then
+		lcd.drawText((LCD_W - string.len(data.msg) * 5.2) / 2, 27, data.msg)
 		return 0
 	end
 
@@ -306,81 +413,44 @@ local function run(event)
 		data.startup = 0
 	end
 
-	local function gpsDegMin(coord, lat)
-		local gpsD = math.floor(math.abs(coord))
-		return gpsD .. string.format("\64%05.2f", (math.abs(coord) - gpsD) * 60) .. (lat and (coord >= 0 and "N" or "S") or (coord >= 0 and "E" or "W"))
-	end
-
 	-- Config menu or views
-	if data.configStatus == 0 and event == MENU then
-		data.configStatus = data.configLast
-	end
 	if data.configStatus > 0 then
-		loadScript(FILE_PATH .. "menu.luac", "T")(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+		if data.v ~= 9 then
+			view = nil
+			collectgarbage()
+			view = loadfile(FILE_PATH .. "menu.luac")()
+			data.v = 9
+		end
+		view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 	else
 		-- User input
-		if not data.armed and data.configStatus == 0 then
-			-- Toggle showing max/min values
+		if not data.armed then
 			if event == PREV or event == NEXT then
+				-- Toggle showing max/min values
 				data.showMax = not data.showMax
-			end
-			-- Initalize variables on long <Enter>
-			if event == EVT_ENTER_LONG then
-				loadScript(FILE_PATH .. "reset.luac", "T")(data)
+			elseif event == EVT_ENTER_LONG then
+				-- Initalize variables on long <Enter>
+				loadfile(FILE_PATH .. "reset.luac")(data)
 			end
 		end
 		if event == NEXT or event == PREV then
 			data.showDir = not data.showDir
+		elseif event == EVT_ENTER_BREAK then
+			-- Cycle through views
+			config[25].v = config[25].v >= config[25].x and 0 or config[25].v + 1
+		elseif event == MENU then
+			-- Config menu
+			data.configStatus = data.configLast
 		end
-
-		local function gpsIcon(x, y)
-			lcd.drawLine(x + 1, y, x + 5, y + 4, SOLID, 0)
-			lcd.drawLine(x + 1, y + 1, x + 4, y + 4, SOLID, 0)
-			lcd.drawLine(x + 1, y + 2, x + 3, y + 4, SOLID, 0)
-			lcd.drawLine(x, y + 5, x + 2, y + 5, SOLID, 0)
-			lcd.drawPoint(x + 4, y + 1)
-			lcd.drawPoint(x + 1, y + 4)
-		end
-
-		local function lockIcon(x, y)
-			lcd.drawFilledRectangle(x, y + 2, 5, 4, 0)
-			lcd.drawLine(x + 1, y, x + 3, y, SOLID, 0)
-			lcd.drawPoint(x + 1, y + 1)
-			lcd.drawPoint(x + 3, y + 1)
-			lcd.drawPoint(x + 2, y + 3, ERASE)
-		end
-
-		local function homeIcon(x, y)
-			lcd.drawPoint(x + 3, y - 1)
-			lcd.drawLine(x + 2, y, x + 4, y, SOLID, 0)
-			lcd.drawLine(x + 1, y + 1, x + 5, y + 1, SOLID, 0)
-			lcd.drawLine(x, y + 2, x + 6, y + 2, SOLID, 0)
-			lcd.drawLine(x + 1, y + 3, x + 1, y + 5, SOLID, 0)
-			lcd.drawLine(x + 5, y + 3, x + 5, y + 5, SOLID, 0)
-			lcd.drawLine(x + 2, y + 5, x + 4, y + 5, SOLID, 0)
-			lcd.drawPoint(x + 3, y + 4)
-		end
-
-		local function hdopGraph(x, y, size)
-			local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telemetry
-			if config[22].v == 0 then
-				if tmp then
-					lcd.drawText(x, y, "    ", SMLSIZE + FLASH)
-				end
-				for i = 4, 9 do
-					lcd.drawLine(x - 8 + (i * 2), (data.hdop >= i or not SMLCD) and y + 8 - i or y + 5, x - 8 + (i * 2), y + 5, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
-				end
-			else
-				lcd.drawText(x + 12, size == SMLSIZE and y or y - 2, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, size + RIGHT + (tmp and FLASH or 0))
-			end
-		end
-
+		
 		-- Views
-		if config[25].v == 1 then
-			loadScript(FILE_PATH .. "pilot.luac", "T")(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
-		else
-			loadScript(FILE_PATH .. "view.luac", "T")(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
+		if data.v ~= config[25].v then
+			view = nil
+			collectgarbage()
+			view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or "view.luac"))()
+			data.v = config[25].v
 		end
+		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 
@@ -401,7 +471,7 @@ local function run(event)
 	if config[19].v ~= 1 then
 		lcd.drawText(SMLCD and (config[14].v == 1 and 105 or LCD_W) or 128, 1, string.format("%.1f", data.txBatt) .. "V", SMLSIZE + RIGHT + INVERS)
 	end
-	if data.rxBatt > 0 and data.telemetry and config[14].v == 1 then
+	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
 		lcd.drawText(LCD_W, 1, string.format("%.1f", data.rxBatt) .. "V", SMLSIZE + RIGHT + INVERS)
 	end
 
