@@ -101,9 +101,4 @@ local data = {
 	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }
 
---if string.sub(r, -4) == "simu" then
---	data.lang = "de"
---	data.voice = "de"
---end
-
 return data, PREV, INCR, NEXT, DECR, MENU

@@ -2,7 +2,6 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local b = ...
 local VERSION = "1.4.2"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
@@ -11,10 +10,8 @@ local tmp, view
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
-if b ~= false then 
-	if string.sub(r, -4) == "simu" then
-		loadScript(FILE_PATH .. "build", "tx")()
-	end
+if string.sub(r, -4) == "simu" then 
+	loadScript(FILE_PATH .. "build", "tx")()
 end
 
 local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
@@ -35,6 +32,11 @@ end
 loadfile(FILE_PATH .. "reset.luac")(data)
 loadfile(FILE_PATH .. "other.luac")(config, data, units, FILE_PATH)
 collectgarbage()
+
+--[[ Companion simulator testing
+data.lang = "de"
+data.voice = "de"
+]]
 
 local function playAudio(f, a)
 	if config[4].v == 2 or (config[4].v == 1 and a ~= nil) then
@@ -360,13 +362,13 @@ local function background()
 					data.thrCntr = data.throttle
 					data.trCnSt = true
 				end
-				if math.abs(data.throttle - data.thrCntr) < 40 then
+				if math.abs(data.throttle - data.thrCntr) < 50 then
 					if not data.trCnSt then
 						playHaptic(15, 0)
 						data.trCnSt = true
 					end
 				elseif data.trCnSt then
-					playTone(500, 75, 0, PLAY_NOW + PLAY_BACKGROUND)
+					playTone(data.throttle > data.thrCntr and 600 or 400, 75, 0, PLAY_NOW + PLAY_BACKGROUND)
 					data.trCnSt = false
 				end
 			else

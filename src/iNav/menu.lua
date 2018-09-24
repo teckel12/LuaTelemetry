@@ -46,20 +46,20 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 		lcd.drawText(CONFIG_X + 2, y, config[z].t, SMLSIZE)
 		if config[z].p == nil then
 			if config[z].l == nil then
-				lcd.drawText(CONFIG_X + 84, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
+				lcd.drawText(CONFIG_X + 85, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
 			else
 				if not config[z].l then
-					lcd.drawText(CONFIG_X + 84, y, config[z].v, SMLSIZE + tmp)
+					lcd.drawText(CONFIG_X + 85, y, config[z].v, SMLSIZE + tmp)
 				else
 					if z == 15 then
 						lcd.drawText(CONFIG_X + 21, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 					else
-						lcd.drawText(CONFIG_X + 84, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
+						lcd.drawText(CONFIG_X + 85, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
 					end
 				end
 			end
 		else
-			lcd.drawText(CONFIG_X + 84, y, "--", SMLSIZE + tmp)
+			lcd.drawText(CONFIG_X + 85, y, "--", SMLSIZE + tmp)
 		end
 	end
 

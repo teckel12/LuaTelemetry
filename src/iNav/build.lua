@@ -1,10 +1,8 @@
-local debug = false
-
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
 local v, r, m, i, e = getVersion()
-local env = debug == true and "tcd" or "tc"
+local env = "tc" -- Default: "tc" | Debug mode: "tcb"
 
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units = loadScript(FILE_PATH .. "modes", env)(FLASH)
@@ -29,6 +27,6 @@ loadScript(FILE_PATH .. "other", env)(config, data, units, FILE_PATH)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "menu", env)()
-loadScript("/SCRIPTS/TELEMETRY/iNav", env)(false)
+--loadScript("/SCRIPTS/TELEMETRY/iNav", env)(true)
 
 return 0

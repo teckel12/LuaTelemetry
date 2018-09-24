@@ -10,7 +10,7 @@ local config = {
 	{ o = 9,  t = "Max Altitude",     c = 4, x = 9999, b = 8 },
 	{ o = 13, t = "Variometer",       c = 1, v = 0, i = 1, x = 3, l = {[0] = "Off", "Graph", "Voice", "Both"} },
 	{ o = 17, t = "RTH Feedback",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
-	{ o = 18, t = "HeadFree Fback",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
+	{ o = 18, t = "HeadFree Feedback",c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
 	{ o = 19, t = "RSSI Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
 	{ o = 2,  t = "Battery Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
 	{ o = 8,  t = "Altitude Alert",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
@@ -27,7 +27,7 @@ local config = {
 	{ o = 5,  t = "Fuel Unit",        c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 	{ o = 14, t = "Vario Steps",      c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
 	{ o = 22, t = "View Mode",        c = 1, v = 0, i = 1, x = 1, l = {[0] = "Classic", "Pilot"} },
-	{ o = 20, t = "AH Cntr Feedback", c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 16 },
+	{ o = 20, t = "AH Cntr Feedback", c = 1, v = 0, i = 1, l = {[0] = "Off", "On"}, b = 16 },
 }
 
 return config
