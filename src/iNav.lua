@@ -449,7 +449,7 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or "view.luac"))()
+			view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac")))()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)

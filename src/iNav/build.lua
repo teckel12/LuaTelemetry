@@ -11,7 +11,7 @@ local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(
 
 data.lang = "en"
 data.voice = "en"
-loadScript(FILE_PATH .. "lang.luac", env)(modes, config, data, FILE_PATH)
+loadScript(FILE_PATH .. "lang", env)(modes, config, data, FILE_PATH)
 local lang = { "nl", "fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu" }
 for abv = 1, 12 do
 	local fh = io.open(FILE_PATH .. "lang_" .. lang[abv] .. ".lua")
@@ -26,6 +26,7 @@ loadScript(FILE_PATH .. "setspeed", env)(data, config)
 loadScript(FILE_PATH .. "other", env)(config, data, units, FILE_PATH)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
+loadScript(FILE_PATH .. "radar", env)()
 loadScript(FILE_PATH .. "menu", env)()
 --loadScript("/SCRIPTS/TELEMETRY/iNav", env)(true)
 
