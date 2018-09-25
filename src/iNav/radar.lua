@@ -14,7 +14,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		if not SMLCD then
 			lcd.drawText(50, 28, "INAV Lua Telemetry")
 		end
-		lcd.drawText(X_CNTR - 12, SMLCD and 33 or 40, "v" .. VERSION)
+		lcd.drawText(X_CNTR - 12, SMLCD and 28 or 40, "v" .. VERSION)
 	end
 
 	-- Flight modes
