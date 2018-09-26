@@ -238,6 +238,7 @@ local function background()
 	elseif not data.armed and armedPrev then -- Engines disarmed
 		if data.distanceLast <= data.distRef then
 			data.headingRef = -1
+			data.showMax = false
 			data.showDir = true
 			data.gpsAltBase = false
 		end
