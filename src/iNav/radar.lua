@@ -62,6 +62,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		end
 	--end
 
+	if SMLCD and not data.armed then
+		lcd.drawText(RIGHT_POS - 8, 18, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+		lcd.drawText(RIGHT_POS - 8, 26, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
+	end
+
 	-- Radar
 	if data.startup == 0 then
 		if data.gpsHome ~= false and data.showHead then
@@ -93,6 +98,8 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			elseif d > 1 then
 				lcd.drawFilledRectangle(hx - 1, hy - 1, 3, 3, ERASE)
 				lcd.drawFilledRectangle(hx - 1, hy - 1, 3, 3, SOLID)
+			elseif SMLCD and not data.armed then
+				hy = hy + 7
 			end
 			-- Shift craft location
 			cx = cx + hx
