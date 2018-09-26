@@ -2,7 +2,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	local LEFT_POS = 36
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
-	local X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 2
+	local X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
 	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
 	local tmp, pitch
 
@@ -16,7 +16,6 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	-- Flight modes
 	tmp = X_CNTR - (SMLCD and 16 or 19)
-	lcd.drawLine(tmp, 9, tmp, 15, SOLID, ERASE)
 	lcd.drawText(tmp + 1, 9, modes[data.modeId].t, SMLSIZE + modes[data.modeId].f)
 	if data.headFree then
 		lcd.drawText(tmp, 9, "HF", SMLSIZE + FLASH + RIGHT)
@@ -40,10 +39,10 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	-- Bottom data
-	--if SMLCD and data.showDir then
-	--	lcd.drawText(RIGHT_POS, 50, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
-	--	lcd.drawText(RIGHT_POS, 57, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
-	--else
+	if SMLCD and data.showDir and (not data.armed or not data.telem) then
+		lcd.drawText(RIGHT_POS, 50, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+		lcd.drawText(RIGHT_POS, 57, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
+	else
 		if data.showMax then
 			lcd.drawText(X_CNTR + 1, 57, "\192", SMLSIZE)
 		end
@@ -60,11 +59,6 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		if data.altHold then
 			lockIcon(RIGHT_POS - 6, 50)
 		end
-	--end
-
-	if SMLCD and not data.armed then
-		lcd.drawText(RIGHT_POS - 8, 18, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
-		lcd.drawText(RIGHT_POS - 8, 26, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 	end
 
 	-- Radar
