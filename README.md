@@ -18,12 +18,18 @@
 ![sample](assets/iNavQX7pilot.png "Pilot view on QX7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dpilot.png "Pilot view on Taranis X9D, X9D+ and X9E")
 
+#### Radar view
+
+![sample](assets/iNavQX7radar.png "Radar view on QX7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavX9Dradar.png "Radar view on Taranis X9D, X9D+ and X9E")
+
 ## Features
 
 * Works with all FrSky telemetry receivers (X-series, R9 series and D-series) and all FrSky Taranis transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Pilot view (glass cockpit) which includes attitude indicator as well as pilot-familiar layout of additional data
+* Radar view shows model in relationship to home position, can be displayed either as launch/pilot-based or compass-based orientation
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
