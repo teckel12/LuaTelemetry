@@ -1,7 +1,7 @@
 local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_DIV = 36
-	local LEFT_POS = SMLCD and LEFT_DIV or 74
+	local LEFT_POS = SMLCD and LEFT_DIV or 73
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
 	local X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
 	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
@@ -41,7 +41,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		end
 	elseif (data.showDir or data.headingRef < 0) and not data.showMax then
 		-- Heading
-		lcd.drawText(X_CNTR + 15, 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 	-- Min/Max
 	if not data.showDir and data.showMax then
@@ -53,8 +53,8 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		if data.gpsHome ~= false and data.showHead then
 			-- Launch/north-based orientation
 			if data.showDir or data.headingRef < 0 then
-				lcd.drawText(LEFT_POS + 2, 35, "W", SMLSIZE)
-				lcd.drawText(RIGHT_POS, 35, "E", SMLSIZE + RIGHT)
+				lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
+				lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
 				tmp = 0
 			else
 				tmp = data.headingRef
@@ -73,7 +73,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			local cy = math.floor(math.cos(rad1) * d + 0.5)
 			-- Home position
 			local hx = X_CNTR + 3 - (d > 17 and cx / 2 or 0)
-			local hy = 38 + (d > 17 and cy / 2 or 0)
+			local hy = 37 + (d > 17 and cy / 2 or 0)
 			if d >= 9 then
 				homeIcon(hx - 3, hy - 3)
 			elseif d > 1 then
@@ -167,21 +167,26 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	tmp = data.showMax and data.speedMax or data.speed
 	lcd.drawText(LEFT_DIV, data.showCurr and 57 or 56, tmp >= 99.5 and math.floor(tmp + 0.5) .. units[data.speed_unit] or string.format("%.1f", tmp) .. units[data.speed_unit], SMLSIZE + RIGHT + data.telemFlags)
 
-	-- Second left column for wide screen
+	-- Left data - Wide screen
 	if not SMLCD then
 		lcd.drawLine(LEFT_POS, 8, LEFT_POS, 63, SOLID, FORCE)
 		-- Altitude
 		tmp = data.showMax and data.altitudeMax or data.altitude
+		local tmp2 = data.alt_unit == 9 and 6 or 2
 		lcd.drawText(LEFT_DIV + 2, 9, "Alt", SMLSIZE)
-		lcd.drawText(LEFT_POS, 16, math.floor(tmp + 0.5) .. units[data.alt_unit], MIDSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+		lcd.drawText(LEFT_POS - tmp2, data.alt_unit == 9 and 21 or 17, units[data.alt_unit], SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+		lcd.drawText(LEFT_POS - tmp2, 16, math.floor(tmp + 0.5), MIDSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 		if data.altHold then
 			lockIcon(LEFT_POS - 6, 9)
 		end
 		-- Distance
 		tmp = data.showMax and data.distanceMax or data.distanceLast
+		tmp2 = data.dist_unit == 9 and (tmp < 1000 and 6 or 11) or (tmp < 1000 and 2 or 10)
 		lcd.drawText(LEFT_DIV + 2, 30, "Dist", SMLSIZE)
-		lcd.drawText(LEFT_POS, 37, tmp < 1000 and (math.floor(tmp + 0.5) .. units[data.dist_unit]) or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), MIDSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(LEFT_POS - tmp2, (data.dist_unit == 9 or tmp >= 1000) and 42 or 38, tmp < 1000 and units[data.dist_unit] or (data.dist_unit == 9 and "km" or "mi"), SMLSIZE + data.telemFlags)
+		lcd.drawText(LEFT_POS - tmp2, 37, tmp < 1000 and math.floor(tmp + 0.5) or string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)), MIDSIZE + RIGHT + data.telemFlags)
 		--Pitch
+		lcd.drawLine(LEFT_DIV, 50, LEFT_POS, 50, SOLID, FORCE)
 		if data.pitchRoll then
 			pitch = (math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180
 		else
@@ -189,7 +194,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		end
 		tmp = pitch - 90
 		tmp = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
-		lcd.drawText(LEFT_DIV + 6, 55, tmp > 0 and "\194" or (tmp == 0 and "->" or "\195"), SMLSIZE)
+		lcd.drawText(LEFT_DIV + 5, 54, tmp > 0 and "\194" or (tmp == 0 and "->" or "\195"), SMLSIZE)
 		lcd.drawText(LEFT_POS, 53, "\64", SMLSIZE + RIGHT + data.telemFlags)
 		lcd.drawText(LEFT_POS - 4, 52, tmp, MIDSIZE + RIGHT + data.telemFlags)
 	end
