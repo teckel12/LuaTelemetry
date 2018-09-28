@@ -4,7 +4,7 @@ I'm really glad you're reading this, because I need volunteer developers to help
 
 ## Submitting changes
 
-Please send a [GitHub Pull Request to Lua Telemetry](https://github.com/iNavFlight/LuaTelemetry/pull/new/master) with a clear list of what you've done (read more about [pull requests](https://help.github.com/articles/about-pull-requests/)). Please follow the coding conventions (below) and make sure all of your commits are atomic (one feature per commit).
+Please send a pull request using `development` as the base branch with a clear list of what you've done (read more about [pull requests](https://help.github.com/articles/about-pull-requests/)). Please follow the coding conventions (below) and make sure all of your commits are atomic (one feature per commit).
 
 Always write a clear log message for your commits. One-line messages are fine for small changes, but bigger changes should look like this:
 
