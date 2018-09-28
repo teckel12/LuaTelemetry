@@ -61,6 +61,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			end
 			-- Craft location
 			local d = data.distanceLast >= data.distRef and math.min(math.max((data.distanceLast / math.max(math.min(data.distanceMax, data.distanceLast * 4), data.distRef * 2.5)) * 27, 7), 27) or 1
+			if SMLCD and not data.armed then
+				d = math.min(d, 18)
+			end
 			local o1 = math.rad(data.gpsHome.lat)
 			local a1 = math.rad(data.gpsHome.lon)
 			local o2 = math.rad(data.gpsLatLon.lat)
@@ -73,21 +76,19 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			local cy = math.floor(math.cos(rad1) * d + 0.5)
 			-- Home position
 			local hx = X_CNTR + 3 - (d > 17 and cx / 2 or 0)
-			local hy = 37 + (d > 17 and cy / 2 or 0)
+			local hy = ((SMLCD and not data.armed) and 33 or 37) + (d > 17 and cy / 2 or 0)
 			if d >= 9 then
 				homeIcon(hx - 3, hy - 3)
 			elseif d > 1 then
 				lcd.drawFilledRectangle(hx - 1, hy - 1, 3, 3, SOLID)
-			elseif SMLCD and not data.armed then
-				hy = hy + 7
 			end
 			-- Shift craft location
-			cx = cx + hx
-			cy = hy - cy
+			cx = d == 1 and X_CNTR + 3 or cx + hx
+			cy = d == 1 and 37 or hy - cy
 			-- Orientation
 			rad1 = math.rad(data.heading - tmp)
-			local rad2 = math.rad(data.heading - tmp + (data.headingHold and 140 or 145))
-			local rad3 = math.rad(data.heading - tmp - (data.headingHold and 140 or 145))
+			local rad2 = math.rad(data.heading - tmp + 145)
+			local rad3 = math.rad(data.heading - tmp - 145)
 			tmp = d == 1 and 8 or 5
 			local x1 = math.sin(rad1) * tmp + cx
 			local y1 = cy - math.cos(rad1) * tmp
@@ -96,14 +97,18 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			local x3 = math.sin(rad3) * tmp + cx
 			local y3 = cy - math.cos(rad3) * tmp
 			if data.headingHold then
-				lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
+				if d == 1 then
+					lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
+				else
+					lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
+				end
 			else
 				lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
 			end
 			lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
 			lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 		else
-			homeIcon(X_CNTR, 35)
+			homeIcon(X_CNTR, 33)
 		end
 	end
 
