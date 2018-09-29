@@ -10,9 +10,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	-- Startup message
 	if data.startup == 2 then
 		if not SMLCD then
-			lcd.drawText(LEFT_POS + 7, 28, "Lua Telemetry")
+			lcd.drawText(LEFT_POS + 8, 28, "Lua Telemetry")
 		end
-		lcd.drawText(X_CNTR - 10, SMLCD and 34 or 40, "v" .. VERSION)
+		lcd.drawText(X_CNTR - 10, SMLCD and 29 or 40, "v" .. VERSION)
 	end
 
 	-- Flight modes
@@ -50,17 +50,18 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	-- Radar
 	if data.startup == 0 then
-		if data.gpsHome ~= false and data.showHead then
-			-- Launch/north-based orientation
-			if data.showDir or data.headingRef < 0 then
-				lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
-				lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
-				tmp = 0
-			else
-				tmp = data.headingRef
-			end
+		-- Launch/north-based orientation
+		if data.showDir or data.headingRef < 0 then
+			lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
+			lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
+			tmp = 0
+		else
+			tmp = data.headingRef
+		end
+		local cx, cy, d
+		if data.gpsHome ~= false then
 			-- Craft location
-			local d = data.distanceLast >= data.distRef and math.min(math.max((data.distanceLast / math.max(math.min(data.distanceMax, data.distanceLast * 4), data.distRef * 2.5)) * 27, 7), 27) or 1
+			d = data.distanceLast >= data.distRef and math.min(math.max((data.distanceLast / math.max(math.min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * 27, 7), 27) or 1
 			if SMLCD and not data.armed then
 				d = math.min(d, 18)
 			end
@@ -72,11 +73,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
 			local bearing = math.deg(math.atan2(y, x)) - tmp
 			local rad1 = math.rad(bearing)
-			local cx = math.floor(math.sin(rad1) * d + 0.5)
-			local cy = math.floor(math.cos(rad1) * d + 0.5)
+			cx = math.floor(math.sin(rad1) * d + 0.5)
+			cy = math.floor(math.cos(rad1) * d + 0.5)
 			-- Home position
-			local hx = X_CNTR + 3 - (d > 17 and cx / 2 or 0)
-			local hy = ((SMLCD and not data.armed) and 33 or 37) + (d > 17 and cy / 2 or 0)
+			local hx = X_CNTR + 3 - (d > 9 and cx / 2 or 0)
+			local hy = ((SMLCD and not data.armed) and 33 or 37) + (d > 9 and cy / 2 or 0)
 			if d >= 9 then
 				homeIcon(hx - 3, hy - 3)
 			elseif d > 1 then
@@ -85,31 +86,33 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			-- Shift craft location
 			cx = d == 1 and X_CNTR + 3 or cx + hx
 			cy = d == 1 and 37 or hy - cy
-			-- Orientation
-			rad1 = math.rad(data.heading - tmp)
-			local rad2 = math.rad(data.heading - tmp + 145)
-			local rad3 = math.rad(data.heading - tmp - 145)
-			tmp = d == 1 and 8 or 5
-			local x1 = math.sin(rad1) * tmp + cx
-			local y1 = cy - math.cos(rad1) * tmp
-			local x2 = math.sin(rad2) * tmp + cx
-			local y2 = cy - math.cos(rad2) * tmp
-			local x3 = math.sin(rad3) * tmp + cx
-			local y3 = cy - math.cos(rad3) * tmp
-			if data.headingHold then
-				if d == 1 then
-					lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
-				else
-					lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
-				end
-			else
-				lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
-			end
-			lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
-			lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 		else
-			homeIcon(X_CNTR, 33)
+			cx = X_CNTR + 3
+			cy = (SMLCD and not data.armed) and 33 or 37
+			d = 1
 		end
+		-- Orientation
+		local rad1 = math.rad(data.heading - tmp)
+		local rad2 = math.rad(data.heading - tmp + 145)
+		local rad3 = math.rad(data.heading - tmp - 145)
+		tmp = d == 1 and 8 or 5
+		local x1 = math.sin(rad1) * tmp + cx
+		local y1 = cy - math.cos(rad1) * tmp
+		local x2 = math.sin(rad2) * tmp + cx
+		local y2 = cy - math.cos(rad2) * tmp
+		local x3 = math.sin(rad3) * tmp + cx
+		local y3 = cy - math.cos(rad3) * tmp
+		if data.headingHold then
+			if d == 1 then
+				lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
+			else
+				lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
+			end
+		else
+			lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+		end
+		lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
+		lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 	end
 
 	-- Variometer

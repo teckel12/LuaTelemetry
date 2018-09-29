@@ -24,6 +24,11 @@ collectgarbage()
 local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
 collectgarbage()
 
+--[[ Simulator language testing
+data.lang = "de"
+data.voice = "de"
+]]
+
 if data.lang ~= "en" or data.voice ~= "en" then
 	loadfile(FILE_PATH .. "lang.luac")(modes, config, data, FILE_PATH)
 	collectgarbage()
@@ -32,11 +37,6 @@ end
 loadfile(FILE_PATH .. "reset.luac")(data)
 loadfile(FILE_PATH .. "other.luac")(config, data, units, FILE_PATH)
 collectgarbage()
-
---[[ Companion simulator testing
-data.lang = "de"
-data.voice = "de"
-]]
 
 local function playAudio(f, a)
 	if config[4].v == 2 or (config[4].v == 1 and a ~= nil) then
@@ -116,10 +116,16 @@ local function background()
 		end
 		data.altitudeMax = getValue(data.altMax_id)
 		data.distanceMax = getValue(data.distMax_id)
+		--[[ Simulator fake distance
+		if data.gpsFix and data.gpsHome ~= false then
+			data.distance = (math.abs(data.gpsHome.lat - data.gpsLatLon.lat) + math.abs(data.gpsHome.lon - data.gpsLatLon.lon)) * 50000
+			data.distanceMax = math.max(data.distanceMax, data.distance)
+		end
+		]]
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		--[[
+		--[[ Possibly better voltage calculation once OpenTX Companion is updated
 		if data.a4_id > -1 then
 			data.cell = getValue(data.a4_id)
 			data.cellMin = getValue(data.a4Min_id)
