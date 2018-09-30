@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [ -d obj ]; then
 	rm -fR obj/*
 else
