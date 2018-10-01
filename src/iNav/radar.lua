@@ -201,7 +201,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			pitch = 90 - math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
 		end
 		tmp = pitch - 90
-		tmp = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
+		tmp = tmp >= 0 and (tmp < 1 and 0 or math.floor(tmp + 0.5)) or (tmp > -1 and 0 or math.ceil(tmp - 0.5))
 		lcd.drawText(LEFT_DIV + 5, 54, tmp > 0 and "\194" or (tmp == 0 and "->" or "\195"), SMLSIZE)
 		lcd.drawText(LEFT_POS, 53, "\64", SMLSIZE + RIGHT + data.telemFlags)
 		lcd.drawText(LEFT_POS - 4, 52, tmp, MIDSIZE + RIGHT + data.telemFlags)

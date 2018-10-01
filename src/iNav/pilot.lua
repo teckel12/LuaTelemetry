@@ -84,7 +84,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	if data.startup == 0 and data.telem then
 		tmp = pitch - 90
 		local short = SMLCD and 4 or 6
-		local tmp2 = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
+		local tmp2 = tmp >= 0 and (tmp < 1 and 0 or math.floor(tmp + 0.5)) or (tmp > -1 and 0 or math.ceil(tmp - 0.5))
 		if not data.showMax then
 			lcd.drawText(X_CNTR - (SMLCD and 14 or 24), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
 		end
