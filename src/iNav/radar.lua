@@ -39,13 +39,13 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 				lockIcon(RIGHT_POS - 6, 50)
 			end
 		end
-	elseif (data.showDir or data.headingRef < 0) and not data.showMax then
+	elseif data.showDir or data.headingRef < 0 then
 		-- Heading
 		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 	-- Min/Max
 	if not data.showDir and data.showMax then
-		lcd.drawText(X_CNTR + 1, 57, "\192", SMLSIZE)
+		lcd.drawText(RIGHT_POS, 9, "\192", SMLSIZE + RIGHT)
 	end
 
 	-- Radar
@@ -76,7 +76,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			cx = math.floor(math.sin(rad1) * d + 0.5)
 			cy = math.floor(math.cos(rad1) * d + 0.5)
 			-- Home position
-			local hx = X_CNTR + 3 - (d > 9 and cx / 2 or 0)
+			local hx = X_CNTR + 2 - (d > 9 and cx / 2 or 0)
 			local hy = ((SMLCD and not data.armed) and 33 or 37) + (d > 9 and cy / 2 or 0)
 			if d >= 9 then
 				homeIcon(hx - 3, hy - 3)
@@ -84,10 +84,10 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 				lcd.drawFilledRectangle(hx - 1, hy - 1, 3, 3, SOLID)
 			end
 			-- Shift craft location
-			cx = d == 1 and X_CNTR + 3 or cx + hx
+			cx = d == 1 and X_CNTR + 2 or cx + hx
 			cy = d == 1 and 37 or hy - cy
 		else
-			cx = X_CNTR + 3
+			cx = X_CNTR + 2
 			cy = (SMLCD and not data.armed) and 33 or 37
 			d = 1
 		end
