@@ -60,7 +60,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		local y2 = 21 - math.cos(rad2) * 7
 		local x3 = math.sin(rad3) * 7 + x
 		local y3 = 21 - math.cos(rad3) * 7
-		lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+		if data.headingHold then
+			lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
+		else
+			lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+		end
 		lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 	end
@@ -187,9 +191,6 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 	if data.altHold then
 		lockIcon(RIGHT_POS - 28, 33)
-	end
-	if data.headingHold then
-		lockIcon(LEFT_POS + 4, 9)
 	end
 
 	-- Attitude part 2
