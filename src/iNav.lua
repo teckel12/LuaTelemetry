@@ -118,7 +118,7 @@ local function background()
 		data.distanceMax = getValue(data.distMax_id)
 		--[[ Simulator fake distance
 		if data.gpsFix and data.gpsHome ~= false then
-			data.distance = (math.abs(data.gpsHome.lat - data.gpsLatLon.lat) + math.abs(data.gpsHome.lon - data.gpsLatLon.lon)) * 50000
+			data.distance = (math.abs(data.gpsHome.lat - data.gpsLatLon.lat) + math.abs(data.gpsHome.lon - data.gpsLatLon.lon)) * 70000
 			data.distanceMax = math.max(data.distanceMax, data.distance)
 		end
 		]]
