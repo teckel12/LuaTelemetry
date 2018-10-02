@@ -125,7 +125,6 @@ local function background()
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		--[[ Possibly better voltage calculation once OpenTX Companion is updated
 		if data.a4_id > -1 then
 			data.cell = getValue(data.a4_id)
 			data.cellMin = getValue(data.a4Min_id)
@@ -136,12 +135,6 @@ local function background()
 			data.cell = data.batt / data.cells
 			data.cellMin = data.battMin / data.cells
 		end
-		]]
-		if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
-			data.cells = math.floor(data.batt / 4.3) + 1
-		end
-		data.cell = data.batt / data.cells
-		data.cellMin = data.battMin / data.cells
 		data.rssiMin = getValue(data.rssiMin_id)
 		data.vspeed = getValue(data.vspeed_id)
 		if data.pitchRoll then
