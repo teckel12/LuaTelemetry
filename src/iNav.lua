@@ -118,25 +118,13 @@ local function background()
 		data.distanceMax = getValue(data.distMax_id)
 		--[[ Simulator fake distance
 		if data.gpsFix and data.gpsHome ~= false then
-			data.distance = (math.abs(data.gpsHome.lat - data.gpsLatLon.lat) + math.abs(data.gpsHome.lon - data.gpsLatLon.lon)) * 50000
+			data.distance = (math.abs(data.gpsHome.lat - data.gpsLatLon.lat) + math.abs(data.gpsHome.lon - data.gpsLatLon.lon)) * 70000
 			data.distanceMax = math.max(data.distanceMax, data.distance)
 		end
 		]]
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		--[[ Possibly better voltage calculation once OpenTX Companion is updated
-		if data.a4_id > -1 then
-			data.cell = getValue(data.a4_id)
-			data.cellMin = getValue(data.a4Min_id)
-		else
-			if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
-				data.cells = math.floor(data.batt / 4.3) + 1
-			end
-			data.cell = data.batt / data.cells
-			data.cellMin = data.battMin / data.cells
-		end
-		]]
 		if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
 			data.cells = math.floor(data.batt / 4.3) + 1
 		end

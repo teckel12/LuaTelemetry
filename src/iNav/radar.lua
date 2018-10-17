@@ -22,6 +22,14 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.drawText(tmp, 9, "HF", SMLSIZE + FLASH + RIGHT)
 	end
 
+	-- Pitch calculation
+	if data.pitchRoll then
+		pitch = ((math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180) - 90
+	else
+		pitch = math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz))) * -1
+	end
+	pitch = pitch >= 0 and (pitch < 1 and 0 or math.floor(pitch + 0.5)) or (pitch > -1 and 0 or math.ceil(pitch - 0.5))
+
 	-- Radar bottom
 	if SMLCD then
 		if data.showDir and (not data.armed or not data.telem) then
@@ -39,13 +47,16 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 				lockIcon(RIGHT_POS - 6, 50)
 			end
 		end
-	elseif (data.showDir or data.headingRef < 0) and not data.showMax then
+		-- Pitch
+		lcd.drawText(LEFT_POS + 15, 17, pitch .. (math.abs(pitch) < 10 and "\64" or ""), SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawLine(LEFT_POS + 1, 17, LEFT_POS + 1, 24, SOLID, ERASE)
+	elseif data.showDir or data.headingRef < 0 then
 		-- Heading
 		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 	-- Min/Max
 	if not data.showDir and data.showMax then
-		lcd.drawText(X_CNTR + 1, 57, "\192", SMLSIZE)
+		lcd.drawText(RIGHT_POS, 9, "\192", SMLSIZE + RIGHT)
 	end
 
 	-- Radar
@@ -76,7 +87,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			cx = math.floor(math.sin(rad1) * d + 0.5)
 			cy = math.floor(math.cos(rad1) * d + 0.5)
 			-- Home position
-			local hx = X_CNTR + 3 - (d > 9 and cx / 2 or 0)
+			local hx = X_CNTR + 2 - (d > 9 and cx / 2 or 0)
 			local hy = ((SMLCD and not data.armed) and 33 or 37) + (d > 9 and cy / 2 or 0)
 			if d >= 9 then
 				homeIcon(hx - 3, hy - 3)
@@ -84,10 +95,10 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 				lcd.drawFilledRectangle(hx - 1, hy - 1, 3, 3, SOLID)
 			end
 			-- Shift craft location
-			cx = d == 1 and X_CNTR + 3 or cx + hx
+			cx = d == 1 and X_CNTR + 2 or cx + hx
 			cy = d == 1 and 37 or hy - cy
 		else
-			cx = X_CNTR + 3
+			cx = X_CNTR + 2
 			cy = (SMLCD and not data.armed) and 33 or 37
 			d = 1
 		end
@@ -195,16 +206,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.drawText(LEFT_POS - tmp2, 37, tmp < 1000 and math.floor(tmp + 0.5) or string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)), MIDSIZE + RIGHT + data.telemFlags)
 		--Pitch
 		lcd.drawLine(LEFT_DIV, 50, LEFT_POS, 50, SOLID, FORCE)
-		if data.pitchRoll then
-			pitch = (math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180
-		else
-			pitch = 90 - math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
-		end
-		tmp = pitch - 90
-		tmp = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
-		lcd.drawText(LEFT_DIV + 5, 54, tmp > 0 and "\194" or (tmp == 0 and "->" or "\195"), SMLSIZE)
+		lcd.drawText(LEFT_DIV + 5, 54, pitch > 0 and "\194" or (pitch == 0 and "->" or "\195"), SMLSIZE)
 		lcd.drawText(LEFT_POS, 53, "\64", SMLSIZE + RIGHT + data.telemFlags)
-		lcd.drawText(LEFT_POS - 4, 52, tmp, MIDSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(LEFT_POS - 4, 52, pitch, MIDSIZE + RIGHT + data.telemFlags)
 	end
 end
 

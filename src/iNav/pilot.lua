@@ -60,7 +60,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		local y2 = 21 - math.cos(rad2) * 7
 		local x3 = math.sin(rad3) * 7 + x
 		local y3 = 21 - math.cos(rad3) * 7
-		lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+		if data.headingHold then
+			lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
+		else
+			lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+		end
 		lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 	end
@@ -80,7 +84,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	if data.startup == 0 and data.telem then
 		tmp = pitch - 90
 		local short = SMLCD and 4 or 6
-		local tmp2 = tmp >= 0 and math.floor(tmp + 0.5) or math.ceil(tmp - 0.5)
+		local tmp2 = tmp >= 0 and (tmp < 1 and 0 or math.floor(tmp + 0.5)) or (tmp > -1 and 0 or math.ceil(tmp - 0.5))
 		if not data.showMax then
 			lcd.drawText(X_CNTR - (SMLCD and 14 or 24), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
 		end
@@ -187,9 +191,6 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 	if data.altHold then
 		lockIcon(RIGHT_POS - 28, 33)
-	end
-	if data.headingHold then
-		lockIcon(LEFT_POS + 4, 9)
 	end
 
 	-- Attitude part 2
