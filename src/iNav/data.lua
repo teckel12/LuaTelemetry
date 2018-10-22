@@ -101,4 +101,4 @@ local data = {
 	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }
 
-return data, PREV, INCR, NEXT, DECR, MENU
+return data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU

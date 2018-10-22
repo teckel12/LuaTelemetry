@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local RIGHT_POS = SMLCD and 129 or 195
 	local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -7,15 +7,10 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	local tmp
 
 	local function drawDirection(h, w, r, x, y)
-		local rad1 = math.rad(h)
-		local rad2 = math.rad(h + w)
-		local rad3 = math.rad(h - w)
-		local x1 = math.floor(math.sin(rad1) * r + 0.5) + x
-		local y1 = y - math.floor(math.cos(rad1) * r + 0.5)
-		local x2 = math.floor(math.sin(rad2) * r + 0.5) + x
-		local y2 = y - math.floor(math.cos(rad2) * r + 0.5)
-		local x3 = math.floor(math.sin(rad3) * r + 0.5) + x
-		local y3 = y - math.floor(math.cos(rad3) * r + 0.5)
+		local r1 = math.rad(h)
+		local r2 = math.rad(h + w)
+		local r3 = math.rad(h - w)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, x, y, r)
 		lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 		if data.headingHold then
@@ -81,13 +76,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		end
 		if data.gpsHome ~= false and data.distanceLast >= data.distRef then
 			if not data.showDir or not SMLCD then
-				local o1 = math.rad(data.gpsHome.lat)
-				local a1 = math.rad(data.gpsHome.lon)
-				local o2 = math.rad(data.gpsLatLon.lat)
-				local a2 = math.rad(data.gpsLatLon.lon)
-				local y = math.sin(a2 - a1) * math.cos(o2)
-				local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-				local bearing = math.deg(math.atan2(y, x)) - data.headingRef
+				local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - data.headingRef
 				local rad1 = math.rad(bearing)
 				local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_2
 				local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)

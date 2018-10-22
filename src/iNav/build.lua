@@ -7,7 +7,7 @@ local env = "tc" -- Default: "tc" | Debug mode: "tcb"
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units = loadScript(FILE_PATH .. "modes", env)(FLASH)
 local configCnt = loadScript(FILE_PATH .. "load", env)(config, FILE_PATH)
-local data, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i)
+local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i)
 
 data.lang = "en"
 data.voice = "en"
@@ -22,8 +22,7 @@ for abv = 1, 12 do
 end
 
 loadScript(FILE_PATH .. "reset", env)(data)
-loadScript(FILE_PATH .. "setspeed", env)(data, config)
-loadScript(FILE_PATH .. "other", env)(config, data, units, FILE_PATH)
+loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()

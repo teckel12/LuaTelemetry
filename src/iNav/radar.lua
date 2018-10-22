@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
@@ -48,8 +48,12 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			end
 		end
 		-- Pitch
-		lcd.drawText(LEFT_POS + 15, 17, pitch .. (math.abs(pitch) < 10 and "\64" or ""), SMLSIZE + RIGHT + data.telemFlags)
-		lcd.drawLine(LEFT_POS + 1, 17, LEFT_POS + 1, 24, SOLID, ERASE)
+		if data.startup == 0 then
+			lcd.drawText(LEFT_POS + 15, 17, pitch .. (math.abs(pitch) < 10 and "\64" or ""), SMLSIZE + RIGHT + data.telemFlags)
+			lcd.drawLine(LEFT_POS + 1, 17, LEFT_POS + 1, 24, SOLID, ERASE)
+		else
+			lcd.drawText(LEFT_POS + 2, 17, "Ptch", SMLSIZE)
+		end
 	elseif data.showDir or data.headingRef < 0 then
 		-- Heading
 		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
@@ -76,13 +80,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			if SMLCD and not data.armed then
 				d = math.min(d, 18)
 			end
-			local o1 = math.rad(data.gpsHome.lat)
-			local a1 = math.rad(data.gpsHome.lon)
-			local o2 = math.rad(data.gpsLatLon.lat)
-			local a2 = math.rad(data.gpsLatLon.lon)
-			local y = math.sin(a2 - a1) * math.cos(o2)
-			local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-			local bearing = math.deg(math.atan2(y, x)) - tmp
+			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
 			local rad1 = math.rad(bearing)
 			cx = math.floor(math.sin(rad1) * d + 0.5)
 			cy = math.floor(math.cos(rad1) * d + 0.5)
@@ -103,16 +101,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			d = 1
 		end
 		-- Orientation
-		local rad1 = math.rad(data.heading - tmp)
-		local rad2 = math.rad(data.heading - tmp + 145)
-		local rad3 = math.rad(data.heading - tmp - 145)
+		local r1 = math.rad(data.heading - tmp)
+		local r2 = math.rad(data.heading - tmp + 145)
+		local r3 = math.rad(data.heading - tmp - 145)
 		tmp = d == 1 and 8 or 5
-		local x1 = math.sin(rad1) * tmp + cx
-		local y1 = cy - math.cos(rad1) * tmp
-		local x2 = math.sin(rad2) * tmp + cx
-		local y2 = cy - math.cos(rad2) * tmp
-		local x3 = math.sin(rad3) * tmp + cx
-		local y3 = cy - math.cos(rad3) * tmp
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, tmp)
 		if data.headingHold then
 			if d == 1 then
 				lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)

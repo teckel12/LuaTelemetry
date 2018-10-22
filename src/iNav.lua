@@ -21,7 +21,7 @@ local modes, units = loadfile(FILE_PATH .. "modes.luac")(FLASH)
 local configCnt = loadfile(FILE_PATH .. "load.luac")(config, FILE_PATH)
 collectgarbage()
 
-local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
+local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
 collectgarbage()
 
 --[[ Simulator language testing
@@ -35,7 +35,7 @@ if data.lang ~= "en" or data.voice ~= "en" then
 end
 
 loadfile(FILE_PATH .. "reset.luac")(data)
-loadfile(FILE_PATH .. "other.luac")(config, data, units, FILE_PATH)
+loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -77,6 +77,40 @@ local function homeIcon(x, y)
 	lcd.drawPoint(x + 3, y + 4)
 end
 
+local function calcTrig(gps1, gps2, deg)
+	local o1 = math.rad(gps1.lat)
+	local a1 = math.rad(gps1.lon)
+	local o2 = math.rad(gps2.lat)
+	local a2 = math.rad(gps2.lon)
+	if deg then
+		local y = math.sin(a2 - a1) * math.cos(o2)
+		local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+		return math.deg(math.atan2(y, x))
+	else
+		local u = math.sin((o2 - o1) / 2)
+		local v = math.sin((a2 - a1) / 2)
+		return 12742018 * math.asin(math.sqrt(u * u + math.cos(o1) * math.cos(o2) * v * v))
+	end
+end
+
+local function calcDir(r1, r2, r3, x, y, r)
+	--[[ This level of precision probably isn't necessary
+	local x1 = math.floor(math.sin(r1) * r + 0.5) + x
+	local y1 = y - math.floor(math.cos(r1) * r + 0.5)
+	local x2 = math.floor(math.sin(r2) * r + 0.5) + x
+	local y2 = y - math.floor(math.cos(r2) * r + 0.5)
+	local x3 = math.floor(math.sin(r3) * r + 0.5) + x
+	local y3 = y - math.floor(math.cos(r3) * r + 0.5)
+	]]
+	local x1 = math.sin(r1) * r + x
+	local y1 = y - (math.cos(r1) * r)
+	local x2 = math.sin(r2) * r + x
+	local y2 = y - (math.cos(r2) * r)
+	local x3 = math.sin(r3) * r + x
+	local y3 = y - (math.cos(r3) * r)
+	return x1, y1, x2, y2, x3, y3
+end
+
 local function hdopGraph(x, y, s)
 	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
 	if config[22].v == 0 then
@@ -116,12 +150,6 @@ local function background()
 		end
 		data.altitudeMax = getValue(data.altMax_id)
 		data.distanceMax = getValue(data.distMax_id)
-		--[[ Simulator fake distance
-		if data.gpsFix and data.gpsHome ~= false then
-			data.distance = (math.abs(data.gpsHome.lat - data.gpsLatLon.lat) + math.abs(data.gpsHome.lon - data.gpsLatLon.lon)) * 70000
-			data.distanceMax = math.max(data.distanceMax, data.distance)
-		end
-		]]
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
@@ -147,6 +175,12 @@ local function background()
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
 				config[15].l[0] = gpsTemp
+				-- Calculate distance to home if sensor is missing or in simlulator
+				if data.gpsHome ~= false and (data.dist_id == -1 or string.sub(r, -4) == "simu") then
+					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
+					data.distanceMax = math.max(data.distanceMax, data.distance)
+					data.dist_unit = data.alt_unit
+				end
 			end
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
@@ -418,7 +452,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
-		view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+		view(data, config, event, configCnt, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 	else
 		-- User input
 		if not data.armed then
@@ -447,7 +481,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac")))()
 			data.v = config[25].v
 		end
-		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
+		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 

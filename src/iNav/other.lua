@@ -1,9 +1,4 @@
-local config, data, units, FILE_PATH = ...
-
-local function getTelemetryId(n)
-	local field = getFieldInfo(n)
-	return field and field.id or -1
-end
+local config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH = ...
 
 data.showCurr = data.curr_id > -1 and true or false
 data.showFuel = data.fuel_id > -1 and true or false
@@ -40,6 +35,10 @@ config[6].i = data.alt_unit == 10 and 10 or 1
 config[6].a = units[data.alt_unit]
 config[24].a = units[data.alt_unit]
 config[20].v = data.pitot and config[20].v or 0
-loadfile(FILE_PATH .. "setspeed.luac")(data, config)
+
+local tmp = config[20].v == 0 and "GSpd" or "ASpd"
+data.speed_id = getTelemetryId(tmp)
+data.speedMax_id = getTelemetryId(tmp .. "+")
+data.speed_unit = getTelemetryUnit(tmp)
 
 return 0
