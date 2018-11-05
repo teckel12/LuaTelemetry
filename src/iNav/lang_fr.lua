@@ -12,7 +12,7 @@ modes[8].t  = "WAYPOINT"	-- WAYPOINT
 modes[9].t  = "MANUEL"		-- MANUAL
 modes[10].t = "   RTH   "	-- RTH
 modes[11].t = "! FAIL !"	-- ! FAIL !
-modes[12].t = " ! GAZ ! "	-- ! THROT !
+modes[12].t = "!  GAZ !"	-- ! THROT !
 modes[13].t = " CRUISE"	-- CRUISE
 
 -- Max 16 characters
