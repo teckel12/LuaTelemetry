@@ -12,7 +12,7 @@ modes[8].t  = "WAYPOINT"	-- WAYPOINT
 modes[9].t  = "MANUEL"		-- MANUAL
 modes[10].t = "   RTH   "	-- RTH
 modes[11].t = "! FAIL !"	-- ! FAIL !
-modes[12].t = "!  GAZ !"	-- ! THROT !
+modes[12].t = "! GAZ !"	-- ! THROT !
 modes[13].t = " CRUISE"	-- CRUISE
 
 -- Max 16 characters
@@ -46,19 +46,19 @@ config[26].t = "AltHold Feedback"	-- Alt Hold Center Feedback
 -- Max 9 characters
 config[1].l =  {[0] = "Cellule", "Total"}								-- "Cell", "Total"
 config[4].l =  {[0] = "Eteint", "Critique", "Tous"}					-- "Off", "Critical", "All"
-config[5].l =  {[0] = "Eteint", "Haptic", "Beeper", "Tous"}			-- "Off", "Haptic", "Beeper", "All"
-config[7].l =  {[0] = "Eteint", "Graph", "Voix", "Les deux"}			-- "Off", "Graph", "Voice", "Both"
+config[5].l =  {[0] = "Eteint", "Haptique", "Beeper", "Tous"}			-- "Off", "Haptic", "Beeper", "All"
+config[7].l =  {[0] = "Eteint", "Graphique", "Voix", "Les deux"}			-- "Off", "Graph", "Voice", "Both"
 config[8].l =  {[0] = "Eteint", "Actif"}								-- "Off", "On"
 config[9].l =  {[0] = "Eteint", "Actif"}								-- "Off", "On"
 config[10].l = {[0] = "Eteint", "Actif"}								-- "Off", "On"
 config[11].l = {[0] = "Eteint", "Critique", "Tous"}					-- "Off", "Critical", "All"
 config[12].l = {[0] = "Eteint", "Actif"}								-- "Off", "On"
-config[13].l = {[0] = "Eteint", "Auto", "Timer1", "Timer2", "Timer3"}	-- "Off", "Auto", "Timer1", "Timer2", "Timer3"
+config[13].l = {[0] = "Eteint", "Auto", "Minuteur1", "Minuteur2", "Minuteur3"}	-- "Off", "Auto", "Timer1", "Timer2", "Timer3"
 config[14].l = {[0] = "Eteint", "Actif"}								-- "Off", "On"
 config[16].l = {[0] = "Decimal", "Deg/Min"}							-- "Decimal", "Deg/Min"
-config[19].l = {[0] = "Numerique", "Graph", "Les deux"}				-- "Number", "Graph", "Both"
+config[19].l = {[0] = "Numerique", "Graphique", "Les deux"}				-- "Number", "Graph", "Both"
 config[20].l = {[0] = "GPS", "Pitot"}									-- "GPS", "Pitot"
-config[22].l = {[0] = "Graph", "Decimal"}								-- "Graph", "Decimal"
+config[22].l = {[0] = "Graphique", "Decimal"}								-- "Graph", "Decimal"
 config[23].l = {[0] = "Pourcent", "mAh", "mWh"}						-- "Percent", "mAh", "mWh"
 config[25].l = {[0] = "Classique", "Pilote", "Radar"}					-- "Classic", "Pilot", "Radar"
 config[26].l = {[0] = "Eteint", "Actif"}								-- "Off", "On"
