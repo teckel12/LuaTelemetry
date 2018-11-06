@@ -2,3 +2,4 @@
 dist/iNav/*.lua
 config.dat
 desktop.ini
+.DS_Store
