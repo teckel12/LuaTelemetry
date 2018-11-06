@@ -1,3 +1,7 @@
+## French localisation texte & Voices
+
+For testing only, Use the [original](https://github.com/iNavFlight/LuaTelemetry/) version for flying 
+
 # Lua Telemetry Flight Status for INAV/Taranis - v1.4.2
 
 ### FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
