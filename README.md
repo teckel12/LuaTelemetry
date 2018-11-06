@@ -72,7 +72,7 @@ For testing only, Use the [original](https://github.com/iNavFlight/LuaTelemetry/
 ## Setup
 
 * [Lua Telemetry Wiki](https://github.com/iNavFlight/LuaTelemetry/wiki)
-* [Download latest release](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
+* [Download latest release](https://github.com/iNavFlight/LuaTelemetry/d00bld0ze/releases/latest)
 * [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
 * [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
 
