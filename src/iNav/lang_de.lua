@@ -41,7 +41,7 @@ config[22].t = "GPS HDOP"		-- GPS HDOP View
 config[23].t = "Kapazitaet"		-- Fuel Unit
 config[24].t = "Vario Schritte"		-- Vario Steps
 config[25].t = "Ansichtsmodus"		-- View Mode
-config[26].t = "AlH Cntr Meld."		-- Alt Hold Center Feedback
+config[26].t = "AlH Cntr Meld."		-- AltHold Center FB
 
 -- Max 9 characters
 config[1].l =  {[0] = "Zelle", "Total"}				-- "Cell", "Total"

@@ -25,8 +25,8 @@ local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loa
 collectgarbage()
 
 --[[ Simulator language testing
-data.lang = "de"
-data.voice = "de"
+data.lang = "fr"
+data.voice = "fr"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
