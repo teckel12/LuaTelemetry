@@ -36,7 +36,7 @@
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
 * Menu configuration options can be changed from inside the script
 * Speed and distance values are displayed in metric or imperial based on transmitter's telemetry settings
-* Voice, display and config menu in English, German, French or Spanish (more languages to follow)
+* Voice files, modes and config menu in English, German, French or Spanish (more languages to follow)
 
 ## Requirements
 
