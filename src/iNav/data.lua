@@ -31,7 +31,6 @@ local data = {
 	txBattMax = general.battMax,
 	lang = string.lower(general.language),
 	voice = general.voice,
-	modelName = model.getInfo().name,
 	mode_id = getTelemetryId("Tmp1"),
 	rxBatt_id = getTelemetryId("RxBt"),
 	sat_id = getTelemetryId("Tmp2"),

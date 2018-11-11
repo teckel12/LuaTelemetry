@@ -3,9 +3,11 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	local CONFIG_X = SMLCD and 0 or 46
 
 	local function saveConfig()
-		local fh = io.open(FILE_PATH .. "config.dat", "w")
+		--local fh = io.open(FILE_PATH .. "config.dat", "w")
+		local fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
 		if fh == nil then
-			data.systemError = "Folder \"iNav\" not found"
+			data.msg = "Folder iNav/cfg missing"
+			data.startup = 1
 		else
 			for line = 1, configCnt do
 				if config[line].d == nil then

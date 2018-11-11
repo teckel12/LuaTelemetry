@@ -1,4 +1,4 @@
-local config, FILE_PATH = ...
+local config, data, FILE_PATH = ...
 
 -- Sort config menus
 local configCnt = 0
@@ -12,8 +12,23 @@ for i, value in ipairs(config) do
 	configCnt = configCnt + 1
 end
 
--- Load config data
+-- Copy config file (remove after several revisions)
 local fh = io.open(FILE_PATH .. "config.dat", "r")
+if fh ~= nil then
+	local tmp = io.read(fh, 1024)
+	io.close(fh)
+	fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
+	if fh == nil then
+		data.msg = "Folder iNav/cfg missing"
+		data.startup = 1
+	else
+		io.write(fh, tmp)
+		io.close(fh)
+	end
+end
+
+-- Load config data
+fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "r")
 if fh ~= nil then
 	for line = 1, configCnt do
 		local tmp = io.read(fh, config[line].c)

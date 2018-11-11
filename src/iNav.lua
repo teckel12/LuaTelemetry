@@ -18,10 +18,12 @@ local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
 collectgarbage()
 
 local modes, units = loadfile(FILE_PATH .. "modes.luac")(FLASH)
-local configCnt = loadfile(FILE_PATH .. "load.luac")(config, FILE_PATH)
 collectgarbage()
 
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
+collectgarbage()
+
+local configCnt = loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
@@ -435,18 +437,19 @@ local function run(event)
 
 	lcd.clear()
 
-	-- Display system error
-	if data.msg then
-		lcd.drawText((LCD_W - string.len(data.msg) * 5.2) / 2, 27, data.msg)
-		return 0
-	end
-
 	-- Startup message
 	if data.startup == 1 then
 		data.startupTime = getTime()
 		data.startup = 2
 	elseif data.startup == 2 and getTime() - data.startupTime >= 200 then
 		data.startup = 0
+		data.msg = false
+	end
+
+	-- Display system error
+	if data.msg then
+		lcd.drawText((LCD_W - string.len(data.msg) * 5.2) / 2, 27, data.msg)
+		return 0
 	end
 
 	-- Config menu or views
@@ -492,7 +495,7 @@ local function run(event)
 
 	-- Title
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
-	lcd.drawText(0, 0, data.modelName, INVERS)
+	lcd.drawText(0, 0, model.getInfo().name, INVERS)
 	if config[13].v > 0 then
 		lcd.drawTimer(SMLCD and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
 	end
