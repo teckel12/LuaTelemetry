@@ -4,7 +4,7 @@
 
 ## Video of Lua Telemetry
 
-https://youtu.be/_1fcMMat4o8
+https://youtu.be/YaUgywuT1YM
 
 ## Screenshots
 
