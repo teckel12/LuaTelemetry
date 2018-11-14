@@ -31,7 +31,6 @@ local data = {
 	txBattMax = general.battMax,
 	lang = string.lower(general.language),
 	voice = general.voice,
-	modelName = model.getInfo().name,
 	mode_id = getTelemetryId("Tmp1"),
 	rxBatt_id = getTelemetryId("RxBt"),
 	sat_id = getTelemetryId("Tmp2"),
@@ -46,8 +45,8 @@ local data = {
 	currMax_id = getTelemetryId("Curr+"),
 	batt_id = getTelemetryId("VFAS"),
 	battMin_id = getTelemetryId("VFAS-"),
-	--a4_id = getTelemetryId("A4"),
-	--a4Min_id = getTelemetryId("A4-"),
+	a4_id = getTelemetryId("A4"),
+	a4Min_id = getTelemetryId("A4-"),
 	fuel_id = getTelemetryId("Fuel"),
 	rssi_id = getTelemetryId("RSSI"),
 	rssiMin_id = getTelemetryId("RSSI-"),
@@ -101,4 +100,4 @@ local data = {
 	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }
 
-return data, PREV, INCR, NEXT, DECR, MENU
+return data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU

@@ -1,24 +1,24 @@
-# Lua Telemetry Flight Status for INAV/Taranis - v1.4.2
+# Lua Telemetry Flight Status for INAV/Taranis - v1.4.3
 
 ### FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 
+## Video of Lua Telemetry
+
+https://youtu.be/YaUgywuT1YM
+
 ## Screenshots
 
-#### Classic view on Taranis QX7 and X-Lite
+#### Classic view
 
-![sample](assets/iNavQX71.png "Launch/pilot-based model orientation and location indicators")&nbsp;&nbsp;
-![sample](assets/iNavQX72.png "Compass-based direction indicator")
-
-#### Classic view on Taranis X9D, X9D+ and X9E
-
+![sample](assets/iNavQX7.png "Classic view on QX7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9D.png "Classic view on Taranis X9D, X9D+ and X9E")
 
-#### Pilot view for fixed wing pilots
+#### Pilot (glass cockpit) view for fixed wing pilots
 
 ![sample](assets/iNavQX7pilot.png "Pilot view on QX7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dpilot.png "Pilot view on Taranis X9D, X9D+ and X9E")
 
-#### Radar view
+#### Radar (map) view
 
 ![sample](assets/iNavQX7radar.png "Radar view on QX7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dradar.png "Radar view on Taranis X9D, X9D+ and X9E")
@@ -28,8 +28,8 @@
 * Works with all FrSky telemetry receivers (X-series, R9 series and D-series) and all FrSky Taranis transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
-* Pilot view (glass cockpit) which includes attitude indicator as well as pilot-familiar layout of additional data
-* Radar view shows model in relationship to home position, can be displayed either as launch/pilot-based or compass-based orientation
+* Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
+* Radar (map) view shows model in relationship to home position, can be displayed either as launch/pilot-based or compass-based orientation
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
@@ -38,8 +38,9 @@
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
-* Menu configuration options can be changed from inside the script
+* Menu configuration options can be changed from inside the script and are unique to each model on the transmitter
 * Speed and distance values are displayed in metric or imperial based on transmitter's telemetry settings
+* Voice files, modes and config menu in English, German, French or Spanish (more languages to follow)
 
 ## Requirements
 
@@ -61,9 +62,8 @@
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter
-* Crossfire is **NOT** supported due to missing telemetry data required by Lua Telemetry
-    * Lua Telemetry can't fix this, Crossfire has missing flight mode info Lua Telemetry requires
-* FrSky Horus transmitters are not currently supported due to the missing draw flags: `ERASE` and `FORCED`
+* [Crossfire](https://github.com/iNavFlight/LuaTelemetry/issues/36) is not currently supported due to missing flight modes that are critical to Lua Telemetry
+* [FrSky Horus](https://github.com/iNavFlight/LuaTelemetry/issues/55) transmitters are not currently supported due to the missing draw flags: `ERASE` and `FORCED`
 
 ## Setup
 

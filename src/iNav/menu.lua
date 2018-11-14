@@ -1,11 +1,13 @@
-local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 
-	local CONFIG_X = LCD_W < 212 and 0 or 46
+	local CONFIG_X = SMLCD and 0 or 46
 
 	local function saveConfig()
-		local fh = io.open(FILE_PATH .. "config.dat", "w")
+		--local fh = io.open(FILE_PATH .. "config.dat", "w")
+		local fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
 		if fh == nil then
-			data.systemError = "Folder \"iNav\" not found"
+			data.msg = "Folder iNav/cfg missing"
+			data.startup = 1
 		else
 			for line = 1, configCnt do
 				if config[line].d == nil then
@@ -18,7 +20,9 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 		end
 	end
 
-	lcd.drawRectangle(CONFIG_X - (SMLCD and 0 or 2), 10, SMLCD and 128 or 132, 52, SOLID)
+	if not SMLCD then
+		lcd.drawRectangle(CONFIG_X - 3, 9, 134, 55, SOLID)
+	end
 
 	-- Disabled options
 	for line = 1, configCnt do
@@ -37,29 +41,29 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 	config[20].p = not data.pitot and 1 or nil
 	config[23].p = not data.showFuel and 1 or nil
 	for line = data.configTop, math.min(configCnt, data.configTop + 5) do
-		local y = (line - data.configTop) * 8 + 10 + 3
+		local y = (line - data.configTop) * 9 + 11
 		local z = config[line].z
 		local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
 		if not data.showCurr and z >= 17 and z <= 18 then
 			config[z].p = 1
 		end
-		lcd.drawText(CONFIG_X + 2, y, config[z].t, SMLSIZE)
+		lcd.drawText(CONFIG_X, y, config[z].t, SMLSIZE)
 		if config[z].p == nil then
 			if config[z].l == nil then
-				lcd.drawText(CONFIG_X + 85, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
+				lcd.drawText(CONFIG_X + 83, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
 			else
 				if not config[z].l then
-					lcd.drawText(CONFIG_X + 85, y, config[z].v, SMLSIZE + tmp)
+					lcd.drawText(CONFIG_X + 83, y, config[z].v, SMLSIZE + tmp)
 				else
 					if z == 15 then
 						lcd.drawText(CONFIG_X + 21, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 					else
-						lcd.drawText(CONFIG_X + 85, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
+						lcd.drawText(CONFIG_X + 83, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
 					end
 				end
 			end
 		else
-			lcd.drawText(CONFIG_X + 85, y, "--", SMLSIZE + tmp)
+			lcd.drawText(CONFIG_X + 83, y, "--", SMLSIZE + tmp)
 		end
 	end
 
@@ -105,7 +109,10 @@ local function view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD,
 			elseif z == 17 then -- Fuel critical < low
 				config[17].v = math.min(config[17].v, config[18].v - 1)
 			elseif z == 20 then -- Speed sensor
-				loadfile(FILE_PATH .. "setspeed.luac")(data, config)
+				local tmp = config[20].v == 0 and "GSpd" or "ASpd"
+				data.speed_id = getTelemetryId(tmp)
+				data.speedMax_id = getTelemetryId(tmp .. "+")
+				data.speed_unit = getTelemetryUnit(tmp)
 			elseif config[z].i > 1 then
 				config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
 			end
