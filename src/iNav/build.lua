@@ -6,7 +6,7 @@ local env = "tc" -- Default: "tc" | Debug mode: "tcb"
 
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units = loadScript(FILE_PATH .. "modes", env)(FLASH)
-local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i)
+local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 local configCnt = loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 
 data.lang = "en"
@@ -27,6 +27,7 @@ loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()
 loadScript(FILE_PATH .. "menu", env)()
+loadScript(FILE_PATH .. "horus", env)()
 --loadScript("/SCRIPTS/TELEMETRY/iNav", env)(true)
 
 return 0

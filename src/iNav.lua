@@ -2,17 +2,12 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.4.3"
+local VERSION = "1.4.4"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
+local HORUS = LCD_W >= 480
 local tmp, view
-
-if LCD_W == 480 then
-	GREY_DEFAULT = 0
-	FORCE = 0
-	ERASE = 0
-end
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
@@ -26,7 +21,7 @@ collectgarbage()
 local modes, units = loadfile(FILE_PATH .. "modes.luac")(FLASH)
 collectgarbage()
 
-local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
+local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
 collectgarbage()
 
 local configCnt = loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
@@ -453,7 +448,7 @@ local function run(event)
 	end
 
 	-- Display system error
-	if data.msg then
+	if data.msg and not HORUS then
 		lcd.drawText((LCD_W - string.len(data.msg) * 5.2) / 2, 27, data.msg)
 		return 0
 	end
@@ -480,7 +475,7 @@ local function run(event)
 		end
 		if event == NEXT or event == PREV then
 			data.showDir = not data.showDir
-		elseif event == EVT_ENTER_BREAK then
+		elseif event == EVT_ENTER_BREAK and not HORUS then
 			-- Cycle through views
 			config[25].v = config[25].v >= config[25].x and 0 or config[25].v + 1
 		elseif event == MENU then
@@ -492,7 +487,7 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac")))()
+			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac"))))()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
@@ -500,30 +495,32 @@ local function run(event)
 	collectgarbage()
 
 	-- Title
-	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
-	lcd.drawText(0, 0, model.getInfo().name, INVERS)
-	if config[13].v > 0 then
-		lcd.drawTimer(SMLCD and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
-	end
-	if config[19].v > 0 then
-		lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
-		lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
-		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
-		for i = 87, tmp, 2 do
-			lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
+	if not HORUS then
+		lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
+		lcd.drawText(0, 0, model.getInfo().name, INVERS)
+		if config[13].v > 0 then
+			lcd.drawTimer(SMLCD and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
 		end
-	end
-	if config[19].v ~= 1 then
-		lcd.drawText(SMLCD and (config[14].v == 1 and 105 or LCD_W) or 128, 1, string.format("%.1f", data.txBatt) .. "V", SMLSIZE + RIGHT + INVERS)
-	end
-	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
-		lcd.drawText(LCD_W, 1, string.format("%.1f", data.rxBatt) .. "V", SMLSIZE + RIGHT + INVERS)
-	end
+		if config[19].v > 0 then
+			lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
+			lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
+			tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
+			for i = 87, tmp, 2 do
+				lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
+			end
+		end
+		if config[19].v ~= 1 then
+			lcd.drawText(SMLCD and (config[14].v == 1 and 105 or LCD_W) or 128, 1, string.format("%.1f", data.txBatt) .. "V", SMLSIZE + RIGHT + INVERS)
+		end
+		if data.rxBatt > 0 and data.telem and config[14].v == 1 then
+			lcd.drawText(LCD_W, 1, string.format("%.1f", data.rxBatt) .. "V", SMLSIZE + RIGHT + INVERS)
+		end
 
-	--[[ Show FPS
-	data.frames = data.frames + 1
-	lcd.drawText(SMLCD and 57 or 80, 1, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), SMLSIZE + RIGHT + INVERS)
-	]]
+		--[[ Show FPS
+		data.frames = data.frames + 1
+		lcd.drawText(SMLCD and 57 or 80, 1, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), SMLSIZE + RIGHT + INVERS)
+		]]
+	end
 
 	return 0
 end
