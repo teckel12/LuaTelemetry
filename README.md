@@ -2,11 +2,9 @@
 
 ### FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 
-## Video of Lua Telemetry
+## Interface
 
-https://youtu.be/YaUgywuT1YM
-
-## Screenshots
+#### [Video of Lua Telemetry](https://youtu.be/YaUgywuT1YM)
 
 #### Classic view
 
