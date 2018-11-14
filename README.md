@@ -2,6 +2,8 @@
 
 ### FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
 
+[![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
+
 ## Interface
 
 #### [Video of Lua Telemetry](https://youtu.be/YaUgywuT1YM)
