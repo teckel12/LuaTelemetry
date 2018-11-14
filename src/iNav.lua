@@ -8,6 +8,12 @@ local FLASH = 3
 local SMLCD = LCD_W < 212
 local tmp, view
 
+if LCD_W == 480 then
+	GREY_DEFAULT = 0
+	FORCE = 0
+	ERASE = 0
+end
+
 -- Build with Companion
 local v, r, m, i, e = getVersion()
 if string.sub(r, -4) == "simu" then 
