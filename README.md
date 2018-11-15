@@ -63,7 +63,7 @@
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter
 * [Crossfire](https://github.com/iNavFlight/LuaTelemetry/issues/36) is not currently supported due to missing flight modes that are critical to Lua Telemetry
-* [FrSky Horus](https://github.com/iNavFlight/LuaTelemetry/issues/55) transmitters are not currently supported due to the missing draw flags: `ERASE` and `FORCED`
+* [FrSky Horus](https://github.com/iNavFlight/LuaTelemetry/issues/55) transmitters are not currently supported due to differences in the LCD drawing commands
 
 ## Setup
 

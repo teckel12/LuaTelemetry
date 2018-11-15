@@ -1,6 +1,7 @@
 local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 
 	local CONFIG_X = SMLCD and 0 or 46
+	local HORUS = LCD_W >= 480	
 
 	local function saveConfig()
 		--local fh = io.open(FILE_PATH .. "config.dat", "w")
