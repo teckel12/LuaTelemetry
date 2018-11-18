@@ -23,8 +23,8 @@ end
 
 loadScript(FILE_PATH .. "reset", env)(data)
 loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
-loadScript(FILE_PATH .. "pg_hor", env)()
-loadScript(FILE_PATH .. "pg_tar", env)()
+loadScript(FILE_PATH .. "title_t", env)()
+loadScript(FILE_PATH .. "title_h", env)()
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()

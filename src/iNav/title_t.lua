@@ -1,4 +1,4 @@
-local function page(data, config, SMLCD)
+local function title(data, config, SMLCD)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
 	lcd.drawText(0, 0, model.getInfo().name, INVERS)
 	if config[13].v > 0 then
@@ -25,4 +25,4 @@ local function page(data, config, SMLCD)
 	]]
 end
 
-return page
+return title

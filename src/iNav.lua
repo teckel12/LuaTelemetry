@@ -41,7 +41,7 @@ loadfile(FILE_PATH .. "reset.luac")(data)
 loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
-page = loadfile(FILE_PATH .. (HORUS and "pg_hor.luac" or "pg_tar.luac"))()
+title = loadfile(FILE_PATH .. (HORUS and "title_h.luac" or "title_t.luac"))()
 
 local function playAudio(f, a)
 	if config[4].v == 2 or (config[4].v == 1 and a ~= nil) then
@@ -458,9 +458,6 @@ local function run(event)
 		return 0
 	end
 
-	-- Paint page/title
-	page(data, config, SMLCD)
-
 	-- Config menu or views
 	if data.configStatus > 0 then
 		if data.v ~= 9 then
@@ -501,6 +498,9 @@ local function run(event)
 		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
+
+	-- Paint title
+	title(data, config, SMLCD)
 
 	return 0
 end

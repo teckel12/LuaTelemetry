@@ -1,6 +1,4 @@
-local function page(data, config, SMLCD)
-	lcd.setColor(TEXT_COLOR, 15) -- lcd.RGB(0, 0, 120) = 15
-	lcd.drawFilledRectangle(0, 20, LCD_W, LCD_H - 20)
+local function title(data, config, SMLCD)
 	lcd.setColor(TEXT_COLOR, BLACK)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 20)
 	lcd.setColor(TEXT_COLOR, WHITE)
@@ -31,4 +29,4 @@ local function page(data, config, SMLCD)
 	]]
 end
 
-return page
+return title
