@@ -53,10 +53,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	local function tics(v, p)
-		for i = v % 10 + 8, 56, 10 do
-			if i < 31 or i > 41 then
-				lcd.drawLine(p, i, p + 1, i, SOLID, 0)
+		for i = v % 10 + 20, BOTTOM - 2, 10 do
+			if i < Y_CNTR - 9 or i > Y_CNTR + 9 then
+				lcd.drawLine(p, i, p + 2, i, SOLID, 0)
 			end
+			--lcd.drawText(p + 1, i - 8, math.floor(v), SMLSIZE)
 		end
 	end
 
@@ -81,10 +82,10 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	if data.startup == 0 and data.telem then
 		tmp = pitch - 90
 		local tmp2 = tmp >= 0 and (tmp < 1 and 0 or math.floor(tmp + 0.5)) or (tmp > -1 and 0 or math.ceil(tmp - 0.5))
-		--if not data.showMax then
+		if not data.showMax then
 			lcd.setColor(TEXT_COLOR, WHITE)
 			lcd.drawText(X_CNTR - outside, Y_CNTR - 9, tmp2 .. "\64", SMLSIZE + RIGHT)
-		--end
+		end
 		tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 30), -30)
 		for x = tmp2 - 20, tmp2 + 20, 2.5 do
 			if x ~= 0 then
@@ -116,11 +117,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		end
 		if home >= LEFT_POS - 7 and home <= RIGHT_POS - 1 then
 			tmp = 124
-			lcd.setColor(TEXT_COLOR, BLACK)
-			if data.distanceLast >= data.distRef then
-				lcd.drawFilledRectangle(home + 2, tmp + 3, 3, 2)
-				lcd.setColor(TEXT_COLOR, WHITE)
-			end
+			lcd.setColor(TEXT_COLOR, data.distanceLast >= data.distRef and BLACK or LIGHTGREY)
+			lcd.drawFilledRectangle(home + 2, tmp + 3, 3, 2)
+			lcd.setColor(TEXT_COLOR, data.distanceLast >= data.distRef and WHITE or BLACK)
 			homeIcon(home, tmp)
 		end
 	--elseif data.showMax then
@@ -143,7 +142,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 				end
 			end
 		end
-		lcd.setColor(TEXT_COLOR, BLACK)
+		lcd.setColor(TEXT_COLOR, DARKGREY)
 		lcd.drawFilledRectangle(X_CNTR - 20, BOTTOM - 15, 40, 15)
 		lcd.setColor(TEXT_COLOR, WHITE)
 		lcd.drawText(X_CNTR - 17, BOTTOM - 15, "     ", SMLSIZE + data.telemFlags)
@@ -152,10 +151,51 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.drawRectangle(X_CNTR - 20, BOTTOM - 15, 40, 16)
 	end
 
+	-- Speed & Altitude
+	lcd.setColor(TEXT_COLOR, DARKGREY)
+	lcd.drawFilledRectangle(LEFT_POS + 1, Y_CNTR - 8, 38, 16)
+	lcd.drawFilledRectangle(RIGHT_POS - 39, Y_CNTR - 8, 38, 16)
+	lcd.setColor(TEXT_COLOR, WHITE)
+
+	tics(data.speed, LEFT_POS + 1)
+	lcd.drawText(LEFT_POS + 3, Y_CNTR - 9, "    ", SMLSIZE + data.telemFlags)
+	tmp = data.showMax and data.speedMax or data.speed
+	lcd.drawText(LEFT_POS + 39, Y_CNTR - 9, data.startup == 0 and (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
+
+	tics(data.altitude, RIGHT_POS - 4)
+	lcd.drawText(RIGHT_POS - 37, Y_CNTR - 9, "       ", SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	tmp = data.showMax and data.altitudeMax or data.altitude
+	lcd.drawText(RIGHT_POS - 1, Y_CNTR - 9, data.startup == 0 and (math.floor(tmp + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+
+	lcd.drawLine(LEFT_POS, 8, LEFT_POS, BOTTOM, SOLID, 0)
+	lcd.drawRectangle(LEFT_POS, Y_CNTR - 9, 40, 18)
+	lcd.drawRectangle(RIGHT_POS - 40, Y_CNTR - 9, 40, 18)
+
 	-- Map
 	lcd.setColor(TEXT_COLOR, MAP)
 	lcd.drawFilledRectangle(RIGHT_POS, 20, LCD_W - RIGHT_POS, BOTTOM - 19)
 	lcd.setColor(TEXT_COLOR, WHITE)
+	
+	-- Variometer
+	if config[7].v % 2 == 1 then
+		lcd.drawLine(RIGHT_POS - 1, 20, RIGHT_POS - 1, BOTTOM, SOLID, 0)
+		lcd.setColor(TEXT_COLOR, DARKGREY)
+		lcd.drawFilledRectangle(RIGHT_POS, 20, 5, BOTTOM - 20)
+		lcd.setColor(TEXT_COLOR, WHITE)
+		lcd.drawLine(RIGHT_POS + 5, 20, RIGHT_POS + 5, BOTTOM, SOLID, 0)
+		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
+		if data.armed then
+			tmp = Y_CNTR - math.floor(varioSpeed * 27 + 0.5)
+			for i = Y_CNTR, tmp, (tmp > Y_CNTR and 1 or -1) do
+				local w = (tmp > Y_CNTR and i + 1 or Y_CNTR - i) % 4
+				if w < 3 then
+					lcd.drawLine(RIGHT_POS + w, i, RIGHT_POS + 4 - w, i, SOLID, 0)
+				end
+			end
+		end
+	else
+		lcd.drawLine(RIGHT_POS - 1, 20, RIGHT_POS - 1, BOTTOM, SOLID, 0)
+	end
 
 	-- Data background
 	lcd.setColor(TEXT_COLOR, DATA)

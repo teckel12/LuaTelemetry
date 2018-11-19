@@ -23,10 +23,10 @@ local function title(data, config, SMLCD)
 		lcd.drawText(LCD_W, 0, string.format("%.1f", data.rxBatt) .. "V", RIGHT)
 	end
 
-	--[[ Show FPS
+	-- Show FPS
 	data.frames = data.frames + 1
 	lcd.drawText(180, 1, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-	]]
+	
 end
 
 return title
