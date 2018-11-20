@@ -17,6 +17,6 @@ local modes = {
 	{ t = " CRUISE",   f = 0, w = "cruzmd" }
 }
 
-local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", "'" }
+local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "km/h", "MPH", "m", LCD_W >= 480 and "ft" or "'" }
 
 return modes, units
