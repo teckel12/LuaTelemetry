@@ -13,6 +13,8 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	--local GROUND = lcd.RGB(148, 67, 13)
 	local MAP = lcd.RGB(51, 137, 47)
 	local DATA = 15 -- lcd.RGB(0, 0, 120)
+	local GREEN = lcd.RGB(0, 255, 0)
+	local LTRED = lcd.RGB(255, 90, 90)
 
 	local LEFT_POS = 0
 	local RIGHT_POS = LCD_W / 2 + 30
@@ -59,7 +61,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			local tmp2 = Y_CNTR + ((v - i) * 3) - 9
 			if tmp2 > 10 and tmp2 < BOTTOM then
 				lcd.drawLine(p, tmp2 + 8, p + 2, tmp2 + 8, SOLID, 0)
-				if i % 10 == 0 and i >= 0 and tmp2 < BOTTOM - 23 then
+				if i % 10 == 0 and (i >= 0 or p > X_CNTR) and tmp2 < BOTTOM - 23 then
 					lcd.drawText(p + (p > X_CNTR and -1 or 4), tmp2, i, SMLSIZE + (p > X_CNTR and RIGHT or 0))
 				end
 			end
@@ -161,47 +163,44 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	tics(data.altitude, RIGHT_POS - 4)
 	lcd.setColor(TEXT_COLOR, DARKGREY)
 	lcd.drawFilledRectangle(LEFT_POS + 1, Y_CNTR - 8, 38, 16)
-	lcd.drawFilledRectangle(RIGHT_POS - 39, Y_CNTR - 8, 38, 16)
-	lcd.setColor(TEXT_COLOR, WHITE)
+	lcd.drawFilledRectangle(RIGHT_POS - 43, Y_CNTR - 8, 43, 16)
 
-	lcd.drawText(LEFT_POS + 3, Y_CNTR - 9, "    ", SMLSIZE + data.telemFlags)
-	tmp = data.showMax and data.speedMax or data.speed
-	lcd.drawText(LEFT_POS + 39, Y_CNTR - 9, data.startup == 0 and (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
-
+	lcd.setColor(TEXT_COLOR, tmp + 0.5 >= config[6].v and LTRED or GREEN)
 	tmp = data.showMax and data.altitudeMax or data.altitude
-	lcd.drawText(RIGHT_POS - 37, Y_CNTR - 9, "       ", SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	lcd.drawText(RIGHT_POS - 41, Y_CNTR - 9, "        ", SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	lcd.drawText(RIGHT_POS - 1, Y_CNTR - 9, data.startup == 0 and (math.floor(tmp + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	lcd.setColor(TEXT_COLOR, YELLOW)
+	lcd.drawRectangle(RIGHT_POS - 44, Y_CNTR - 9, 44, 18)
 
-	lcd.drawLine(LEFT_POS, 8, LEFT_POS, BOTTOM, SOLID, 0)
-	lcd.drawRectangle(LEFT_POS, Y_CNTR - 9, 40, 18)
-	lcd.drawRectangle(RIGHT_POS - 40, Y_CNTR - 9, 40, 18)
-
-	-- Map
-	lcd.setColor(TEXT_COLOR, MAP)
-	lcd.drawFilledRectangle(RIGHT_POS, 20, LCD_W - RIGHT_POS, BOTTOM - 19)
 	lcd.setColor(TEXT_COLOR, WHITE)
-	
+	tmp = data.showMax and data.speedMax or data.speed
+	lcd.drawText(LEFT_POS + 3, Y_CNTR - 9, "    ", SMLSIZE + data.telemFlags)
+	lcd.drawText(LEFT_POS + 39, Y_CNTR - 9, data.startup == 0 and (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
+	lcd.drawRectangle(LEFT_POS, Y_CNTR - 9, 40, 18)
+	lcd.drawLine(LEFT_POS, 8, LEFT_POS, BOTTOM, SOLID, 0)
+
 	-- Variometer
 	if config[7].v % 2 == 1 then
 		lcd.drawLine(RIGHT_POS - 1, 20, RIGHT_POS - 1, BOTTOM, SOLID, 0)
 		lcd.setColor(TEXT_COLOR, DARKGREY)
-		lcd.drawFilledRectangle(RIGHT_POS, 20, 5, BOTTOM - 20)
-		lcd.setColor(TEXT_COLOR, WHITE)
-		lcd.drawLine(RIGHT_POS + 5, 20, RIGHT_POS + 5, BOTTOM, SOLID, 0)
-		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
+		lcd.drawFilledRectangle(RIGHT_POS, 20, 10, BOTTOM - 20)
 		if data.armed then
-			tmp = Y_CNTR - math.floor(varioSpeed * 27 + 0.5)
-			for i = Y_CNTR, tmp, (tmp > Y_CNTR and 1 or -1) do
-				local w = (tmp > Y_CNTR and i + 1 or Y_CNTR - i) % 4
-				if w < 3 then
-					lcd.drawLine(RIGHT_POS + w, i, RIGHT_POS + 4 - w, i, SOLID, 0)
-				end
-			end
+			tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
+			lcd.setColor(TEXT_COLOR, YELLOW)
+			lcd.drawLine(RIGHT_POS, Y_CNTR - (tmp * (Y_CNTR - 21)) - 1, RIGHT_POS + 100, Y_CNTR - 1, SOLID, 0)
+			lcd.drawLine(RIGHT_POS, Y_CNTR - (tmp * (Y_CNTR - 21)), RIGHT_POS + 100, Y_CNTR, SOLID, 0)
 		end
+		lcd.setColor(TEXT_COLOR, WHITE)
+		lcd.drawLine(RIGHT_POS + 10, 20, RIGHT_POS + 10, BOTTOM, SOLID, 0)
 	else
 		lcd.drawLine(RIGHT_POS - 1, 20, RIGHT_POS - 1, BOTTOM, SOLID, 0)
 	end
 
+	-- Map
+	lcd.setColor(TEXT_COLOR, MAP)
+	lcd.drawFilledRectangle(RIGHT_POS + 11, 20, LCD_W - RIGHT_POS - 11, BOTTOM - 19)
+	lcd.setColor(TEXT_COLOR, WHITE)
+	
 	-- Data background
 	lcd.setColor(TEXT_COLOR, DATA)
 	lcd.drawFilledRectangle(0, BOTTOM, LCD_W, LCD_H - BOTTOM)
