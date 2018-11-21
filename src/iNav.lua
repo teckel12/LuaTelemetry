@@ -18,7 +18,7 @@ end
 local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
 collectgarbage()
 
-local modes, units = loadfile(FILE_PATH .. "modes.luac")(FLASH)
+local modes, units = loadfile(FILE_PATH .. "modes.luac")()
 collectgarbage()
 
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
@@ -64,11 +64,11 @@ local function gpsIcon(x, y)
 end
 
 local function lockIcon(x, y)
-	lcd.drawFilledRectangle(x, y + 2, 5, 4, 0)
-	lcd.drawLine(x + 1, y, x + 3, y, SOLID, 0)
-	lcd.drawPoint(x + 1, y + 1)
-	lcd.drawPoint(x + 3, y + 1)
-	lcd.drawPoint(x + 2, y + 3, ERASE)
+	lcd.drawRectangle(x, y + 2, 5, 4, 0)
+	lcd.drawRectangle(x + 1, y, 3, 5, 0)
+	--if not HORUS then
+	--	lcd.drawPoint(x + 2, y + 3, ERASE)
+	--end
 end
 
 local function homeIcon(x, y)
