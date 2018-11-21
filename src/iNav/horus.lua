@@ -54,11 +54,15 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	local function tics(v, p)
-		for i = v % 10 + 20, BOTTOM - 2, 10 do
-			if i < Y_CNTR - 9 or i > Y_CNTR + 9 then
-				lcd.drawLine(p, i, p + 2, i, SOLID, 0)
+		tmp = math.floor((v + 20) / 10) * 10
+		for i = tmp - 40, tmp, 5 do
+			local tmp2 = Y_CNTR + ((v - i) * 3) - 9
+			if tmp2 > 10 and tmp2 < BOTTOM then
+				lcd.drawLine(p, tmp2 + 8, p + 2, tmp2 + 8, SOLID, 0)
+				if i % 10 == 0 and i >= 0 and tmp2 < BOTTOM - 23 then
+					lcd.drawText(p + (p > X_CNTR and -1 or 4), tmp2, i, SMLSIZE + (p > X_CNTR and RIGHT or 0))
+				end
 			end
-			--lcd.drawText(p + 1, i - 8, math.floor(v), SMLSIZE)
 		end
 	end
 
@@ -152,30 +156,25 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	-- Speed & Altitude
+	lcd.setColor(TEXT_COLOR, WHITE)
+	tics(data.speed, LEFT_POS + 1)
+	tics(data.altitude, RIGHT_POS - 4)
 	lcd.setColor(TEXT_COLOR, DARKGREY)
 	lcd.drawFilledRectangle(LEFT_POS + 1, Y_CNTR - 8, 38, 16)
 	lcd.drawFilledRectangle(RIGHT_POS - 39, Y_CNTR - 8, 38, 16)
 	lcd.setColor(TEXT_COLOR, WHITE)
 
-	tics(data.speed, LEFT_POS + 1)
 	lcd.drawText(LEFT_POS + 3, Y_CNTR - 9, "    ", SMLSIZE + data.telemFlags)
 	tmp = data.showMax and data.speedMax or data.speed
-	lcd.drawText(LEFT_POS + 39, Y_CNTR - 9, tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp), SMLSIZE + RIGHT + data.telemFlags)
+	lcd.drawText(LEFT_POS + 39, Y_CNTR - 9, data.startup == 0 and (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
 
-	tics(data.altitude, RIGHT_POS - 4)
 	tmp = data.showMax and data.altitudeMax or data.altitude
 	lcd.drawText(RIGHT_POS - 37, Y_CNTR - 9, "       ", SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
-	lcd.drawText(RIGHT_POS - 1, Y_CNTR - 9, math.floor(tmp + 0.5), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	lcd.drawText(RIGHT_POS - 1, Y_CNTR - 9, data.startup == 0 and (math.floor(tmp + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 
 	lcd.drawLine(LEFT_POS, 8, LEFT_POS, BOTTOM, SOLID, 0)
 	lcd.drawRectangle(LEFT_POS, Y_CNTR - 9, 40, 18)
 	lcd.drawRectangle(RIGHT_POS - 40, Y_CNTR - 9, 40, 18)
-	lcd.drawText(LEFT_POS + 5, Y_CNTR + 8, units[data.speed_unit], SMLSIZE)
-	lcd.drawText(RIGHT_POS - 5, Y_CNTR + 8, units[data.alt_unit], SMLSIZE + RIGHT)
-	if data.startup > 0 then
-		lcd.drawText(LEFT_POS + 5, Y_CNTR - 26, "Spd", SMLSIZE)
-		lcd.drawText(RIGHT_POS - 5, Y_CNTR - 26, "Alt", SMLSIZE + RIGHT)
-	end
 
 	-- Map
 	lcd.setColor(TEXT_COLOR, MAP)
