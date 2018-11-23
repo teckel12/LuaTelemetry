@@ -134,9 +134,6 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			lcd.setColor(TEXT_COLOR, data.distanceLast >= data.distRef and WHITE or BLACK)
 			homeIcon(home, BOTTOM - 22)
 		end
-	--elseif data.showMax then
-	--	lcd.drawText(LEFT_POS + 21, 33, "\192", SMLSIZE)
-	--	lcd.drawText(RIGHT_POS - 22, 33, "\192", SMLSIZE + RIGHT)
 	end
 
 	-- Heading
@@ -177,6 +174,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	tmp = data.showMax and data.altitudeMax or data.altitude
 	lcd.drawText(RIGHT_POS - 41, Y_CNTR - 9, "        ", SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	lcd.drawText(RIGHT_POS - 1, Y_CNTR - 9, data.startup == 0 and (math.floor(tmp + 0.5)) or "Alt", SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	if data.altHold then
+		lockIcon(RIGHT_POS - 52, Y_CNTR - 3)
+	end
 	lcd.setColor(TEXT_COLOR, LIGHTGREY)
 	lcd.drawLine(LEFT_POS, 8, LEFT_POS, BOTTOM, SOLID, 0)
 	lcd.drawRectangle(LEFT_POS, Y_CNTR - 9, 40, 18)
@@ -196,16 +196,17 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.drawLine(RIGHT_POS - 1, 20, RIGHT_POS - 1, BOTTOM, SOLID, 0)
 		lcd.drawLine(RIGHT_POS + 10, 20, RIGHT_POS + 10, BOTTOM, SOLID, 0)
 	else
+		lcd.setColor(TEXT_COLOR, LIGHTGREY)
 		lcd.drawLine(RIGHT_POS - 1, 20, RIGHT_POS - 1, BOTTOM, SOLID, 0)
 	end
 
 	-- Radar
 	lcd.setColor(TEXT_COLOR, MAP)
 	lcd.drawFilledRectangle(RIGHT_POS + 11, 20, LCD_W - RIGHT_POS - 11, BOTTOM - 20)
+	LEFT_POS = RIGHT_POS + 11
+	RIGHT_POS = LCD_W - 1
+	X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
 	if data.startup == 0 then
-		LEFT_POS = RIGHT_POS + 11
-		RIGHT_POS = LCD_W - 1
-		X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
 		lcd.setColor(TEXT_COLOR, WHITE)
 		-- Launch/north-based orientation
 		if data.showDir or data.headingRef < 0 then
@@ -248,18 +249,8 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		local r3 = math.rad(data.heading - tmp - 145)
 		tmp = d == 1 and 12 or 8
 		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, tmp)
-		--[[
-		if data.headingHold then
-			if d == 1 then
-				lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
-			else
-				lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
-			end
-		else
-		]]
-			lcd.setColor(TEXT_COLOR, BLACK)
-			lcd.drawLine(x2, y2, x3, y3, SOLID, 0)
-		--end
+		lcd.setColor(TEXT_COLOR, BLACK)
+		lcd.drawLine(x2, y2, x3, y3, SOLID, 0)
 		lcd.setColor(TEXT_COLOR, WHITE)
 		lcd.drawLine(x1, y1, x2, y2, SOLID, 0)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, 0)
@@ -284,40 +275,53 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	BOTTOM = 271 -- LCD_H - 1
 
 	lcd.setColor(TEXT_COLOR, DATA)
-	lcd.drawFilledRectangle(0, TOP, LCD_W, BOTTOM - TOP)
+	lcd.drawFilledRectangle(0, TOP, LCD_W, BOTTOM - TOP + 1)
 	lcd.setColor(TEXT_COLOR, LIGHTGREY)
 	lcd.drawLine(LEFT_POS, TOP - 1, LCD_W - 1, TOP - 1, SOLID, 0)
 	lcd.drawLine(X1, TOP, X1, BOTTOM, SOLID, 0)
 	lcd.drawLine(X2, TOP, X2, BOTTOM, SOLID, 0)
 	lcd.drawLine(X3, TOP, X3, BOTTOM, SOLID, 0)
-	lcd.setColor(TEXT_COLOR, WHITE)
 
 	-- Box 1
 	tmp = (not data.telem or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if data.showFuel then
+		lcd.setColor(TEXT_COLOR, WHITE)
 		if config[23].v == 0 then
-			lcd.drawText(X1, TOP + 10, data.fuel .. "%", DBLSIZE + RIGHT + tmp)
+			lcd.drawText(X1, TOP + 1, data.fuel .. "%", MIDSIZE + RIGHT + tmp)
+			lcd.drawText(LEFT_POS, TOP + 10, "Fuel", SMLSIZE)
+			local red = data.fuel >= config[18].v and math.max(math.floor((100 - data.fuel) / (100 - config[18].v) * 255), 0) or 255
+			local green = data.fuel < config[18].v and math.max(math.floor((data.fuel - config[17].v) / (config[18].v - config[17].v) * 255), 0) or 255
+			lcd.setColor(TEXT_COLOR, lcd.RGB(red, green, 60))
+			lcd.drawGauge(LEFT_POS, TOP + 27, X1 - 1, 14, math.min(data.fuel, 99), 100)
 		else
-			lcd.drawText(X1, TOP + 10, data.fuel .. config[23].l[config[23].v], DBLSIZE + RIGHT + tmp)
+			lcd.drawText(X1, TOP + 1, data.fuel .. config[23].l[config[23].v], MIDSIZE + RIGHT + tmp)
 		end
-		local red = data.fuel >= config[18].v and math.floor((100 - data.fuel) / (100 - config[18].v) * 255) or 255
-		local green = data.fuel < config[18].v and math.floor((data.fuel - config[17].v) / (config[18].v - config[17].v) * 255) or 255
-		lcd.drawText(0, BOTTOM - 20, red, SMLSIZE)
-		lcd.drawText(60, BOTTOM - 20, green, SMLSIZE)
-		tmp = lcd.RGB(red, green, 0)
-		lcd.setColor(TEXT_COLOR, tmp)
-		lcd.drawGauge(LEFT_POS, TOP, X1, 14, math.min(data.fuel, 99), 100)
 	end
 
+	lcd.setColor(TEXT_COLOR, WHITE)
+	local val = data.showMax and data.cellMin or data.cell
+	lcd.drawText(X1, TOP + 43, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)) .. "v", MIDSIZE + RIGHT + tmp)
+	lcd.drawText(LEFT_POS, TOP + 52, "Battery", SMLSIZE)
+	local red = val >= config[2].v and math.max(math.floor((4.2 - val) / (4.2 - config[2].v) * 255), 0) or 255
+	local green = val < config[2].v and math.max(math.floor((val - config[3].v) / (config[2].v - config[3].v) * 255), 0) or 255
+	lcd.setColor(TEXT_COLOR, lcd.RGB(red, green, 60))
+	lcd.drawGauge(LEFT_POS, TOP + 69, X1 - 1, 14, math.min(math.max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 99), 100)
 
+	tmp = (not data.telem or data.rssi < data.rssiLow) and FLASH or 0
+	val = data.showMax and data.rssiMin or data.rssiLast
+	lcd.setColor(TEXT_COLOR, WHITE)
+	lcd.drawText(X1, TOP + 85, val .. "dB", MIDSIZE + RIGHT + tmp)
+	lcd.drawText(LEFT_POS, TOP + 94, "RSSI", SMLSIZE)
+	local red = val >= data.rssiLow and math.max(math.floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
+	local green = val < data.rssiLow and math.max(math.floor((val - data.rssiCrit) / (data.rssiLow - data.rssiCrit) * 255), 0) or 255
+	lcd.setColor(TEXT_COLOR, lcd.RGB(red, green, 60))
+	lcd.drawGauge(LEFT_POS, TOP + 111, X1 - 1, 14, math.min(val, 99), 100)
 
 	-- Flight modes
+	lcd.setColor(TEXT_COLOR, WHITE)
 	lcd.drawText(X2 + 3, TOP, modes[data.modeId].t, modes[data.modeId].f)
 	if data.headFree then
 		lcd.drawText(X2 + 3, TOP + 20, "HF", FLASH)
-	end
-	if data.altHold then
-		lockIcon(RIGHT_POS - 52, Y_CNTR - 3)
 	end
 
 
