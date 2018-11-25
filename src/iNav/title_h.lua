@@ -7,11 +7,11 @@ local function title(data, config, SMLCD)
 		lcd.drawTimer(340, 0, data.timer)
 	end
 	if config[19].v > 0 then
-		lcd.drawFilledRectangle(196, 3, 44, 14)
+		lcd.drawFilledRectangle(197, 3, 43, 14)
 		lcd.drawFilledRectangle(240, 6, 2, 8)
-		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 195
+		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		lcd.setColor(TEXT_COLOR, BLACK)
-		for i = 198, tmp, 3 do
+		for i = 200, tmp, 4 do
 			lcd.drawLine(i, 4, i, 15, SOLID, 0)
 		end
 		lcd.setColor(TEXT_COLOR, WHITE)
@@ -25,8 +25,8 @@ local function title(data, config, SMLCD)
 
 	-- Show FPS
 	data.frames = data.frames + 1
-	lcd.drawText(180, 1, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-	
+	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
+
 end
 
 return title
