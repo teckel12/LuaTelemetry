@@ -206,6 +206,8 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	LEFT_POS = RIGHT_POS + 11
 	RIGHT_POS = LCD_W - 1
 	X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
+	tmp = data.showMax and data.distanceMax or data.distanceLast
+	local dist = tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
 	if data.startup == 0 then
 		lcd.setColor(TEXT_COLOR, WHITE)
 		-- Launch/north-based orientation
@@ -254,8 +256,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.setColor(TEXT_COLOR, WHITE)
 		lcd.drawLine(x1, y1, x2, y2, SOLID, 0)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, 0)
-		tmp = data.showMax and data.distanceMax or data.distanceLast
-		lcd.drawText(LEFT_POS + 2, BOTTOM - 18, data.startup > 0 and "Dist" or (tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))), SMLSIZE + data.telemFlags)
+		lcd.drawText(LEFT_POS + 2, BOTTOM - 18, data.startup > 0 and "Dist" or dist, SMLSIZE + data.telemFlags)
 	end
 
 	-- Startup message
@@ -267,7 +268,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	-- Data
 	LEFT_POS = 0
-	local X1 = 119 -- LCD_W / 4 - 1
+	local X1 = 140 -- 119 -- LCD_W / 4 - 1
 	local X2 = 239 -- LCD_W / 2 - 1
 	local X3 = 359 -- LCD_W - (LCD_W / 4) - 1
 	RIGHT_POS = 479 -- LCD_W - 1
@@ -278,11 +279,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	lcd.drawFilledRectangle(0, TOP, LCD_W, BOTTOM - TOP + 1)
 	lcd.setColor(TEXT_COLOR, LIGHTGREY)
 	lcd.drawLine(LEFT_POS, TOP - 1, LCD_W - 1, TOP - 1, SOLID, 0)
-	lcd.drawLine(X1, TOP, X1, BOTTOM, SOLID, 0)
-	lcd.drawLine(X2, TOP, X2, BOTTOM, SOLID, 0)
-	lcd.drawLine(X3, TOP, X3, BOTTOM, SOLID, 0)
+	lcd.drawLine(X1 + 3, TOP, X1 + 3, BOTTOM, SOLID, 0)
+	lcd.drawLine(X2 + 3, TOP, X2 + 3, BOTTOM, SOLID, 0)
+	lcd.drawLine(X3 + 3, TOP, X3 + 3, BOTTOM, SOLID, 0)
 
-	-- Box 1
+	-- Box 1 (fuel, battery, rssi)
 	tmp = (not data.telem or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if data.showFuel then
 		lcd.setColor(TEXT_COLOR, WHITE)
@@ -292,7 +293,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			local red = data.fuel >= config[18].v and math.max(math.floor((100 - data.fuel) / (100 - config[18].v) * 255), 0) or 255
 			local green = data.fuel < config[18].v and math.max(math.floor((data.fuel - config[17].v) / (config[18].v - config[17].v) * 255), 0) or 255
 			lcd.setColor(TEXT_COLOR, lcd.RGB(red, green, 60))
-			lcd.drawGauge(LEFT_POS, TOP + 27, X1 - 1, 14, math.min(data.fuel, 99), 100)
+			lcd.drawGauge(LEFT_POS, TOP + 27, X1, 14, math.min(data.fuel, 99), 100)
 		else
 			lcd.drawText(X1, TOP + 1, data.fuel .. config[23].l[config[23].v], MIDSIZE + RIGHT + tmp)
 		end
@@ -305,7 +306,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	local red = val >= config[2].v and math.max(math.floor((4.2 - val) / (4.2 - config[2].v) * 255), 0) or 255
 	local green = val < config[2].v and math.max(math.floor((val - config[3].v) / (config[2].v - config[3].v) * 255), 0) or 255
 	lcd.setColor(TEXT_COLOR, lcd.RGB(red, green, 60))
-	lcd.drawGauge(LEFT_POS, TOP + 69, X1 - 1, 14, math.min(math.max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 99), 100)
+	lcd.drawGauge(LEFT_POS, TOP + 69, X1, 14, math.min(math.max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 99), 100)
 
 	tmp = (not data.telem or data.rssi < data.rssiLow) and FLASH or 0
 	val = data.showMax and data.rssiMin or data.rssiLast
@@ -315,15 +316,51 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	local red = val >= data.rssiLow and math.max(math.floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
 	local green = val < data.rssiLow and math.max(math.floor((val - data.rssiCrit) / (data.rssiLow - data.rssiCrit) * 255), 0) or 255
 	lcd.setColor(TEXT_COLOR, lcd.RGB(red, green, 60))
-	lcd.drawGauge(LEFT_POS, TOP + 111, X1 - 1, 14, math.min(val, 99), 100)
+	lcd.drawGauge(LEFT_POS, TOP + 111, X1, 14, math.min(val, 99), 100)
 
-	-- Flight modes
+	-- Box 2 (altitude, distance, current)
 	lcd.setColor(TEXT_COLOR, WHITE)
-	lcd.drawText(X2 + 3, TOP, modes[data.modeId].t, modes[data.modeId].f)
-	if data.headFree then
-		lcd.drawText(X2 + 3, TOP + 20, "HF", FLASH)
+	tmp = data.showMax and data.altitudeMax or data.altitude
+	lcd.drawText(X2, TOP + 12, math.floor(tmp + 0.5) .. units[data.alt_unit], MIDSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	lcd.drawText(X1 + 6, TOP + 1, "Altitude", SMLSIZE)
+	if data.altHold then
+		lockIcon(X1 + 60 , TOP + 8)
 	end
 
+	lcd.drawText(X2, TOP + 55, dist, MIDSIZE + RIGHT + data.telemFlags)
+	lcd.drawText(X1 + 6, TOP + 44, "Distance", SMLSIZE)
+
+	if data.showCurr then
+		tmp = data.showMax and data.currentMax or data.current
+		lcd.drawText(X2, TOP + 98, tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp) .. "A", MIDSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(X1 + 6, TOP + 87, "Current", SMLSIZE)
+	end
+
+	-- Box 3 (flight modes, orientation)
+	lcd.setColor(TEXT_COLOR, WHITE)
+	lcd.drawText(X2 + 27, TOP, modes[data.modeId].t, modes[data.modeId].f)
+	if data.headFree then
+		lcd.drawText(X2 + 7, TOP + 2, "HF", FLASH + SMLSIZE)
+	end
+
+	if data.showDir or data.headingRef < 0 then
+		lcd.drawText((X2 + X3) / 2, TOP + 16, "N", SMLSIZE)
+		lcd.drawText((X2 + X3) / 2, BOTTOM - 13, "S", SMLSIZE)
+		lcd.drawText(X3 - 6, 211, "E", SMLSIZE + RIGHT)
+		lcd.drawText(X2 + 12, 211, "W", SMLSIZE)
+		tmp = 0
+	else
+		tmp = data.headingRef
+	end
+	local r1 = math.rad(data.heading - tmp)
+	local r2 = math.rad(data.heading - tmp + 145)
+	local r3 = math.rad(data.heading - tmp - 145)
+	local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) / 2 + 4, 219, 30)
+	lcd.setColor(TEXT_COLOR, BLACK)
+	lcd.drawLine(x2, y2, x3, y3, SOLID, 0)
+	lcd.setColor(TEXT_COLOR, WHITE)
+	lcd.drawLine(x1, y1, x2, y2, SOLID, 0)
+	lcd.drawLine(x1, y1, x3, y3, SOLID, 0)
 
 end
 
