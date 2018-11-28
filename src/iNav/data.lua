@@ -66,6 +66,7 @@ local data = {
 	altitudeMax = 0,
 	distance = 0,
 	distanceMax = 0,
+	distMaxCalc = 0,
 	speed = 0,
 	speedMax = 0,
 	current = 0,

@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local RIGHT_POS = SMLCD and 129 or 195
 	local GAUGE_WIDTH = SMLCD and 82 or 149

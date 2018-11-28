@@ -1,3 +1,5 @@
+local config, data, FILE_PATH = ...
+
 local function title(data, config, SMLCD)
 	lcd.setColor(TEXT_COLOR, BLACK)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 20)
@@ -29,4 +31,23 @@ local function title(data, config, SMLCD)
 
 end
 
-return title
+local function gpsDegMin(c, lat)
+	local gpsD = math.floor(math.abs(c))
+	local gpsM = math.floor((math.abs(c) - gpsD) * 60)
+	return string.format("%d\64%d'%05.2f", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. "\"" .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+end
+
+local function hdopGraph(x, y)
+	for i = 4, 9 do
+		if data.hdop < i then
+			lcd.setColor(TEXT_COLOR, GREY)
+		end
+		lcd.drawRectangle(i * 4 + x - 16, y, 2, -i * 3 + 10)
+	end
+end
+
+local lockIcon = Bitmap.open(FILE_PATH .. "pics/lock.png")
+local homeIcon = Bitmap.open(FILE_PATH .. "pics/home.png")
+local attOverlay = Bitmap.open(FILE_PATH .. "pics/air.png")
+
+return title, gpsDegMin, nil, lockIcon, homeIcon, hdopGraph, attOverlay

@@ -8,6 +8,8 @@ local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units = loadScript(FILE_PATH .. "modes", env)()
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 local configCnt = loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
+local title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
+local title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay = loadScript(FILE_PATH .. "func_t", env)(config, data, FILE_PATH)
 
 data.lang = "en"
 data.voice = "en"
@@ -23,8 +25,6 @@ end
 
 loadScript(FILE_PATH .. "reset", env)(data)
 loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
-loadScript(FILE_PATH .. "title_t", env)()
-loadScript(FILE_PATH .. "title_h", env)()
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()
