@@ -43,6 +43,7 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	-- Special disabled option and limit cases
 	config[7].p = data.vspeed_id == -1 and 1 or nil
 	config[22].p = HORUS and nil or 1
+	config[25].p = HORUS and nil or 1
 	if config[17].p == nil then
 		config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
 		config[18].p = config[17].p
