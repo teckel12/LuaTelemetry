@@ -1,12 +1,13 @@
 local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 
 	local HORUS = LCD_W >= 480
-	local CONFIG_X = HORUS and 100 or (SMLCD and 0 or 46)
-	local TOP = HORUS and 32 or 11
-	local LINE = HORUS and 21 or 9
-	local RIGHT = HORUS and 190 or 83
-	local GPS = HORUS and 65 or 21
-	local ROWS = HORUS and 10 or 5
+	local CONFIG_X = HORUS and 90 or (SMLCD and 0 or 46)
+	local TOP = HORUS and 37 or 11
+	local LINE = HORUS and 22 or 9
+	local RIGHT = HORUS and 200 or 83
+	local GPS = HORUS and 45 or 21
+	local ROWS = HORUS and 9 or 5
+	local FONT = HORUS and 0 or SMLSIZE
 
 	local function saveConfig()
 		--local fh = io.open(FILE_PATH .. "config.dat", "w")
@@ -27,12 +28,15 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	end
 
 	if HORUS then
-		lcd.setColor(TEXT_COLOR, DARKGREY)
-		lcd.drawFilledRectangle(0, 20, LCD_W, LCD_H - 20)
+		local MENU = lcd.RGB(0, 0, 90)
+		lcd.setColor(CUSTOM_COLOR, DARKGREY)
+		lcd.drawFilledRectangle(0, 20, LCD_W, LCD_H - 20, CUSTOM_COLOR)
+		lcd.setColor(CUSTOM_COLOR, MENU)
+		lcd.drawFilledRectangle(CONFIG_X - (HORUS and 10 or 3), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 6), LINE * (ROWS + 1) + (HORUS and 12 or 1), CUSTOM_COLOR)
 		lcd.setColor(TEXT_COLOR, WHITE)
 	end
 	if not SMLCD then
-		lcd.drawRectangle(CONFIG_X - 3, TOP - 2, LCD_W - CONFIG_X * 2 + 6, LINE * (ROWS + 1) + 1, SOLID)
+		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 3), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 6), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)
 	end
 
 	-- Disabled options
@@ -60,23 +64,23 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 		if not data.showCurr and z >= 17 and z <= 18 then
 			config[z].p = 1
 		end
-		lcd.drawText(CONFIG_X, y, config[z].t, SMLSIZE)
+		lcd.drawText(CONFIG_X, y, config[z].t, FONT)
 		if config[z].p == nil then
 			if config[z].l == nil then
-				lcd.drawText(CONFIG_X + RIGHT, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
+				lcd.drawText(CONFIG_X + RIGHT, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, FONT + tmp)
 			else
 				if not config[z].l then
-					lcd.drawText(CONFIG_X + RIGHT, y, config[z].v, SMLSIZE + tmp)
+					lcd.drawText(CONFIG_X + RIGHT, y, config[z].v, FONT + tmp)
 				else
 					if z == 15 then
-						lcd.drawText(CONFIG_X + GPS, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+						lcd.drawText(CONFIG_X + GPS, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), FONT + tmp)
 					else
-						lcd.drawText(CONFIG_X + RIGHT, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
+						lcd.drawText(CONFIG_X + RIGHT, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), FONT + tmp)
 					end
 				end
 			end
 		else
-			lcd.drawText(CONFIG_X + RIGHT, y, "--", SMLSIZE + tmp)
+			lcd.drawText(CONFIG_X + RIGHT, y, "--", FONT + tmp)
 		end
 	end
 
