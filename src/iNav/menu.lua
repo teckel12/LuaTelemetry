@@ -28,10 +28,9 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	end
 
 	if HORUS then
-		local MENU = lcd.RGB(0, 0, 90)
 		lcd.setColor(CUSTOM_COLOR, DARKGREY)
 		lcd.drawFilledRectangle(0, 20, LCD_W, LCD_H - 20, CUSTOM_COLOR)
-		lcd.setColor(CUSTOM_COLOR, MENU)
+		lcd.setColor(CUSTOM_COLOR, 11)
 		lcd.drawFilledRectangle(CONFIG_X - (HORUS and 10 or 3), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 6), LINE * (ROWS + 1) + (HORUS and 12 or 1), CUSTOM_COLOR)
 		lcd.setColor(TEXT_COLOR, WHITE)
 	end
