@@ -1,6 +1,7 @@
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
+local HORUS = LCD_W >= 480
 local v, r, m, i, e = getVersion()
 local env = "tc" -- Default: "tc" | Debug mode: "tcb"
 
@@ -8,7 +9,9 @@ local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units = loadScript(FILE_PATH .. "modes", env)()
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 local configCnt = loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
-local title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
+if HORUS then
+	local title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
+end
 local title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay = loadScript(FILE_PATH .. "func_t", env)(config, data, FILE_PATH)
 
 data.lang = "en"

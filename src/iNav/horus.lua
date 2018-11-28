@@ -374,9 +374,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	lcd.drawText(RIGHT_POS + 1, TOP + 98, tmp >= 99.5 and math.floor(tmp + 0.5) .. units[data.speed_unit] or string.format("%.1f", tmp) .. units[data.speed_unit], MIDSIZE + RIGHT + data.telemFlags)
 
 	if data.showMax then
-		lcd.setColor(TEXT_COLOR, BLACK)
-		lcd.drawText(LEFT_POS, TOP + 65, "\193", 0)
-		lcd.drawText(LEFT_POS - 1, TOP + 107, "\192", 0)
+		lcd.setColor(TEXT_COLOR, GREY)
+		lcd.drawText(LEFT_POS + 1, TOP + 65, "\193", 0)
+		lcd.drawText(LEFT_POS + 1, TOP + 107, "\193", 0)
 		lcd.setColor(TEXT_COLOR, WHITE)
 		lcd.drawText(X1 + 4, TOP + 18, "\192")
 		lcd.drawText(X1 + 4, TOP + 61, "\192")

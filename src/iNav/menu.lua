@@ -1,7 +1,12 @@
 local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 
-	local CONFIG_X = SMLCD and 0 or 46
-	local HORUS = LCD_W >= 480	
+	local HORUS = LCD_W >= 480
+	local CONFIG_X = HORUS and 100 or (SMLCD and 0 or 46)
+	local TOP = HORUS and 32 or 11
+	local LINE = HORUS and 21 or 9
+	local RIGHT = HORUS and 190 or 83
+	local GPS = HORUS and 65 or 21
+	local ROWS = HORUS and 10 or 5
 
 	local function saveConfig()
 		--local fh = io.open(FILE_PATH .. "config.dat", "w")
@@ -21,8 +26,13 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 		end
 	end
 
+	if HORUS then
+		lcd.setColor(TEXT_COLOR, DARKGREY)
+		lcd.drawFilledRectangle(0, 20, LCD_W, LCD_H - 20)
+		lcd.setColor(TEXT_COLOR, WHITE)
+	end
 	if not SMLCD then
-		lcd.drawRectangle(CONFIG_X - 3, 9, 134, 55, SOLID)
+		lcd.drawRectangle(CONFIG_X - 3, TOP - 2, LCD_W - CONFIG_X * 2 + 6, LINE * (ROWS + 1) + 1, SOLID)
 	end
 
 	-- Disabled options
@@ -32,6 +42,7 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	end
 	-- Special disabled option and limit cases
 	config[7].p = data.vspeed_id == -1 and 1 or nil
+	config[22].p = HORUS and nil or 1
 	if config[17].p == nil then
 		config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
 		config[18].p = config[17].p
@@ -41,8 +52,8 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	config[24].p = config[7].v < 2 and 1 or nil
 	config[20].p = not data.pitot and 1 or nil
 	config[23].p = not data.showFuel and 1 or nil
-	for line = data.configTop, math.min(configCnt, data.configTop + 5) do
-		local y = (line - data.configTop) * 9 + 11
+	for line = data.configTop, math.min(configCnt, data.configTop + ROWS) do
+		local y = (line - data.configTop) * LINE + TOP
 		local z = config[line].z
 		local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
 		if not data.showCurr and z >= 17 and z <= 18 then
@@ -51,20 +62,20 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 		lcd.drawText(CONFIG_X, y, config[z].t, SMLSIZE)
 		if config[z].p == nil then
 			if config[z].l == nil then
-				lcd.drawText(CONFIG_X + 83, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
+				lcd.drawText(CONFIG_X + RIGHT, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config[z].a, SMLSIZE + tmp)
 			else
 				if not config[z].l then
-					lcd.drawText(CONFIG_X + 83, y, config[z].v, SMLSIZE + tmp)
+					lcd.drawText(CONFIG_X + RIGHT, y, config[z].v, SMLSIZE + tmp)
 				else
 					if z == 15 then
-						lcd.drawText(CONFIG_X + 21, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
+						lcd.drawText(CONFIG_X + GPS, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), SMLSIZE + tmp)
 					else
-						lcd.drawText(CONFIG_X + 83, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
+						lcd.drawText(CONFIG_X + RIGHT, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), SMLSIZE + tmp)
 					end
 				end
 			end
 		else
-			lcd.drawText(CONFIG_X + 83, y, "--", SMLSIZE + tmp)
+			lcd.drawText(CONFIG_X + RIGHT, y, "--", SMLSIZE + tmp)
 		end
 	end
 
@@ -76,14 +87,14 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 			data.configStatus = 0
 		elseif event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
 			data.configStatus = data.configStatus == configCnt and 1 or data.configStatus + 1
-			data.configTop = data.configStatus > math.min(configCnt, data.configTop + 5) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
+			data.configTop = data.configStatus > math.min(configCnt, data.configTop + ROWS) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
 			while config[config[data.configStatus].z].p ~= nil do
 				data.configStatus = math.min(data.configStatus + 1, configCnt)
-				data.configTop = data.configStatus > math.min(configCnt, data.configTop + 5) and data.configTop + 1 or data.configTop
+				data.configTop = data.configStatus > math.min(configCnt, data.configTop + ROWS) and data.configTop + 1 or data.configTop
 			end
 		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
 			data.configStatus = data.configStatus == 1 and configCnt or data.configStatus - 1
-			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == configCnt and configCnt - 5 or data.configTop)
+			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == configCnt and configCnt - ROWS or data.configTop)
 			while config[config[data.configStatus].z].p ~= nil do
 				data.configStatus = math.max(data.configStatus - 1, 1)
 				data.configTop = data.configStatus < data.configTop and data.configTop - 1 or data.configTop
