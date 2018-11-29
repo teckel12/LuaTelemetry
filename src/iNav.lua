@@ -396,7 +396,9 @@ local function run(event)
 	-- Required when running as a one-time script
 	background()
 
-	lcd.clear()
+	if not HORUS then
+		lcd.clear()
+	end
 
 	-- Startup message
 	if data.startup == 1 then

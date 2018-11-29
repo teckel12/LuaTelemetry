@@ -46,8 +46,9 @@ local function hdopGraph(x, y)
 	end
 end
 
+local gpsIcon = Bitmap.open(FILE_PATH .. "pics/bg.png")
 local lockIcon = Bitmap.open(FILE_PATH .. "pics/lock.png")
 local homeIcon = Bitmap.open(FILE_PATH .. "pics/home.png")
-local attOverlay = Bitmap.open(FILE_PATH .. "pics/air.png")
+local attOverlay = Bitmap.open(FILE_PATH .. "pics/air2.png")
 
-return title, gpsDegMin, nil, lockIcon, homeIcon, hdopGraph, attOverlay
+return title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay
