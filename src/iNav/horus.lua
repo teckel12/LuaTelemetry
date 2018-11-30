@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, fgPic, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	--local SKY = 982 --lcd.RGB(0, 121, 180)
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
@@ -61,8 +61,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		end
 	end
 
+	-- Setup
 	lcd.drawBitmap(gpsIcon, 0, 20)
 	lcd.setColor(TEXT_COLOR, WHITE)
+	lcd.setColor(TEXT_INVERTED_COLOR, RED)
+	lcd.setColor(TEXT_INVERTED_BGCOLOR, DATA)
 
 	-- Attitude
 	--lcd.setColor(CUSTOM_COLOR, SKY2)
@@ -229,7 +232,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		if data.showMax then
 			lcd.drawText(LEFT_POS, BOTTOM - 21, "\192", 0)
 		end
-		lcd.drawText(LEFT_POS + (data.showMax and 10 or 2), BOTTOM - 18, dist, SMLSIZE + data.telemFlags)
+		lcd.drawText(LEFT_POS + (data.showMax and 12 or 2), BOTTOM - 18, dist, SMLSIZE + data.telemFlags)
 	end
 
 	-- Startup message
@@ -253,7 +256,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	if data.showFuel then
 		if config[23].v == 0 then
 			lcd.drawText(X1 - 3, TOP, data.fuel .. "%", MIDSIZE + RIGHT + tmp)
-			--lcd.drawText(0, TOP + 9, "Fuel", SMLSIZE)
+			lcd.drawText(0, TOP + 9, "Fuel", SMLSIZE)
 			local red = data.fuel >= config[18].v and math.max(math.floor((100 - data.fuel) / (100 - config[18].v) * 255), 0) or 255
 			local green = data.fuel < config[18].v and math.max(math.floor((data.fuel - config[17].v) / (config[18].v - config[17].v) * 255), 0) or 255
 			lcd.setColor(CUSTOM_COLOR, lcd.RGB(red, green, 60))
@@ -265,7 +268,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	local val = data.showMax and data.cellMin or data.cell
 	lcd.drawText(X1 - 3, TOP + 42, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)) .. "v", MIDSIZE + RIGHT + tmp)
-	--lcd.drawText(0, TOP + 51, "Battery", SMLSIZE)
+	lcd.drawText(0, TOP + 51, "Battery", SMLSIZE)
 	local red = val >= config[2].v and math.max(math.floor((4.2 - val) / (4.2 - config[2].v) * 255), 0) or 255
 	local green = val < config[2].v and math.max(math.floor((val - config[3].v) / (config[2].v - config[3].v) * 255), 0) or 255
 	lcd.setColor(CUSTOM_COLOR, lcd.RGB(red, green, 60))
@@ -282,13 +285,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	-- Box 2 (altitude, distance, current)
 	tmp = data.showMax and data.altitudeMax or data.altitude
-	--lcd.drawText(X1 + 9, TOP + 1, "Altitude", SMLSIZE)
 	lcd.drawText(X2, TOP + 12, math.floor(tmp + 0.5) .. units[data.alt_unit], MIDSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
-	--lcd.drawText(X1 + 9, TOP + 44, "Distance", SMLSIZE)
 	lcd.drawText(X2, TOP + 55, dist, MIDSIZE + RIGHT + data.telemFlags)
 	if data.showCurr then
 		tmp = data.showMax and data.currentMax or data.current
-		--lcd.drawText(X1 + 9, TOP + 87, "Current", SMLSIZE)
+		lcd.drawText(X1 + 9, TOP + 87, "Current", SMLSIZE)
 		lcd.drawText(X2, TOP + 98, (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp)) .. "A", MIDSIZE + RIGHT + data.telemFlags)
 	end
 	--lcd.setColor(CUSTOM_COLOR, DATA)
@@ -337,9 +338,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	hdopGraph(X3 + 65, TOP + 23)
 	lcd.drawText(RIGHT_POS + 1, TOP, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
 	tmp = RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
-	lcd.drawText(RIGHT_POS, TOP + 28, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], tmp)
-	lcd.drawText(RIGHT_POS, TOP + 50, config[16].v == 0 and string.format("%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), tmp)
-	lcd.drawText(RIGHT_POS, TOP + 72, config[16].v == 0 and string.format("%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), tmp)
+	lcd.drawText(RIGHT_POS, TOP + 28, math.floor(data.gpsAlt + 0.5) .. (data.gpsAlt_unit == 10 and "'" or units[data.gpsAlt_unit]), MIDSIZE + tmp)
+	lcd.drawText(RIGHT_POS, TOP + 54, config[16].v == 0 and string.format("%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), tmp)
+	lcd.drawText(RIGHT_POS, TOP + 74, config[16].v == 0 and string.format("%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), tmp)
 	tmp = data.showMax and data.speedMax or data.speed
 	lcd.drawText(RIGHT_POS + 1, TOP + 98, tmp >= 99.5 and math.floor(tmp + 0.5) .. units[data.speed_unit] or string.format("%.1f", tmp) .. units[data.speed_unit], MIDSIZE + RIGHT + data.telemFlags)
 
@@ -354,7 +355,13 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	-- Attitude overlay
-	lcd.drawBitmap(attOverlay, 1, 74)
+	lcd.drawBitmap(fgPic, 1, 74)
+
+	lcd.drawText(X1 + 9, TOP + 1, "Altitude", SMLSIZE)
+	lcd.drawText(X1 + 9, TOP + 44, "Distance", SMLSIZE)
+	if data.showCurr then
+		lcd.drawText(X1 + 9, TOP + 87, "Current", SMLSIZE)
+	end
 
 	--lcd.setColor(CUSTOM_COLOR, GREY)
 	--lcd.drawLine(X1 + 3, TOP, X1 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
@@ -363,6 +370,9 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	--lcd.drawLine(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, DOTTED, CUSTOM_COLOR)
 	--lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 	--lcd.drawLine(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
+
+	lcd.setColor(TEXT_INVERTED_COLOR, WHITE)
+	lcd.setColor(TEXT_INVERTED_BGCOLOR, RED)
 end
 
 return view

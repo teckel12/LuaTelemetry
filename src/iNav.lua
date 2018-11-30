@@ -41,7 +41,7 @@ loadfile(FILE_PATH .. "reset.luac")(data)
 loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
-local title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
+local title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, fgPic = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -452,7 +452,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac"))))()
 			data.v = config[25].v
 		end
-		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, attOverlay, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, fgPic, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 
