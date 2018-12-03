@@ -63,6 +63,7 @@ config[22].l = {[0] = "Grafico", "Decimal"}						-- "Graph", "Decimal"
 config[25].l = {[0] = "Clasica", "Pilot", "Radar"}				-- "Classic", "Pilot", "Radar"
 --config[26].l = {[0] = "Off", "On"}							-- "Off", "On"
 
+-- Max 10 characters
 labels[1] = "Bateria"	-- Fuel
 labels[2] = "Tension"	-- Battery
 labels[3] = "Consumo"	-- Current

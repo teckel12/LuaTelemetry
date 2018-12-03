@@ -63,6 +63,7 @@ config[23].l = {[0] = "Pourcent", "mAh", "mWh"}					-- "Percent", "mAh", "mWh"
 config[25].l = {[0] = "Classique", "Pilote", "Radar"}			-- "Classic", "Pilot", "Radar"
 config[26].l = {[0] = "Eteint", "Actif"}						-- "Off", "On"
 
+-- Max 10 characters
 --labels[1] = "Fuel"		-- Fuel
 --labels[2] = "Battery"		-- Battery
 --labels[3] = "Current"		-- Current
