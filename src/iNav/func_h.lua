@@ -38,17 +38,17 @@ local function gpsDegMin(c, lat)
 end
 
 local function hdopGraph(x, y)
-	for i = 4, 9 do
-		if data.hdop < i then
-			lcd.setColor(CUSTOM_COLOR, GREY)
-		end
+	lcd.setColor(CUSTOM_COLOR, data.hdop < 11 - config[21].v * 2 and YELLOW or WHITE)
+	for i = 4, data.hdop do
 		lcd.drawRectangle(i * 4 + x - 16, y, 2, -i * 3 + 10, CUSTOM_COLOR)
 	end
 end
 
-local gpsIcon = Bitmap.open(FILE_PATH .. "pics/bg.png")
-local lockIcon = Bitmap.open(FILE_PATH .. "pics/lock.png")
-local homeIcon = Bitmap.open(FILE_PATH .. "pics/home.png")
-local fgPic = Bitmap.open(FILE_PATH .. "pics/fg.png")
+local icons = {}
 
-return title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, fgPic
+icons.lock = Bitmap.open(FILE_PATH .. "pics/lock.png")
+icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
+icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
+icons.fg = Bitmap.open(FILE_PATH .. "pics/fg.png")
+
+return title, gpsDegMin, hdopGraph, icons

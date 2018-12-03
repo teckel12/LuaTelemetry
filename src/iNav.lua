@@ -4,9 +4,9 @@
 
 local VERSION = "1.4.4"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
-local FLASH = 3
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
+local FLASH = HORUS and WARNING_COLOR or 3
 local tmp, view
 
 -- Build with Companion
@@ -18,7 +18,7 @@ end
 local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
 collectgarbage()
 
-local modes, units = loadfile(FILE_PATH .. "modes.luac")()
+local modes, units, labels = loadfile(FILE_PATH .. "modes.luac")()
 collectgarbage()
 
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
@@ -33,7 +33,7 @@ data.voice = "es"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	loadfile(FILE_PATH .. "lang.luac")(modes, config, data, FILE_PATH)
+	loadfile(FILE_PATH .. "lang.luac")(modes, config, labels, data, FILE_PATH)
 	collectgarbage()
 end
 
@@ -41,7 +41,7 @@ loadfile(FILE_PATH .. "reset.luac")(data)
 loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
-local title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, fgPic = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -452,7 +452,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac"))))()
 			data.v = config[25].v
 		end
-		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, fgPic, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 

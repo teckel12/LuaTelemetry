@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, fgPic, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
@@ -44,7 +44,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			tmp = data.showMax and data.altitudeMax or data.altitude
 			lcd.drawText(RIGHT_POS, 57, data.startup > 0 and "Alt" or (math.floor(tmp + 0.5) .. units[data.alt_unit]), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 			if data.altHold then
-				lockIcon(RIGHT_POS - 6, 50)
+				icons.lock(RIGHT_POS - 6, 50)
 			end
 		end
 		-- Pitch
@@ -88,7 +88,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			local hx = X_CNTR + 2 - (d > 9 and cx / 2 or 0)
 			local hy = ((SMLCD and not data.armed) and 33 or 37) + (d > 9 and cy / 2 or 0)
 			if d >= 9 then
-				homeIcon(hx - 3, hy - 3)
+				icons.home(hx - 3, hy - 3)
 			elseif d > 1 then
 				lcd.drawFilledRectangle(hx - 1, hy - 1, 3, 3, SOLID)
 			end
@@ -139,7 +139,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	-- Right data - GPS
 	lcd.drawText(LCD_W, 8, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
-	gpsIcon(LCD_W - (SMLCD and 23 or 22), 12)
+	icons.gps(LCD_W - (SMLCD and 23 or 22), 12)
 	if SMLCD then
 		lcd.drawText(LCD_W + 1, config[22].v == 1 and 22 or 32, "HDOP", RIGHT + SMLSIZE)
 		hdopGraph(LCD_W - 12, config[22].v == 1 and 31 or 24, MIDSIZE)
@@ -189,7 +189,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.drawText(LEFT_POS - tmp2, data.alt_unit == 9 and 21 or 17, units[data.alt_unit], SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 		lcd.drawText(LEFT_POS - tmp2, 16, math.floor(tmp + 0.5), MIDSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 		if data.altHold then
-			lockIcon(LEFT_POS - 6, 9)
+			icons.lock(LEFT_POS - 6, 9)
 		end
 		-- Distance
 		tmp = data.showMax and data.distanceMax or data.distanceLast

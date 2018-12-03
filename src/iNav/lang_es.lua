@@ -1,11 +1,11 @@
-local modes, config = ...
+local modes, config, labels = ...
 
 -- Max 7 characters
 --modes[1].t  = "! TELEM !"	-- ! TELEM !
 --modes[2].t  = "HORIZON"	-- HORIZON
 --modes[3].t  = "  ANGLE"	-- ANGLE
 --modes[4].t  = "   ACRO"	-- ACRO
-modes[5].t  = "NO OK"		-- NOT OK
+modes[5].t  = " NO OK "		-- NOT OK
 modes[6].t  = " LISTO"		-- READY
 --modes[7].t  = "POS HOLD"	-- POS HOLD
 --modes[8].t  = "WAYPOINT"	-- WAYPOINT
@@ -62,5 +62,11 @@ config[22].l = {[0] = "Grafico", "Decimal"}						-- "Graph", "Decimal"
 --config[23].l = {[0] = "Percent", "mAh", "mWh"}				-- "Percent", "mAh", "mWh"
 config[25].l = {[0] = "Clasica", "Pilot", "Radar"}				-- "Classic", "Pilot", "Radar"
 --config[26].l = {[0] = "Off", "On"}							-- "Off", "On"
+
+labels[1] = "Bateria"	-- Fuel
+labels[2] = "Tension"	-- Battery
+labels[3] = "Consumo"	-- Current
+labels[4] = "Altitud"	-- Altitude
+labels[5] = "Distancia"	-- Distance
 
 return 0

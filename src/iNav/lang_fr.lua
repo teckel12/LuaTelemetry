@@ -1,4 +1,4 @@
-local modes, config = ...
+local modes, config, labels = ...
 
 -- Max 7 characters
 --modes[1].t  = "! TELEM !"	-- ! TELEM !
@@ -62,5 +62,11 @@ config[22].l = {[0] = "Graphique", "Decimal"}					-- "Graph", "Decimal"
 config[23].l = {[0] = "Pourcent", "mAh", "mWh"}					-- "Percent", "mAh", "mWh"
 config[25].l = {[0] = "Classique", "Pilote", "Radar"}			-- "Classic", "Pilot", "Radar"
 config[26].l = {[0] = "Eteint", "Actif"}						-- "Off", "On"
+
+--labels[1] = "Fuel"		-- Fuel
+--labels[2] = "Battery"		-- Battery
+--labels[3] = "Current"		-- Current
+--labels[4] = "Altitude"	-- Altitude
+--labels[5] = "Distance"	-- Distance
 
 return 0

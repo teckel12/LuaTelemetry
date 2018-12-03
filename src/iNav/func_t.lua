@@ -32,31 +32,6 @@ local function gpsDegMin(c, lat)
 	return gpsD .. string.format("\64%05.2f", (math.abs(c) - gpsD) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
 end
 
-local function gpsIcon(x, y)
-	lcd.drawLine(x + 1, y, x + 5, y + 4, SOLID, 0)
-	lcd.drawLine(x + 1, y + 1, x + 4, y + 4, SOLID, 0)
-	lcd.drawLine(x + 1, y + 2, x + 3, y + 4, SOLID, 0)
-	lcd.drawLine(x, y + 5, x + 2, y + 5, SOLID, 0)
-	lcd.drawPoint(x + 4, y + 1)
-	lcd.drawPoint(x + 1, y + 4)
-end
-
-local function lockIcon(x, y)
-	lcd.drawRectangle(x, y + 2, 5, 4, 0)
-	lcd.drawRectangle(x + 1, y, 3, 5, FORCE)
-end
-
-local function homeIcon(x, y)
-	lcd.drawPoint(x + 3, y - 1)
-	lcd.drawLine(x + 2, y, x + 4, y, SOLID, 0)
-	lcd.drawLine(x + 1, y + 1, x + 5, y + 1, SOLID, 0)
-	lcd.drawLine(x, y + 2, x + 6, y + 2, SOLID, 0)
-	lcd.drawLine(x + 1, y + 3, x + 1, y + 5, SOLID, 0)
-	lcd.drawLine(x + 5, y + 3, x + 5, y + 5, SOLID, 0)
-	lcd.drawLine(x + 2, y + 5, x + 4, y + 5, SOLID, 0)
-	lcd.drawPoint(x + 3, y + 4)
-end
-
 local function hdopGraph(x, y, s)
 	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
 	if config[22].v == 0 then
@@ -71,4 +46,31 @@ local function hdopGraph(x, y, s)
 	end
 end
 
-return title, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, nil
+local icons = {}
+
+function icons.gps(x, y)
+	lcd.drawLine(x + 1, y, x + 5, y + 4, SOLID, 0)
+	lcd.drawLine(x + 1, y + 1, x + 4, y + 4, SOLID, 0)
+	lcd.drawLine(x + 1, y + 2, x + 3, y + 4, SOLID, 0)
+	lcd.drawLine(x, y + 5, x + 2, y + 5, SOLID, 0)
+	lcd.drawPoint(x + 4, y + 1)
+	lcd.drawPoint(x + 1, y + 4)
+end
+
+function icons.lock(x, y)
+	lcd.drawRectangle(x, y + 2, 5, 4, 0)
+	lcd.drawRectangle(x + 1, y, 3, 5, FORCE)
+end
+
+function icons.home(x, y)
+	lcd.drawPoint(x + 3, y - 1)
+	lcd.drawLine(x + 2, y, x + 4, y, SOLID, 0)
+	lcd.drawLine(x + 1, y + 1, x + 5, y + 1, SOLID, 0)
+	lcd.drawLine(x, y + 2, x + 6, y + 2, SOLID, 0)
+	lcd.drawLine(x + 1, y + 3, x + 1, y + 5, SOLID, 0)
+	lcd.drawLine(x + 5, y + 3, x + 5, y + 5, SOLID, 0)
+	lcd.drawLine(x + 2, y + 5, x + 4, y + 5, SOLID, 0)
+	lcd.drawPoint(x + 3, y + 4)
+end
+
+return title, gpsDegMin, hdopGraph, icons
