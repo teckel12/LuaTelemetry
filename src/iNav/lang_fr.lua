@@ -6,41 +6,41 @@ local modes, config, labels = ...
 --modes[3].t  = "  ANGLE"	-- ANGLE
 --modes[4].t  = "   ACRO"	-- ACRO
 modes[5].t  = " PAS OK "	-- NOT OK
-modes[6].t  = "  PRET"		-- READY
+modes[6].t  = "   PRET"		-- READY
 --modes[7].t  = "POS HOLD"	-- POS HOLD
 --modes[8].t  = "WAYPOINT"	-- WAYPOINT
-modes[9].t  = "MANUEL"		-- MANUAL
+modes[9].t  = " MANUEL"		-- MANUAL
 --modes[10].t = "   RTH   "	-- RTH
 --modes[11].t = "! FAIL !"	-- ! FAIL !
 modes[12].t = " ! GAZ ! "	-- ! THROT !
 --modes[13].t = " CRUISE"	-- CRUISE
 
 -- Max 16 characters
-config[1].t  = "Vue batterie"		-- Battery View
-config[2].t  = "Cellule basse"		-- Cell Low
-config[3].t  = "Cellule critique"	-- Cell Critical
-config[4].t  = "Alerte vocale"		-- Voice Alerts
+config[1].t  = "Vue Batterie"		-- Battery View
+config[2].t  = "Cellule Basse"		-- Cell Low
+config[3].t  = "Cellule Critique"	-- Cell Critical
+config[4].t  = "Alerte Vocale"		-- Voice Alerts
 --config[5].t  = "Feedback"			-- Feedback
 config[6].t  = "Altitude Maximum"	-- Max Altitude
 config[7].t  = "Variometre"			-- Variometer
 config[8].t  = "Feedback RTH"		-- RTH Feedback
 config[9].t  = "Feedback HeadFree"	-- HeadFree Feedback
 config[10].t = "Feedback RSSI"		-- RSSI Feedback
-config[11].t = "Alerte batterie"	-- Battery Alert
-config[12].t = "Alerte altitude"	-- Altitude Alert
+config[11].t = "Alerte Batterie"	-- Battery Alert
+config[12].t = "Alerte Altitude"	-- Altitude Alert
 config[13].t = "Chronometre"		-- Timer
 config[14].t = "Voltage Rx"			-- Rx Voltage
 --config[15].t = "GPS"				-- GPS
---config[16].t = "Coordonnees GPS"	-- GPS Coordinates
---config[17].t = "Fuel critique"	-- Fuel Critical
-config[18].t = "Fuel bas"			-- Fuel Low
+config[16].t = "Coordonnees GPS"	-- GPS Coordinates
+config[17].t = "Fuel Critique"	    -- Fuel Critical
+config[18].t = "Fuel Bas"			-- Fuel Low
 config[19].t = "Voltage Tx"			-- Tx Voltage
 config[20].t = "Capteur Vitesse"	-- Speed Sensor
 config[21].t = "Alerte GPS"			-- GPS Warning
 config[22].t = "Vue GPS HDOP"		-- GPS HDOP View
 config[23].t = "Unite Fuel"			-- Fuel Unit
-config[24].t = "Avance vario"		-- Vario Steps
-config[25].t = "Mode de vue"		-- View Mode
+config[24].t = "Avance Vario"		-- Vario Steps
+config[25].t = "Mode de Vue"		-- View Mode
 config[26].t = "Feedback AltHold"	-- AltHold Center FB
 
 -- Max 9 characters
@@ -65,8 +65,8 @@ config[26].l = {[0] = "Eteint", "Actif"}						-- "Off", "On"
 
 -- Max 10 characters
 --labels[1] = "Fuel"		-- Fuel
---labels[2] = "Battery"		-- Battery
---labels[3] = "Current"		-- Current
+labels[2] = "Batterie"		-- Battery
+labels[3] = "Courant"		-- Current
 --labels[4] = "Altitude"	-- Altitude
 --labels[5] = "Distance"	-- Distance
 

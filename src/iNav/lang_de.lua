@@ -64,10 +64,10 @@ config[25].l = {[0] = "Klassisch", "Pilot", "Radar"}			-- "Classic", "Pilot", "R
 config[26].l = {[0] = "Aus", "An"}								-- "Off", "On"
 
 -- Max 10 characters
---labels[1] = "Fuel"		-- Fuel
---labels[2] = "Battery"		-- Battery
---labels[3] = "Current"		-- Current
---labels[4] = "Altitude"	-- Altitude
---labels[5] = "Distance"	-- Distance
+labels[1] = "Kapazitaet"-- Fuel
+labels[2] = "Batterie"	-- Battery
+labels[3] = "Strom"		-- Current
+labels[4] = "Hoehe"		-- Altitude
+labels[5] = "Entfernung"-- Distance
 
 return 0
