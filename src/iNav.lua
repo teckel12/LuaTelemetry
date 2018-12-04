@@ -194,7 +194,7 @@ local function background()
 			data.armed = true
 			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
 			homeReset = data.satellites >= 4000 and true or false
-			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold
+			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- Pos hold
 		else
 			preArmMode = data.modeId
 			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)

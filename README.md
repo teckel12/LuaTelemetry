@@ -1,6 +1,6 @@
 # Lua Telemetry Flight Status for INAV/Taranis - v1.4.4
 
-### FrSky SmartPort(S.Port), D-series, and F.Port telemetry on Taranis QX7, X-Lite, X9D, X9D+ and X9E transmitters
+### FrSky SmartPort(S.Port), D-series and F.Port telemetry on all Taranis and Horus transmitters
 
 [![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
 
@@ -10,18 +10,22 @@
 
 #### Classic view
 
-![sample](assets/iNavQX7.png "Classic view on QX7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavQX7.png "Classic view on Q X7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9D.png "Classic view on Taranis X9D, X9D+ and X9E")
 
 #### Pilot (glass cockpit) view for fixed wing pilots
 
-![sample](assets/iNavQX7pilot.png "Pilot view on QX7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavQX7pilot.png "Pilot view on Q X7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dpilot.png "Pilot view on Taranis X9D, X9D+ and X9E")
 
 #### Radar (map) view
 
-![sample](assets/iNavQX7radar.png "Radar view on QX7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavQX7radar.png "Radar view on Q X7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dradar.png "Radar view on Taranis X9D, X9D+ and X9E")
+
+#### Horus view
+
+![sample](assets/iNavHorus.png "View on Horus transmitters")
 
 ## Features
 
@@ -44,8 +48,8 @@
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis QX7, X9D, X9D+, X9E or X-Lite (with release OpenTX v2.2.2+) Suggested: OpenTX 2.2.2 release
-* FkSky X-series, R9 series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, R9, R9 Slim, R9M, D8R-II plus, D8R-XP, D4R-II, etc.
+* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X-Lite, Horus X10/X10S or X12S (OpenTX v2.2.2+ is suggested)
+* FkSky X-series, R9 series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.0+ is suggested for full functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
