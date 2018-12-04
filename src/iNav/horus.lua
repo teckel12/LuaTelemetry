@@ -102,15 +102,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Home direction
 	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 then
-		local home = X_CNTR - 1
+		--local home = X_CNTR - 1
 		if data.distanceLast >= data.distRef then
 			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) + 540 % 360
-			home = math.floor(((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
-		else
-			lcd.drawText(home - 2, BOTTOM - 27, "  ", FLASH)
-		end
-		if home >= 3 and home <= RIGHT_POS - 6 then
-			lcd.drawBitmap(icons.home, home - 3, BOTTOM - 26)
+			local home = math.floor(((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
+			if home >= 3 and home <= RIGHT_POS - 6 then
+				lcd.drawBitmap(icons.home, home - 3, BOTTOM - 26)
+			end
 		end
 	end
 
