@@ -235,6 +235,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Startup message
 	if data.startup == 2 then
+		lcd.setColor(CUSTOM_COLOR, BLACK)
+		lcd.drawText(X_CNTR - 78, 55, "Lua Telemetry", MIDSIZE + CUSTOM_COLOR)
+		lcd.drawText(X_CNTR - 38, 85, "v" .. VERSION, MIDSIZE + CUSTOM_COLOR)
 		lcd.drawText(X_CNTR - 79, 54, "Lua Telemetry", MIDSIZE)
 		lcd.drawText(X_CNTR - 39, 84, "v" .. VERSION, MIDSIZE)
 	end
