@@ -396,10 +396,6 @@ local function run(event)
 	-- Required when running as a one-time script
 	background()
 
-	if not HORUS then
-		lcd.clear()
-	end
-
 	-- Startup message
 	if data.startup == 1 then
 		data.startupTime = getTime()
@@ -411,8 +407,16 @@ local function run(event)
 
 	-- Display system error
 	if data.msg then
+		if HORUS then
+			lcd.setColor(CUSTOM_COLOR, 11)
+		end
+		lcd.clear(CUSTOM_COLOR)
 		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) / 2, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
 		return 0
+	end
+
+	if not HORUS then
+		lcd.clear()
 	end
 
 	-- Config menu or views
