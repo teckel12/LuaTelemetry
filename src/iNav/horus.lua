@@ -349,8 +349,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	if data.showMax then
 		lcd.setColor(CUSTOM_COLOR, GREY)
-		lcd.drawText(1, TOP + 64, "\193", CUSTOM_COLOR)
-		lcd.drawText(1, TOP + 106, "\193", CUSTOM_COLOR)
+		lcd.drawText(2, TOP + 64, "\193", CUSTOM_COLOR)
+		lcd.drawText(2, TOP + 106, "\193", CUSTOM_COLOR)
 		lcd.drawText(X1 + 4, TOP + 18, "\192")
 		lcd.drawText(X1 + 4, TOP + 61, "\192")
 		lcd.drawText(X1 + 4, TOP + 104, "\192")

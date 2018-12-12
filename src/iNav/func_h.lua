@@ -1,22 +1,21 @@
 local config, data, FILE_PATH = ...
 
 local function title(data, config, SMLCD)
-	lcd.setColor(TEXT_COLOR, BLACK)
-	lcd.drawFilledRectangle(0, 0, LCD_W, 20)
-	lcd.setColor(TEXT_COLOR, WHITE)
+	lcd.setColor(CUSTOM_COLOR, BLACK)
+	lcd.drawFilledRectangle(0, 0, LCD_W, 20, CUSTOM_COLOR)
 	lcd.drawText(0, 0, model.getInfo().name)
 	if config[13].v > 0 then
 		lcd.drawTimer(340, 0, data.timer)
 	end
 	if config[19].v > 0 then
-		lcd.drawFilledRectangle(197, 3, 43, 14)
-		lcd.drawFilledRectangle(240, 6, 2, 8)
+		lcd.setColor(CUSTOM_COLOR, WHITE)
+		lcd.drawFilledRectangle(197, 3, 43, 14, CUSTOM_COLOR)
+		lcd.drawFilledRectangle(240, 6, 2, 8, CUSTOM_COLOR)
 		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
-		lcd.setColor(TEXT_COLOR, BLACK)
+		lcd.setColor(CUSTOM_COLOR, BLACK)
 		for i = 200, tmp, 4 do
-			lcd.drawLine(i, 4, i, 15, SOLID, 0)
+			lcd.drawLine(i, 4, i, 15, SOLID, CUSTOM_COLOR)
 		end
-		lcd.setColor(TEXT_COLOR, WHITE)
 	end
 	if config[19].v ~= 1 then
 		lcd.drawText(290, 0, string.format("%.1f", data.txBatt) .. "V", RIGHT)

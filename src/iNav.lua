@@ -197,7 +197,7 @@ local function background()
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- Pos hold
 		else
 			preArmMode = data.modeId
-			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
+			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -945 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
 			data.modeId = 11 -- Failsafe
@@ -405,18 +405,18 @@ local function run(event)
 		data.msg = false
 	end
 
-	-- Display system error
-	if data.msg then
-		if HORUS then
-			lcd.setColor(CUSTOM_COLOR, 11)
-		end
+	-- Clear screen
+	if HORUS then
+		lcd.setColor(CUSTOM_COLOR, 11) -- 11 = Dark blue
 		lcd.clear(CUSTOM_COLOR)
-		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) / 2, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
-		return 0
+	else
+		lcd.clear()
 	end
 
-	if not HORUS then
-		lcd.clear()
+	-- Display system error
+	if data.msg then
+		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) / 2, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
+		return 0
 	end
 
 	-- Config menu or views
