@@ -407,7 +407,7 @@ local function run(event)
 
 	-- Clear screen
 	if HORUS then
-		lcd.setColor(CUSTOM_COLOR, 11) -- 11 = Dark blue
+		lcd.setColor(CUSTOM_COLOR, lcd.RGB(0, 39, 73)) --lcd.RGB(0, 0, 90)
 		lcd.clear(CUSTOM_COLOR)
 	else
 		lcd.clear()

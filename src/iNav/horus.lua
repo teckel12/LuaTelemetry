@@ -4,8 +4,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
 	--local SKY2 = 8943 --lcd.RGB(32, 92, 122)
 	local GROUND2 = 20996 --lcd.RGB(81, 65, 36)
-	local MAP = 13381 --lcd.RGB(51, 137, 47)
-	local DATA = 11 --lcd.RGB(0, 0, 90)
+	local MAP = 832 --13381 = lcd.RGB(51, 137, 47) | 832 = lcd.RGB(0, 107, 0)
+	--local DATA = 11 --lcd.RGB(0, 0, 90)
 	local DKGREY = 12678 --lcd.RGB(48, 48, 48)
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
@@ -278,7 +278,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	tmp = (not data.telem or data.rssi < data.rssiLow) and FLASH or 0
 	val = data.showMax and data.rssiMin or data.rssiLast
 	lcd.drawText(X1 - 3, TOP + 84, val .. "dB", MIDSIZE + RIGHT + tmp)
-	--lcd.drawText(0, TOP + 93, "RSSI", SMLSIZE)
+	lcd.drawText(0, TOP + 93, "RSSI", SMLSIZE)
 	local red = val >= data.rssiLow and math.max(math.floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
 	local green = val < data.rssiLow and math.max(math.floor((val - data.rssiCrit) / (data.rssiLow - data.rssiCrit) * 255), 0) or 255
 	lcd.setColor(CUSTOM_COLOR, lcd.RGB(red, green, 60))
@@ -337,7 +337,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Box 4 (GPS info, speed)
 	tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
 	lcd.drawText(X3 + 48, TOP, (data.hdop == 0 and not data.gpsFix) and "-- --" or (9 - data.hdop) / 2 + 0.8, MIDSIZE + RIGHT + (tmp and FLASH or 0))
-	--lcd.drawText(X3 + 11, TOP + 24, "HDOP", SMLSIZE)
+	lcd.drawText(X3 + 11, TOP + 24, "HDOP", SMLSIZE)
 	hdopGraph(X3 + 65, TOP + 23)
 	lcd.drawText(RIGHT_POS + 1, TOP, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
 	tmp = RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
