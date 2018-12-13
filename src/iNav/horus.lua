@@ -4,8 +4,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
 	--local SKY2 = 8943 --lcd.RGB(32, 92, 122)
 	local GROUND2 = 20996 --lcd.RGB(81, 65, 36)
-	--local MAP = 800 --13381 = lcd.RGB(51, 137, 47) | 768 = lcd.RGB(0, 98, 0)
-	local DATA = 297 --lcd.RGB(0, 39, 73)
+	--local MAP = 800 --lcd.RGB(0, 100, 0)
+	--local DATA = 297 --lcd.RGB(0, 39, 73)
 	local DKGREY = 12678 --lcd.RGB(48, 48, 48)
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
@@ -63,7 +63,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Setup
-	lcd.drawBitmap(icons.bg, 0, 20)
+	--lcd.drawBitmap(icons.bg, 0, 20)
+	lcd.drawBitmap(icons.bg, 1, 20)
 	lcd.setColor(TEXT_COLOR, WHITE)
 	lcd.setColor(WARNING_COLOR, data.telem and YELLOW or RED)
 
@@ -99,8 +100,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 	end
-	lcd.setColor(CUSTOM_COLOR, DATA)
-	lcd.drawFilledRectangle(X_CNTR - 24, BOTTOM + 1, 49, 18, CUSTOM_COLOR)
+	--lcd.setColor(CUSTOM_COLOR, DATA)
+	--lcd.drawFilledRectangle(X_CNTR - 24, BOTTOM + 1, 49, 18, CUSTOM_COLOR)
 
 	-- Home direction
 	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 then
@@ -114,7 +115,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
-	-- Heading
+	-- Compass
 	if data.showHead then
 		for i = 0, 348.75, 11.25 do
 			tmp = math.floor(((i - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
@@ -128,28 +129,27 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				end
 			end
 		end
-		lcd.setColor(CUSTOM_COLOR, DKGREY)
-		lcd.drawFilledRectangle(X_CNTR - 18, BOTTOM - 15, 37, 15, CUSTOM_COLOR)
-		lcd.drawText(X_CNTR - 15, BOTTOM - 15, "     ", SMLSIZE + data.telemFlags)
-		lcd.drawText(X_CNTR + 18, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
-		--lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
-		--lcd.drawRectangle(X_CNTR - 18, BOTTOM - 15, 37, 16, CUSTOM_COLOR)
 	end
 
-	-- Speed & Altitude
+	-- Speed & altitude tics
 	lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 	tics(data.speed, 1)
 	tics(data.altitude, RIGHT_POS - 4)
-	lcd.setColor(CUSTOM_COLOR, DKGREY)
-	lcd.drawFilledRectangle(1, Y_CNTR - 8, 38, 16, CUSTOM_COLOR)
-	lcd.drawFilledRectangle(RIGHT_POS - 43, Y_CNTR - 8, 42, 16, CUSTOM_COLOR)
+
+	-- View overlay
+	lcd.drawBitmap(icons.fg, 0, 0)
+
+	-- Speed & altitude
+	--lcd.setColor(CUSTOM_COLOR, DKGREY)
+	--lcd.drawFilledRectangle(1, Y_CNTR - 8, 38, 16, CUSTOM_COLOR)
+	--lcd.drawFilledRectangle(RIGHT_POS - 43, Y_CNTR - 8, 42, 16, CUSTOM_COLOR)
 	tmp = data.showMax and data.speedMax or data.speed
 	lcd.drawText(40, 19, units[data.speed_unit], SMLSIZE)
-	lcd.drawText(3, Y_CNTR - 9, "    ", SMLSIZE + data.telemFlags)
+	--lcd.drawText(3, Y_CNTR - 9, "    ", SMLSIZE + data.telemFlags)
 	lcd.drawText(39, Y_CNTR - 9, tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp), SMLSIZE + RIGHT + data.telemFlags)
 	tmp = data.showMax and data.altitudeMax or data.altitude
 	lcd.drawText(RIGHT_POS - 43, 19, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
-	lcd.drawText(RIGHT_POS - 41, Y_CNTR - 9, "        ", SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	--lcd.drawText(RIGHT_POS - 41, Y_CNTR - 9, "        ", SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	lcd.drawText(RIGHT_POS - 1, Y_CNTR - 9, math.floor(tmp + 0.5), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	if data.altHold then
 		lcd.drawBitmap(icons.lock, RIGHT_POS - 54, Y_CNTR - 5)
@@ -160,6 +160,16 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	--lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 	--lcd.drawLine(0, 20, 0, BOTTOM - 1, SOLID, CUSTOM_COLOR)
+
+	-- Heading
+	if data.showHead then
+		--lcd.setColor(CUSTOM_COLOR, DKGREY)
+		--lcd.drawFilledRectangle(X_CNTR - 18, BOTTOM - 15, 37, 15, CUSTOM_COLOR)
+		--lcd.drawText(X_CNTR - 15, BOTTOM - 15, "     ", SMLSIZE + data.telemFlags)
+		lcd.drawText(X_CNTR + 18, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+		--lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
+		--lcd.drawRectangle(X_CNTR - 18, BOTTOM - 15, 37, 16, CUSTOM_COLOR)
+	end
 
 	-- Variometer
 	if config[7].v % 2 == 1 then
@@ -267,7 +277,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	local val = data.showMax and data.cellMin or data.cell
-	lcd.drawText(X1 - 3, TOP + 42, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)) .. "v", MIDSIZE + RIGHT + tmp)
+	lcd.drawText(X1 - 3, TOP + 42, string.format(config[1].v == 0 and "%.2fV" or "%.1fV", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
 	lcd.drawText(0, TOP + 51, labels[2], SMLSIZE)
 	local red = val >= config[2].v and math.max(math.floor((4.2 - val) / (4.2 - config[2].v) * 255), 0) or 255
 	local green = val < config[2].v and math.max(math.floor((val - config[3].v) / (config[2].v - config[3].v) * 255), 0) or 255
@@ -292,7 +302,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.showCurr then
 		tmp = data.showMax and data.currentMax or data.current
 		lcd.drawText(X1 + 9, TOP + 87, labels[3], SMLSIZE)
-		lcd.drawText(X2, TOP + 98, (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp)) .. "A", MIDSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(X2, TOP + 98, (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1fA", tmp)), MIDSIZE + RIGHT + data.telemFlags)
 	end
 
 	-- Box 3 (flight modes, orientation)
@@ -352,14 +362,14 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawText(X3 + 4, TOP + 104, "\192")
 	end
 
-	-- Attitude overlay
-	lcd.drawBitmap(icons.fg, 1, 74)
+	-- View overlay
+	--lcd.drawBitmap(icons.fg, 1, 74)
 
-	lcd.setColor(CUSTOM_COLOR, GREY)
-	lcd.drawLine(X1 + 3, TOP, X1 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	lcd.drawLine(X2 + 3, TOP, X2 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	lcd.drawLine(X3 + 3, TOP, X3 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	lcd.drawLine(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, DOTTED, CUSTOM_COLOR)
+	--lcd.setColor(CUSTOM_COLOR, GREY)
+	--lcd.drawLine(X1 + 3, TOP, X1 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
+	--lcd.drawLine(X2 + 3, TOP, X2 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
+	--lcd.drawLine(X3 + 3, TOP, X3 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
+	--lcd.drawLine(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, DOTTED, CUSTOM_COLOR)
 	--lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 	--lcd.drawLine(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
 

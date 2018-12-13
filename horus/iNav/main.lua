@@ -11,4 +11,4 @@ local function update()
 	return 0
 end
 
-return { name = "iNAV", options = {}, create = create, update = update, refresh = iNav.run(event), background = iNav.background }
+return { name = "iNAV", options = {}, create = create, update = update, refresh = iNav.run, background = iNav.background }

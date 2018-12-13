@@ -1,8 +1,8 @@
 local config, data, FILE_PATH = ...
 
 local function title(data, config, SMLCD)
-	lcd.setColor(CUSTOM_COLOR, BLACK)
-	lcd.drawFilledRectangle(0, 0, LCD_W, 20, CUSTOM_COLOR)
+	--lcd.setColor(CUSTOM_COLOR, BLACK)
+	--lcd.drawFilledRectangle(0, 0, LCD_W, 20, CUSTOM_COLOR)
 	lcd.drawText(0, 0, model.getInfo().name)
 	if config[13].v > 0 then
 		lcd.drawTimer(340, 0, data.timer)
@@ -18,10 +18,10 @@ local function title(data, config, SMLCD)
 		end
 	end
 	if config[19].v ~= 1 then
-		lcd.drawText(290, 0, string.format("%.1f", data.txBatt) .. "V", RIGHT)
+		lcd.drawText(290, 0, string.format("%.1fV", data.txBatt), RIGHT)
 	end
 	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
-		lcd.drawText(LCD_W, 0, string.format("%.1f", data.rxBatt) .. "V", RIGHT)
+		lcd.drawText(LCD_W, 0, string.format("%.1fV", data.rxBatt), RIGHT)
 	end
 
 	-- Show FPS
@@ -33,7 +33,7 @@ end
 local function gpsDegMin(c, lat)
 	local gpsD = math.floor(math.abs(c))
 	local gpsM = math.floor((math.abs(c) - gpsD) * 60)
-	return string.format("%d\64%d'%05.2f", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. "\"" .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+	return string.format("%d\64%d'%05.2f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
 end
 
 local function hdopGraph(x, y)
@@ -51,6 +51,6 @@ local icons = {}
 icons.lock = Bitmap.open(FILE_PATH .. "pics/lock.png")
 icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
-icons.fg = Bitmap.open(FILE_PATH .. "pics/fg.png")
+icons.fg = Bitmap.open(FILE_PATH .. "pics/fg3.png")
 
 return title, gpsDegMin, hdopGraph, icons
