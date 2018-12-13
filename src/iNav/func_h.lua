@@ -38,7 +38,10 @@ end
 
 local function hdopGraph(x, y)
 	lcd.setColor(CUSTOM_COLOR, data.hdop < 11 - config[21].v * 2 and YELLOW or WHITE)
-	for i = 4, data.hdop do
+	for i = 4, 9 do
+		if i > data.hdop then
+			lcd.setColor(CUSTOM_COLOR, GREY)
+		end
 		lcd.drawRectangle(i * 4 + x - 16, y, 2, -i * 3 + 10, CUSTOM_COLOR)
 	end
 end
