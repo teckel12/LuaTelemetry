@@ -25,7 +25,7 @@ collectgarbage()
 data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
 collectgarbage()
 
-local configCnt = loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
+loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
@@ -428,7 +428,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
-		view(data, config, event, configCnt, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+		view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 	else
 		-- User input
 		if not data.armed then
