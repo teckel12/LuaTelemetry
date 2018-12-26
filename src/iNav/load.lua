@@ -1,6 +1,7 @@
 local config, data, FILE_PATH = ...
 
 -- Sort config menus
+local configCnt = 0
 for i, value in ipairs(config) do
 	for ii, value2 in ipairs(config) do
 		if i == value2.o then
@@ -8,6 +9,7 @@ for i, value in ipairs(config) do
 			value2.o = nil
 		end
 	end
+	configCnt = configCnt + 1
 end
 
 -- Copy config file (remove after several revisions)
@@ -28,7 +30,7 @@ end
 -- Load config data
 fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "r")
 if fh ~= nil then
-	for line = 1, #config do
+	for line = 1, configCnt do
 		local tmp = io.read(fh, config[line].c)
 		if tmp ~= "" then
 			config[line].v = config[line].d == nil and math.min(tonumber(tmp), config[line].x == nil and 1 or config[line].x) or tmp / 10
