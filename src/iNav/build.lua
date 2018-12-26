@@ -7,7 +7,7 @@ local env = "tc" -- Default: "tc" | Debug mode: "tcb"
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units = loadScript(FILE_PATH .. "modes", env)(FLASH)
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i)
-loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
+local configCnt = loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 
 data.lang = "en"
 data.voice = "en"
