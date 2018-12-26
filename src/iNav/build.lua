@@ -8,7 +8,7 @@ local env = "tc" -- Default: "tc" | Debug mode: "tcb"
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
-local configCnt = loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
+loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 if HORUS then
 	local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
 end

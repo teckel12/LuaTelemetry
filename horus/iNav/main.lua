@@ -1,8 +1,10 @@
-local iNav = loadfile("/SCRIPTS/TELEMETRY/iNav.luac")()
+
+iNav = loadfile("/SCRIPTS/TELEMETRY/iNav.luac")()
+
+local tmp, view
 
 -- Run when first started
 local function create()
-	iNav()
 	return 0
 end
 
