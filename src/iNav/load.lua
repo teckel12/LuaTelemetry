@@ -39,4 +39,4 @@ if fh ~= nil then
 	io.close(fh)
 end
 
-return configCnt
+return 0
