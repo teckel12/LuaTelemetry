@@ -37,4 +37,4 @@ if fh ~= nil then
 	io.close(fh)
 end
 
-return o
+return 0
