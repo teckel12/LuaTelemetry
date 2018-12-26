@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_POS = SMLCD and 0 or 36
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
@@ -120,7 +120,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			if data.distanceLast < data.distRef then
 				lcd.drawText(home + 1, tmp, "  ", SMLSIZE + FLASH)
 			end
-			homeIcon(home, tmp)
+			icons.home(home, tmp)
 		end
 	elseif data.showMax then
 		lcd.drawText(LEFT_POS + 21, 33, "\192", SMLSIZE)
@@ -146,7 +146,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	-- Battery and GPS overlay
 	if SMLCD then
-		homeIcon(LEFT_POS + 4, 42)
+		icons.home(LEFT_POS + 4, 42)
 		tmp = data.showMax and data.distanceMax or data.distanceLast
 		lcd.drawText(LEFT_POS + 12, 42, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
 		tmp = (not data.telem or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
@@ -179,7 +179,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.drawText(tmp, 9, "HF", SMLSIZE + FLASH + RIGHT)
 	end
 	if data.altHold then
-		lockIcon(RIGHT_POS - 28, 33)
+		icons.lock(RIGHT_POS - 28, 33)
 	end
 
 	-- Attitude part 2
@@ -247,7 +247,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	-- Right data - GPS
 	lcd.drawText(LCD_W, 8, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
-	gpsIcon(LCD_W - (SMLCD and 23 or 22), 12)
+	icons.gps(LCD_W - (SMLCD and 23 or 22), 12)
 	if SMLCD then
 		lcd.drawText(LCD_W + 1, config[22].v == 1 and 22 or 32, "HDOP", RIGHT + SMLSIZE)
 		hdopGraph(LCD_W - 12, config[22].v == 1 and 31 or 24, MIDSIZE)
@@ -285,7 +285,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			lcd.drawText(LEFT_POS, 47, "A", SMLSIZE + RIGHT + data.telemFlags)
 		end
 		lcd.drawLine(0, data.showCurr and 54 or 53, LEFT_POS, data.showCurr and 54 or 53, SOLID, FORCE)
-		homeIcon(0, 57)
+		icons.home(0, 57)
 		tmp = data.showMax and data.distanceMax or data.distanceLast
 		lcd.drawText(LEFT_POS, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
 	end

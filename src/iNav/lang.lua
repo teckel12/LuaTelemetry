@@ -1,11 +1,11 @@
-local modes, config, data, FILE_PATH = ...
+local modes, config, labels, data, FILE_PATH = ...
 
 if data.lang ~= "en" then
 	local tmp = FILE_PATH .. "lang_" .. data.lang .. ".luac"
 	local fh = io.open(tmp)
 	if fh ~= nil then
 		io.close(fh)
-		loadfile(tmp)(modes, config)
+		loadfile(tmp)(modes, config, labels)
 		collectgarbage()
 	end
 end
