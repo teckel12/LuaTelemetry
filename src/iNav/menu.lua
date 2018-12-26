@@ -1,4 +1,4 @@
-local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 
 	local CONFIG_X = SMLCD and 0 or 46
 
@@ -9,7 +9,7 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 			data.msg = "Folder iNav/cfg missing"
 			data.startup = 1
 		else
-			for line = 1, configCnt do
+			for line = 1, #config do
 				if config[line].d == nil then
 					io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
 				else 
@@ -25,7 +25,7 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	end
 
 	-- Disabled options
-	for line = 1, configCnt do
+	for line = 1, #config do
 		local z = config[line].z
 		config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 	end
@@ -40,7 +40,7 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	config[24].p = config[7].v < 2 and 1 or nil
 	config[20].p = not data.pitot and 1 or nil
 	config[23].p = not data.showFuel and 1 or nil
-	for line = data.configTop, math.min(configCnt, data.configTop + 5) do
+	for line = data.configTop, math.min(#config, data.configTop + 5) do
 		local y = (line - data.configTop) * 9 + 11
 		local z = config[line].z
 		local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
@@ -74,15 +74,15 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 			data.configLast = data.configStatus
 			data.configStatus = 0
 		elseif event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
-			data.configStatus = data.configStatus == configCnt and 1 or data.configStatus + 1
-			data.configTop = data.configStatus > math.min(configCnt, data.configTop + 5) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
+			data.configStatus = data.configStatus == #config and 1 or data.configStatus + 1
+			data.configTop = data.configStatus > math.min(#config, data.configTop + 5) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
 			while config[config[data.configStatus].z].p ~= nil do
-				data.configStatus = math.min(data.configStatus + 1, configCnt)
-				data.configTop = data.configStatus > math.min(configCnt, data.configTop + 5) and data.configTop + 1 or data.configTop
+				data.configStatus = math.min(data.configStatus + 1, #config)
+				data.configTop = data.configStatus > math.min(#config, data.configTop + 5) and data.configTop + 1 or data.configTop
 			end
 		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
-			data.configStatus = data.configStatus == 1 and configCnt or data.configStatus - 1
-			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == configCnt and configCnt - 5 or data.configTop)
+			data.configStatus = data.configStatus == 1 and #config or data.configStatus - 1
+			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == #config and #config - 5 or data.configTop)
 			while config[config[data.configStatus].z].p ~= nil do
 				data.configStatus = math.max(data.configStatus - 1, 1)
 				data.configTop = data.configStatus < data.configTop and data.configTop - 1 or data.configTop
