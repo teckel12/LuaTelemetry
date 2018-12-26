@@ -5,7 +5,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	--local SKY2 = 8943 --lcd.RGB(32, 92, 122)
 	local GROUND2 = 20996 --lcd.RGB(81, 65, 36)
 	--local MAP = 800 --lcd.RGB(0, 100, 0)
-	--local DATA = 297 --lcd.RGB(0, 39, 73)
+	--local DATA = 264 --lcd.RGB(0, 32, 65)
 	local DKGREY = 12678 --lcd.RGB(48, 48, 48)
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
@@ -63,8 +63,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Setup
-	--lcd.drawBitmap(icons.bg, 0, 20)
-	lcd.drawBitmap(icons.bg, 1, 20)
+	lcd.drawBitmap(icons.bg, 0, 20)
+	--lcd.drawBitmap(icons.bg, 1, 20)
 	lcd.setColor(TEXT_COLOR, WHITE)
 	lcd.setColor(WARNING_COLOR, data.telem and YELLOW or RED)
 
@@ -137,7 +137,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	tics(data.altitude, RIGHT_POS - 4)
 
 	-- View overlay
-	lcd.drawBitmap(icons.fg, 0, 0)
+	--lcd.drawBitmap(icons.fg, 0, 0)
+	lcd.drawBitmap(icons.fg, 1, 74)
 
 	-- Speed & altitude
 	--lcd.setColor(CUSTOM_COLOR, DKGREY)
@@ -365,13 +366,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- View overlay
 	--lcd.drawBitmap(icons.fg, 1, 74)
 
-	--lcd.setColor(CUSTOM_COLOR, GREY)
-	--lcd.drawLine(X1 + 3, TOP, X1 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	--lcd.drawLine(X2 + 3, TOP, X2 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	--lcd.drawLine(X3 + 3, TOP, X3 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	--lcd.drawLine(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, DOTTED, CUSTOM_COLOR)
-	--lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
-	--lcd.drawLine(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
+	lcd.setColor(CUSTOM_COLOR, GREY)
+	lcd.drawLine(X1 + 3, TOP, X1 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
+	lcd.drawLine(X2 + 3, TOP, X2 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
+	lcd.drawLine(X3 + 3, TOP, X3 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
+	lcd.drawLine(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, DOTTED, CUSTOM_COLOR)
+	lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
+	lcd.drawLine(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
 
 	lcd.setColor(WARNING_COLOR, YELLOW)
 

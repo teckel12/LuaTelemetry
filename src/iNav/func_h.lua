@@ -1,8 +1,8 @@
 local config, data, FILE_PATH = ...
 
 local function title(data, config, SMLCD)
-	--lcd.setColor(CUSTOM_COLOR, BLACK)
-	--lcd.drawFilledRectangle(0, 0, LCD_W, 20, CUSTOM_COLOR)
+	lcd.setColor(CUSTOM_COLOR, BLACK)
+	lcd.drawFilledRectangle(0, 0, LCD_W, 20, CUSTOM_COLOR)
 	lcd.drawText(0, 0, model.getInfo().name)
 	if config[13].v > 0 then
 		lcd.drawTimer(340, 0, data.timer)
@@ -51,6 +51,6 @@ local icons = {}
 icons.lock = Bitmap.open(FILE_PATH .. "pics/lock.png")
 icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
-icons.fg = Bitmap.open(FILE_PATH .. "pics/fg3.png")
+icons.fg = Bitmap.open(FILE_PATH .. "pics/fg.png")
 
 return title, gpsDegMin, hdopGraph, icons

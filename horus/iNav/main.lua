@@ -1,4 +1,3 @@
-
 iNav = loadfile("/SCRIPTS/TELEMETRY/iNav.luac")()
 
 local tmp, view
