@@ -31,9 +31,7 @@ loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTe
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()
-if HORUS then
-	loadScript(FILE_PATH .. "horus", env)()
-end
+loadScript(FILE_PATH .. "horus", env)()
 loadScript(FILE_PATH .. "menu", env)()
 
 return 0
