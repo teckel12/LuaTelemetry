@@ -1,4 +1,4 @@
-local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
 
 	local HORUS = LCD_W >= 480
 	local CONFIG_X = HORUS and 90 or (SMLCD and 0 or 46)
@@ -16,7 +16,7 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 			data.msg = "Folder iNav/cfg missing"
 			data.startup = 1
 		else
-			for line = 1, configCnt do
+			for line = 1, #config do
 				if config[line].d == nil then
 					io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
 				else 
@@ -36,7 +36,7 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	end
 
 	-- Disabled options
-	for line = 1, configCnt do
+	for line = 1, #config do
 		local z = config[line].z
 		config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 	end
