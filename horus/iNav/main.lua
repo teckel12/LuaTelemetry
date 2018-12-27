@@ -1,6 +1,7 @@
 iNav = loadfile("/SCRIPTS/TELEMETRY/iNav.luac")()
 
-local tmp, view
+local refresh = iNav.run
+local background = iNav.background
 
 -- Run when first started
 local function create()
@@ -12,4 +13,4 @@ local function update()
 	return 0
 end
 
-return { name = "iNAV", options = {}, create = create, update = update, refresh = iNav.run, background = iNav.background }
+return { name = "iNAV", options = {}, create = create, update = update, refresh = refresh, background = background }

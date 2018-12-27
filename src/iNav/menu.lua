@@ -53,13 +53,8 @@ local function view(data, config, event, configCnt, gpsDegMin, getTelemetryId, g
 	config[24].p = config[7].v < 2 and 1 or nil
 	config[20].p = not data.pitot and 1 or nil
 	config[23].p = not data.showFuel and 1 or nil
-<<<<<<< HEAD
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP
-=======
-	for line = data.configTop, math.min(configCnt, data.configTop + 5) do
-		local y = (line - data.configTop) * 9 + 11
->>>>>>> master
 		local z = config[line].z
 		local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
 		if not data.showCurr and z >= 17 and z <= 18 then
