@@ -49,7 +49,7 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X-Lite, Horus X10/X10S or X12S (OpenTX v2.2.2+ is suggested)
-* FkSky X-series, R9 series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc.
+* FrSky X-series, R9 series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.0+ is suggested for full functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
@@ -61,7 +61,7 @@
 
 ## Notes
 
-* INAV v2.0+ is required for FkSky D-series telemetry and proper GPS accuracy (HDOP) display
+* INAV v2.0+ is required for FrSky D-series telemetry and proper GPS accuracy (HDOP) display
 * If using pilot view and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
