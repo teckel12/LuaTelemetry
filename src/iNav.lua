@@ -2,12 +2,11 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-VERSION = "1.4.4"
-FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
-SMLCD = LCD_W < 212
-HORUS = LCD_W >= 480
-FLASH = HORUS and WARNING_COLOR or 3
-
+local VERSION = "1.4.4"
+local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
+local SMLCD = LCD_W < 212
+local HORUS = LCD_W >= 480
+local FLASH = HORUS and WARNING_COLOR or 3
 local tmp, view
 
 -- Build with Companion
@@ -16,13 +15,13 @@ if string.sub(r, -4) == "simu" then
 	loadScript(FILE_PATH .. "build", "tx")()
 end
 
-config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
+local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
 collectgarbage()
 
-modes, units, labels = loadfile(FILE_PATH .. "modes.luac")()
+local modes, units, labels = loadfile(FILE_PATH .. "modes.luac")()
 collectgarbage()
 
-data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
+local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
 collectgarbage()
 
 local configCnt = loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
@@ -42,7 +41,7 @@ loadfile(FILE_PATH .. "reset.luac")(data)
 loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
-title, gpsDegMin, hdopGraph, icons = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
