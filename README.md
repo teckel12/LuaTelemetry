@@ -73,6 +73,7 @@
 * [Lua Telemetry Wiki](https://github.com/iNavFlight/LuaTelemetry/wiki)
 * [Download latest release](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
 * [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
+* [Installation: Horus Widget](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation:-Horus-Widget)
 * [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
 
 ## Information & Settings

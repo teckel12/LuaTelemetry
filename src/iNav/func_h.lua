@@ -53,4 +53,27 @@ icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
 icons.fg = Bitmap.open(FILE_PATH .. "pics/fg.png")
 
+data.hcurx_id = getFieldInfo("ail").id
+data.hcury_id = getFieldInfo("ele").id
+data.hctrl_id = getFieldInfo("rud").id
+
+function icons.evt(data)
+	local tmp = 0
+	if not data.armed and data.throttle <= -945 and data.lastevt == 0 then
+		if getValue(data.hctrl_id) > 900 then
+			tmp = EVT_SYS_FIRST
+		elseif getValue(data.hctrl_id) < -900 or getValue(data.hcurx_id) < -900 then
+			tmp = EVT_EXIT_BREAK
+		elseif getValue(data.hcurx_id) > 900 then
+			tmp = EVT_ENTER_BREAK
+		elseif getValue(data.hcury_id) > 200 then
+			tmp = EVT_ROT_LEFT
+		elseif getValue(data.hcury_id) < -200 then
+			tmp = EVT_ROT_RIGHT
+		end
+	end
+	data.lastevt = tmp
+	return tmp
+end
+
 return title, gpsDegMin, hdopGraph, icons

@@ -409,6 +409,9 @@ local function run(event)
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
+		if event == 0 then
+			event = icons.evt(data)
+		end
 	else
 		lcd.clear()
 	end
@@ -462,6 +465,8 @@ local function run(event)
 
 	-- Paint title
 	title(data, config, SMLCD)
+
+	lcd.drawText(40, 70, event, MIDSIZE)
 
 	return 0
 end
