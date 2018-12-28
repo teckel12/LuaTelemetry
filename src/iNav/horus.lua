@@ -177,9 +177,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.setColor(CUSTOM_COLOR, DKGREY)
 		lcd.drawFilledRectangle(RIGHT_POS, 20, 10, BOTTOM - 20, CUSTOM_COLOR)
 		if data.telem then
-			tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 			lcd.setColor(CUSTOM_COLOR, YELLOW)
-			lcd.drawRectangle(RIGHT_POS, Y_CNTR - (tmp * (Y_CNTR - 21)) - 1, 10, 2, CUSTOM_COLOR)
+			--tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
+			--lcd.drawRectangle(RIGHT_POS, Y_CNTR - (tmp * (Y_CNTR - 21)) - 1, 10, 2, CUSTOM_COLOR)
+			tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) * (data.vspeed < 0 and -1 or 1)
+			lcd.drawLine(RIGHT_POS, Y_CNTR - (tmp / 2.4 * (Y_CNTR - 21)) - 1, RIGHT_POS + 9, Y_CNTR - (tmp / 2.6 * (Y_CNTR - 21)) - 1, SOLID, CUSTOM_COLOR)
+			lcd.drawLine(RIGHT_POS, Y_CNTR - (tmp / 2.4 * (Y_CNTR - 21)), RIGHT_POS + 9, Y_CNTR - (tmp / 2.6 * (Y_CNTR - 21)), SOLID, CUSTOM_COLOR)
 		end
 		lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 		--lcd.drawLine(RIGHT_POS - 1, 20, RIGHT_POS - 1, BOTTOM - 1, SOLID, CUSTOM_COLOR)

@@ -73,4 +73,4 @@ function icons.home(x, y)
 	lcd.drawPoint(x + 3, y + 4)
 end
 
-return title, gpsDegMin, hdopGraph, icons
+return title, gpsDegMin, hdopGraph, icons, nil

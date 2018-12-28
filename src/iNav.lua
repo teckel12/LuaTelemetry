@@ -41,7 +41,7 @@ loadfile(FILE_PATH .. "reset.luac")(data)
 loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -401,7 +401,7 @@ local function run(event)
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
 		if WIDGET == true then
-			event = icons.evt(data)
+			event = widgetEvt(data)
 		end
 	else
 		lcd.clear()

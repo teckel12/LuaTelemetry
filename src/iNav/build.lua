@@ -10,9 +10,9 @@ local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 if HORUS then
-	local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
+	local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
 end
-local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_t", env)(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_t", env)(config, data, FILE_PATH)
 
 data.lang = "en"
 data.voice = "en"
