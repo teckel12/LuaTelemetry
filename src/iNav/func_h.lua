@@ -57,12 +57,12 @@ data.hcurx_id = getFieldInfo("ail").id
 data.hcury_id = getFieldInfo("ele").id
 data.hctrl_id = getFieldInfo("rud").id
 
-function icons.evt(data)
+function widgetEvt(data)
 	local evt = 0
-	if not data.armed and data.throttle > 940 then
-		if getValue(data.hctrl_id) > 940 then
+	if not data.armed then
+		if data.throttle > 940 and getValue(data.hctrl_id) > 940 then
 			evt = EVT_SYS_FIRST
-		elseif getValue(data.hctrl_id) < -940 or getValue(data.hcurx_id) < -940 then
+		elseif getValue(data.hcurx_id) < -940 then
 			evt = EVT_EXIT_BREAK
 		elseif getValue(data.hcurx_id) > 940 then
 			evt = EVT_ENTER_BREAK
@@ -80,4 +80,4 @@ function icons.evt(data)
 	return evt
 end
 
-return title, gpsDegMin, hdopGraph, icons
+return title, gpsDegMin, hdopGraph, icons, widgetEvt
