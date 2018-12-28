@@ -11,7 +11,7 @@ local function title(data, config, SMLCD)
 		lcd.setColor(CUSTOM_COLOR, WHITE)
 		lcd.drawFilledRectangle(197, 3, 43, 14, CUSTOM_COLOR)
 		lcd.drawFilledRectangle(240, 6, 2, 8, CUSTOM_COLOR)
-		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
+		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		lcd.setColor(CUSTOM_COLOR, BLACK)
 		for i = 200, tmp, 4 do
 			lcd.drawLine(i, 4, i, 15, SOLID, CUSTOM_COLOR)
@@ -24,10 +24,10 @@ local function title(data, config, SMLCD)
 		lcd.drawText(LCD_W, 0, string.format("%.1fV", data.rxBatt), RIGHT)
 	end
 
-	-- Show FPS
+	--[[ Show FPS
 	data.frames = data.frames + 1
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-
+	]]
 end
 
 local function gpsDegMin(c, lat)
@@ -52,5 +52,32 @@ icons.lock = Bitmap.open(FILE_PATH .. "pics/lock.png")
 icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
 icons.fg = Bitmap.open(FILE_PATH .. "pics/fg.png")
+
+data.hcurx_id = getFieldInfo("ail").id
+data.hcury_id = getFieldInfo("ele").id
+data.hctrl_id = getFieldInfo("rud").id
+
+function icons.evt(data)
+	local evt = 0
+	if not data.armed and data.throttle > 940 then
+		if getValue(data.hctrl_id) > 940 then
+			evt = EVT_SYS_FIRST
+		elseif getValue(data.hctrl_id) < -940 or getValue(data.hcurx_id) < -940 then
+			evt = EVT_EXIT_BREAK
+		elseif getValue(data.hcurx_id) > 940 then
+			evt = EVT_ENTER_BREAK
+		elseif getValue(data.hcury_id) > 200 then
+			evt = EVT_ROT_LEFT
+		elseif getValue(data.hcury_id) < -200 then
+			evt = EVT_ROT_RIGHT
+		end
+	end
+	if data.lastevt == evt and math.abs(getValue(data.hcury_id)) < 940 then
+		evt = 0
+	else
+		data.lastevt = evt
+	end
+	return evt
+end
 
 return title, gpsDegMin, hdopGraph, icons

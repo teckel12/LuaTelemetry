@@ -29,7 +29,7 @@
 
 ## Features
 
-* Works with all FrSky telemetry receivers (X-series, R9 series and D-series) and all FrSky Taranis transmitters
+* Works with all FrSky telemetry receivers (X-series, R9 series and D-series) and all FrSky Taranis and Horus transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
@@ -38,7 +38,7 @@
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS info: Satellites locked, GPS accuracy (HDOP), GPS altitude, GPS coordinates. Also logs the last GPS location (reviewed from the config menu)
-* If VTx control is desired, use [Taranis VTx](https://github.com/teckel12/Taranis-VTx) which uses less memory and allows for Lua Telemetry and VTx scripts to run together
+* If VTx control is desired, use [VTx Lua Script](https://github.com/teckel12/VTx) which uses less memory and allows for Lua Telemetry and VTx scripts to run together
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
@@ -68,11 +68,15 @@
 * OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter
 * [Crossfire](https://github.com/iNavFlight/LuaTelemetry/issues/36) is not currently supported due to missing flight modes that are critical to Lua Telemetry
 
+## Special Thanks
+* [FrSky](https://www.frsky-rc.com/) - Sponsoring Horus transmitter support
+
 ## Setup
 
 * [Lua Telemetry Wiki](https://github.com/iNavFlight/LuaTelemetry/wiki)
 * [Download latest release](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
 * [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
+* [Installation: Horus Widget](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation:-Horus-Widget)
 * [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
 
 ## Information & Settings
