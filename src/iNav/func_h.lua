@@ -11,8 +11,7 @@ local function title(data, config, SMLCD)
 		lcd.setColor(CUSTOM_COLOR, WHITE)
 		lcd.drawFilledRectangle(197, 3, 43, 14, CUSTOM_COLOR)
 		lcd.drawFilledRectangle(240, 6, 2, 8, CUSTOM_COLOR)
-		local general = getGeneralSettings()
-		local tmp = math.max(math.min((data.txBatt - general.battMin) / (general.battMax - general.battMin) * 42, 42), 0) + 197
+		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		lcd.setColor(CUSTOM_COLOR, BLACK)
 		for i = 200, tmp, 4 do
 			lcd.drawLine(i, 4, i, 15, SOLID, CUSTOM_COLOR)

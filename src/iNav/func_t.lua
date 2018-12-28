@@ -9,8 +9,7 @@ local function title(data, config, SMLCD)
 	if config[19].v > 0 then
 		lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
 		lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
-		local general = getGeneralSettings()
-		tmp = math.max(math.min((data.txBatt - general.battMin) / (general.battMax - general.battMin) * 17, 17), 0) + 86
+		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
 		for i = 87, tmp, 2 do
 			lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
 		end

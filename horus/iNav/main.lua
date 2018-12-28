@@ -1,5 +1,24 @@
 WIDGET = true
 
+local function getTelemetryUnit(n)
+	local field = getFieldInfo(n)
+	return (field and field.unit <= 10) and field.unit or 0
+end
+
+local wait = true
+while wait == true do
+	--[[
+	local general = getGeneralSettings()
+	if general.battMax > 5 then
+		wait = false
+	end
+	]]
+	local alt_unit = getTelemetryUnit("Alt")
+	if alt_unit == 10 then
+		wait = false
+	end
+end
+
 local iNav = loadfile("/SCRIPTS/TELEMETRY/iNav.luac")()
 
 local refresh = iNav.run
