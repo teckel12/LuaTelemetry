@@ -29,7 +29,7 @@
 
 ## Features
 
-* Works with all FrSky telemetry receivers (X-series, R9 series and D-series) and all FrSky Taranis transmitters
+* Works with all FrSky telemetry receivers (X-series, R9 series and D-series) and all FrSky Taranis and Horus transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
