@@ -14,7 +14,8 @@ local function title(data, config, SMLCD)
 		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		lcd.setColor(CUSTOM_COLOR, BLACK)
 		for i = 200, tmp, 4 do
-			lcd.drawLine(i, 4, i, 15, SOLID, CUSTOM_COLOR)
+			--lcd.drawLine(i, 4, i, 15, SOLID, CUSTOM_COLOR)
+			lcd.drawRectangle(i, 5, 2, 10, CUSTOM_COLOR)
 		end
 	end
 	if config[19].v ~= 1 then
@@ -28,6 +29,12 @@ local function title(data, config, SMLCD)
 	data.frames = data.frames + 1
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
 	]]
+
+	if WIDGET == true then
+		if myZone.options.Return_Color == 1 then
+			lcd.setColor(TEXT_COLOR, myZone.options.Font_Color)
+		end
+	end
 end
 
 local function gpsDegMin(c, lat)
