@@ -59,12 +59,12 @@ data.hctrl_id = getFieldInfo("rud").id
 
 function icons.evt(data)
 	local tmp = 0
-	if not data.armed and data.throttle >= 945 then
-		if getValue(data.hctrl_id) > 900 then
+	if not data.armed and data.throttle > 940 then
+		if getValue(data.hctrl_id) > 940 then
 			tmp = EVT_SYS_FIRST
-		elseif getValue(data.hctrl_id) < -900 or getValue(data.hcurx_id) < -900 then
+		elseif getValue(data.hctrl_id) < -940 or getValue(data.hcurx_id) < -940 then
 			tmp = EVT_EXIT_BREAK
-		elseif getValue(data.hcurx_id) > 900 then
+		elseif getValue(data.hcurx_id) > 940 then
 			tmp = EVT_ENTER_BREAK
 		elseif getValue(data.hcury_id) > 200 then
 			tmp = EVT_ROT_LEFT
@@ -72,7 +72,7 @@ function icons.evt(data)
 			tmp = EVT_ROT_RIGHT
 		end
 	end
-	if data.lastevt == tmp and math.abs(getValue(data.hcury_id)) < 900 then
+	if data.lastevt == tmp and math.abs(getValue(data.hcury_id)) < 940 then
 		tmp = 0
 	else
 		data.lastevt = tmp
