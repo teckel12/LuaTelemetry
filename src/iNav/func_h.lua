@@ -59,7 +59,7 @@ data.hctrl_id = getFieldInfo("rud").id
 
 function icons.evt(data)
 	local tmp = 0
-	if not data.armed and data.throttle <= -945 then
+	if not data.armed and data.throttle >= 945 then
 		if getValue(data.hctrl_id) > 900 then
 			tmp = EVT_SYS_FIRST
 		elseif getValue(data.hctrl_id) < -900 or getValue(data.hcurx_id) < -900 then
