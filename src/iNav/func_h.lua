@@ -11,7 +11,8 @@ local function title(data, config, SMLCD)
 		lcd.setColor(CUSTOM_COLOR, WHITE)
 		lcd.drawFilledRectangle(197, 3, 43, 14, CUSTOM_COLOR)
 		lcd.drawFilledRectangle(240, 6, 2, 8, CUSTOM_COLOR)
-		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
+		local general = getGeneralSettings()
+		local tmp = math.max(math.min((data.txBatt - general.battMin) / (general.battMax - general.battMin) * 42, 42), 0) + 197
 		lcd.setColor(CUSTOM_COLOR, BLACK)
 		for i = 200, tmp, 4 do
 			lcd.drawLine(i, 4, i, 15, SOLID, CUSTOM_COLOR)
@@ -58,26 +59,26 @@ data.hcury_id = getFieldInfo("ele").id
 data.hctrl_id = getFieldInfo("rud").id
 
 function icons.evt(data)
-	local tmp = 0
+	local evt = 0
 	if not data.armed and data.throttle > 940 then
 		if getValue(data.hctrl_id) > 940 then
-			tmp = EVT_SYS_FIRST
+			evt = EVT_SYS_FIRST
 		elseif getValue(data.hctrl_id) < -940 or getValue(data.hcurx_id) < -940 then
-			tmp = EVT_EXIT_BREAK
+			evt = EVT_EXIT_BREAK
 		elseif getValue(data.hcurx_id) > 940 then
-			tmp = EVT_ENTER_BREAK
+			evt = EVT_ENTER_BREAK
 		elseif getValue(data.hcury_id) > 200 then
-			tmp = EVT_ROT_LEFT
+			evt = EVT_ROT_LEFT
 		elseif getValue(data.hcury_id) < -200 then
-			tmp = EVT_ROT_RIGHT
+			evt = EVT_ROT_RIGHT
 		end
 	end
-	if data.lastevt == tmp and math.abs(getValue(data.hcury_id)) < 940 then
-		tmp = 0
+	if data.lastevt == evt and math.abs(getValue(data.hcury_id)) < 940 then
+		evt = 0
 	else
-		data.lastevt = tmp
+		data.lastevt = evt
 	end
-	return tmp
+	return evt
 end
 
 return title, gpsDegMin, hdopGraph, icons
