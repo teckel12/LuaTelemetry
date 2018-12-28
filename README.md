@@ -38,7 +38,7 @@
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS info: Satellites locked, GPS accuracy (HDOP), GPS altitude, GPS coordinates. Also logs the last GPS location (reviewed from the config menu)
-* If VTx control is desired, use [Taranis VTx](https://github.com/teckel12/Taranis-VTx) which uses less memory and allows for Lua Telemetry and VTx scripts to run together
+* If VTx control is desired, use [VTx Lua Script](https://github.com/teckel12/VTx) which uses less memory and allows for Lua Telemetry and VTx scripts to run together
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
@@ -67,6 +67,9 @@
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter
 * [Crossfire](https://github.com/iNavFlight/LuaTelemetry/issues/36) is not currently supported due to missing flight modes that are critical to Lua Telemetry
+
+## Special Thanks
+* [FrSky](https://www.frsky-rc.com/) - Sponsoring Horus transmitter support
 
 ## Setup
 

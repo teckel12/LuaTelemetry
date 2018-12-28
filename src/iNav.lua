@@ -384,15 +384,6 @@ local function background()
 end
 
 local function run(event)
-	--[[ Lock display at ~10fps
-	if event == 0 then
-		if getTime() - data.last < 10 then
-			return 0
-		end
-		data.last = getTime()
-	end
-	]]
-
 	-- Required when running as a one-time script
 	background()
 
@@ -409,7 +400,7 @@ local function run(event)
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
-		if event == 0 then
+		if WIDGET == true then
 			event = icons.evt(data)
 		end
 	else
@@ -465,8 +456,6 @@ local function run(event)
 
 	-- Paint title
 	title(data, config, SMLCD)
-
-	lcd.drawText(40, 70, event, MIDSIZE)
 
 	return 0
 end

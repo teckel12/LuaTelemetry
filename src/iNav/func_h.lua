@@ -24,10 +24,10 @@ local function title(data, config, SMLCD)
 		lcd.drawText(LCD_W, 0, string.format("%.1fV", data.rxBatt), RIGHT)
 	end
 
-	-- Show FPS
+	--[[ Show FPS
 	data.frames = data.frames + 1
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-
+	]]
 end
 
 local function gpsDegMin(c, lat)
@@ -59,7 +59,7 @@ data.hctrl_id = getFieldInfo("rud").id
 
 function icons.evt(data)
 	local tmp = 0
-	if not data.armed and data.throttle <= -945 and data.lastevt == 0 then
+	if not data.armed and data.throttle <= -945 then
 		if getValue(data.hctrl_id) > 900 then
 			tmp = EVT_SYS_FIRST
 		elseif getValue(data.hctrl_id) < -900 or getValue(data.hcurx_id) < -900 then
@@ -72,7 +72,11 @@ function icons.evt(data)
 			tmp = EVT_ROT_RIGHT
 		end
 	end
-	data.lastevt = tmp
+	if data.lastevt == tmp and math.abs(getValue(data.hcury_id)) < 900 then
+		tmp = 0
+	else
+		data.lastevt = tmp
+	end
 	return tmp
 end
 
