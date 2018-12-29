@@ -4,8 +4,9 @@ myZone = {}
 
 local iNav
 local options = {
-	{ "Return_Color", BOOL, 0},
-	{ "Font_Color", COLOR, BLACK}
+	{ "Restore_Colors", BOOL, 0},
+	{ "Text_Color", COLOR, BLACK},
+	{ "Warning_Color", COLOR, YELLOW}
 }
 
 -- This function is runned once at the creation of the widget

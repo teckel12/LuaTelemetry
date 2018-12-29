@@ -31,8 +31,9 @@ local function title(data, config, SMLCD)
 	]]
 
 	if WIDGET == true then
-		if myZone.options.Return_Color == 1 then
-			lcd.setColor(TEXT_COLOR, myZone.options.Font_Color)
+		if myZone.options.Restore_Colors == 1 then
+			lcd.setColor(TEXT_COLOR, myZone.options.Text_Color)
+			lcd.setColor(WARNING_COLOR, myZone.options.Warning_Color)
 		end
 	end
 end
