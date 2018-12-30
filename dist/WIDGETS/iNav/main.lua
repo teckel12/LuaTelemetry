@@ -13,11 +13,6 @@ iNavZone = {
 -- This function is runned once at the creation of the widget
 local function create(zone, options)
 	iNavZone = { zone = zone, options = options }
-	if zone.w > 450 and zone.h > 250 then
-		iNavZone.zone.fullscreen = true
-	else
-		iNavZone.zone.fullscreen = false
-	end
 	iNav = loadfile("/SCRIPTS/TELEMETRY/iNav.luac")()
 	return iNavZone
 end
