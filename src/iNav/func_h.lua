@@ -30,10 +30,10 @@ local function title(data, config, SMLCD)
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
 	]]
 
-	if WIDGET == true then
-		if myZone.options.Restore_Colors == 1 then
-			lcd.setColor(TEXT_COLOR, myZone.options.Text_Color)
-			lcd.setColor(WARNING_COLOR, myZone.options.Warning_Color)
+	if WIDGET then
+		if iNavZone.options.Restore == 1 then
+			lcd.setColor(TEXT_COLOR, iNavZone.options.Text)
+			lcd.setColor(WARNING_COLOR, iNavZone.options.Warning)
 		end
 	end
 end

@@ -34,4 +34,6 @@ loadScript(FILE_PATH .. "radar", env)()
 loadScript(FILE_PATH .. "horus", env)()
 loadScript(FILE_PATH .. "menu", env)()
 
+loadScript("/WIDGETS/iNav/main", env)(true)
+
 return 0

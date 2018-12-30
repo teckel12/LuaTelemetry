@@ -1,35 +1,40 @@
-WIDGET = true
-myZone = {}
---FULLSCREEN = false
-
+local build = ...
 local iNav
 local options = {
-	{ "Restore_Colors", BOOL, 0},
-	{ "Text_Color", COLOR, BLACK},
-	{ "Warning_Color", COLOR, YELLOW}
+	{ "Restore", BOOL, 0},
+	{ "Text", COLOR, 0},
+	{ "Warning", COLOR, 65504}
+}
+WIDGET = true
+iNavZone = {
+	options = options
 }
 
 -- This function is runned once at the creation of the widget
 local function create(zone, options)
-	myZone = { zone = zone, options = options }
-	--if zone.w > 450 and zone.h > 250 then FULLSCREEN = true end
+	iNavZone = { zone = zone, options = options }
+	if zone.w > 450 and zone.h > 250 then
+		iNavZone.zone.fullscreen = true
+	else
+		iNavZone.zone.fullscreen = false
+	end
 	iNav = loadfile("/SCRIPTS/TELEMETRY/iNav.luac")()
-	return myZone
+	return iNavZone
 end
 
 -- This function allow updates when you change widgets settings
-local function update(myZone, options)
-	myZone.options = options
+local function update(iNavZone, options)
+	iNavZone.options = options
 end
 
 -- Called periodically when custom telemetry screen containing widget is visible.
-local function refresh(myZone)
+local function refresh(iNavZone)
 	iNav.run()
 	return
 end
 
 -- Called periodically when custom telemetry screen containing widget is not visible
-local function bg(myZone)
+local function bg(iNavZone)
 	iNav.background()
 	return
 end

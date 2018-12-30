@@ -400,7 +400,7 @@ local function run(event)
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
-		if WIDGET == true then
+		if WIDGET then
 			event = widgetEvt(data)
 		end
 	else
