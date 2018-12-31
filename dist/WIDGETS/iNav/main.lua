@@ -1,19 +1,21 @@
-local build = ...
 local iNav
 local options = {
 	{ "Restore", BOOL, 0},
-	{ "Text", COLOR, 0},
-	{ "Warning", COLOR, 65504}
+	{ "Text", COLOR, BLACK},
+	{ "Warning", COLOR, YELLOW}
 }
-WIDGET = true
-iNavZone = {
-	options = options
-}
+local TELE_PATH = "/SCRIPTS/TELEMETRY/"
 
--- This function is runned once at the creation of the widget
+-- Build with Companion
+local v, r, m, i, e = getVersion()
+if string.sub(r, -4) == "simu" then
+	loadScript(TELE_PATH .. "iNav", "tc")(true)
+end
+
+-- Run once at the creation of the widget
 local function create(zone, options)
 	iNavZone = { zone = zone, options = options }
-	iNav = loadfile("/SCRIPTS/TELEMETRY/iNav.luac")()
+	iNav = loadfile(TELE_PATH .. "iNav.luac")(false)
 	return iNavZone
 end
 

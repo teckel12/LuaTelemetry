@@ -2,7 +2,8 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.5.0"
+local buildMode = ...
+local VERSION = "1.5.1"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
@@ -11,8 +12,8 @@ local tmp, view
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
-if string.sub(r, -4) == "simu" then
-	loadScript(FILE_PATH .. "build", "tx")()
+if string.sub(r, -4) == "simu" and buildMode ~= false then
+	loadScript(FILE_PATH .. "build", "tx")(buildMode)
 end
 
 local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
@@ -396,11 +397,19 @@ local function run(event)
 		data.msg = false
 	end
 
+	if data.widget then
+		if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
+			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
+			data.startupTime = getTime() -- Never timeout
+			return 0
+		end
+	end
+	
 	-- Clear screen
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
-		if WIDGET then
+		if data.widget then
 			event = widgetEvt(data)
 		end
 	else
@@ -455,7 +464,7 @@ local function run(event)
 	collectgarbage()
 
 	-- Paint title
-	title(data, config, SMLCD)
+	title(data, config, iNavZone, SMLCD)
 
 	return 0
 end

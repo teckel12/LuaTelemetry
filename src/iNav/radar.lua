@@ -142,9 +142,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	icons.gps(LCD_W - (SMLCD and 23 or 22), 12)
 	if SMLCD then
 		lcd.drawText(LCD_W + 1, config[22].v == 1 and 22 or 32, "HDOP", RIGHT + SMLSIZE)
-		hdopGraph(LCD_W - 12, config[22].v == 1 and 31 or 24, MIDSIZE)
+		hdopGraph(LCD_W - 12, config[22].v == 1 and 31 or 24, MIDSIZE, SMLCD)
 	else
-		hdopGraph(LCD_W - 39, 10, MIDSIZE)
+		hdopGraph(LCD_W - 39, 10, MIDSIZE, SMLCD)
 		lcd.drawText(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
 		lcd.drawText(LCD_W + 1, 33, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 		lcd.drawText(LCD_W + 1, 42, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
