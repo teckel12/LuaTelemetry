@@ -430,7 +430,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
-		view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+		view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
 	else
 		-- User input
 		if not data.armed then
@@ -464,7 +464,7 @@ local function run(event)
 	collectgarbage()
 
 	-- Paint title
-	title(data, config, iNavZone, SMLCD)
+	title(data, config, SMLCD)
 
 	return 0
 end

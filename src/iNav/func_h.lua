@@ -38,7 +38,7 @@ local function title(data, config, SMLCD)
 	]]
 
 	if data.widget then
-		if iNavZone.options.Restore == 1 then
+		if iNavZone.options.Restore % 2 == 1 then
 			lcd.setColor(TEXT_COLOR, iNavZone.options.Text)
 			lcd.setColor(WARNING_COLOR, iNavZone.options.Warning)
 		end
