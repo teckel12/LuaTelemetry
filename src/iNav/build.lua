@@ -1,3 +1,4 @@
+local buildMode = ...
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
@@ -33,5 +34,9 @@ loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()
 loadScript(FILE_PATH .. "horus", env)()
 loadScript(FILE_PATH .. "menu", env)()
+
+if buildMode == nil then
+	loadScript("/WIDGETS/iNav/main", env)()
+end
 
 return 0

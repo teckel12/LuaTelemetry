@@ -32,7 +32,7 @@ local function gpsDegMin(c, lat)
 	return gpsD .. string.format("\64%05.2f", (math.abs(c) - gpsD) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
 end
 
-local function hdopGraph(x, y, s)
+local function hdopGraph(x, y, s, SMLCD)
 	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
 	if config[22].v == 0 then
 		if tmp then

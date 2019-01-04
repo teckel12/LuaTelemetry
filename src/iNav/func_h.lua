@@ -1,5 +1,12 @@
 local config, data, FILE_PATH = ...
 
+if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
+	data.widget = true
+	if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
+		data.msg = "Full screen required"
+	end
+end
+
 local function title(data, config, SMLCD)
 	lcd.setColor(CUSTOM_COLOR, BLACK)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 20, CUSTOM_COLOR)
@@ -30,10 +37,10 @@ local function title(data, config, SMLCD)
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
 	]]
 
-	if WIDGET == true then
-		if myZone.options.Restore_Colors == 1 then
-			lcd.setColor(TEXT_COLOR, myZone.options.Text_Color)
-			lcd.setColor(WARNING_COLOR, myZone.options.Warning_Color)
+	if data.widget then
+		if iNavZone.options.Restore % 2 == 1 then
+			lcd.setColor(TEXT_COLOR, iNavZone.options.Text)
+			lcd.setColor(WARNING_COLOR, iNavZone.options.Warning)
 		end
 	end
 end

@@ -1,4 +1,4 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus - v1.5.0
+## INAV Lua Telemetry Flight Status for Taranis/Horus - v1.5.1
 
 ### FrSky SmartPort(S.Port), D-series and F.Port telemetry on all Taranis and Horus transmitters
 
@@ -62,7 +62,7 @@
 ## Notes
 
 * INAV v2.0+ is required for FrSky D-series telemetry and proper GPS accuracy (HDOP) display
-* If using pilot view and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
+* If using pilot or radar view or a Horus transmitter and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter

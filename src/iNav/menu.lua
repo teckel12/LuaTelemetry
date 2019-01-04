@@ -1,6 +1,5 @@
-local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
 
-	local HORUS = LCD_W >= 480
 	local CONFIG_X = HORUS and 90 or (SMLCD and 0 or 46)
 	local TOP = HORUS and 37 or 11
 	local LINE = HORUS and 22 or 9
@@ -42,8 +41,8 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 	end
 	-- Special disabled option and limit cases
 	config[7].p = data.vspeed_id == -1 and 1 or nil
-	config[22].p = HORUS and nil or 1
-	config[25].p = HORUS and nil or 1
+	config[22].p = HORUS and 1 or nil
+	config[25].p = HORUS and 1 or nil
 	if config[17].p == nil then
 		config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
 		config[18].p = config[17].p
