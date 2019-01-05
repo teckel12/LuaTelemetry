@@ -97,6 +97,7 @@ local data = {
 	configLast = 1,
 	configTop = 1,
 	configSelect = 0,
+	crsf = false,
 	v = -1,
 	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }

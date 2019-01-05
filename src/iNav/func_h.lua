@@ -37,6 +37,8 @@ local function title(data, config, SMLCD)
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
 	]]
 
+	lcd.drawText(180, 0, data.mode, RIGHT)
+
 	if data.widget then
 		if iNavZone.options.Restore % 2 == 1 then
 			lcd.setColor(TEXT_COLOR, iNavZone.options.Text)

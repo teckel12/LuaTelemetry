@@ -3,7 +3,7 @@
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 local buildMode = ...
-local VERSION = "1.5.1"
+local VERSION = "1.5.2"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
@@ -86,13 +86,77 @@ local function calcDir(r1, r2, r3, x, y, r)
 end
 
 local function background()
-	data.rssi = getValue(data.rssi_id)
+	if data.crsf then
+		local rssi, l, c = getRSSI()
+		data.rssi = rssi
+		data.rssiMin = data.rssi > 0 and (math.min(data.rssi, data.rssiMin)) or data.rssiMin
+	else
+		data.rssi = getValue(data.rssi_id)
+		data.rssiMin = getValue(data.rssiMin_id)
+	end
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
-		data.mode = getValue(data.mode_id)
-		data.rxBatt = getValue(data.rxBatt_id)
 		data.satellites = getValue(data.sat_id)
+		if data.pitchRoll then
+			data.pitch = getValue(data.pitch_id)
+			data.roll = getValue(data.roll_id)
+		else
+			data.accx = getValue(data.accx_id)
+			data.accy = getValue(data.accy_id)
+			data.accz = getValue(data.accz_id)
+		end
+		if data.crsf then
+			data.pitch = math.deg(data.pitch) * 10
+			data.roll = math.deg(data.roll) * 10
+			data.fm = getValue(data.fm_id)
+			data.modePrev = data.mode
+			if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
+				-- Arming disabled
+				data.mode = 2
+			else
+				data.satellites = data.satellites + 3900
+				if data.fm == "HRST" then
+					data.satellites = data.satellites + 4000
+					data.mode = data.modePrev
+				else
+					if data.fm == "OK" then
+						-- Ready to arm
+						data.mode = 1
+					else
+						-- Armed
+						data.mode = 5
+						if data.fm == "3CRS" then
+							data.mode = data.mode + 8200
+						elseif data.fm == "CRS" then
+							data.mode = data.mode + 8000
+						elseif data.fm == "HOLD" then
+							data.mode = data.mode + 410
+						elseif data.fm == "AH" then
+							data.mode = data.mode + 210
+						elseif data.fm == "ANGL" then
+							data.mode = data.mode + 10
+						elseif data.fm == "HOR" then
+							data.mode = data.mode + 20
+						elseif data.fm == "MANU" then
+							data.mode = data.mode + 40
+						end
+						if data.fm == "RTH" then
+							data.mode = data.mode + 1000
+						end
+						if data.fm == "WP" then
+							data.mode = data.mode + 2000
+						end
+						if data.fm == "!FS!" then
+							data.mode = data.mode + 40000
+						end
+					end
+				end
+			end
+		else
+			data.mode = getValue(data.mode_id)
+		end
+		data.rxBatt = getValue(data.rxBatt_id)
 		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
 		data.heading = getValue(data.hdg_id)
 		data.altitude = getValue(data.alt_id)
@@ -123,16 +187,7 @@ local function background()
 			data.cell = data.batt / data.cells
 			data.cellMin = data.battMin / data.cells
 		end
-		data.rssiMin = getValue(data.rssiMin_id)
 		data.vspeed = getValue(data.vspeed_id)
-		if data.pitchRoll then
-			data.pitch = getValue(data.pitch_id)
-			data.roll = getValue(data.roll_id)
-		else
-			data.accx = getValue(data.accx_id)
-			data.accy = getValue(data.accy_id)
-			data.accz = getValue(data.accz_id)
-		end
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then

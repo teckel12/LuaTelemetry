@@ -1,5 +1,22 @@
 local config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH = ...
 
+-- Detect Crossfire
+if data.rssi_id == -1 then
+	data.fm_id = getTelemetryId("FM")
+	if data.fm_id > -1 then
+		data.crsf = true
+		data.sat_id = getTelemetryId("Sats")
+		data.fuel_id = getTelemetryId("Capa")
+		data.batt_id = getTelemetryId("RxBt")
+		data.battMin_id = getTelemetryId("RxBt-")
+		data.rssiMin = 100
+		config[23].v = 1
+		config[7].v = 0
+		config[9].v = 0
+		config[14].v = 0
+	end
+end
+
 data.showCurr = data.curr_id > -1 and true or false
 data.showFuel = data.fuel_id > -1 and true or false
 data.showHead = data.hdg_id > -1 and true or false
