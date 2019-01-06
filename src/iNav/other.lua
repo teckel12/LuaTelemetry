@@ -5,6 +5,7 @@ local crsf = nil
 data.fm_id = getTelemetryId("FM") > -1 and getTelemetryId("FM") or getTelemetryId("PV")
 if data.fm_id > -1 then
 	crsf = loadfile(FILE_PATH .. "crsf.luac")(config, data, getTelemetryId)
+	collectgarbage()
 end
 
 data.showCurr = data.curr_id > -1 and true or false
@@ -47,5 +48,8 @@ local tmp = config[20].v == 0 and "GSpd" or "ASpd"
 data.speed_id = getTelemetryId(tmp)
 data.speedMax_id = getTelemetryId(tmp .. "+")
 data.speed_unit = getTelemetryUnit(tmp)
+if data.dist_id == -1 then
+	data.dist_unit = data.alt_unit
+end
 
 return crsf

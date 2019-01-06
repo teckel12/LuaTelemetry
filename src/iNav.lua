@@ -63,7 +63,7 @@ local function calcTrig(gps1, gps2, deg)
 	else
 		local u = math.sin((o2 - o1) / 2)
 		local v = math.sin((a2 - a1) / 2)
-		return 12742018 * math.asin(math.sqrt(u * u + math.cos(o1) * math.cos(o2) * v * v))
+		return 12742018 * math.max(math.asin(math.sqrt(u * u + math.cos(o1) * math.cos(o2) * v * v)), 0)
 	end
 end
 
@@ -152,10 +152,12 @@ local function background()
 				config[15].l[0] = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or string.sub(r, -4) == "simu") then
-					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
-					data.distanceMax = math.max(data.distMaxCalc, data.distance)
-					data.distMaxCalc = data.distanceMax
-					data.dist_unit = data.alt_unit
+					tmp = calcTrig(data.gpsHome, data.gpsLatLon, false)
+					if tmp < 5000000 then
+						data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
+						data.distanceMax = math.max(data.distMaxCalc, data.distance)
+						data.distMaxCalc = data.distanceMax
+					end
 				end
 			end
 		end
