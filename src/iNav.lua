@@ -39,7 +39,7 @@ if data.lang ~= "en" or data.voice ~= "en" then
 end
 
 loadfile(FILE_PATH .. "reset.luac")(data)
-loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
+local crsf = loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
 local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
@@ -98,6 +98,7 @@ local function background()
 		data.telem = true
 		data.telemFlags = 0
 		data.satellites = getValue(data.sat_id)
+		data.heading = getValue(data.hdg_id)
 		if data.pitchRoll then
 			data.pitch = getValue(data.pitch_id)
 			data.roll = getValue(data.roll_id)
@@ -107,63 +108,19 @@ local function background()
 			data.accz = getValue(data.accz_id)
 		end
 		if data.crsf then
-			data.pitch = math.deg(data.pitch) * 10
-			data.roll = math.deg(data.roll) * 10
-			data.fm = getValue(data.fm_id)
-			data.modePrev = data.mode
-			if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
-				-- Arming disabled
-				data.mode = 2
-			else
-				data.satellites = data.satellites + 3900
-				if data.fm == "HRST" then
-					data.satellites = data.satellites + 4000
-					data.mode = data.modePrev
-				else
-					if data.fm == "OK" then
-						-- Ready to arm
-						data.mode = 1
-					else
-						-- Armed
-						data.mode = 5
-						if data.fm == "3CRS" then
-							data.mode = data.mode + 8200
-						elseif data.fm == "CRS" then
-							data.mode = data.mode + 8000
-						elseif data.fm == "HOLD" then
-							data.mode = data.mode + 410
-						elseif data.fm == "AH" then
-							data.mode = data.mode + 210
-						elseif data.fm == "ANGL" then
-							data.mode = data.mode + 10
-						elseif data.fm == "HOR" then
-							data.mode = data.mode + 20
-						elseif data.fm == "MANU" then
-							data.mode = data.mode + 40
-						end
-						if data.fm == "RTH" then
-							data.mode = data.mode + 1000
-						end
-						if data.fm == "WP" then
-							data.mode = data.mode + 2000
-						end
-						if data.fm == "!FS!" then
-							data.mode = data.mode + 40000
-						end
-					end
-				end
-			end
+			crsf(data)
 		else
 			data.mode = getValue(data.mode_id)
+			data.rxBatt = getValue(data.rxBatt_id)
+			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
+			data.distance = getValue(data.dist_id)
+			data.distanceMax = getValue(data.distMax_id)
+			data.vspeed = getValue(data.vspeed_id)
 		end
-		data.rxBatt = getValue(data.rxBatt_id)
-		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
-		data.heading = getValue(data.hdg_id)
 		data.altitude = getValue(data.alt_id)
 		if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 			data.altitude = data.gpsAlt - data.gpsAltBase
 		end
-		data.distance = getValue(data.dist_id)
 		data.speed = getValue(data.speed_id)
 		if data.showCurr then
 			data.current = getValue(data.curr_id)
@@ -173,7 +130,6 @@ local function background()
 			data.fuel = getValue(data.fuel_id)
 		end
 		data.altitudeMax = getValue(data.altMax_id)
-		data.distanceMax = getValue(data.distMax_id)
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
@@ -187,7 +143,6 @@ local function background()
 			data.cell = data.batt / data.cells
 			data.cellMin = data.battMin / data.cells
 		end
-		data.vspeed = getValue(data.vspeed_id)
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then

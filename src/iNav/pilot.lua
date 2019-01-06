@@ -248,17 +248,23 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Right data - GPS
 	lcd.drawText(LCD_W, 8, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
 	icons.gps(LCD_W - (SMLCD and 23 or 22), 12)
-	if SMLCD then
-		lcd.drawText(LCD_W + 1, config[22].v == 1 and 22 or 32, "HDOP", RIGHT + SMLSIZE)
-		hdopGraph(LCD_W - 12, config[22].v == 1 and 31 or 24, MIDSIZE, SMLCD)
+	if data.crsf then
+		lcd.drawText(LCD_W - (SMLCD and 0 or 24), SMLCD and 43 or 12, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
 	else
-		hdopGraph(LCD_W - 39, 10, MIDSIZE, SMLCD)
-		lcd.drawText(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
+		if SMLCD then
+			lcd.drawText(LCD_W + 1, config[22].v == 1 and 22 or 32, "HDOP", RIGHT + SMLSIZE)
+			hdopGraph(LCD_W - 12, config[22].v == 1 and 31 or 24, MIDSIZE, SMLCD)
+		else
+			hdopGraph(LCD_W - 39, 10, MIDSIZE, SMLCD)
+			lcd.drawText(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
+		end
+		lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
+	end
+	if not SMLCD then
 		lcd.drawText(LCD_W + 1, 33, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 		lcd.drawText(LCD_W + 1, 42, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 		lcd.drawText(RIGHT_POS + 8, 57, "RSSI", SMLSIZE)
 	end
-	lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	lcd.drawLine(RIGHT_POS + (config[7].v % 2 == 1 and (SMLCD and 5 or 7) or 0), 50, LCD_W, 50, SOLID, FORCE)
 	local rssiFlags = RIGHT + ((not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
 	lcd.drawText(LCD_W - 10, 52, math.min(data.showMax and data.rssiMin or data.rssiLast, 99), MIDSIZE + rssiFlags)
