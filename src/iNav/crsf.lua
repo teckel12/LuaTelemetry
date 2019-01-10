@@ -6,6 +6,11 @@ local function getCrsfUnit(n)
 end
 
 data.crsf = true
+data.rssi_id = getTelemetryId("1RSS")
+data.rssi2_id = getTelemetryId("2RSS")
+data.rssiMin_id = getTelemetryId("1RSS+")
+data.rssi2Min_id = getTelemetryId("2RSS+")
+data.rqly_id = getTelemetryId("RQly")
 data.sat_id = getTelemetryId("Sats")
 data.fuel_id = getTelemetryId("Capa")
 data.batt_id = getTelemetryId("RxBt")

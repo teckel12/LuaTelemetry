@@ -86,12 +86,13 @@ local function calcDir(r1, r2, r3, x, y, r)
 end
 
 local function background()
+	data.rssi = getValue(data.rssi_id)
 	if data.crsf then
-		local rssi, l, c = getRSSI()
-		data.rssi = rssi
-		data.rssiMin = data.rssi > 0 and (math.min(data.rssi, data.rssiMin)) or data.rssiMin
+		data.rssi = getValue(data.rqly_id) == 0 and 0 or (130 - math.min(math.abs(data.rssi), math.abs(getValue(data.rssi2_id))))
+		if data.rssi > 0 then
+			data.rssiMin = 130 - math.min(getValue(data.rssiMin_id), getValue(data.rssi2Min_id))
+		end
 	else
-		data.rssi = getValue(data.rssi_id)
 		data.rssiMin = getValue(data.rssiMin_id)
 	end
 	if data.rssi > 0 then
