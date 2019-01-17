@@ -57,13 +57,16 @@ local function calcTrig(gps1, gps2, deg)
 	local o2 = math.rad(gps2.lat)
 	local a2 = math.rad(gps2.lon)
 	if deg then
-		local y = math.sin(a2 - a1) * math.cos(o2)
 		local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+		local y = math.sin(a2 - a1) * math.cos(o2)
 		return math.deg(math.atan2(y, x))
 	else
-		local u = math.sin((o2 - o1) / 2)
-		local v = math.sin((a2 - a1) / 2)
-		return 12742018 * math.max(math.asin(math.sqrt(u * u + math.cos(o1) * math.cos(o2) * v * v)), 0)
+		--[[ This is slightly more accurate, but only at extreme distances
+		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009;
+		]]
+		local x = (a2 - a1) * math.cos((o1 + o2) / 2)
+		local y = o2 - o1
+		return math.sqrt(x * x + y * y) * 6371009
 	end
 end
 

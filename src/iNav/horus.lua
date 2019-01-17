@@ -121,7 +121,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.showHead then
 		for i = 0, 348.75, 11.25 do
 			tmp = math.floor(((i - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
-			if tmp >= 9 and tmp <= RIGHT_POS - 9 then
+			if tmp >= 9 and tmp <= RIGHT_POS - 12 then
 				if i % 90 == 0 then
 					lcd.drawText(tmp - (i < 270 and 3 or 5), BOTTOM - 15, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
 				elseif i % 45 == 0 then
