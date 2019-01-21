@@ -1,6 +1,6 @@
 ## INAV Lua Telemetry Flight Status for Taranis/Horus - v1.6.0
 
-### FrSky SmartPort(S.Port), D-series and F.Port telemetry on all Taranis and Horus transmitters
+### FrSky SmartPort(S.Port), D-series, F.Port and TBS Crossfire telemetry on all Taranis and Horus transmitters
 
 [![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
 
@@ -29,7 +29,7 @@
 
 ## Features
 
-* Works with all FrSky telemetry receivers (X-series, R9 series and D-series) and all FrSky Taranis and Horus transmitters
+* Works with all FrSky telemetry receivers (X-series, R9 series and D-series), all TBS Crossfire receivers and all FrSky Taranis and Horus transmitters
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
@@ -49,8 +49,8 @@
 ## Requirements
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X-Lite, Horus X10/X10S or X12S (OpenTX v2.2.2+ is suggested)
-* FrSky X-series, R9 series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc.
-* [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.0+ is suggested for full functionality)
+* FrSky X-series, R9 series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
+* [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1+ is suggested for full functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
 ## Suggested Sensors
@@ -61,14 +61,15 @@
 
 ## Notes
 
+* INAV v2.1+ is required for Crossfire telemetry support
 * INAV v2.0+ is required for FrSky D-series telemetry and proper GPS accuracy (HDOP) display
 * If using pilot or radar view or a Horus transmitter and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter
-* [Crossfire](https://github.com/iNavFlight/LuaTelemetry/issues/36) is not currently supported due to missing flight modes that are critical to Lua Telemetry
 
 ## Special Thanks
+* [Team Black Sheep](https://www.team-blacksheep.com/) - Sponsoring TBS Crossfire telemetry support
 * [FrSky](https://www.frsky-rc.com/) - Sponsoring Horus transmitter support
 
 ## Setup
