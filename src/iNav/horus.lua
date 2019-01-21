@@ -22,30 +22,41 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local y1 = py - (math.cos(roll1) * r)
 		local x2 = math.sin(roll2) * r + X_CNTR
 		local y2 = py - (math.cos(roll2) * r)
+		local steps = 2
+		if roll > 65 and roll < 115 then
+			steps = 4
+		end
 		if r == 200 then
-			local a = (y1 - y2) / (x1 - x2 + .001) * 2
-			local y = y2 - ((x2 + 1) * a) / 2
+			local a = (y1 - y2) / (x1 - x2 + .001) * steps
+			local y = y2 - ((x2 + 1) * a) / steps
 			lcd.setColor(CUSTOM_COLOR, GROUND2)
 			tmp = upsideDown and 20 or BOTTOM - 1
-			for x = 1, RIGHT_POS - 2, 2 do
-				if x == 39 then
-					lcd.setColor(CUSTOM_COLOR, GROUND)
-				elseif x == RIGHT_POS - 43 then
+			for x = 1, RIGHT_POS - 2, steps do
+				if x >= RIGHT_POS - 45 then
 					lcd.setColor(CUSTOM_COLOR, GROUND2)
+				elseif x >= 41 then
+					lcd.setColor(CUSTOM_COLOR, GROUND)
 				end
 				local yy = y + 0.5
 				if (not upsideDown and yy < BOTTOM) or (upsideDown and yy > 7) then
 					local tmp2 = math.min(math.max(yy, 20), BOTTOM)
-					lcd.drawRectangle(x, tmp, 2, tmp2 - tmp, CUSTOM_COLOR)
+					if tmp2 == 20 and x < RIGHT_POS - 3 then
+						lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, 4, upsideDown and tmp2 - tmp or tmp - tmp2 + 2, CUSTOM_COLOR)
+						x = x + 2
+					else
+						lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, steps, upsideDown and tmp2 - tmp or tmp - tmp2 + 2, CUSTOM_COLOR)
+					end
 				end
 				y = y + a
 			end
-		elseif (y1 > 20 or y2 > 20) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) then
-			lcd.setColor(CUSTOM_COLOR, adj % 10 == 0 and WHITE or (adj % 5 == 0 and LIGHTGREY or GREY))
+		elseif r ~= 7 and (y1 > 20 or y2 > 20) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) then
+			lcd.setColor(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
 			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
-			if adj % 10 == 0 and adj ~= 0 and y2 > 20 and y2 < BOTTOM - 15 then
+			if r == 20 and y2 > 20 and y2 < BOTTOM - 15 then
 				lcd.drawText(x2 - 1, y2 - 8, adj, SMLSIZE + RIGHT)
 			end
+		else
+			return x1, y1, x2, y2
 		end
 	end
 
@@ -99,10 +110,27 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText(X_CNTR - outside, Y_CNTR - 9, tmp2 .. "\64", SMLSIZE + RIGHT)
 		end
 		tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 30), -30)
+		--[[ Old method
 		for x = tmp2 - 20, tmp2 + 20, 2.5 do
 			if x ~= 0 then
 				attitude(x % 10 == 0 and 20 or (x % 5 == 0 and 15 or 7), x)
 			end
+		end
+		]]
+		for x = tmp2 - 20, tmp2 + 20, 5 do
+			if x ~= 0 then
+				attitude(x % 10 == 0 and 20 or 15, x)
+			end
+		end
+		local x1, y1, x2, y2 = attitude(7, tmp2 - 17.5)
+		local x3, y3, x4, y4 = attitude(7, tmp2 + 17.5)
+		local ys = (y3 - y1) / 7
+		lcd.setColor(CUSTOM_COLOR, GREY)
+		for y = y1, y3 - 5, ys do
+			if (y > 20 or y2 > 20) and (y < BOTTOM - 15 or y2 < BOTTOM - 15) then
+				lcd.drawLine(x1, y, x2, y2, SOLID, CUSTOM_COLOR)
+			end
+			y2 = y2 + ys
 		end
 	end
 
@@ -143,11 +171,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Speed & altitude
 	tmp = data.showMax and data.speedMax or data.speed
-	lcd.drawText(40, 19, units[data.speed_unit], SMLSIZE)
+	lcd.drawText(42, 19, units[data.speed_unit], SMLSIZE)
 	lcd.drawText(39, Y_CNTR - 9, tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp), SMLSIZE + RIGHT + data.telemFlags)
 	tmp = data.showMax and data.altitudeMax or data.altitude
-	lcd.drawText(RIGHT_POS - 43, 19, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
-	lcd.drawText(RIGHT_POS - 1, Y_CNTR - 9, math.floor(tmp + 0.5), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	lcd.drawText(RIGHT_POS - 45, 19, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+	lcd.drawText(RIGHT_POS - 2, Y_CNTR - 9, math.floor(tmp + 0.5), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	if data.altHold then
 		lcd.drawBitmap(icons.lock, RIGHT_POS - 54, Y_CNTR - 5)
 	end
@@ -170,8 +198,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			--tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
 			--lcd.drawRectangle(RIGHT_POS, Y_CNTR - (tmp * (Y_CNTR - 21)) - 1, 10, 2, CUSTOM_COLOR)
 			tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) * (data.vspeed < 0 and -1 or 1)
-			lcd.drawLine(RIGHT_POS, Y_CNTR - (tmp / 2.4 * (Y_CNTR - 21)) - 1, RIGHT_POS + 9, Y_CNTR - (tmp / 2.6 * (Y_CNTR - 21)) - 1, SOLID, CUSTOM_COLOR)
-			lcd.drawLine(RIGHT_POS, Y_CNTR - (tmp / 2.4 * (Y_CNTR - 21)), RIGHT_POS + 9, Y_CNTR - (tmp / 2.6 * (Y_CNTR - 21)), SOLID, CUSTOM_COLOR)
+			local y1 = Y_CNTR - (tmp / 2.4 * (Y_CNTR - 21))
+			local y2 = Y_CNTR - (tmp / 2.6 * (Y_CNTR - 21))
+			lcd.drawLine(RIGHT_POS, y1 - 1, RIGHT_POS + 9, y2 - 1, SOLID, CUSTOM_COLOR)
+			lcd.drawLine(RIGHT_POS, y1, RIGHT_POS + 9, y2, SOLID, CUSTOM_COLOR)
 		end
 		lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 		lcd.drawLine(RIGHT_POS + 10, 20, RIGHT_POS + 10, BOTTOM - 1, SOLID, CUSTOM_COLOR)

@@ -21,8 +21,7 @@ local function title(data, config, SMLCD)
 		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		lcd.setColor(CUSTOM_COLOR, BLACK)
 		for i = 200, tmp, 4 do
-			--lcd.drawLine(i, 4, i, 15, SOLID, CUSTOM_COLOR)
-			lcd.drawRectangle(i, 5, 2, 10, CUSTOM_COLOR)
+			lcd.drawFilledRectangle(i, 5, 2, 10, CUSTOM_COLOR)
 		end
 	end
 	if config[19].v ~= 1 then
