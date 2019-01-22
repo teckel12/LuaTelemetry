@@ -8,7 +8,6 @@ end
 data.crsf = true
 data.rssi_id = getTelemetryId("RSNR")
 data.rssiMin_id = getTelemetryId("RSNR-")
---data.rqly_id = getTelemetryId("RQly")
 data.rfmd_id = getTelemetryId("RFMD")
 data.sat_id = getTelemetryId("Sats")
 data.fuel_id = getTelemetryId("Capa")
@@ -16,9 +15,6 @@ data.batt_id = getTelemetryId("RxBt")
 data.battMin_id = getTelemetryId("RxBt-")
 data.tpwr_id = getTelemetryId("TPWR")
 data.hdg_id = getTelemetryId("Yaw")
-data.yaw_unit = getCrsfUnit("Yaw")
-data.ptch_unit = getCrsfUnit("Ptch")
-data.roll_unit = getCrsfUnit("Roll")
 data.rssiMin = 99
 data.tpwr = 0
 config[23].v = 1
@@ -28,13 +24,9 @@ config[14].v = 0
 
 local function crsf(data)
 	data.tpwr = getValue(data.tpwr_id)
-	if data.pitchRoll then
-		data.pitch = (data.ptch_unit == 21 and math.deg(data.pitch) or data.pitch) * 10
-		data.roll = (data.roll_unit == 21 and math.deg(data.roll) or data.pitch) * 10
-	end
-	if data.yaw_unit == 21 then
-		data.heading = math.deg(data.heading)
-	end
+	data.pitch = math.deg(data.pitch) * 10
+	data.roll = math.deg(data.roll) * 10
+	data.heading = math.deg(data.heading)
 	data.fm = getValue(data.fm_id)
 	data.modePrev = data.mode
 	if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
