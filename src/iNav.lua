@@ -90,13 +90,10 @@ end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
+	data.rssiMin = getValue(data.rssiMin_id)
 	if data.crsf then
-		data.rssi = getValue(data.rqly_id) == 0 and 0 or (130 - math.min(math.abs(data.rssi), math.abs(getValue(data.rssi2_id))))
-		if data.rssi > 0 then
-			data.rssiMin = 130 - math.min(getValue(data.rssiMin_id), getValue(data.rssi2Min_id))
-		end
-	else
-		data.rssiMin = getValue(data.rssiMin_id)
+		data.rssi = getValue(data.rfmd_id) == 0 and 0 or math.min(math.max(math.floor((data.rssi + 4) * 2.25 + 0.5), 0), 99)
+		data.rssiMin = math.min(math.max(math.floor((data.rssiMin + 4) * 2.25 + 0.5), 0), 99)
 	end
 	if data.rssi > 0 then
 		data.telem = true

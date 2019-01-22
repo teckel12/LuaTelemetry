@@ -177,11 +177,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	lcd.drawText(RIGHT_POS - 45, 19, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
 	lcd.drawText(RIGHT_POS - 2, Y_CNTR - 9, math.floor(tmp + 0.5), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	if data.altHold then
-		lcd.drawBitmap(icons.lock, RIGHT_POS - 54, Y_CNTR - 5)
+		lcd.drawBitmap(icons.lock, RIGHT_POS - 55, Y_CNTR - 5)
 	end
 	if data.showMax then
-		lcd.drawText(40, Y_CNTR - 11, "\192", 0)
-		lcd.drawText(RIGHT_POS - 42, Y_CNTR - 11, "\192", RIGHT)
+		lcd.drawText(41, Y_CNTR - 11, "\192", 0)
+		lcd.drawText(RIGHT_POS - 43, Y_CNTR - 11, "\192", RIGHT)
 	end
 
 	-- Heading

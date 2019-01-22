@@ -6,11 +6,10 @@ local function getCrsfUnit(n)
 end
 
 data.crsf = true
-data.rssi_id = getTelemetryId("1RSS")
-data.rssi2_id = getTelemetryId("2RSS")
-data.rssiMin_id = getTelemetryId("1RSS+")
-data.rssi2Min_id = getTelemetryId("2RSS+")
-data.rqly_id = getTelemetryId("RQly")
+data.rssi_id = getTelemetryId("RSNR")
+data.rssiMin_id = getTelemetryId("RSNR-")
+--data.rqly_id = getTelemetryId("RQly")
+data.rfmd_id = getTelemetryId("RFMD")
 data.sat_id = getTelemetryId("Sats")
 data.fuel_id = getTelemetryId("Capa")
 data.batt_id = getTelemetryId("RxBt")
@@ -20,7 +19,7 @@ data.hdg_id = getTelemetryId("Yaw")
 data.yaw_unit = getCrsfUnit("Yaw")
 data.ptch_unit = getCrsfUnit("Ptch")
 data.roll_unit = getCrsfUnit("Roll")
-data.rssiMin = 100
+data.rssiMin = 99
 data.tpwr = 0
 config[23].v = 1
 config[7].v = 0
