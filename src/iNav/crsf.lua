@@ -21,6 +21,8 @@ config[23].v = 1
 config[7].v = 0
 config[9].v = 0
 config[14].v = 0
+config[21].v = 2.0
+config[22].v = 0
 
 local function crsf(data)
 	data.tpwr = getValue(data.tpwr_id)
@@ -33,6 +35,7 @@ local function crsf(data)
 		-- Arming disabled
 		data.mode = 2
 	else
+		data.hdop = math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5)
 		data.satellites = data.satellites + 3900
 		if data.fm == "HRST" then
 			data.satellites = data.satellites + 4000

@@ -246,21 +246,23 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Right data - GPS
-	lcd.drawText(LCD_W, 8, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
-	icons.gps(LCD_W - (SMLCD and 23 or 22), 12)
+	lcd.drawText(LCD_W, data.crsf and 20 or 8, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
+	icons.gps(LCD_W - (SMLCD and 23 or 22), data.crsf and 24 or 12)
 	if data.crsf then
-		lcd.drawText(LCD_W - (SMLCD and 0 or 24), SMLCD and 43 or 12, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(LCD_W, SMLCD and 9 or 11, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
 	else
-		if SMLCD then
-			lcd.drawText(LCD_W + 1, config[22].v == 1 and 22 or 32, "HDOP", RIGHT + SMLSIZE)
-			hdopGraph(LCD_W - 12, config[22].v == 1 and 31 or 24, MIDSIZE, SMLCD)
-		else
-			hdopGraph(LCD_W - 39, 10, MIDSIZE, SMLCD)
-			lcd.drawText(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
-		end
 		lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	end
-	if not SMLCD then
+	if SMLCD then
+		if data.crsf == false then
+			lcd.drawText(LCD_W + 1, config[22].v == 0 and 32 or 22, "HDOP", RIGHT + SMLSIZE)
+		end
+		hdopGraph(LCD_W - 12, config[22].v == 0 and (data.crsf and 37 or 24) or 31, MIDSIZE, SMLCD)
+	else
+		hdopGraph(LCD_W - 39, data.crsf and 24 or 10, MIDSIZE, SMLCD)
+		if data.crsf == false then
+			lcd.drawText(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
+		end
 		lcd.drawText(LCD_W + 1, 33, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 		lcd.drawText(LCD_W + 1, 42, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 		lcd.drawText(RIGHT_POS + 8, 57, "RSSI", SMLSIZE)

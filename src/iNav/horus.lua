@@ -252,7 +252,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local r3 = math.rad(data.heading - tmp - 145)
 		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, 8)
 		lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
-		lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
+		local mx = ((x2 + x3) * 2 + x1) / 5
+		local my = ((y2 + y3) * 2 + y1) / 5
+		lcd.drawLine(x2, y2, mx, my, SOLID, CUSTOM_COLOR)
+		lcd.drawLine(x3, y3, mx, my, SOLID, CUSTOM_COLOR)
+		--lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		lcd.drawLine(x1, y1, x2, y2, SOLID, TEXT_COLOR)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, TEXT_COLOR)
 		if data.showMax then
@@ -349,7 +353,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawFilledRectangle((x2 + x3) / 2 - 2, (y2 + y3) / 2 - 2, 5, 5, SOLID)
 		else
 			lcd.setColor(CUSTOM_COLOR, GREY)
-			lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
+			local mx = ((x2 + x3) * 2 + x1) / 5
+			local my = ((y2 + y3) * 2 + y1) / 5
+			lcd.drawLine(x2, y2, mx, my, SOLID, CUSTOM_COLOR)
+			lcd.drawLine(x3, y3, mx, my, SOLID, CUSTOM_COLOR)
+			--lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		end
 		lcd.drawLine(x1, y1, x2, y2, SOLID, TEXT_COLOR)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, TEXT_COLOR)
@@ -361,13 +369,15 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText(RIGHT_POS, TOP, data.tpwr .. "mW", RIGHT + MIDSIZE + data.telemFlags)
 		end
 		lcd.drawText(RIGHT_POS + 1, TOP + 28, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
+		--hdopGraph(X3 + 65, TOP + 51)
 	else
 		tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
 		lcd.drawText(X3 + 48, TOP, (data.hdop == 0 and not data.gpsFix) and "-- --" or (9 - data.hdop) / 2 + 0.8, MIDSIZE + RIGHT + (tmp and FLASH or 0))
 		lcd.drawText(X3 + 11, TOP + 24, "HDOP", SMLSIZE)
-		hdopGraph(X3 + 65, TOP + 23)
+		--hdopGraph(X3 + 65, TOP + 23)
 		lcd.drawText(RIGHT_POS + 1, TOP, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
 	end
+	hdopGraph(X3 + 65, TOP + (data.crsf and 51 or 23))
 	tmp = RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
 	if not data.crsf then
 		lcd.drawText(RIGHT_POS, TOP + 28, math.floor(data.gpsAlt + 0.5) .. (data.gpsAlt_unit == 10 and "'" or units[data.gpsAlt_unit]), MIDSIZE + tmp)
@@ -398,10 +408,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 	lcd.drawLine(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
-
-	-- Reset color
-	lcd.setColor(WARNING_COLOR, YELLOW)
-
 end
 
 return view

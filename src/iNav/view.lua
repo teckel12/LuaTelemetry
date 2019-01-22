@@ -50,13 +50,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	lcd.drawText(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 	lcd.drawText(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 	if data.crsf then
-		lcd.drawText(RIGHT_POS - 18, 9, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), 9, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
 	else
 		lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
-		hdopGraph(RIGHT_POS - 30, 9, SMLSIZE, SMLCD)
 	end
-	icons.gps(RIGHT_POS - 17, 9)
-	lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
+	hdopGraph(RIGHT_POS - 30, data.crsf and 17 or 9, SMLSIZE, SMLCD)
+	icons.gps(RIGHT_POS - 17, data.crsf and 17 or 9)
+	lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), data.crsf and 17 or 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 	-- Directionals
 	if data.showHead and data.startup == 0 then
