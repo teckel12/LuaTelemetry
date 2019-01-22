@@ -61,11 +61,11 @@
 
 ## Notes
 
-* INAV v2.1+ is required for Crossfire telemetry support
-* INAV v2.0+ is required for FrSky D-series telemetry and proper GPS accuracy (HDOP) display
+* INAV v2.1.0+ is required for TBS Crossfire support (some telemetry missing from Crossfire: HDOP, GPS altitude, variometer, heading hold and home reset notifications)
+* INAV v2.0.0+ is required for FrSky D-series telemetry and proper GPS accuracy (HDOP) display
 * If using pilot or radar view or a Horus transmitter and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
 * INAV v1.9.1+ is required for F.Port compatibility
-* INAV v1.8+ is required for `Home reset` voice notification
+* INAV v1.8.0+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter
 
 ## Special Thanks
