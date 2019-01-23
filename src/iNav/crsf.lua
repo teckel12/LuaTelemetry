@@ -15,7 +15,7 @@ data.batt_id = getTelemetryId("RxBt")
 data.battMin_id = getTelemetryId("RxBt-")
 data.tpwr_id = getTelemetryId("TPWR")
 data.hdg_id = getTelemetryId("Yaw")
-data.rssiMin = 99
+--data.rssiMin = 100
 data.tpwr = 0
 config[23].v = 1
 config[7].v = 0
@@ -25,6 +25,8 @@ config[21].v = 2.0
 config[22].v = 0
 
 local function crsf(data)
+	--data.rssiMin = math.min(math.max(math.floor((data.rssiMin + 4) * 2.25 + 0.5), 0), 99)
+	data.rssiMin = math.min(math.max(math.floor(math.log((data.rssiMin + 4) * 0.225 + 1) * 100), 0), 100)
 	data.tpwr = getValue(data.tpwr_id)
 	data.pitch = math.deg(data.pitch) * 10
 	data.roll = math.deg(data.roll) * 10
