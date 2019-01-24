@@ -6,8 +6,8 @@ local function getCrsfUnit(n)
 end
 
 data.crsf = true
-data.rssi_id = getTelemetryId("RSNR")
-data.rssiMin_id = getTelemetryId("RSNR-")
+data.rssi_id = getTelemetryId("RQly")
+data.rssiMin_id = getTelemetryId("RQly-")
 data.rfmd_id = getTelemetryId("RFMD")
 data.sat_id = getTelemetryId("Sats")
 data.fuel_id = getTelemetryId("Capa")
@@ -15,9 +15,7 @@ data.batt_id = getTelemetryId("RxBt")
 data.battMin_id = getTelemetryId("RxBt-")
 data.tpwr_id = getTelemetryId("TPWR")
 data.hdg_id = getTelemetryId("Yaw")
-data.rssiMin = 99
-data.rssiLow = 20
-data.rssiCrit = 9
+--data.rssiMin = 99
 data.tpwr = 0
 config[23].v = 1
 config[7].v = 0
@@ -27,9 +25,9 @@ config[21].v = 2.5
 config[22].v = 0
 
 local function crsf(data)
-	if data.rssi > 0 then
-		data.rssiMin = math.min(data.rssiMin, data.rssi)
-	end
+	--if data.rssi > 0 then
+	--	data.rssiMin = math.min(data.rssiMin, data.rssi)
+	--end
 	data.tpwr = getValue(data.tpwr_id)
 	data.pitch = math.deg(getValue(data.pitch_id)) * 10
 	data.roll = math.deg(getValue(data.roll_id)) * 10

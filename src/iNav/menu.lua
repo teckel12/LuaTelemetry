@@ -52,10 +52,13 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 	config[24].p = data.crsf and 1 or (config[7].v < 2 and 1 or nil)
 	config[20].p = not data.pitot and 1 or nil
 	config[23].p = data.crsf and 1 or (not data.showFuel and 1 or nil)
+	config[27].p = not data.crsf and 1 or nil
 	if data.crsf then
 		config[9].p = 1
 		config[14].p = 1
 		config[21].p = 1
+		config[17].p = nil
+		config[18].p = nil
 	end
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP

@@ -71,37 +71,29 @@ local function calcTrig(gps1, gps2, deg)
 end
 
 local function calcDir(r1, r2, r3, x, y, r)
-	--[[ This level of precision probably isn't necessary
-	local x1 = math.floor(math.sin(r1) * r + 0.5) + x
-	local y1 = y - math.floor(math.cos(r1) * r + 0.5)
-	local x2 = math.floor(math.sin(r2) * r + 0.5) + x
-	local y2 = y - math.floor(math.cos(r2) * r + 0.5)
-	local x3 = math.floor(math.sin(r3) * r + 0.5) + x
-	local y3 = y - math.floor(math.cos(r3) * r + 0.5)
-	]]
-	local x1 = math.sin(r1) * r + x
-	local y1 = y - (math.cos(r1) * r)
-	local x2 = math.sin(r2) * r + x
-	local y2 = y - (math.cos(r2) * r)
-	local x3 = math.sin(r3) * r + x
-	local y3 = y - (math.cos(r3) * r)
+	local x1 = math.sin(r1) * r + 0.5 + x
+	local y1 = y - (math.cos(r1) * r + 0.5)
+	local x2 = math.sin(r2) * r + 0.5 + x
+	local y2 = y - (math.cos(r2) * r + 0.5)
+	local x3 = math.sin(r3) * r + 0.5 + x
+	local y3 = y - (math.cos(r3) * r + 0.5)
 	return x1, y1, x2, y2, x3, y3
 end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
-	if data.crsf then
-		data.rssi = getValue(data.rfmd_id) == 0 and 0 or math.min(math.max(math.floor((data.rssi + 4) * 2.25 + 0.5), 0), 99)
-	end
+	--if data.crsf then
+	--	data.rssi = getValue(data.rfmd_id) == 0 and 0 or math.min(math.max(math.floor((data.rssi + 4) * 2.25 + 0.5), 0), 99)
+	--end
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
+		data.rssiMin = getValue(data.rssiMin_id)
 		data.satellites = getValue(data.sat_id)
 		if data.crsf then
 			crsf(data)
 		else
 			data.heading = getValue(data.hdg_id)
-			data.rssiMin = getValue(data.rssiMin_id)
 			if data.pitchRoll then
 				data.pitch = getValue(data.pitch_id)
 				data.roll = getValue(data.roll_id)

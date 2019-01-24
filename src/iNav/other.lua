@@ -5,7 +5,7 @@ local crsf = nil
 data.fm_id = getTelemetryId("FM") > -1 and getTelemetryId("FM") or getTelemetryId("PV")
 
 -- Testing Crossfire
---if data.simu then data.fm_id = 1 end
+if data.simu then data.fm_id = 1 end
 
 if data.fm_id > -1 then
 	crsf = loadfile(FILE_PATH .. "crsf.luac")(config, data, getTelemetryId)
