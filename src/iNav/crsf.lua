@@ -15,30 +15,37 @@ data.batt_id = getTelemetryId("RxBt")
 data.battMin_id = getTelemetryId("RxBt-")
 data.tpwr_id = getTelemetryId("TPWR")
 data.hdg_id = getTelemetryId("Yaw")
---data.rssiMin = 100
+data.rssiMin = 99
 data.tpwr = 0
 config[23].v = 1
 config[7].v = 0
 config[9].v = 0
 config[14].v = 0
-config[21].v = 2.0
+config[21].v = 2.5
 config[22].v = 0
 
 local function crsf(data)
-	--data.rssiMin = math.min(math.max(math.floor((data.rssiMin + 4) * 2.25 + 0.5), 0), 99)
-	data.rssiMin = math.min(math.max(math.floor(math.log((data.rssiMin + 4) * 0.225 + 1) * 100), 0), 100)
+	if data.rssi > 0 then
+		data.rssiMin = math.min(data.rssiMin, data.rssi)
+	end
 	data.tpwr = getValue(data.tpwr_id)
-	data.pitch = math.deg(data.pitch) * 10
-	data.roll = math.deg(data.roll) * 10
-	data.heading = math.deg(data.heading)
+	data.pitch = math.deg(getValue(data.pitch_id)) * 10
+	data.roll = math.deg(getValue(data.roll_id)) * 10
+	--data.heading = math.deg(getValue(data.hdg_id))
+	-- The following is done due to a int rollover bug with Crossfire
+	local tmp = getValue(data.hdg_id)
+	if tmp < -0.27 then
+		tmp = tmp + 0.27
+	end
+	data.heading = math.deg(tmp)
 	data.fm = getValue(data.fm_id)
 	data.modePrev = data.mode
+	data.satellites = data.satellites + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100)
 	if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
 		-- Arming disabled
 		data.mode = 2
 	else
-		data.hdop = math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5)
-		data.satellites = data.satellites + 3900
+		data.satellites = data.satellites + 3000
 		if data.fm == "HRST" then
 			data.satellites = data.satellites + 4000
 			data.mode = data.modePrev

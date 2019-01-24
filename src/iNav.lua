@@ -90,27 +90,26 @@ end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
-	data.rssiMin = getValue(data.rssiMin_id)
 	if data.crsf then
-		--data.rssi = getValue(data.rfmd_id) == 0 and 0 or math.min(math.max(math.floor((data.rssi + 4) * 2.25 + 0.5), 0), 99)
-		data.rssi = getValue(data.rfmd_id) == 0 and 0 or math.min(math.max(math.floor(math.log((data.rssi + 4) * 0.225 + 1) * 100), 0), 100)
+		data.rssi = getValue(data.rfmd_id) == 0 and 0 or math.min(math.max(math.floor((data.rssi + 4) * 2.25 + 0.5), 0), 99)
 	end
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
 		data.satellites = getValue(data.sat_id)
-		data.heading = getValue(data.hdg_id)
-		if data.pitchRoll then
-			data.pitch = getValue(data.pitch_id)
-			data.roll = getValue(data.roll_id)
-		else
-			data.accx = getValue(data.accx_id)
-			data.accy = getValue(data.accy_id)
-			data.accz = getValue(data.accz_id)
-		end
 		if data.crsf then
 			crsf(data)
 		else
+			data.heading = getValue(data.hdg_id)
+			data.rssiMin = getValue(data.rssiMin_id)
+			if data.pitchRoll then
+				data.pitch = getValue(data.pitch_id)
+				data.roll = getValue(data.roll_id)
+			else
+				data.accx = getValue(data.accx_id)
+				data.accy = getValue(data.accy_id)
+				data.accz = getValue(data.accz_id)
+			end
 			data.mode = getValue(data.mode_id)
 			data.rxBatt = getValue(data.rxBatt_id)
 			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
@@ -258,7 +257,7 @@ local function background()
 	if modeIdPrev ~= data.modeId then -- New flight mode
 		if data.armed and modes[data.modeId].w ~= nil then
 			playAudio(modes[data.modeId].w, modes[data.modeId].f > 0 and 1 or nil)
-		elseif not data.armed and data.modeId == 6 and modeIdPrev == 5 then
+		elseif not data.armed and data.modeId == 6 and (modeIdPrev == 5 or modeIdPrev == 12) then
 			playAudio(modes[data.modeId].w)
 		end
 	elseif preArmMode ~= false and data.preArmModePrev ~= preArmMode then
