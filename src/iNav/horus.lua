@@ -306,7 +306,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	tmp = (not data.telem or data.rssi < data.rssiLow) and FLASH or 0
 	val = data.showMax and data.rssiMin or data.rssiLast
-	val = 100
 	lcd.drawText(X1 - 3, TOP + 84, val .. (data.crsf and "%" or "dB"), MIDSIZE + RIGHT + tmp)
 	lcd.drawText(0, TOP + 93, data.crsf and "LQ" or "RSSI", SMLSIZE)
 	local red = val >= data.rssiLow and math.max(math.floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
