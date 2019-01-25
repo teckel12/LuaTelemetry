@@ -17,9 +17,6 @@ data.configStatus = 0
 data.startupTime = 0
 data.thrCntr = -2000
 data.trCnSt = false
---if data.crsf then
---	data.rssiMin = 99
---end
 --[[ FPS stuff
 data.fpsStart = getTime()
 data.frames = 0

@@ -82,14 +82,16 @@ end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
-	--if data.crsf then
-	--	data.rssi = getValue(data.rfmd_id) == 0 and 0 or math.min(math.max(math.floor((data.rssi + 4) * 2.25 + 0.5), 0), 99)
-	--end
+	-- Testing Crossfire
+	--if data.simu then data.rssi = 50 end
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
 		data.rssiMin = getValue(data.rssiMin_id)
 		data.satellites = getValue(data.sat_id)
+		if data.showFuel then
+			data.fuel = getValue(data.fuel_id)
+		end
 		if data.crsf then
 			crsf(data)
 		else
@@ -117,9 +119,6 @@ local function background()
 		if data.showCurr then
 			data.current = getValue(data.curr_id)
 			data.currentMax = getValue(data.currMax_id)
-		end
-		if data.showFuel then
-			data.fuel = getValue(data.fuel_id)
 		end
 		data.altitudeMax = getValue(data.altMax_id)
 		data.speedMax = getValue(data.speedMax_id)

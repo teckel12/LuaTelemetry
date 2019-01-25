@@ -28,7 +28,7 @@ local config = {
 	{ o = 15, t = "Vario Steps",      c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
 	{ o = 23, t = "View Mode",        c = 1, v = 0, i = 1, x = 2, l = {[0] = "Classic", "Pilot", "Radar"} },
 	{ o = 21, t = "AltHold Center FB",c = 1, v = 0, i = 1, l = {[0] = "Off", "On"}, b = 17 },
-	{ o = 6,  t = "Battery Capacity", c = 5, v = 1500, m = 150, x = 15000, i = 50, a = "mAh" },
+	{ o = 6,  t = "Battery Capacity", c = 5, v = 1500, m = 150, x = 9950, i = 50, a = "mAh" },
 }
 
 return config
