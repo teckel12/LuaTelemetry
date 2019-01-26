@@ -50,7 +50,7 @@
 
 * [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X-Lite, Horus X10/X10S or X12S (OpenTX v2.2.2+ is suggested)
 * FrSky X-series, R9 series or D-series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
-* [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1+ is suggested for full functionality)
+* [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1.0+ is suggested for full functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
 ## Suggested Sensors
@@ -61,7 +61,7 @@
 
 ## Notes
 
-* INAV v2.1.0+ is required for TBS Crossfire support (some telemetry missing from Crossfire: HDOP, GPS altitude, variometer, heading hold and home reset notifications)
+* INAV v2.1.0+ is required for TBS Crossfire support (some telemetry missing from Crossfire: HDOP, GPS altitude, variometer and heading hold notifications)
 * INAV v2.0.0+ is required for FrSky D-series telemetry and proper GPS accuracy (HDOP) display
 * If using pilot or radar view or a Horus transmitter and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
 * INAV v1.9.1+ is required for F.Port compatibility
