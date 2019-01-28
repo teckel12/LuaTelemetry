@@ -66,7 +66,7 @@ local function crsf(data)
 					data.mode = data.mode + 410
 				elseif data.fm == "AH" then
 					data.mode = data.mode + 210
-				elseif data.fm == "ANGL" then
+				elseif data.fm == "ANGL" or data.fm == "STAB" then
 					data.mode = data.mode + 10
 				elseif data.fm == "HOR" then
 					data.mode = data.mode + 20
