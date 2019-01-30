@@ -18,3 +18,11 @@ language: c
 install:
 
 script: ./bin/build.sh
+
+deploy:
+  - provider: pages # check the site at https://github/teckel12/LuaTelemetry
+    github_token: $GITHUB_TOKEN
+    skip_cleanup: true
+
+on:
+  branch: master
