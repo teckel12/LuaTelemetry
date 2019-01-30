@@ -1,4 +1,4 @@
-local r, m, i = ...
+local r, m, i, HORUS = ...
 
 local function getTelemetryId(n)
 	local field = getFieldInfo(n)
@@ -12,7 +12,7 @@ end
 
 local rssi, low, crit = getRSSI()
 local tx = string.sub(r, 0, 2)
-if string.sub(r, 0, 3) == "x9e" then
+if string.sub(r, 0, 3) == "x9e" or HORUS then
 	tx = "x7"
 end
 local tmp = tx == "x9" and EVT_PLUS_FIRST or (tx == "xl" and EVT_UP_FIRST)
@@ -21,7 +21,7 @@ local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
 tmp = tx == "x9" and EVT_MINUS_FIRST or (tx == "xl" and EVT_DOWN_FIRST)
 local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
 local DECR = tx == "x7" and EVT_ROT_LEFT or tmp
-local MENU = tx == "xl" and EVT_SHIFT_BREAK or EVT_MENU_BREAK
+local MENU = tx == "xl" and EVT_SHIFT_BREAK or (HORUS and EVT_SYS_FIRST or EVT_MENU_BREAK)
 local general = getGeneralSettings()
 local distSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
@@ -31,7 +31,6 @@ local data = {
 	txBattMax = general.battMax,
 	lang = string.lower(general.language),
 	voice = general.voice,
-	modelName = model.getInfo().name,
 	mode_id = getTelemetryId("Tmp1"),
 	rxBatt_id = getTelemetryId("RxBt"),
 	sat_id = getTelemetryId("Tmp2"),
@@ -46,8 +45,8 @@ local data = {
 	currMax_id = getTelemetryId("Curr+"),
 	batt_id = getTelemetryId("VFAS"),
 	battMin_id = getTelemetryId("VFAS-"),
-	--a4_id = getTelemetryId("A4"),
-	--a4Min_id = getTelemetryId("A4-"),
+	a4_id = getTelemetryId("A4"),
+	a4Min_id = getTelemetryId("A4-"),
 	fuel_id = getTelemetryId("Fuel"),
 	rssi_id = getTelemetryId("RSSI"),
 	rssiMin_id = getTelemetryId("RSSI-"),
@@ -67,6 +66,7 @@ local data = {
 	altitudeMax = 0,
 	distance = 0,
 	distanceMax = 0,
+	distMaxCalc = 0,
 	speed = 0,
 	speedMax = 0,
 	current = 0,
@@ -97,8 +97,10 @@ local data = {
 	configLast = 1,
 	configTop = 1,
 	configSelect = 0,
+	crsf = false,
 	v = -1,
+	simu = string.sub(r, -4) == "simu" and true or false,
 	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 }
 
-return data, PREV, INCR, NEXT, DECR, MENU
+return data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU

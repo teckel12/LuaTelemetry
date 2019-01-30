@@ -1,8 +1,15 @@
-local config, data, units, FILE_PATH = ...
+local config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH = ...
+local crsf = nil
 
-local function getTelemetryId(n)
-	local field = getFieldInfo(n)
-	return field and field.id or -1
+-- Detect Crossfire
+data.fm_id = getTelemetryId("FM") > -1 and getTelemetryId("FM") or getTelemetryId("PV")
+
+-- Testing Crossfire
+--if data.simu then data.fm_id = 1 end
+
+if data.fm_id > -1 then
+	crsf = loadfile(FILE_PATH .. "crsf.luac")(config, data, getTelemetryId)
+	collectgarbage()
 end
 
 data.showCurr = data.curr_id > -1 and true or false
@@ -40,6 +47,13 @@ config[6].i = data.alt_unit == 10 and 10 or 1
 config[6].a = units[data.alt_unit]
 config[24].a = units[data.alt_unit]
 config[20].v = data.pitot and config[20].v or 0
-loadfile(FILE_PATH .. "setspeed.luac")(data, config)
 
-return 0
+local tmp = config[20].v == 0 and "GSpd" or "ASpd"
+data.speed_id = getTelemetryId(tmp)
+data.speedMax_id = getTelemetryId(tmp .. "+")
+data.speed_unit = getTelemetryUnit(tmp)
+if data.dist_id == -1 then
+	data.dist_unit = data.alt_unit
+end
+
+return crsf

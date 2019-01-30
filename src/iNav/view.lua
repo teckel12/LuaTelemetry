@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local RIGHT_POS = SMLCD and 129 or 195
 	local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -7,15 +7,10 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	local tmp
 
 	local function drawDirection(h, w, r, x, y)
-		local rad1 = math.rad(h)
-		local rad2 = math.rad(h + w)
-		local rad3 = math.rad(h - w)
-		local x1 = math.floor(math.sin(rad1) * r + 0.5) + x
-		local y1 = y - math.floor(math.cos(rad1) * r + 0.5)
-		local x2 = math.floor(math.sin(rad2) * r + 0.5) + x
-		local y2 = y - math.floor(math.cos(rad2) * r + 0.5)
-		local x3 = math.floor(math.sin(rad3) * r + 0.5) + x
-		local y3 = y - math.floor(math.cos(rad3) * r + 0.5)
+		local r1 = math.rad(h)
+		local r2 = math.rad(h + w)
+		local r3 = math.rad(h - w)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, x, y, r)
 		lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 		if data.headingHold then
@@ -52,12 +47,16 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	-- GPS
 	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
 	tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
-	lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	lcd.drawText(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 	lcd.drawText(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
-	hdopGraph(RIGHT_POS - 30, 9, SMLSIZE)
-	gpsIcon(RIGHT_POS - 17, 9)
-	lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
+	if data.crsf then
+		lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), 9, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
+	else
+		lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
+	end
+	hdopGraph(RIGHT_POS - 30, data.crsf and 17 or 9, SMLSIZE, SMLCD)
+	icons.gps(RIGHT_POS - 17, data.crsf and 17 or 9)
+	lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), data.crsf and 17 or 9, data.satellites % 100, SMLSIZE + RIGHT + data.telemFlags)
 
 	-- Directionals
 	if data.showHead and data.startup == 0 then
@@ -81,13 +80,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		end
 		if data.gpsHome ~= false and data.distanceLast >= data.distRef then
 			if not data.showDir or not SMLCD then
-				local o1 = math.rad(data.gpsHome.lat)
-				local a1 = math.rad(data.gpsHome.lon)
-				local o2 = math.rad(data.gpsLatLon.lat)
-				local a2 = math.rad(data.gpsLatLon.lon)
-				local y = math.sin(a2 - a1) * math.cos(o2)
-				local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-				local bearing = math.deg(math.atan2(y, x)) - data.headingRef
+				local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - data.headingRef
 				local rad1 = math.rad(bearing)
 				local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_2
 				local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)
@@ -106,12 +99,12 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 
 	-- Data & gauges
 	drawData("Altd", 9, 1, data.altitude, data.altitudeMax, 10000, units[data.alt_unit], 0, (not data.telem or data.altitude + 0.5 >= config[6].v) and FLASH or 0)
-	if data.altHold then lockIcon(46, 9) end
+	if data.altHold then icons.lock(46, 9) end
 	tmp = (not data.telem or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	drawData("Dist", data.showCurr and 17 or 21, 1, data.distanceLast, data.distanceMax, 10000, units[data.dist_unit], 0, data.telemFlags)
-	drawData(units[data.speed_unit], data.showCurr and 25 or 33, 1, data.speed, data.speedMax, 1000, '', 0, data.telemFlags)
+	drawData(units[data.speed_unit], data.showCurr and 25 or 33, 1, data.speed, data.speedMax, 100, '', "%.1f", data.telemFlags)
 	drawData("Batt", data.showCurr and 49 or 45, 2, config[1].v == 0 and data.cell or data.batt, config[1].v == 0 and data.cellMin or data.battMin, 100, "V", config[1].v == 0 and "%.2f" or "%.1f", tmp, 1)
-	drawData("RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, "dB", 0, (not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
+	drawData(data.crsf and "LQ" or "RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, data.crsf and "%" or "dB", 0, (not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
 		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
 		drawData(config[23].v == 0 and "Fuel" or config[23].l[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)

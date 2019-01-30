@@ -1,4 +1,4 @@
 .vscode/
-dist/iNav/*.lua
-config.dat
+dist/SCRIPTS/TELEMETRY/iNav/*.lua
+*.dat
 desktop.ini

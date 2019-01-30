@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
@@ -44,12 +44,16 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			tmp = data.showMax and data.altitudeMax or data.altitude
 			lcd.drawText(RIGHT_POS, 57, data.startup > 0 and "Alt" or (math.floor(tmp + 0.5) .. units[data.alt_unit]), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 			if data.altHold then
-				lockIcon(RIGHT_POS - 6, 50)
+				icons.lock(RIGHT_POS - 6, 50)
 			end
 		end
 		-- Pitch
-		lcd.drawText(LEFT_POS + 15, 17, pitch .. (math.abs(pitch) < 10 and "\64" or ""), SMLSIZE + RIGHT + data.telemFlags)
-		lcd.drawLine(LEFT_POS + 1, 17, LEFT_POS + 1, 24, SOLID, ERASE)
+		if data.startup == 0 then
+			lcd.drawText(LEFT_POS + 15, 17, pitch .. (math.abs(pitch) < 10 and "\64" or ""), SMLSIZE + RIGHT + data.telemFlags)
+			lcd.drawLine(LEFT_POS + 1, 17, LEFT_POS + 1, 24, SOLID, ERASE)
+		else
+			lcd.drawText(LEFT_POS + 2, 17, "Ptch", SMLSIZE)
+		end
 	elseif data.showDir or data.headingRef < 0 then
 		-- Heading
 		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
@@ -76,13 +80,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			if SMLCD and not data.armed then
 				d = math.min(d, 18)
 			end
-			local o1 = math.rad(data.gpsHome.lat)
-			local a1 = math.rad(data.gpsHome.lon)
-			local o2 = math.rad(data.gpsLatLon.lat)
-			local a2 = math.rad(data.gpsLatLon.lon)
-			local y = math.sin(a2 - a1) * math.cos(o2)
-			local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-			local bearing = math.deg(math.atan2(y, x)) - tmp
+			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
 			local rad1 = math.rad(bearing)
 			cx = math.floor(math.sin(rad1) * d + 0.5)
 			cy = math.floor(math.cos(rad1) * d + 0.5)
@@ -90,7 +88,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			local hx = X_CNTR + 2 - (d > 9 and cx / 2 or 0)
 			local hy = ((SMLCD and not data.armed) and 33 or 37) + (d > 9 and cy / 2 or 0)
 			if d >= 9 then
-				homeIcon(hx - 3, hy - 3)
+				icons.home(hx - 3, hy - 3)
 			elseif d > 1 then
 				lcd.drawFilledRectangle(hx - 1, hy - 1, 3, 3, SOLID)
 			end
@@ -103,16 +101,11 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 			d = 1
 		end
 		-- Orientation
-		local rad1 = math.rad(data.heading - tmp)
-		local rad2 = math.rad(data.heading - tmp + 145)
-		local rad3 = math.rad(data.heading - tmp - 145)
+		local r1 = math.rad(data.heading - tmp)
+		local r2 = math.rad(data.heading - tmp + 145)
+		local r3 = math.rad(data.heading - tmp - 145)
 		tmp = d == 1 and 8 or 5
-		local x1 = math.sin(rad1) * tmp + cx
-		local y1 = cy - math.cos(rad1) * tmp
-		local x2 = math.sin(rad2) * tmp + cx
-		local y2 = cy - math.cos(rad2) * tmp
-		local x3 = math.sin(rad3) * tmp + cx
-		local y3 = cy - math.cos(rad3) * tmp
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, tmp)
 		if data.headingHold then
 			if d == 1 then
 				lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
@@ -145,23 +138,32 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 	end
 
 	-- Right data - GPS
-	lcd.drawText(LCD_W, 8, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
-	gpsIcon(LCD_W - (SMLCD and 23 or 22), 12)
-	if SMLCD then
-		lcd.drawText(LCD_W + 1, config[22].v == 1 and 22 or 32, "HDOP", RIGHT + SMLSIZE)
-		hdopGraph(LCD_W - 12, config[22].v == 1 and 31 or 24, MIDSIZE)
+	lcd.drawText(LCD_W, data.crsf and 20 or 8, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
+	icons.gps(LCD_W - (SMLCD and 23 or 22), data.crsf and 24 or 12)
+	if data.crsf then
+		lcd.drawText(LCD_W, SMLCD and 9 or 11, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
 	else
-		hdopGraph(LCD_W - 39, 10, MIDSIZE)
-		lcd.drawText(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
+		lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
+	end
+	if SMLCD then
+		if data.crsf == false then
+			lcd.drawText(LCD_W + 1, config[22].v == 0 and 32 or 22, "HDOP", RIGHT + SMLSIZE)
+		end
+		hdopGraph(LCD_W - 12, config[22].v == 0 and (data.crsf and 37 or 24) or 31, MIDSIZE, SMLCD)
+	else
+		hdopGraph(LCD_W - 39, data.crsf and 24 or 10, MIDSIZE, SMLCD)
+		if data.crsf == false then
+			lcd.drawText(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
+		end
 		lcd.drawText(LCD_W + 1, 33, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 		lcd.drawText(LCD_W + 1, 42, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
-		lcd.drawText(RIGHT_POS + 8, 57, "RSSI", SMLSIZE)
+		lcd.drawText(RIGHT_POS + 8, 57, data.crsf and "LQ" or "RSSI", SMLSIZE)
 	end
-	lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	lcd.drawLine(RIGHT_POS + (config[7].v % 2 == 1 and (SMLCD and 5 or 7) or 0), 50, LCD_W, 50, SOLID, FORCE)
 	local rssiFlags = RIGHT + ((not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
-	lcd.drawText(LCD_W - 10, 52, math.min(data.showMax and data.rssiMin or data.rssiLast, 99), MIDSIZE + rssiFlags)
-	lcd.drawText(LCD_W, 57, "dB", SMLSIZE + rssiFlags)
+	data.rssiLast = 100
+	lcd.drawText(LCD_W - (data.crsf and 6 or 10), 52, math.min(data.showMax and data.rssiMin or data.rssiLast, data.crsf and 100 or 99), MIDSIZE + rssiFlags)
+	lcd.drawText(LCD_W, 57, data.crsf and "%" or "dB", SMLSIZE + rssiFlags)
 
 	-- Left data - Battery
 	lcd.drawLine(LEFT_DIV, 8, LEFT_DIV, 63, SOLID, FORCE)
@@ -196,7 +198,7 @@ local function view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, ho
 		lcd.drawText(LEFT_POS - tmp2, data.alt_unit == 9 and 21 or 17, units[data.alt_unit], SMLSIZE + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 		lcd.drawText(LEFT_POS - tmp2, 16, math.floor(tmp + 0.5), MIDSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 		if data.altHold then
-			lockIcon(LEFT_POS - 6, 9)
+			icons.lock(LEFT_POS - 6, 9)
 		end
 		-- Distance
 		tmp = data.showMax and data.distanceMax or data.distanceLast

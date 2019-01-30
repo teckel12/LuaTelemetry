@@ -2,40 +2,47 @@
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
-local VERSION = "1.4.3"
+local buildMode = ...
+local VERSION = "1.6.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
-local FLASH = 3
 local SMLCD = LCD_W < 212
+local HORUS = LCD_W >= 480
+local FLASH = HORUS and WARNING_COLOR or 3
 local tmp, view
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
-if string.sub(r, -4) == "simu" then 
-	loadScript(FILE_PATH .. "build", "tx")()
+if string.sub(r, -4) == "simu" and buildMode ~= false then
+	loadScript(FILE_PATH .. "build", "tx")(buildMode)
 end
 
 local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
 collectgarbage()
 
-local modes, units = loadfile(FILE_PATH .. "modes.luac")(FLASH)
-local configCnt = loadfile(FILE_PATH .. "load.luac")(config, FILE_PATH)
+local modes, units, labels = loadfile(FILE_PATH .. "modes.luac")()
 collectgarbage()
 
-local data, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i)
+local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
+collectgarbage()
+
+loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
-data.lang = "de"
-data.voice = "de"
+data.lang = "es"
+data.voice = "es"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	loadfile(FILE_PATH .. "lang.luac")(modes, config, data, FILE_PATH)
+	loadfile(FILE_PATH .. "lang.luac")(modes, config, labels, data, FILE_PATH)
 	collectgarbage()
 end
 
 loadfile(FILE_PATH .. "reset.luac")(data)
-loadfile(FILE_PATH .. "other.luac")(config, data, units, FILE_PATH)
+local crsf = loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
+collectgarbage()
+
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -44,101 +51,88 @@ local function playAudio(f, a)
 	end
 end
 
-local function gpsDegMin(c, lat)
-	local gpsD = math.floor(math.abs(c))
-	return gpsD .. string.format("\64%05.2f", (math.abs(c) - gpsD) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
-end
-
-local function gpsIcon(x, y)
-	lcd.drawLine(x + 1, y, x + 5, y + 4, SOLID, 0)
-	lcd.drawLine(x + 1, y + 1, x + 4, y + 4, SOLID, 0)
-	lcd.drawLine(x + 1, y + 2, x + 3, y + 4, SOLID, 0)
-	lcd.drawLine(x, y + 5, x + 2, y + 5, SOLID, 0)
-	lcd.drawPoint(x + 4, y + 1)
-	lcd.drawPoint(x + 1, y + 4)
-end
-
-local function lockIcon(x, y)
-	lcd.drawFilledRectangle(x, y + 2, 5, 4, 0)
-	lcd.drawLine(x + 1, y, x + 3, y, SOLID, 0)
-	lcd.drawPoint(x + 1, y + 1)
-	lcd.drawPoint(x + 3, y + 1)
-	lcd.drawPoint(x + 2, y + 3, ERASE)
-end
-
-local function homeIcon(x, y)
-	lcd.drawPoint(x + 3, y - 1)
-	lcd.drawLine(x + 2, y, x + 4, y, SOLID, 0)
-	lcd.drawLine(x + 1, y + 1, x + 5, y + 1, SOLID, 0)
-	lcd.drawLine(x, y + 2, x + 6, y + 2, SOLID, 0)
-	lcd.drawLine(x + 1, y + 3, x + 1, y + 5, SOLID, 0)
-	lcd.drawLine(x + 5, y + 3, x + 5, y + 5, SOLID, 0)
-	lcd.drawLine(x + 2, y + 5, x + 4, y + 5, SOLID, 0)
-	lcd.drawPoint(x + 3, y + 4)
-end
-
-local function hdopGraph(x, y, s)
-	local tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
-	if config[22].v == 0 then
-		if tmp then
-			lcd.drawText(x, y, "    ", SMLSIZE + FLASH)
-		end
-		for i = 4, 9 do
-			lcd.drawLine(x - 8 + (i * 2), (data.hdop >= i or not SMLCD) and y + 8 - i or y + 5, x - 8 + (i * 2), y + 5, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
-		end
+local function calcTrig(gps1, gps2, deg)
+	local o1 = math.rad(gps1.lat)
+	local a1 = math.rad(gps1.lon)
+	local o2 = math.rad(gps2.lat)
+	local a2 = math.rad(gps2.lon)
+	if deg then
+		local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+		local y = math.sin(a2 - a1) * math.cos(o2)
+		return math.deg(math.atan2(y, x))
 	else
-		lcd.drawText(x + 12, s == SMLSIZE and y or y - 2, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, s + RIGHT + (tmp and FLASH or 0))
+		--[[ This is slightly more accurate, but only at extreme distances
+		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009;
+		]]
+		local x = (a2 - a1) * math.cos((o1 + o2) / 2)
+		local y = o2 - o1
+		return math.sqrt(x * x + y * y) * 6371009
 	end
+end
+
+local function calcDir(r1, r2, r3, x, y, r)
+	local x1 = math.sin(r1) * r + 0.5 + x
+	local y1 = y - (math.cos(r1) * r + 0.5)
+	local x2 = math.sin(r2) * r + 0.5 + x
+	local y2 = y - (math.cos(r2) * r + 0.5)
+	local x3 = math.sin(r3) * r + 0.5 + x
+	local y3 = y - (math.cos(r3) * r + 0.5)
+	return x1, y1, x2, y2, x3, y3
 end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
+	-- Testing Crossfire
+	--if data.simu then data.rssi = 50 end
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
-		data.mode = getValue(data.mode_id)
-		data.rxBatt = getValue(data.rxBatt_id)
+		data.rssiMin = getValue(data.rssiMin_id)
 		data.satellites = getValue(data.sat_id)
-		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
-		data.heading = getValue(data.hdg_id)
+		if data.showFuel then
+			data.fuel = getValue(data.fuel_id)
+		end
+		if data.crsf then
+			crsf(data)
+		else
+			data.heading = getValue(data.hdg_id)
+			if data.pitchRoll then
+				data.pitch = getValue(data.pitch_id)
+				data.roll = getValue(data.roll_id)
+			else
+				data.accx = getValue(data.accx_id)
+				data.accy = getValue(data.accy_id)
+				data.accz = getValue(data.accz_id)
+			end
+			data.mode = getValue(data.mode_id)
+			data.rxBatt = getValue(data.rxBatt_id)
+			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
+			data.distance = getValue(data.dist_id)
+			data.distanceMax = getValue(data.distMax_id)
+			data.vspeed = getValue(data.vspeed_id)
+		end
 		data.altitude = getValue(data.alt_id)
 		if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 			data.altitude = data.gpsAlt - data.gpsAltBase
 		end
-		data.distance = getValue(data.dist_id)
 		data.speed = getValue(data.speed_id)
 		if data.showCurr then
 			data.current = getValue(data.curr_id)
 			data.currentMax = getValue(data.currMax_id)
 		end
-		if data.showFuel then
-			data.fuel = getValue(data.fuel_id)
-		end
 		data.altitudeMax = getValue(data.altMax_id)
-		data.distanceMax = getValue(data.distMax_id)
-		--[[ Simulator fake distance
-		if data.gpsFix and data.gpsHome ~= false then
-			data.distance = (math.abs(data.gpsHome.lat - data.gpsLatLon.lat) + math.abs(data.gpsHome.lon - data.gpsLatLon.lon)) * 70000
-			data.distanceMax = math.max(data.distanceMax, data.distance)
-		end
-		]]
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
-		if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
-			data.cells = math.floor(data.batt / 4.3) + 1
-		end
-		data.cell = data.batt / data.cells
-		data.cellMin = data.battMin / data.cells
-		data.rssiMin = getValue(data.rssiMin_id)
-		data.vspeed = getValue(data.vspeed_id)
-		if data.pitchRoll then
-			data.pitch = getValue(data.pitch_id)
-			data.roll = getValue(data.roll_id)
+		if data.a4_id > -1 then
+			data.cell = getValue(data.a4_id)
+			data.cellMin = getValue(data.a4Min_id)
 		else
-			data.accx = getValue(data.accx_id)
-			data.accy = getValue(data.accy_id)
-			data.accz = getValue(data.accz_id)
+			if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
+				data.cells = math.floor(data.batt / 4.3) + 1
+			end
+			data.cell = data.batt / data.cells
+			data.cellMin = data.battMin / data.cells
 		end
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
@@ -147,6 +141,15 @@ local function background()
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
 				config[15].l[0] = gpsTemp
+				-- Calculate distance to home if sensor is missing or in simlulator
+				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
+					tmp = calcTrig(data.gpsHome, data.gpsLatLon, false)
+					if tmp < 5000000 then
+						data.distance = tmp
+						data.distanceMax = math.max(data.distMaxCalc, data.distance)
+						data.distMaxCalc = data.distanceMax
+					end
+				end
 			end
 		end
 		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
@@ -195,10 +198,10 @@ local function background()
 			data.armed = true
 			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
 			homeReset = data.satellites >= 4000 and true or false
-			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- pos hold
+			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- Pos hold
 		else
 			preArmMode = data.modeId
-			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -1000 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
+			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -945 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
 			data.modeId = 11 -- Failsafe
@@ -245,7 +248,7 @@ local function background()
 	if modeIdPrev ~= data.modeId then -- New flight mode
 		if data.armed and modes[data.modeId].w ~= nil then
 			playAudio(modes[data.modeId].w, modes[data.modeId].f > 0 and 1 or nil)
-		elseif not data.armed and data.modeId == 6 and modeIdPrev == 5 then
+		elseif not data.armed and data.modeId == 6 and (modeIdPrev == 5 or modeIdPrev == 12) then
 			playAudio(modes[data.modeId].w)
 		end
 	elseif preArmMode ~= false and data.preArmModePrev ~= preArmMode then
@@ -385,22 +388,8 @@ local function background()
 end
 
 local function run(event)
-	--[[ Lock display at ~10fps
-	if event == 0 then
-		if getTime() - data.last < 10 then
-			return 0
-		end
-		data.last = getTime()
-	end
-	]]
-
-	lcd.clear()
-
-	-- Display system error
-	if data.msg then
-		lcd.drawText((LCD_W - string.len(data.msg) * 5.2) / 2, 27, data.msg)
-		return 0
-	end
+	-- Required when running as a one-time script
+	background()
 
 	-- Startup message
 	if data.startup == 1 then
@@ -408,6 +397,32 @@ local function run(event)
 		data.startup = 2
 	elseif data.startup == 2 and getTime() - data.startupTime >= 200 then
 		data.startup = 0
+		data.msg = false
+	end
+
+	if data.widget then
+		if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
+			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
+			data.startupTime = getTime() -- Never timeout
+			return 0
+		end
+	end
+	
+	-- Clear screen
+	if HORUS then
+		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
+		lcd.clear(CUSTOM_COLOR)
+		if data.widget then
+			event = widgetEvt(data)
+		end
+	else
+		lcd.clear()
+	end
+
+	-- Display system error
+	if data.msg then
+		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) / 2, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
+		return 0
 	end
 
 	-- Config menu or views
@@ -418,7 +433,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
-		view(data, config, event, configCnt, gpsDegMin, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR)
+		view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
 	else
 		-- User input
 		if not data.armed then
@@ -432,7 +447,7 @@ local function run(event)
 		end
 		if event == NEXT or event == PREV then
 			data.showDir = not data.showDir
-		elseif event == EVT_ENTER_BREAK then
+		elseif event == EVT_ENTER_BREAK and not HORUS then
 			-- Cycle through views
 			config[25].v = config[25].v >= config[25].x and 0 or config[25].v + 1
 		elseif event == MENU then
@@ -444,38 +459,15 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadfile(FILE_PATH .. (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac")))()
+			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac"))))()
 			data.v = config[25].v
 		end
-		view(data, config, modes, units, gpsDegMin, gpsIcon, lockIcon, homeIcon, hdopGraph, VERSION, SMLCD, FLASH, FILE_PATH)
+		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 
-	-- Title
-	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
-	lcd.drawText(0, 0, data.modelName, INVERS)
-	if config[13].v > 0 then
-		lcd.drawTimer(SMLCD and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
-	end
-	if config[19].v > 0 then
-		lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
-		lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
-		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
-		for i = 87, tmp, 2 do
-			lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
-		end
-	end
-	if config[19].v ~= 1 then
-		lcd.drawText(SMLCD and (config[14].v == 1 and 105 or LCD_W) or 128, 1, string.format("%.1f", data.txBatt) .. "V", SMLSIZE + RIGHT + INVERS)
-	end
-	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
-		lcd.drawText(LCD_W, 1, string.format("%.1f", data.rxBatt) .. "V", SMLSIZE + RIGHT + INVERS)
-	end
-
-	--[[ Show FPS
-	data.frames = data.frames + 1
-	lcd.drawText(SMLCD and 57 or 80, 1, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), SMLSIZE + RIGHT + INVERS)
-	]]
+	-- Paint title
+	title(data, config, SMLCD)
 
 	return 0
 end
