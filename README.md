@@ -2,11 +2,11 @@
 
 ### FrSky SmartPort(S.Port), D-series, F.Port and TBS Crossfire telemetry on all Taranis and Horus transmitters
 
-[![Build Status](https://travis-ci.com/teckel12/LuaTelemetry.svg?branch=master)](https://travis-ci.com/teckel12/LuaTelemetry) Master (release) branch
+[![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
 
-[![Build Status](https://travis-ci.com/teckel12/LuaTelemetry.svg?branch=development)](https://travis-ci.com/teckel12/LuaTelemetry) Development branch
+## Interface
 
-## Screenshots
+#### [Video of Lua Telemetry](https://youtu.be/YaUgywuT1YM)
 
 #### Classic view
 
