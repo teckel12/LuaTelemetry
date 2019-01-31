@@ -30,7 +30,7 @@ script:
 after_success:
   - coveralls -b .. -r .. -i ./src --dump c.report.json
   - luacov-coveralls -j c.report.json -v
-  - curl -X POST https://api.telegram.org/bot797688679:AAEcKXFJ-0cDfiQLmn_hMg83FDFEtV7x2LQ/sendMessage -d chat_id=@luatelemetry -d "text=Build successful $TRAVIS_COMMIT_MESSAGE"
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && curl -X POST https://api.telegram.org/bot797688679:AAEcKXFJ-0cDfiQLmn_hMg83FDFEtV7x2LQ/sendMessage -d chat_id=@luatelemetry -d "text=Build successful, branch $TRAVIS_BRANCH: $TRAVIS_COMMIT_MESSAGE" || curl -X POST https://api.telegram.org/bot797688679:AAEcKXFJ-0cDfiQLmn_hMg83FDFEtV7x2LQ/sendMessage -d chat_id=@luatelemetry -d "text=PR $TRAVIS_PULL_REQUEST $TRAVIS_PULL_REQUEST_BRANCH $TRAVIS_BRANCH successful"
 
 notifications:
   email:
