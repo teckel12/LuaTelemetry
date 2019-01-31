@@ -23,7 +23,7 @@ install:
   - luarocks make rockspecs/foo-scm-0.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
 
 script:
-  - ./bin/build.sh
+  - ./.travis/build.sh
   - cd test
   - lunit.sh test.lua
 
