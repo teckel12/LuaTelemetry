@@ -33,5 +33,7 @@ after_success:
 
 notifications:
   email:
-    on_success: change
+    recipients:
+      - eckel.tim@gmail.com
+    on_success: never
     on_failure: always
