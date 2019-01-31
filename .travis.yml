@@ -12,9 +12,6 @@ env:
     - LUAROCKS=2.3.0
   matrix:
     - LUA=lua5.2
-    - LUA=luajit     # latest stable version (2.0.4)
-    - LUA=luajit2.0  # current head of 2.0 branch
-    - LUA=luajit2.1  # current head of 2.1 branch
 
 before_install:
   - source .travis/setenv_lua.sh
@@ -29,7 +26,6 @@ install:
 script:
   - ./bin/build.sh
   - cd test
-  - lua -e "print(require'cURL'.version())"
   - lunit.sh test.lua
 
 after_success:
