@@ -43,48 +43,53 @@ local function crsf(data)
 	data.fm = getValue(data.fm_id)
 	data.modePrev = data.mode
 	data.satellites = data.satellites + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100)
+
+	-- In Betaflight, flight mode ends with '*' when not armed
+	local bfArmed = true
+	if string.sub(data.fm, -1) == "*" then
+		bfArmed = false
+		data.fm = string.sub(data.fm, 1, 4)
+	end
+
 	if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
 		-- Arming disabled
 		data.mode = 2
 	else
+		-- Must have a sattelite lock as it's not in a waiting state
 		data.satellites = data.satellites + 3000
+		-- Home reset, use last mode
 		if data.fm == "HRST" then
 			data.satellites = data.satellites + 4000
 			data.mode = data.modePrev
-		else
-			if data.fm == "OK" then
-				-- Ready to arm
-				data.mode = 1
-			else
-				-- Armed
-				data.mode = 5
-				if data.fm == "3CRS" then
-					data.mode = data.mode + 8200
-				elseif data.fm == "CRS" then
-					data.mode = data.mode + 8000
-				elseif data.fm == "HOLD" then
-					data.mode = data.mode + 410
-				elseif data.fm == "AH" then
-					data.mode = data.mode + 210
-				elseif data.fm == "ANGL" or data.fm == "STAB" then
-					data.mode = data.mode + 10
-				elseif data.fm == "HOR" then
-					data.mode = data.mode + 20
-				elseif data.fm == "MANU" then
-					data.mode = data.mode + 40
-				end
-				if data.fm == "RTH" then
-					data.mode = data.mode + 1000
-				end
-				if data.fm == "WP" then
-					data.mode = data.mode + 2000
-				end
-				if data.fm == "!FS!" then
-					data.mode = data.mode + 40000
-				end
-			end
+		-- Not armed but ready to arm
+		elseif data.fm == "OK" or bfArmed == false then
+			data.mode = 1
+		-- Armed modes
+		elseif data.fm == "ACRO" then
+			data.mode = 5
+		elseif data.fm == "ANGL" or data.fm == "STAB" then
+			data.mode = 15
+		elseif data.fm == "HOR" then
+			data.mode = 25
+		elseif data.fm == "MANU" then
+			data.mode = 45
+		elseif data.fm == "AH" then
+			data.mode = 215
+		elseif data.fm == "HOLD" then
+			data.mode = 415
+		elseif data.fm == "CRS" then
+			data.mode = 8015
+		elseif data.fm == "3CRS" then
+			data.mode = 8215
+		elseif data.fm == "WP" then
+			data.mode = 2015
+		elseif data.fm == "RTH" then
+			data.mode = 1015
+		elseif data.fm == "!FS!" then
+			data.mode = 40004
 		end
 	end
+
 	return 0
 end
 
