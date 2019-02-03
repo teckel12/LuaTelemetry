@@ -55,7 +55,7 @@ local function crsf(data)
 		-- Arming disabled
 		data.mode = 2
 	else
-		-- Must have a sattelite lock as it's not in a waiting state
+		-- Not in a waiting or error state so it must have a satellite lock and home position set
 		data.satellites = data.satellites + 3000
 		-- Home reset, use last mode
 		if data.fm == "HRST" then
