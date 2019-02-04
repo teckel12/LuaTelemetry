@@ -92,6 +92,7 @@
 
 * [Tips & Common Problems](https://github.com/iNavFlight/LuaTelemetry/wiki/Tips-&-Common-Problems)
 * [Support Issues](https://github.com/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
+* [Support Chat (Telegram)](https://t.me/luatelemetry)
 
 ## Other
 
