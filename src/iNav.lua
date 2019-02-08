@@ -71,12 +71,12 @@ local function calcTrig(gps1, gps2, deg)
 end
 
 local function calcDir(r1, r2, r3, x, y, r)
-	local x1 = math.sin(r1) * r + 0.5 + x
-	local y1 = y - (math.cos(r1) * r + 0.5)
-	local x2 = math.sin(r2) * r + 0.5 + x
-	local y2 = y - (math.cos(r2) * r + 0.5)
-	local x3 = math.sin(r3) * r + 0.5 + x
-	local y3 = y - (math.cos(r3) * r + 0.5)
+	local x1 = math.sin(r1) * r + x
+	local y1 = y - (math.cos(r1) * r)
+	local x2 = math.sin(r2) * r + x
+	local y2 = y - (math.cos(r2) * r)
+	local x3 = math.sin(r3) * r + x
+	local y3 = y - (math.cos(r3) * r)
 	return x1, y1, x2, y2, x3, y3
 end
 
