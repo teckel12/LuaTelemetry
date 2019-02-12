@@ -1,6 +1,6 @@
 ## INAV Lua Telemetry Flight Status for Taranis/Horus - v1.6.0
 
-### FrSky SmartPort(S.Port), D-series, F.Port and TBS Crossfire telemetry on all Taranis and Horus transmitters
+### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis & Horus transmitters
 
 [![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
 
