@@ -17,8 +17,9 @@ data.configStatus = 0
 data.startupTime = 0
 data.thrCntr = -2000
 data.trCnSt = false
--- FPS stuff
+--[[ FPS stuff
 data.fpsStart = getTime()
 data.frames = 0
+]]
 
 return 0
