@@ -44,7 +44,7 @@ local function crsf(data)
 	data.modePrev = data.mode
 	data.satellites = data.satellites + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100)
 
-	-- In Betaflight, flight mode ends with '*' when not armed
+	-- In Betaflight 4.0+, flight mode ends with '*' when not armed
 	local bfArmed = true
 	if string.sub(data.fm, -1) == "*" then
 		bfArmed = false

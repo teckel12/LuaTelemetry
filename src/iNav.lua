@@ -388,8 +388,12 @@ local function background()
 end
 
 local function run(event)
-	-- Required when running as a one-time script
-	background()
+	-- Run background function manually on Horus
+	if HORUS and data.frames % 2 == 0 then
+		background()
+		data.frames = data.frames + 1
+		return 0
+	end
 
 	-- Startup message
 	if data.startup == 1 then
@@ -400,21 +404,20 @@ local function run(event)
 		data.msg = false
 	end
 
+	-- Display error if Horus widget isn't full screen
 	if data.widget then
 		if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
 			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
 			data.startupTime = getTime() -- Never timeout
 			return 0
 		end
+		event = widgetEvt(data)
 	end
 	
 	-- Clear screen
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
-		if data.widget then
-			event = widgetEvt(data)
-		end
 	else
 		lcd.clear()
 	end
