@@ -3,7 +3,7 @@
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 local buildMode = ...
-local VERSION = "1.5.1"
+local VERSION = "1.6.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
@@ -39,7 +39,7 @@ if data.lang ~= "en" or data.voice ~= "en" then
 end
 
 loadfile(FILE_PATH .. "reset.luac")(data)
-loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
+local crsf = loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
 local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
@@ -57,25 +57,20 @@ local function calcTrig(gps1, gps2, deg)
 	local o2 = math.rad(gps2.lat)
 	local a2 = math.rad(gps2.lon)
 	if deg then
-		local y = math.sin(a2 - a1) * math.cos(o2)
 		local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+		local y = math.sin(a2 - a1) * math.cos(o2)
 		return math.deg(math.atan2(y, x))
 	else
-		local u = math.sin((o2 - o1) / 2)
-		local v = math.sin((a2 - a1) / 2)
-		return 12742018 * math.asin(math.sqrt(u * u + math.cos(o1) * math.cos(o2) * v * v))
+		--[[ This is slightly more accurate, but only at extreme distances
+		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009;
+		]]
+		local x = (a2 - a1) * math.cos((o1 + o2) / 2)
+		local y = o2 - o1
+		return math.sqrt(x * x + y * y) * 6371009
 	end
 end
 
 local function calcDir(r1, r2, r3, x, y, r)
-	--[[ This level of precision probably isn't necessary
-	local x1 = math.floor(math.sin(r1) * r + 0.5) + x
-	local y1 = y - math.floor(math.cos(r1) * r + 0.5)
-	local x2 = math.floor(math.sin(r2) * r + 0.5) + x
-	local y2 = y - math.floor(math.cos(r2) * r + 0.5)
-	local x3 = math.floor(math.sin(r3) * r + 0.5) + x
-	local y3 = y - math.floor(math.cos(r3) * r + 0.5)
-	]]
 	local x1 = math.sin(r1) * r + x
 	local y1 = y - (math.cos(r1) * r)
 	local x2 = math.sin(r2) * r + x
@@ -87,29 +82,45 @@ end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
+	-- Testing Crossfire
+	--if data.simu then data.rssi = 50 end
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
-		data.mode = getValue(data.mode_id)
-		data.rxBatt = getValue(data.rxBatt_id)
+		data.rssiMin = getValue(data.rssiMin_id)
 		data.satellites = getValue(data.sat_id)
-		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
-		data.heading = getValue(data.hdg_id)
+		if data.showFuel then
+			data.fuel = getValue(data.fuel_id)
+		end
+		if data.crsf then
+			crsf(data)
+		else
+			data.heading = getValue(data.hdg_id)
+			if data.pitchRoll then
+				data.pitch = getValue(data.pitch_id)
+				data.roll = getValue(data.roll_id)
+			else
+				data.accx = getValue(data.accx_id)
+				data.accy = getValue(data.accy_id)
+				data.accz = getValue(data.accz_id)
+			end
+			data.mode = getValue(data.mode_id)
+			data.rxBatt = getValue(data.rxBatt_id)
+			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
+			data.distance = getValue(data.dist_id)
+			data.distanceMax = getValue(data.distMax_id)
+			data.vspeed = getValue(data.vspeed_id)
+		end
 		data.altitude = getValue(data.alt_id)
 		if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 			data.altitude = data.gpsAlt - data.gpsAltBase
 		end
-		data.distance = getValue(data.dist_id)
 		data.speed = getValue(data.speed_id)
 		if data.showCurr then
 			data.current = getValue(data.curr_id)
 			data.currentMax = getValue(data.currMax_id)
 		end
-		if data.showFuel then
-			data.fuel = getValue(data.fuel_id)
-		end
 		data.altitudeMax = getValue(data.altMax_id)
-		data.distanceMax = getValue(data.distMax_id)
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
@@ -123,16 +134,6 @@ local function background()
 			data.cell = data.batt / data.cells
 			data.cellMin = data.battMin / data.cells
 		end
-		data.rssiMin = getValue(data.rssiMin_id)
-		data.vspeed = getValue(data.vspeed_id)
-		if data.pitchRoll then
-			data.pitch = getValue(data.pitch_id)
-			data.roll = getValue(data.roll_id)
-		else
-			data.accx = getValue(data.accx_id)
-			data.accy = getValue(data.accy_id)
-			data.accz = getValue(data.accz_id)
-		end
 		data.rssiLast = data.rssi
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
@@ -141,11 +142,13 @@ local function background()
 				data.gpsFix = true
 				config[15].l[0] = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
-				if data.gpsHome ~= false and (data.dist_id == -1 or string.sub(r, -4) == "simu") then
-					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
-					data.distanceMax = math.max(data.distMaxCalc, data.distance)
-					data.distMaxCalc = data.distanceMax
-					data.dist_unit = data.alt_unit
+				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
+					tmp = calcTrig(data.gpsHome, data.gpsLatLon, false)
+					if tmp < 5000000 then
+						data.distance = tmp
+						data.distanceMax = math.max(data.distMaxCalc, data.distance)
+						data.distMaxCalc = data.distanceMax
+					end
 				end
 			end
 		end
@@ -245,7 +248,7 @@ local function background()
 	if modeIdPrev ~= data.modeId then -- New flight mode
 		if data.armed and modes[data.modeId].w ~= nil then
 			playAudio(modes[data.modeId].w, modes[data.modeId].f > 0 and 1 or nil)
-		elseif not data.armed and data.modeId == 6 and modeIdPrev == 5 then
+		elseif not data.armed and data.modeId == 6 and (modeIdPrev == 5 or modeIdPrev == 12) then
 			playAudio(modes[data.modeId].w)
 		end
 	elseif preArmMode ~= false and data.preArmModePrev ~= preArmMode then
@@ -385,8 +388,10 @@ local function background()
 end
 
 local function run(event)
-	-- Required when running as a one-time script
-	background()
+	-- Run background function manually on Horus
+	if HORUS then
+		background()
+	end
 
 	-- Startup message
 	if data.startup == 1 then
@@ -397,21 +402,20 @@ local function run(event)
 		data.msg = false
 	end
 
+	-- Display error if Horus widget isn't full screen
 	if data.widget then
 		if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
 			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
 			data.startupTime = getTime() -- Never timeout
 			return 0
 		end
+		event = widgetEvt(data)
 	end
 	
 	-- Clear screen
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
-		if data.widget then
-			event = widgetEvt(data)
-		end
 	else
 		lcd.clear()
 	end

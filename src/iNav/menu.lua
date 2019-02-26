@@ -40,8 +40,8 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 		config[z].p = (config[z].b ~= nil and config[config[config[z].b].z].v == 0) and 1 or nil
 	end
 	-- Special disabled option and limit cases
-	config[7].p = data.vspeed_id == -1 and 1 or nil
-	config[22].p = HORUS and 1 or nil
+	config[7].p = data.crsf and 1 or (data.vspeed_id == -1 and 1 or nil)
+	config[22].p = data.crsf and 1 or (HORUS and 1 or nil)
 	config[25].p = HORUS and 1 or nil
 	if config[17].p == nil then
 		config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
@@ -49,9 +49,15 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 	end
 	config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 	config[19].v = math.min(config[19].x, config[19].v)
-	config[24].p = config[7].v < 2 and 1 or nil
+	config[24].p = data.crsf and 1 or (config[7].v < 2 and 1 or nil)
 	config[20].p = not data.pitot and 1 or nil
 	config[23].p = not data.showFuel and 1 or nil
+	config[27].p = (not data.crsf or config[23].v > 0) and 1 or nil
+	if data.crsf then
+		config[9].p = 1
+		config[14].p = 1
+		config[21].p = 1
+	end
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP
 		local z = config[line].z

@@ -19,6 +19,8 @@ local function title(data, config, SMLCD)
 	end
 	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
 		lcd.drawText(LCD_W, 1, string.format("%.1fV", data.rxBatt), SMLSIZE + RIGHT + INVERS)
+	elseif data.crsf then
+		lcd.drawText(LCD_W, 1, (getValue(data.rfmd_id) == 2 and 150 or (data.telem and 50 or "--")) .. (SMLCD and "" or "Hz"), SMLSIZE + RIGHT + INVERS)
 	end
 
 	--[[ Show FPS

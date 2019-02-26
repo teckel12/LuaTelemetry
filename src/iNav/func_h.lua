@@ -21,8 +21,7 @@ local function title(data, config, SMLCD)
 		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		lcd.setColor(CUSTOM_COLOR, BLACK)
 		for i = 200, tmp, 4 do
-			--lcd.drawLine(i, 4, i, 15, SOLID, CUSTOM_COLOR)
-			lcd.drawRectangle(i, 5, 2, 10, CUSTOM_COLOR)
+			lcd.drawFilledRectangle(i, 5, 2, 10, CUSTOM_COLOR)
 		end
 	end
 	if config[19].v ~= 1 then
@@ -30,6 +29,8 @@ local function title(data, config, SMLCD)
 	end
 	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
 		lcd.drawText(LCD_W, 0, string.format("%.1fV", data.rxBatt), RIGHT)
+	elseif data.crsf then
+		lcd.drawText(LCD_W, 0, (getValue(data.rfmd_id) == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + (data.telem == false and WARNING_COLOR or 0))
 	end
 
 	--[[ Show FPS
@@ -37,6 +38,8 @@ local function title(data, config, SMLCD)
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
 	]]
 
+	-- Reset color
+	lcd.setColor(WARNING_COLOR, YELLOW)
 	if data.widget then
 		if iNavZone.options.Restore % 2 == 1 then
 			lcd.setColor(TEXT_COLOR, iNavZone.options.Text)
@@ -68,9 +71,12 @@ icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
 icons.fg = Bitmap.open(FILE_PATH .. "pics/fg.png")
 
-data.hcurx_id = getFieldInfo("ail").id
-data.hcury_id = getFieldInfo("ele").id
-data.hctrl_id = getFieldInfo("rud").id
+if data.widget then
+	data.hcurx_id = getFieldInfo("ail").id
+	data.hcury_id = getFieldInfo("ele").id
+	data.hctrl_id = getFieldInfo("rud").id
+	model.setTimer(2, { mode = 0, start = 0, value = 3600, countdownBeep = 0, minuteBeep = false, persistent = 0} )
+end
 
 function widgetEvt(data)
 	local evt = 0
