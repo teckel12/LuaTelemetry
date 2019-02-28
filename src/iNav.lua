@@ -389,10 +389,8 @@ end
 
 local function run(event)
 	-- Run background function manually on Horus
-	if HORUS and data.frames % 2 == 0 then
+	if HORUS then
 		background()
-		data.frames = data.frames + 1
-		return 0
 	end
 
 	-- Startup message
