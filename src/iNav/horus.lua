@@ -5,6 +5,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	--local SKY2 = 8943 --lcd.RGB(32, 92, 122)
 	local GROUND2 = 20996 --lcd.RGB(81, 65, 36)
 	--local MAP = 800 --lcd.RGB(0, 100, 0)
+	local DKMAP = 544 --lcd.RGB(0, 70, 0)
 	--local DATA = 264 --lcd.RGB(0, 32, 65)
 	local DKGREY = 12678 --lcd.RGB(48, 48, 48)
 	local RIGHT_POS = 270
@@ -223,6 +224,26 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			tmp = data.headingRef
 		end
 		local cx, cy, d
+		-- Altitude graph
+		lcd.setColor(CUSTOM_COLOR, DKMAP)
+		if data.armed and getTime() >= data.altLst + 50 then
+			data.alt[data.altCur] = data.altitude
+			data.altCur = data.altCur == 60 and 1 or data.altCur + 1
+			data.altLst = getTime()
+			--data.altitudeMax
+			data.altMin = math.min(data.altMin, data.altitude)
+			data.altMax = 20
+			for i = 1, 60, 1 do
+				data.altMax = math.max(data.altMax, data.alt[i] == nil and data.altMax or data.alt[i])
+			end
+		end
+		tmp = 30 / (data.altMax - data.altMin)
+		for i = 1, 60, 1 do
+			d = data.altCur - (61 - i)
+			if d < 1 then d = d + 60 end
+			lcd.drawLine(RIGHT_POS - (60 - i), BOTTOM - ((data.alt[d] == nil and data.altMin or data.alt[d])) * tmp, RIGHT_POS - (60 - i), BOTTOM, SOLID, CUSTOM_COLOR)
+		end
+
 		if data.gpsHome ~= false then
 			-- Craft location
 			d = data.distanceLast >= data.distRef and math.min(math.max((data.distanceLast / math.max(math.min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * 100, 7), 100) or 1

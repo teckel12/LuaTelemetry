@@ -1,5 +1,7 @@
 local data = ...
 
+local HORUS = LCD_W >= 480
+
 data.startup = 1
 data.timerStart = 0
 data.timer = 0
@@ -21,5 +23,13 @@ data.trCnSt = false
 data.fpsStart = getTime()
 data.frames = 0
 ]]
+
+if HORUS then
+	data.altMin = 0
+	data.altMax = 20
+	data.altCur = 1
+	data.altLst = getTime()
+	data.alt = {}
+end
 
 return 0
