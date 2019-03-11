@@ -5,7 +5,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	--local SKY2 = 8943 --lcd.RGB(32, 92, 122)
 	local GROUND2 = 20996 --lcd.RGB(81, 65, 36)
 	--local MAP = 800 --lcd.RGB(0, 100, 0)
-	local DKMAP = 544 --lcd.RGB(0, 70, 0)
 	--local DATA = 264 --lcd.RGB(0, 32, 65)
 	local DKGREY = 12678 --lcd.RGB(48, 48, 48)
 	local RIGHT_POS = 270
@@ -223,14 +222,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		else
 			tmp = data.headingRef
 		end
-		local cx, cy, d
+		local cx, cy, cy2, d, lst
+
 		-- Altitude graph
-		lcd.setColor(CUSTOM_COLOR, DKMAP)
-		if data.armed and getTime() >= data.altLst + 50 then
+		if data.armed and getTime() >= data.altLst + 500 then
 			data.alt[data.altCur] = data.altitude
 			data.altCur = data.altCur == 60 and 1 or data.altCur + 1
 			data.altLst = getTime()
-			--data.altitudeMax
 			data.altMin = math.min(data.altMin, data.altitude)
 			data.altMax = 20
 			for i = 1, 60, 1 do
@@ -238,11 +236,33 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		tmp = 30 / (data.altMax - data.altMin)
-		for i = 1, 60, 1 do
+		for i = 1, 60 do
+			cx = RIGHT_POS - (60 - i)
 			d = data.altCur - (61 - i)
 			if d < 1 then d = d + 60 end
-			lcd.drawLine(RIGHT_POS - (60 - i), BOTTOM - ((data.alt[d] == nil and data.altMin or data.alt[d])) * tmp, RIGHT_POS - (60 - i), BOTTOM, SOLID, CUSTOM_COLOR)
+			cy = BOTTOM - (data.alt[d] - data.altMin) * tmp
+			lcd.setColor(CUSTOM_COLOR, GREY)
+			lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, CUSTOM_COLOR)
+			if i > 1 then
+				lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
+				lcd.drawLine(cx - 1, cy2, cx, cy, SOLID, CUSTOM_COLOR)
+			end
+			if i == 59 then
+				lst = data.alt[d]
+			end
+			cy2 = cy
 		end
+		lcd.setColor(CUSTOM_COLOR, BLACK)
+		for i = RIGHT_POS - 47, RIGHT_POS - 11, 12 do
+			lcd.drawLine(i, BOTTOM - 31, i, BOTTOM, DOTTED, CUSTOM_COLOR)
+		end
+		lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
+		if data.altMin < 0 then
+			cy = BOTTOM - (-data.altMin * tmp)
+			lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS - 1, cy, DOTTED, CUSTOM_COLOR)
+		end
+		tmp = (data.alt[d] - lst) / 5
+		lcd.drawText(RIGHT_POS + 2, BOTTOM - 47, string.format(math.abs(tmp) >= 9.95 and "%.0f" or "%.1f", tmp) .. units[data.alt_unit == 10 and 6 or 5], SMLSIZE + RIGHT)
 
 		if data.gpsHome ~= false then
 			-- Craft location

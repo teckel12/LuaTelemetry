@@ -30,6 +30,9 @@ if HORUS then
 	data.altCur = 1
 	data.altLst = getTime()
 	data.alt = {}
+	for i = 1, 60, 1 do
+		data.alt[i] = 0
+	end
 end
 
 return 0
