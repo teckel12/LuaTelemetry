@@ -26,7 +26,7 @@ data.frames = 0
 
 if HORUS then
 	data.altMin = 0
-	data.altMax = 20
+	data.altMax = 30
 	data.altCur = 1
 	data.altLst = getTime()
 	data.alt = {}
