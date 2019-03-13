@@ -4,7 +4,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
 	--local SKY2 = 8943 --lcd.RGB(32, 92, 122)
 	local GROUND2 = 20996 --lcd.RGB(81, 65, 36)
-	--local MAP = 800 --lcd.RGB(0, 100, 0)
+	local MAP = 800 --lcd.RGB(0, 100, 0)
 	--local DKMAP = 544 --lcd.RGB(0, 70, 0)
 	local LIGHTMAP = 1184 --lcd.RGB(0, 150, 0)
 	--local DATA = 264 --lcd.RGB(0, 32, 65)
@@ -223,7 +223,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local cx, cy, d
 
 		-- Altitude graph
-		if data.armed and getTime() >= data.altLst + 30 then
+		if data.armed and getTime() >= data.altLst + 500 then
 			data.alt[data.altCur] = data.altitude
 			data.altCur = data.altCur == 60 and 1 or data.altCur + 1
 			data.altLst = getTime()
@@ -233,20 +233,24 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				data.altMin = math.min(data.altMin, data.alt[i])
 				data.altMax = math.max(data.altMax, data.alt[i])
 			end
+			data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
 		end
 		tmp = 30 / (data.altMax - data.altMin)
-		for i = 1, 60 do
-			cx = RIGHT_POS - (60 - i)
-			cy = BOTTOM - ((i - 1) % 12 == 0 and 30 or (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp)
-			lcd.setColor(CUSTOM_COLOR, (i - 1) % 12 == 0 and DKGREY or LIGHTMAP)
-			lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, CUSTOM_COLOR)
+		lcd.setColor(CUSTOM_COLOR, LIGHTMAP)
+		for i = 2, 60 do
+			if (i - 1) % 12 ~= 0 then
+				cx = RIGHT_POS - (60 - i)
+				cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp
+				lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, CUSTOM_COLOR)
+			end
 		end
-		lcd.setColor(CUSTOM_COLOR, DKGREY)
-		lcd.drawLine(RIGHT_POS - 59, BOTTOM - 31, RIGHT_POS, BOTTOM - 31, SOLID, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
-		if data.altMin < 0 then
+		if data.altMin < -1 then
 			cy = BOTTOM - (-data.altMin * tmp)
-			lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS - 1, cy, DOTTED, CUSTOM_COLOR)
+			lcd.drawLine(RIGHT_POS - 58, cy, RIGHT_POS - 1, cy, DOTTED, CUSTOM_COLOR)
+			if cy < 142 then
+				lcd.drawText(RIGHT_POS - 59, cy - 8, "0", SMLSIZE + RIGHT)
+			end
 		end
 		lcd.drawText(RIGHT_POS + 2, BOTTOM - 46, math.floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
 
@@ -290,6 +294,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText(LEFT_POS, BOTTOM - 19, "\192", 0)
 		end
 		lcd.drawText(LEFT_POS + (data.showMax and 12 or 2), BOTTOM - 16, dist, SMLSIZE + data.telemFlags)
+	else
+		lcd.setColor(CUSTOM_COLOR, MAP)
+		lcd.drawFilledRectangle(RIGHT_POS - 47, BOTTOM - 30, 37, 30, CUSTOM_COLOR)
 	end
 
 	-- Startup message
