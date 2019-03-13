@@ -79,7 +79,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if not data.armed and data.widget then
 		tmp = model.getTimer(2)
 		if tmp.value == 0 then
-			loadfile(FILE_PATH .. "reset.luac")(data)
+			loadfile(FILE_PATH .. "reset.luac")(data, config)
 			tmp.value = 3600
 			model.setTimer(2, tmp)
 		end
@@ -223,36 +223,41 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local cx, cy, d
 
 		-- Altitude graph
-		if data.armed and getTime() >= data.altLst + 500 then
-			data.alt[data.altCur] = data.altitude
-			data.altCur = data.altCur == 60 and 1 or data.altCur + 1
-			data.altLst = getTime()
-			data.altMin = 0
-			data.altMax = data.alt_unit == 10 and 100 or 30
-			for i = 1, 60, 1 do
-				data.altMin = math.min(data.altMin, data.alt[i])
-				data.altMax = math.max(data.altMax, data.alt[i])
+		if config[28].v == 1 then
+			if data.armed and getTime() >= data.altLst + 500 then
+				data.alt[data.altCur] = data.altitude
+				data.altCur = data.altCur == 60 and 1 or data.altCur + 1
+				data.altLst = getTime()
+				data.altMin = 0
+				data.altMax = data.alt_unit == 10 and 100 or 30
+				for i = 1, 60, 1 do
+					data.altMin = math.min(data.altMin, data.alt[i])
+					data.altMax = math.max(data.altMax, data.alt[i])
+				end
+				data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
 			end
-			data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
-		end
-		tmp = 30 / (data.altMax - data.altMin)
-		lcd.setColor(CUSTOM_COLOR, LIGHTMAP)
-		for i = 2, 60 do
-			if (i - 1) % 12 ~= 0 then
-				cx = RIGHT_POS - (60 - i)
-				cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp
-				lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, CUSTOM_COLOR)
+			tmp = 30 / (data.altMax - data.altMin)
+			lcd.setColor(CUSTOM_COLOR, LIGHTMAP)
+			for i = 2, 60 do
+				if (i - 1) % 12 ~= 0 then
+					cx = RIGHT_POS - (60 - i)
+					cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp
+					lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, CUSTOM_COLOR)
+				end
 			end
-		end
-		lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
-		if data.altMin < -1 then
-			cy = BOTTOM - (-data.altMin * tmp)
-			lcd.drawLine(RIGHT_POS - 58, cy, RIGHT_POS - 1, cy, DOTTED, CUSTOM_COLOR)
-			if cy < 142 then
-				lcd.drawText(RIGHT_POS - 59, cy - 8, "0", SMLSIZE + RIGHT)
+			lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
+			if data.altMin < -1 then
+				cy = BOTTOM - (-data.altMin * tmp)
+				lcd.drawLine(RIGHT_POS - 58, cy, RIGHT_POS - 1, cy, DOTTED, CUSTOM_COLOR)
+				if cy < 142 then
+					lcd.drawText(RIGHT_POS - 59, cy - 8, "0", SMLSIZE + RIGHT)
+				end
 			end
+			lcd.drawText(RIGHT_POS + 2, BOTTOM - 46, math.floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
+		else
+			lcd.setColor(CUSTOM_COLOR, MAP)
+			lcd.drawFilledRectangle(RIGHT_POS - 47, BOTTOM - 30, 37, 30, CUSTOM_COLOR)
 		end
-		lcd.drawText(RIGHT_POS + 2, BOTTOM - 46, math.floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
 
 		if data.gpsHome ~= false then
 			-- Craft location

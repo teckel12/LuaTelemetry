@@ -43,6 +43,7 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 	config[7].p = data.crsf and 1 or (data.vspeed_id == -1 and 1 or nil)
 	config[22].p = data.crsf and 1 or (HORUS and 1 or nil)
 	config[25].p = HORUS and 1 or nil
+	config[28].p = not HORUS and 1 or nil
 	if config[17].p == nil then
 		config[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
 		config[18].p = config[17].p

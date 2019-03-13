@@ -37,7 +37,7 @@ loadScript(FILE_PATH .. "horus", env)()
 loadScript(FILE_PATH .. "menu", env)()
 
 if buildMode == nil then
-	loadScript("/WIDGETS/iNav/main", env)()
+	loadScript("/WIDGETS/iNav/main", env)(true)
 end
 
 return 0

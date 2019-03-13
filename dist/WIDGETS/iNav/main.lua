@@ -1,3 +1,4 @@
+local buildMode = ...
 local iNav
 local options = {
 	{ "Restore", BOOL, 0},
@@ -8,7 +9,7 @@ local TELE_PATH = "/SCRIPTS/TELEMETRY/"
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
-if string.sub(r, -4) == "simu" then
+if string.sub(r, -4) == "simu" and buildMode ~= true then
 	loadScript(TELE_PATH .. "iNav", "tc")(true)
 end
 
