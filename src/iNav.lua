@@ -388,7 +388,7 @@ local function background()
 end
 
 local function run(event)
-	-- Run background function on Horus
+	-- Run background function manually on Horus
 	if HORUS then
 		background()
 	end
