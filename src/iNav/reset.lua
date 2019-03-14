@@ -33,7 +33,6 @@ if HORUS then
 	for i = 1, 60, 1 do
 		data.alt[i] = 0
 	end
-	data.toggle = true
 end
 
 return 0

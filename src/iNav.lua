@@ -390,10 +390,7 @@ end
 local function run(event)
 	-- Run background function manually on Horus
 	if HORUS then
-		if data.toggle then
-			background()
-		end
-		data.toggle = not data.toggle
+		background()
 	end
 
 	-- Startup message
