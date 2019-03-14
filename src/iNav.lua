@@ -128,8 +128,8 @@ local function background()
 			data.cell = getValue(data.a4_id)
 			data.cellMin = getValue(data.a4Min_id)
 		else
-			if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
-				data.cells = math.floor(data.batt / 4.3) + 1
+			if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
+				data.cells = math.floor(data.batt / config[29].v) + 1
 			end
 			data.cell = data.batt / data.cells
 			data.cellMin = data.battMin / data.cells
@@ -392,11 +392,8 @@ local function run(event)
 	if HORUS then
 		if data.toggle then
 			background()
-			data.toggle = false
-			return 0
-		else
-			data.toggle = true
 		end
+		data.toggle = not data.toggle
 	end
 
 	-- Startup message

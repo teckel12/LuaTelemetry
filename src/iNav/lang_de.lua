@@ -42,6 +42,9 @@ config[23].t = "Kapazitaet"			-- Fuel Unit
 config[24].t = "Vario Schritte"		-- Vario Steps
 config[25].t = "Ansichtsmodus"		-- View Mode
 config[26].t = "AlH Cntr Meld."		-- AltHold Center FB
+config[27].t = "Bat. Kapazitaet"	-- Battery Capacity
+config[28].t = "Hoehenkurve"		-- Altitude Graph
+config[29].t = "Zellenberechnung"	-- Cell Calculation
 
 -- Max 9 characters
 config[1].l =  {[0] = "Zelle", "Total"}							-- "Cell", "Total"
@@ -62,6 +65,7 @@ config[22].l = {[0] = "Graph", "Dezimal"}						-- "Graph", "Decimal"
 --config[23].l = {[0] = "Percent", "mAh", "mWh"}				-- "Percent", "mAh", "mWh"
 config[25].l = {[0] = "Klassisch", "Pilot", "Radar"}			-- "Classic", "Pilot", "Radar"
 config[26].l = {[0] = "Aus", "An"}								-- "Off", "On"
+config[28].l = {[0] = "Aus", "An"}						    	-- "Off", "On"
 
 -- Max 10 characters
 labels[1] = "Kapazitaet"-- Fuel

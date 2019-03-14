@@ -254,9 +254,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				end
 			end
 			lcd.drawText(RIGHT_POS + 2, BOTTOM - 46, math.floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
-		else
-			lcd.setColor(CUSTOM_COLOR, MAP)
-			lcd.drawFilledRectangle(RIGHT_POS - 47, BOTTOM - 30, 37, 30, CUSTOM_COLOR)
 		end
 
 		if data.gpsHome ~= false then
@@ -299,9 +296,15 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText(LEFT_POS, BOTTOM - 19, "\192", 0)
 		end
 		lcd.drawText(LEFT_POS + (data.showMax and 12 or 2), BOTTOM - 16, dist, SMLSIZE + data.telemFlags)
-	else
+	end
+
+	-- Hide altitude graph
+	if data.startup ~= 0 or config[28].v == 0 then
 		lcd.setColor(CUSTOM_COLOR, MAP)
-		lcd.drawFilledRectangle(RIGHT_POS - 47, BOTTOM - 30, 37, 30, CUSTOM_COLOR)
+		for i = RIGHT_POS - 47, RIGHT_POS - 11, 12 do
+			lcd.drawLine(i, BOTTOM - 30, i, BOTTOM - 1, SOLID, CUSTOM_COLOR)
+		end
+		--lcd.drawFilledRectangle(RIGHT_POS - 47, BOTTOM - 30, 37, 30, CUSTOM_COLOR)
 	end
 
 	-- Startup message
