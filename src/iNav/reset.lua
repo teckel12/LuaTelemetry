@@ -19,6 +19,7 @@ data.configStatus = 0
 data.startupTime = 0
 data.thrCntr = -2000
 data.trCnSt = false
+data.fuelEst = -1
 --[[ FPS stuff
 data.fpsStart = getTime()
 data.frames = 0

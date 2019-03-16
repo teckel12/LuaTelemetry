@@ -38,7 +38,14 @@ local function crsf(data)
 	end
 	data.heading = math.deg(tmp)
 	if data.showFuel and config[23].v == 0 then
-		data.fuel = math.min(math.floor((1 - data.fuel / config[27].v) * 100 + 0.5), 100)
+		if data.fuelEst == -1 and data.cell > 0 then
+			if data.fuel < 25 and config[29].v - data.cell >= 0.2 then
+				data.fuelEst = math.min(1- (data.cell - config[2].v + 0.1) / (config[29].v - config[2].v), 1) * config[27].v
+			else
+				data.fuelEst = 0
+			end
+		end
+		data.fuel = math.min(math.floor((1 - (data.fuel + data.fuelEst) / config[27].v) * 100 + 0.5), 100)
 	end
 	data.fm = getValue(data.fm_id)
 	data.modePrev = data.mode

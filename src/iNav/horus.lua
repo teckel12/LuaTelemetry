@@ -25,7 +25,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local x2 = math.sin(roll2) * r + X_CNTR
 		local y2 = py - (math.cos(roll2) * r)
 		if r == 200 then
-			local steps = roll3 <= 5 and 16 or (roll3 <= 10 and 8 or (roll3 <= 15 and 4 or 2))
+			-- Looks better, but can't draw fast enough at only 2 pixels wide each
+			--local steps = roll3 <= 5 and 16 or (roll3 <= 10 and 8 or (roll3 <= 15 and 4 or 2))
+			local steps = roll3 <= 5 and 16 or (roll3 <= 10 and 8 or 4)
 			local a = (y1 - y2) / (x1 - x2 + .001) * steps
 			local y = y2 - ((x2 + 1) * a) / steps
 			lcd.setColor(CUSTOM_COLOR, GROUND2)
@@ -210,6 +212,15 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
+	-- Calc orientation
+	tmp = data.headingRef
+	if data.showDir or data.headingRef < 0 then
+		tmp = 0
+	end
+	local r1 = math.rad(data.heading - tmp)
+	local r2 = math.rad(data.heading - tmp + 145)
+	local r3 = math.rad(data.heading - tmp - 145)
+
 	-- Radar
 	local LEFT_POS = RIGHT_POS + (config[7].v % 2 == 1 and 11 or 0)
 	RIGHT_POS = 479
@@ -221,9 +232,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		if data.showDir or data.headingRef < 0 then
 			lcd.drawText(LEFT_POS + 2, Y_CNTR - 9, "W", SMLSIZE)
 			lcd.drawText(RIGHT_POS, Y_CNTR - 9, "E", SMLSIZE + RIGHT)
-			tmp = 0
-		else
-			tmp = data.headingRef
 		end
 		local cx, cy, d
 
@@ -250,9 +258,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 					lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, CUSTOM_COLOR)
 				end
 			end
-			lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 			if data.altMin < -1 then
 				cy = BOTTOM - (-data.altMin * tmp)
+				lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 				lcd.drawLine(RIGHT_POS - 58, cy, RIGHT_POS - 1, cy, DOTTED, CUSTOM_COLOR)
 				if cy < 142 then
 					lcd.drawText(RIGHT_POS - 59, cy - 8, "0", SMLSIZE + RIGHT)
@@ -285,16 +293,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			d = 1
 		end
 		-- Orientation
-		local r1 = math.rad(data.heading - tmp)
-		local r2 = math.rad(data.heading - tmp + 145)
-		local r3 = math.rad(data.heading - tmp - 145)
 		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, 8)
 		lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
-		local mx = ((x2 + x3) * 2 + x1) / 5
-		local my = ((y2 + y3) * 2 + y1) / 5
-		lcd.drawLine(x2, y2, mx, my, SOLID, CUSTOM_COLOR)
-		lcd.drawLine(x3, y3, mx, my, SOLID, CUSTOM_COLOR)
-		--lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
+		lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		lcd.drawLine(x1, y1, x2, y2, SOLID, TEXT_COLOR)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, TEXT_COLOR)
 		if data.showMax then
@@ -388,23 +389,17 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText(X3 - 4, 211, "E", SMLSIZE + RIGHT)
 			lcd.drawText(X2 + 10, 211, "W", SMLSIZE)
 			lcd.drawText(X2 + 78, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
-			tmp = 0
-		else
-			tmp = data.headingRef
 		end
-		local r1 = math.rad(data.heading - tmp)
-		local r2 = math.rad(data.heading - tmp + 145)
-		local r3 = math.rad(data.heading - tmp - 145)
 		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) / 2 + 4, 219, 25)
 		if data.headingHold then
 			lcd.drawFilledRectangle((x2 + x3) / 2 - 2, (y2 + y3) / 2 - 2, 5, 5, SOLID)
 		else
 			lcd.setColor(CUSTOM_COLOR, GREY)
-			local mx = ((x2 + x3) * 2 + x1) / 5
-			local my = ((y2 + y3) * 2 + y1) / 5
-			lcd.drawLine(x2, y2, mx, my, SOLID, CUSTOM_COLOR)
-			lcd.drawLine(x3, y3, mx, my, SOLID, CUSTOM_COLOR)
-			--lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
+			--local mx = ((x2 + x3) * 2 + x1) / 5
+			--local my = ((y2 + y3) * 2 + y1) / 5
+			--lcd.drawLine(x2, y2, mx, my, SOLID, CUSTOM_COLOR)
+			--lcd.drawLine(x3, y3, mx, my, SOLID, CUSTOM_COLOR)
+			lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		end
 		lcd.drawLine(x1, y1, x2, y2, SOLID, TEXT_COLOR)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, TEXT_COLOR)

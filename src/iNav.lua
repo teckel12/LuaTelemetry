@@ -389,10 +389,10 @@ end
 
 local function run(event)
 	-- Run background function manually on Horus
-	if HORUS then
+	if HORUS and data.startup == 0 then
 		background()
 	end
-
+			
 	-- Startup message
 	if data.startup == 1 then
 		data.startupTime = getTime()
