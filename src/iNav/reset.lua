@@ -25,15 +25,15 @@ data.fpsStart = getTime()
 data.frames = 0
 ]]
 
-if HORUS then
+--if HORUS then
 	data.altMin = 0
 	data.altMax = data.alt_unit == 10 and 100 or 30
 	data.altCur = 1
 	data.altLst = getTime()
-	data.alt = {}
-	for i = 1, 60, 1 do
-		data.alt[i] = 0
-	end
-end
+	data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }
+	--for i = 1, 60, 1 do
+	--	data.alt[i] = 0
+	--end
+--end
 
 return 0

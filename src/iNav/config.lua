@@ -26,7 +26,7 @@ local config = {
 	{ o = 26, t = "GPS HDOP View",    c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
 	{ o = 6,  t = "Fuel Unit",        c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
 	{ o = 16, t = "Vario Steps",      c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
-	{ o = 25, t = "View Mode",        c = 1, v = 0, i = 1, x = 2, l = {[0] = "Classic", "Pilot", "Radar"} },
+	{ o = 25, t = "View Mode",        c = 1, v = 0, i = 1, x = 3, l = {[0] = "Classic", "Pilot", "Radar", "Altitude"} },
 	{ o = 23, t = "AltHold Center FB",c = 1, v = 0, i = 1, l = {[0] = "Off", "On"}, b = 18 },
 	{ o = 7,  t = "Battery Capacity", c = 5, v = 1500, m = 150, x = 9950, i = 50, a = "mAh" },
 	{ o = 17, t = "Altitude Graph",   c = 1, v = 0, i = 1, l = {[0] = "Off", "On"} },
