@@ -63,9 +63,9 @@ config[19].l = {[0] = "Nummer", "Graph", "Beide"}				-- "Number", "Graph", "Both
 --config[20].l = {[0] = "GPS", "Pitot"}							-- "GPS", "Pitot"
 config[22].l = {[0] = "Graph", "Dezimal"}						-- "Graph", "Decimal"
 --config[23].l = {[0] = "Percent", "mAh", "mWh"}				-- "Percent", "mAh", "mWh"
-config[25].l = {[0] = "Klassisch", "Pilot", "Radar"}			-- "Classic", "Pilot", "Radar"
+config[25].l = {[0] = "Klassisch", "Pilot", "Radar", "Hoehe"}	-- "Classic", "Pilot", "Radar", "Altitude"
 config[26].l = {[0] = "Aus", "An"}								-- "Off", "On"
-config[28].l = {[0] = "Aus", "An"}						    	-- "Off", "On"
+config[28].l = {[0] = "Aus", "An"}								-- "Off", "On"
 
 -- Max 10 characters
 labels[1] = "Kapazitaet"-- Fuel

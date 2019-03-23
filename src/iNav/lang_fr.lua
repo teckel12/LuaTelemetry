@@ -63,7 +63,7 @@ config[19].l = {[0] = "Numerique", "Graphique", "Les deux"}		-- "Number", "Graph
 --config[20].l = {[0] = "GPS", "Pitot"}							-- "GPS", "Pitot"
 config[22].l = {[0] = "Graphique", "Decimal"}					-- "Graph", "Decimal"
 config[23].l = {[0] = "Pourcent", "mAh", "mWh"}					-- "Percent", "mAh", "mWh"
-config[25].l = {[0] = "Classique", "Pilote", "Radar"}			-- "Classic", "Pilot", "Radar"
+config[25].l = {[0] = "Classique", "Pilote", "Radar", "Altitude"}-- "Classic", "Pilot", "Radar", "Altitude"
 config[26].l = {[0] = "Eteint", "Actif"}						-- "Off", "On"
 config[28].l = {[0] = "Eteint", "Actif"}						-- "Off", "On"
 
