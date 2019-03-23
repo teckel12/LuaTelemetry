@@ -1,7 +1,5 @@
 local data = ...
 
-local HORUS = LCD_W >= 480
-
 data.startup = 1
 data.timerStart = 0
 data.timer = 0
@@ -20,20 +18,16 @@ data.startupTime = 0
 data.thrCntr = -2000
 data.trCnSt = false
 data.fuelEst = -1
+
+data.altMin = 0
+data.altMax = data.alt_unit == 10 and 100 or 30
+data.altCur = 1
+data.altLst = getTime()
+data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }
+
 --[[ FPS stuff
 data.fpsStart = getTime()
 data.frames = 0
 ]]
-
---if HORUS then
-	data.altMin = 0
-	data.altMax = data.alt_unit == 10 and 100 or 30
-	data.altCur = 1
-	data.altLst = getTime()
-	data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }
-	--for i = 1, 60, 1 do
-	--	data.alt[i] = 0
-	--end
---end
 
 return 0
