@@ -460,7 +460,7 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 0 and "view.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 2 and "radar.luac" or "alt.luac")))))()
+			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 0 and "view.luac" or (config[25].v == 1 and "pilot.luac" or "radar.luac"))))()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
