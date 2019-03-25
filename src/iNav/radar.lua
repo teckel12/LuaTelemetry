@@ -30,7 +30,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	pitch = pitch >= 0 and (pitch < 1 and 0 or math.floor(pitch + 0.5)) or (pitch > -1 and 0 or math.ceil(pitch - 0.5))
 
-	-- Radar bottom
+	-- Bottom center
 	if SMLCD then
 		if data.showDir and (not data.armed or not data.telem) then
 			-- GPS coords
@@ -65,7 +65,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawText(RIGHT_POS, 9, "\192", SMLSIZE + RIGHT)
 	end
 
-	-- Radar or altitude graph
+	-- Radar/altitude graph
 	if data.startup == 0 then
 		if config[25].v == 2 then
 			-- Radar
@@ -123,13 +123,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		else
 			-- Altitude graph
 			local BOTTOM = SMLCD and 47 or ((data.showDir or data.headingRef < 0) and 53 or 63)
-			if data.armed and getTime() >= data.altLst + 500 then
+			if data.armed and getTime() >= data.altLst + (config[28].v * 100) then
 				data.alt[data.altCur] = data.altitude
 				data.altCur = data.altCur == 60 and 1 or data.altCur + 1
 				data.altLst = getTime()
 				data.altMin = 0
-				data.altMax = data.alt_unit == 10 and 100 or 30
-				for i = 1, 60, 1 do
+				data.altMax = data.alt_unit == 10 and 50 or 30
+				for i = 1, 60 do
 					data.altMin = math.min(data.altMin, data.alt[i])
 					data.altMax = math.max(data.altMax, data.alt[i])
 				end
@@ -138,16 +138,16 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			local height = (SMLCD or data.showDir or data.headingRef < 0) and 30 or 40
 			tmp = height / (data.altMax - data.altMin)
 			for i = 1, 60 do
-				cx = RIGHT_POS - (60 - i) - 1
+				cx = RIGHT_POS - 61 + i
 				cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp
 				lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, FORCE)
-				if i ~= 1 and (i - 1) % 12 == 0 then
-					lcd.drawLine(cx, BOTTOM - height, cx, BOTTOM, DOTTED, 0)
+				if (i ~= 1 or not SMLCD) and (i - 1) % (60 / config[28].v) == 0 then
+					lcd.drawLine(cx, BOTTOM - height, cx, BOTTOM, DOTTED, SMLCD and 0 or GREY_DEFAULT)
 				end
 			end
 			if data.altMin < -1 then
 				cy = BOTTOM - (-data.altMin * tmp)
-				lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS, cy, DOTTED, 0)
+				lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS, cy, DOTTED, SMLCD and 0 or GREY_DEFAULT)
 				if not SMLCD then
 					lcd.drawText(RIGHT_POS - 60, cy - 2, "0" .. units[data.alt_unit], SMLSIZE + RIGHT)
 				end

@@ -29,7 +29,7 @@ local config = {
 	{ o = 25, t = "View Mode",        c = 1, v = 0, i = 1, x = 3, l = {[0] = "Classic", "Pilot", "Radar", "Altitude"} },
 	{ o = 23, t = "AltHold Center FB",c = 1, v = 0, i = 1, l = {[0] = "Off", "On"}, b = 18 },
 	{ o = 7,  t = "Battery Capacity", c = 5, v = 1500, m = 150, x = 9950, i = 50, a = "mAh" },
-	{ o = 17, t = "Altitude Graph",   c = 1, v = 0, i = 1, l = {[0] = "Off", "On"} },
+	{ o = 17, t = "Altitude Graph",   c = 1, v = 0, x = 6, i = 1, l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" },
 	{ o = 5,  t = "Cell Calculation", c = 2, v = 4.3, d = true, m = 4.2, x = 4.5, i = 0.1, a = "V" },
 }
 

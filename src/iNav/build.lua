@@ -33,7 +33,6 @@ crsf = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()
-loadScript(FILE_PATH .. "alt", env)()
 loadScript(FILE_PATH .. "horus", env)()
 loadScript(FILE_PATH .. "menu", env)()
 
