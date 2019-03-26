@@ -30,7 +30,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	pitch = pitch >= 0 and (pitch < 1 and 0 or math.floor(pitch + 0.5)) or (pitch > -1 and 0 or math.ceil(pitch - 0.5))
 
-	-- Radar bottom
+	-- Bottom center
 	if SMLCD then
 		if data.showDir and (not data.armed or not data.telem) then
 			-- GPS coords
@@ -65,7 +65,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Radar
 	if data.startup == 0 then
-		-- Launch/north-based orientation
 		if data.showDir or data.headingRef < 0 then
 			lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
 			lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
