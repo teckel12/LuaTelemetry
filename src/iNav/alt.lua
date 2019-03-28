@@ -79,7 +79,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		if data.altMin < -1 then
-			cy = BOTTOM - (-data.altMin * tmp)
+			cy = data.altMin * tmp + BOTTOM
 			lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS, cy, DOTTED, 0)
 		end
 		if not SMLCD then
@@ -98,7 +98,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			local r1 = math.rad(tmp)
 			local r2 = math.rad(tmp + 145)
 			local r3 = math.rad(tmp - 145)
-			local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, LEFT_POS + (data.altMin < -1 and 10 or 14), 45, 7)
+			local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, LEFT_POS + 14, 45, 7)
 			if data.headingHold then
 				lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
 			else
