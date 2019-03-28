@@ -47,18 +47,15 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				icons.lock(RIGHT_POS - 6, 50)
 			end
 		end
-	elseif data.showDir or data.headingRef < 0 then
-		-- Heading
-		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 	-- Min/Max
 	if not data.showDir and data.showMax then
 		lcd.drawText(RIGHT_POS, 9, "\192", SMLSIZE + RIGHT)
 	end
 
-	-- Altitude graph
 	if data.startup == 0 then
-		local BOTTOM = SMLCD and 47 or ((data.showDir or data.headingRef < 0) and 53 or 63)
+		-- Altitude graph
+		local BOTTOM = SMLCD and 47 or 63
 		if data.armed and getTime() >= data.altLst + (config[28].v * 100) then
 			data.alt[data.altCur] = data.altitude
 			data.altCur = data.altCur == 60 and 1 or data.altCur + 1
@@ -71,7 +68,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 			data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
 		end
-		local height = (SMLCD or data.showDir or data.headingRef < 0) and 30 or 40
+		local height = SMLCD and 30 or 40
 		tmp = height / (data.altMax - data.altMin)
 		for i = 1, 60 do
 			cx = RIGHT_POS - 61 + i
@@ -83,13 +80,32 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		if data.altMin < -1 then
 			cy = BOTTOM - (-data.altMin * tmp)
-			lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS, cy, DOTTED, SMLCD and 0 or GREY_DEFAULT)
-			if not SMLCD then
-				lcd.drawText(RIGHT_POS - 60, cy - 2, "0" .. units[data.alt_unit], SMLSIZE + RIGHT)
-			end
+			lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS, cy, DOTTED, 0)
 		end
 		if not SMLCD then
-			lcd.drawText(RIGHT_POS - 60, BOTTOM - height - 3, math.floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
+			lcd.drawText(RIGHT_POS - 60, 19, math.floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
+		end
+
+		-- Orientation
+		if not SMLCD and data.telem then
+			if data.showDir or data.headingRef < 0 then
+				lcd.drawText(LEFT_POS + 12, 29, "N", SMLSIZE)
+				lcd.drawText(LEFT_POS + 25 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+				tmp = data.heading
+			else
+				tmp = data.heading - data.headingRef
+			end
+			local r1 = math.rad(tmp)
+			local r2 = math.rad(tmp + 145)
+			local r3 = math.rad(tmp - 145)
+			local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, LEFT_POS + (data.altMin < -1 and 10 or 14), 45, 7)
+			if data.headingHold then
+				lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
+			else
+				lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+			end
+			lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
+			lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 		end
 	end
 
