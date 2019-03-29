@@ -47,75 +47,66 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				icons.lock(RIGHT_POS - 6, 50)
 			end
 		end
-		-- Pitch
-		if data.startup == 0 then
-			lcd.drawText(LEFT_POS + 15, 17, pitch .. (math.abs(pitch) < 10 and "\64" or ""), SMLSIZE + RIGHT + data.telemFlags)
-			lcd.drawLine(LEFT_POS + 1, 17, LEFT_POS + 1, 24, SOLID, ERASE)
-		else
-			lcd.drawText(LEFT_POS + 2, 17, "Ptch", SMLSIZE)
-		end
-	elseif data.showDir or data.headingRef < 0 then
-		-- Heading
-		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 	-- Min/Max
 	if not data.showDir and data.showMax then
 		lcd.drawText(RIGHT_POS, 9, "\192", SMLSIZE + RIGHT)
 	end
 
-	-- Radar
 	if data.startup == 0 then
-		if data.showDir or data.headingRef < 0 then
-			lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
-			lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
-			tmp = 0
-		else
-			tmp = data.headingRef
-		end
-		local cx, cy, d
-		if data.gpsHome ~= false then
-			-- Craft location
-			d = data.distanceLast >= data.distRef and math.min(math.max((data.distanceLast / math.max(math.min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * 27, 7), 27) or 1
-			if SMLCD and not data.armed then
-				d = math.min(d, 18)
+		-- Altitude graph
+		local BOTTOM = SMLCD and 47 or 63
+		if data.armed and getTime() >= data.altLst + (config[28].v * 100) then
+			data.alt[data.altCur] = data.altitude
+			data.altCur = data.altCur == 60 and 1 or data.altCur + 1
+			data.altLst = getTime()
+			data.altMin = 0
+			data.altMax = data.alt_unit == 10 and 50 or 30
+			for i = 1, 60 do
+				data.altMin = math.min(data.altMin, data.alt[i])
+				data.altMax = math.max(data.altMax, data.alt[i])
 			end
-			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
-			local rad1 = math.rad(bearing)
-			cx = math.floor(math.sin(rad1) * d + 0.5)
-			cy = math.floor(math.cos(rad1) * d + 0.5)
-			-- Home position
-			local hx = X_CNTR + 2 - (d > 9 and cx / 2 or 0)
-			local hy = ((SMLCD and not data.armed) and 33 or 37) + (d > 9 and cy / 2 or 0)
-			if d >= 9 then
-				icons.home(hx - 3, hy - 3)
-			elseif d > 1 then
-				lcd.drawFilledRectangle(hx - 1, hy - 1, 3, 3, SOLID)
-			end
-			-- Shift craft location
-			cx = d == 1 and X_CNTR + 2 or cx + hx
-			cy = d == 1 and 37 or hy - cy
-		else
-			cx = X_CNTR + 2
-			cy = (SMLCD and not data.armed) and 33 or 37
-			d = 1
+			data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
 		end
+		local height = SMLCD and 30 or 40
+		tmp = height / (data.altMax - data.altMin)
+		for i = 1, 60 do
+			cx = RIGHT_POS - 61 + i
+			cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp
+			lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, FORCE)
+			if (i ~= 1 or not SMLCD) and (i - 1) % (60 / config[28].v) == 0 then
+				lcd.drawLine(cx, BOTTOM - height, cx, BOTTOM, DOTTED, SMLCD and 0 or GREY_DEFAULT)
+			end
+		end
+		if data.altMin < -1 then
+			cy = data.altMin * tmp + BOTTOM
+			lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS, cy, DOTTED, 0)
+		end
+		if not SMLCD then
+			lcd.drawText(RIGHT_POS - 60, 19, math.floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
+		end
+
 		-- Orientation
-		local r1 = math.rad(data.heading - tmp)
-		local r2 = math.rad(data.heading - tmp + 145)
-		local r3 = math.rad(data.heading - tmp - 145)
-		tmp = d == 1 and 8 or 5
-		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, tmp)
-		if data.headingHold then
-			if d == 1 then
-				lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
+		if not SMLCD and data.telem then
+			if data.showDir or data.headingRef < 0 then
+				lcd.drawText(LEFT_POS + 12, 29, "N", SMLSIZE)
+				lcd.drawText(LEFT_POS + 25 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+				tmp = data.heading
 			else
-				lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
+				tmp = data.heading - data.headingRef
 			end
-		else
-			lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+			local r1 = math.rad(tmp)
+			local r2 = math.rad(tmp + 145)
+			local r3 = math.rad(tmp - 145)
+			local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, LEFT_POS + 14, 45, 7)
+			if data.headingHold then
+				lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
+			else
+				lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
+			end
+			lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
+			lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 		end
-		lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
-		lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 	end
 
 	-- Variometer

@@ -32,7 +32,7 @@ config[13].t = "Chronometre"		-- Timer
 config[14].t = "Voltage Rx"			-- Rx Voltage
 --config[15].t = "GPS"				-- GPS
 config[16].t = "Coordonnees GPS"	-- GPS Coordinates
-config[17].t = "Fuel Critique"	    -- Fuel Critical
+config[17].t = "Fuel Critique"		-- Fuel Critical
 config[18].t = "Fuel Bas"			-- Fuel Low
 config[19].t = "Voltage Tx"			-- Tx Voltage
 config[20].t = "Capteur Vitesse"	-- Speed Sensor
@@ -42,6 +42,9 @@ config[23].t = "Unite Fuel"			-- Fuel Unit
 config[24].t = "Avance Vario"		-- Vario Steps
 config[25].t = "Mode de Vue"		-- View Mode
 config[26].t = "Feedback AltHold"	-- AltHold Center FB
+config[27].t = "Capacite Batterie"	-- Battery Capacity
+config[28].t = "Graphique d'Alt"	-- Altitude Graph
+config[29].t = "Calcul de Cellule"	-- Cell Calculation
 
 -- Max 9 characters
 config[1].l =  {[0] = "Cellule", "Total"}						-- "Cell", "Total"
@@ -60,8 +63,9 @@ config[19].l = {[0] = "Numerique", "Graphique", "Les deux"}		-- "Number", "Graph
 --config[20].l = {[0] = "GPS", "Pitot"}							-- "GPS", "Pitot"
 config[22].l = {[0] = "Graphique", "Decimal"}					-- "Graph", "Decimal"
 config[23].l = {[0] = "Pourcent", "mAh", "mWh"}					-- "Percent", "mAh", "mWh"
-config[25].l = {[0] = "Classique", "Pilote", "Radar"}			-- "Classic", "Pilot", "Radar"
+config[25].l = {[0] = "Classique", "Pilote", "Radar", "Altitude"}-- "Classic", "Pilot", "Radar", "Altitude"
 config[26].l = {[0] = "Eteint", "Actif"}						-- "Off", "On"
+config[28].l[0] = "Eteint"										-- "Off"
 
 -- Max 10 characters
 --labels[1] = "Fuel"		-- Fuel

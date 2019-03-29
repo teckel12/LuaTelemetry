@@ -17,6 +17,14 @@ data.configStatus = 0
 data.startupTime = 0
 data.thrCntr = -2000
 data.trCnSt = false
+data.fuelEst = -1
+
+data.altMin = 0
+data.altMax = data.alt_unit == 10 and 50 or 30
+data.altCur = 1
+data.altLst = getTime()
+data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+
 --[[ FPS stuff
 data.fpsStart = getTime()
 data.frames = 0

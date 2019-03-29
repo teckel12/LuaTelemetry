@@ -42,12 +42,15 @@ config[23].t = "Capacidad"			-- Fuel Unit
 config[24].t = "Vario Pasos"		-- Vario Steps
 config[25].t = "Vista"				-- View Mode
 config[26].t = "AlH Centrado FB."	-- AltHold Center FB
+config[27].t = "Capacidad Bateria"	-- Battery Capacity
+config[28].t = "Grafico Altura"		-- Altitude Graph
+config[29].t = "Calculo Celda"		-- Cell Calculation
 
 -- Max 9 characters
 --config[1].l =  {[0] = "Cell", "Total"}						-- "Cell", "Total"
 config[4].l =  {[0] = "Off", "Critico", "Todo"}					-- "Off", "Critical", "All"
 config[5].l =  {[0] = "Off", "Haptic", "Beeper", "Todo"}		-- "Off", "Haptic", "Beeper", "All"
-config[7].l =  {[0] = "Off", "Graph", "Voz", "Ambos"}			-- "Off", "Graph", "Voice", "Both"
+config[7].l =  {[0] = "Off", "Grafico", "Voz", "Ambos"}			-- "Off", "Graph", "Voice", "Both"
 --config[8].l =  {[0] = "Off", "On"}							-- "Off", "On"
 --config[9].l =  {[0] = "Off", "On"}							-- "Off", "On"
 --config[10].l = {[0] = "Off", "On"}							-- "Off", "On"
@@ -60,8 +63,9 @@ config[19].l = {[0] = "Numero", "Grafico", "Ambos"}				-- "Number", "Graph", "Bo
 --config[20].l = {[0] = "GPS", "Pitot"}							-- "GPS", "Pitot"
 config[22].l = {[0] = "Grafico", "Decimal"}						-- "Graph", "Decimal"
 --config[23].l = {[0] = "Percent", "mAh", "mWh"}				-- "Percent", "mAh", "mWh"
-config[25].l = {[0] = "Clasica", "Pilot", "Radar"}				-- "Classic", "Pilot", "Radar"
+config[25].l = {[0] = "Clasica", "Pilot", "Radar", "Altitud"}	-- "Classic", "Pilot", "Radar", "Altitude"
 --config[26].l = {[0] = "Off", "On"}							-- "Off", "On"
+--config[28].l[0] = "Off"										-- "Off"
 
 -- Max 10 characters
 labels[1] = "Bateria"	-- Fuel

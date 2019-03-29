@@ -3,7 +3,7 @@
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 local buildMode = ...
-local VERSION = "1.6.0"
+local VERSION = "1.6.1"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
@@ -128,8 +128,8 @@ local function background()
 			data.cell = getValue(data.a4_id)
 			data.cellMin = getValue(data.a4Min_id)
 		else
-			if data.batt / data.cells > 4.3 or data.batt / data.cells < 2.2 then
-				data.cells = math.floor(data.batt / 4.3) + 1
+			if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
+				data.cells = math.floor(data.batt / config[29].v) + 1
 			end
 			data.cell = data.batt / data.cells
 			data.cellMin = data.battMin / data.cells
@@ -389,10 +389,10 @@ end
 
 local function run(event)
 	-- Run background function manually on Horus
-	if HORUS then
+	if HORUS and data.startup == 0 then
 		background()
 	end
-
+			
 	-- Startup message
 	if data.startup == 1 then
 		data.startupTime = getTime()
@@ -460,7 +460,7 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 0 and "view.luac" or "radar.luac"))))()
+			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 0 and "view.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 2 and "radar.luac" or "alt.luac")))))()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)

@@ -48,6 +48,10 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 		config[18].p = config[17].p
 	end
 	config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
+	config[25].x = config[28].v == 0 and 2 or 3
+	if config[28].v == 0 and config[25].v == 3 then
+		config[25].v = 2
+	end
 	config[19].v = math.min(config[19].x, config[19].v)
 	config[24].p = data.crsf and 1 or (config[7].v < 2 and 1 or nil)
 	config[20].p = not data.pitot and 1 or nil
@@ -76,7 +80,7 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 					if z == 15 then
 						lcd.drawText(CONFIG_X + GPS, y, config[16].v == 0 and string.format("%10.6f %11.6f", config[z].l[config[z].v].lat, config[z].l[config[z].v].lon) or " " .. gpsDegMin(config[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config[z].l[config[z].v].lon, false), FONT + tmp)
 					else
-						lcd.drawText(CONFIG_X + RIGHT, y, config[z].l[config[z].v] .. (config[z].a == nil and "" or config[z].a), FONT + tmp)
+						lcd.drawText(CONFIG_X + RIGHT, y, config[z].l[config[z].v] .. ((config[z].a == nil or config[z].v == 0) and "" or config[z].a), FONT + tmp)
 					end
 				end
 			end
@@ -131,6 +135,8 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 				data.speed_id = getTelemetryId(tmp)
 				data.speedMax_id = getTelemetryId(tmp .. "+")
 				data.speed_unit = getTelemetryUnit(tmp)
+			elseif z == 28 then -- Altitude graph
+				data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 			elseif config[z].i > 1 then
 				config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
 			end

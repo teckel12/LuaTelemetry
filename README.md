@@ -1,4 +1,4 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus - v1.6.0
+## INAV Lua Telemetry Flight Status for Taranis/Horus - v1.6.1
 
 ### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis & Horus transmitters
 
@@ -22,6 +22,11 @@
 
 ![sample](assets/iNavQX7radar.png "Radar view on Q X7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dradar.png "Radar view on Taranis X9D, X9D+ and X9E")
+
+#### Altitude graph view
+
+![sample](assets/iNavQX7alt.png "Altitude graph view on Q X7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavX9Dalt.png "Altitude graph view on Taranis X9D, X9D+ and X9E")
 
 #### Horus view
 
