@@ -12,7 +12,7 @@ local config = {
 	{ o = 20, t = "RTH Feedback",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 18 },
 	{ o = 21, t = "HeadFree Feedback",c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 18 },
 	{ o = 22, t = "RSSI Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 18 },
-	{ o = 2,  t = "Battery Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
+	{ o = 2,  t = "Battery Alerts",   c = 1, v = 1, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
 	{ o = 10, t = "Altitude Alert",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
 	{ o = 12, t = "Timer",            c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
 	{ o = 14, t = "Rx Voltage",       c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
