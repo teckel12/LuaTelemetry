@@ -1,4 +1,4 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus - v1.6.1
+## INAV Lua Telemetry Flight Status for Taranis/Horus - v1.6.2
 
 ### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis & Horus transmitters
 
@@ -40,6 +40,7 @@
 * Compass-based direction indicator (with compass on multirotor or fixed-wing with GPS)
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
 * Radar (map) view shows model in relationship to home position, can be displayed either as launch/pilot-based or compass-based orientation
+* Altitude graph view shows altitude for the last 1-6 minutes
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
