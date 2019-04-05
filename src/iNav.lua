@@ -319,7 +319,7 @@ local function background()
 					playNumber(data.fuel, 13)
 					data.battPercentPlayed = data.fuel
 				end
-				data.battNextPlay = getTime() + 500
+				data.battNextPlay = getTime() + 1000
 			else
 				vibrate = true
 				beep = true
@@ -330,8 +330,6 @@ local function background()
 				playAudio("batlow")
 				data.battLow = true
 			end
-		else
-			data.battNextPlay = 0
 		end
 		if (data.headFree and config[9].v == 1) or modes[data.modeId].f ~= 0 then
 			if data.modeId ~= 10 or (data.modeId == 10 and config[8].v == 1) then
@@ -392,7 +390,7 @@ local function run(event)
 	if HORUS and data.startup == 0 then
 		background()
 	end
-			
+
 	-- Startup message
 	if data.startup == 1 then
 		data.startupTime = getTime()
@@ -411,7 +409,7 @@ local function run(event)
 		end
 		event = widgetEvt(data)
 	end
-	
+
 	-- Clear screen
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
