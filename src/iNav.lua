@@ -301,15 +301,17 @@ local function background()
 				end
 			end
 		end
-		if data.showCurr and config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notifications
+		if data.showCurr and config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 and getTime() > data.battNextPlay then -- Fuel notifications
 			if data.fuel >= config[17].v and data.fuel <= config[18].v and data.fuel > config[17].v then -- Fuel low
 				playAudio("batlow")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
+				data.battNextPlay = getTime() + 500
 			elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel > config[18].v then -- Fuel 10% notification
 				playAudio("battry")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
+				data.battNextPlay = getTime() + 500
 			end
 		end
 		if ((data.showCurr and config[23].v == 0 and data.fuel <= config[17].v) or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
@@ -325,11 +327,9 @@ local function background()
 				beep = true
 			end
 			data.battLow = true
-		elseif data.cell < config[2].v and config[11].v == 2 then -- Voltage notification
-			if not data.battLow then
-				playAudio("batlow")
-				data.battLow = true
-			end
+		elseif data.cell < config[2].v and config[11].v == 2 and not data.battLow then -- Voltage notification
+			playAudio("batlow")
+			data.battLow = true
 		end
 		if (data.headFree and config[9].v == 1) or modes[data.modeId].f ~= 0 then
 			if data.modeId ~= 10 or (data.modeId == 10 and config[8].v == 1) then
