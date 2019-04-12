@@ -32,19 +32,23 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Bottom center
 	if SMLCD then
-		if data.showDir and (not data.armed or not data.telem) then
+		if data.showDir then
 			-- GPS coords
-			lcd.drawText(RIGHT_POS, 50, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+			lcd.drawText(RIGHT_POS, 49, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 			lcd.drawText(RIGHT_POS, 57, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 		else
+			lcd.drawLine(LEFT_POS + 30, 48, LEFT_POS + 30, 63, SOLID, FORCE)
 			-- Distance
 			tmp = data.showMax and data.distanceMax or data.distanceLast
-			lcd.drawText(LEFT_POS + 25, 57, data.startup > 0 and "Dist " or (tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))), SMLSIZE + RIGHT + data.telemFlags)
+			lcd.drawText(LEFT_POS + 29, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
+			lcd.drawText(LEFT_POS + 10, 49, "Dist", SMLSIZE)
+			icons.home(LEFT_POS + 2, 49)
 			-- Altitude
 			tmp = data.showMax and data.altitudeMax or data.altitude
-			lcd.drawText(RIGHT_POS, 57, data.startup > 0 and "Alt" or (math.floor(tmp + 0.5) .. units[data.alt_unit]), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+			lcd.drawText(RIGHT_POS, 57, math.floor(tmp + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+			lcd.drawText(RIGHT_POS, 49, "Alt", SMLSIZE + RIGHT)
 			if data.altHold then
-				icons.lock(RIGHT_POS - 6, 50)
+				icons.lock(RIGHT_POS - 20, 49)
 			end
 		end
 	end
