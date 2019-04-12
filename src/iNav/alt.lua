@@ -37,7 +37,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText(RIGHT_POS, 49, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 			lcd.drawText(RIGHT_POS, 57, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 		else
-			lcd.drawLine(LEFT_POS + 30, 48, LEFT_POS + 30, 63, SOLID, FORCE)
+			lcd.drawLine(LEFT_POS + 31, 48, LEFT_POS + 31, 63, SOLID, FORCE)
 			-- Distance
 			tmp = data.showMax and data.distanceMax or data.distanceLast
 			lcd.drawText(LEFT_POS + 29, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
