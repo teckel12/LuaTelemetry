@@ -61,6 +61,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		-- Altitude graph
 		local BOTTOM = SMLCD and 47 or 63
 		if data.armed and getTime() >= data.altLst + (config[28].v * 100) then
+			-- Clear graph if you leave the view (not sure if this is better than showing old data as it does now)
+			--if getTime() >= data.altLst + (config[28].v * 200) then
+			--	data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+			--end
 			data.alt[data.altCur] = data.altitude
 			data.altCur = data.altCur == 60 and 1 or data.altCur + 1
 			data.altLst = getTime()
@@ -74,17 +78,20 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		local height = SMLCD and 30 or 40
 		tmp = height / (data.altMax - data.altMin)
+		lcd.drawLine(RIGHT_POS - 60, BOTTOM,  RIGHT_POS - 1, BOTTOM, SOLID, FORCE)
 		for i = 1, 60 do
-			cx = RIGHT_POS - 61 + i
-			cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp
-			lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, FORCE)
+			local cx = RIGHT_POS - 61 + i
+			local cy = math.floor(BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp)
+			if cy < BOTTOM then
+				lcd.drawLine(cx, cy, cx, BOTTOM - 1, SOLID, FORCE)
+			end
 			if (i ~= 1 or not SMLCD) and (i - 1) % (60 / config[28].v) == 0 then
 				lcd.drawLine(cx, BOTTOM - height, cx, BOTTOM, DOTTED, SMLCD and 0 or GREY_DEFAULT)
 			end
 		end
 		if data.altMin < -1 then
-			cy = data.altMin * tmp + BOTTOM
-			lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS, cy, DOTTED, 0)
+			local cy = data.altMin * tmp + BOTTOM
+			lcd.drawLine(RIGHT_POS - 60, cy, RIGHT_POS - 1, cy, DOTTED, 0)
 		end
 		if not SMLCD then
 			lcd.drawText(RIGHT_POS - 60, 19, math.floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
