@@ -4,7 +4,7 @@ about: Are you getting a "not enough memory error"?
 
 ---
 
-If you're getting a `not enough memory error` it means you're out of memory on your transmitter.  The Taranis series has very little free memory to work with for Lua scripts, so this error is quite common.  But, there are a few things that typically cause this error which are listed below:
+If you're getting a `not enough memory error`, it means you're out of memory on your transmitter.  The Taranis series has very little free memory to work with for Lua scripts, so this error is quite common.  But, there are a few things that typically cause this error which are listed below:
 
 1) When installing Lua Telemetry, be sure to download the latest LuaTelemetry.zip linked here:
 
@@ -18,6 +18,6 @@ https://github.com/iNavFlight/LuaTelemetry/wiki/Installation
 
 3) Too many unused models. Each model slot setup in your transmitter takes up valuable memory.  Many times models are backed up to tweak settings without deleting the backups when finished.  By deleting unused models, memory is freed that can be used for other things, like Lua scripts.
 
-As this is a common issue that seems clear by the error message, is covered in the Wiki, and not a direct result of Lua Telemetry, I would appreciate it if you could let me know how the instructions could be improved to avoid any confusion.
+As this is a common issue that seems clear by the error message and covered in the Wiki, I would appreciate if you could let me know how the instructions could be improved to avoid any confusion.
 
 Thanks!
