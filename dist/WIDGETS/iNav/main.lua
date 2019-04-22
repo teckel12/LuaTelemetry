@@ -1,5 +1,5 @@
 local buildMode = ...
-local iNav
+local iNav = nil
 local options = {
 	{ "Restore", BOOL, 0},
 	{ "Text", COLOR, BLACK},
@@ -17,6 +17,7 @@ end
 local function create(zone, options)
 	iNavZone = { zone = zone, options = options }
 	iNav = loadfile(TELE_PATH .. "iNav.luac")(false)
+	iNav.background()
 	return iNavZone
 end
 
