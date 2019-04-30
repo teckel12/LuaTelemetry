@@ -237,18 +237,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 		-- Altitude graph
 		if config[28].v > 0 then
-			if data.armed and getTime() >= data.altLst + (config[28].v * 100) then
-				data.alt[data.altCur] = data.altitude
-				data.altCur = data.altCur == 60 and 1 or data.altCur + 1
-				data.altLst = getTime()
-				data.altMin = 0
-				data.altMax = data.alt_unit == 10 and 50 or 30
-				for i = 1, 60 do
-					data.altMin = math.min(data.altMin, data.alt[i])
-					data.altMax = math.max(data.altMax, data.alt[i])
-				end
-				data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
-			end
 			tmp = 30 / (data.altMax - data.altMin)
 			lcd.setColor(CUSTOM_COLOR, LIGHTMAP)
 			for i = 1, 60 do

@@ -383,6 +383,29 @@ local function background()
 	if data.armed and data.gpsFix and data.gpsHome == false then
 		data.gpsHome = data.gpsLatLon
 	end
+
+	-- Altitude graph
+	if data.armed and config[28].v > 0 and getTime() >= data.altLst + (config[28].v * 100) then
+		data.alt[data.altCur] = data.altitude
+		data.altCur = data.altCur == 60 and 1 or data.altCur + 1
+		data.altLst = getTime()
+		-- I don't like this min/max routine at all, there's got to be a better way
+		data.altMin = 0
+		data.altMax = data.alt_unit == 10 and 50 or 30
+		local min = math.min
+		local max = math.max
+		for i = 1, 60 do
+			data.altMin = min(data.altMin, data.alt[i])
+			data.altMax = max(data.altMax, data.alt[i])
+		end
+		data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
+	end
+	--[[ Clear altitude graph if turned off, probably not really required
+	if config[28].v == 0 and data.altCur ~= 1 then
+		data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+		data.altCur = 1
+	end
+	]]
 end
 
 local function run(event)
