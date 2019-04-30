@@ -135,6 +135,8 @@ local function view(data, config, event, gpsDegMin, getTelemetryId, getTelemetry
 				data.speed_id = getTelemetryId(tmp)
 				data.speedMax_id = getTelemetryId(tmp .. "+")
 				data.speed_unit = getTelemetryUnit(tmp)
+			elseif z == 28 then -- Altitude graph
+				data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 			elseif config[z].i > 1 then
 				config[z].v = math.floor(config[z].v / config[z].i) * config[z].i
 			end
