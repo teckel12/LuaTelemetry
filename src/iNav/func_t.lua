@@ -10,6 +10,7 @@ local function title(data, config, SMLCD)
 		lcd.drawFilledRectangle(86, 1, 19, 6, ERASE)
 		lcd.drawLine(105, 2, 105, 5, SOLID, ERASE)
 		tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 17, 17), 0) + 86
+		local i
 		for i = 87, tmp, 2 do
 			lcd.drawLine(i, 2, i, 5, SOLID, FORCE)
 		end
@@ -40,6 +41,7 @@ local function hdopGraph(x, y, s, SMLCD)
 		if tmp then
 			lcd.drawText(x, y, "    ", SMLSIZE + 3)
 		end
+		local i
 		for i = 4, 9 do
 			lcd.drawLine(x - 8 + (i * 2), (data.hdop >= i or not SMLCD) and y + 8 - i or y + 5, x - 8 + (i * 2), y + 5, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end

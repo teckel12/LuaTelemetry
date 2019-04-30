@@ -20,6 +20,7 @@ local function title(data, config, SMLCD)
 		lcd.drawFilledRectangle(240, 6, 2, 8, CUSTOM_COLOR)
 		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		lcd.setColor(CUSTOM_COLOR, BLACK)
+		local i
 		for i = 200, tmp, 4 do
 			lcd.drawFilledRectangle(i, 5, 2, 10, CUSTOM_COLOR)
 		end
@@ -56,6 +57,7 @@ end
 
 local function hdopGraph(x, y)
 	lcd.setColor(CUSTOM_COLOR, data.hdop < 11 - config[21].v * 2 and YELLOW or WHITE)
+	local i
 	for i = 4, 9 do
 		if i > data.hdop then
 			lcd.setColor(CUSTOM_COLOR, GREY)

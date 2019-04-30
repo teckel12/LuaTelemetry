@@ -33,6 +33,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	local function tics(v, p)
+		local i
 		for i = v % 10 + 8, 56, 10 do
 			if i < 31 or i > 41 then
 				lcd.drawLine(p, i, p + 1, i, SOLID, 0)
@@ -129,6 +130,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Heading part 1
 	if data.showHead then
+		local i
 		for i = 0, 348.75, 11.25 do
 			tmp = math.floor(LEFT_POS + ((i - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= LEFT_POS and tmp <= RIGHT_POS then
@@ -231,15 +233,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if config[7].v % 2 == 1 then
 		lcd.drawLine(RIGHT_POS, 8, RIGHT_POS, 63, SOLID, FORCE)
 		lcd.drawLine(RIGHT_POS + (SMLCD and 4 or 6), 8, RIGHT_POS + (SMLCD and 4 or 6), 63, SOLID, FORCE)
-		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
+		lcd.drawLine(RIGHT_POS + 1, 35, RIGHT_POS + (SMLCD and 3 or 5), 35, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
 		if data.armed then
-			tmp = 35 - math.floor(varioSpeed * 27 + 0.5)
-			for i = 35, tmp, (tmp > 35 and 1 or -1) do
-				local w = SMLCD and (tmp > 35 and i + 1 or 35 - i) % 3 or (tmp > 35 and i + 1 or 35 - i) % 4
-				if w < (SMLCD and 2 or 3) then
-					lcd.drawLine(RIGHT_POS + 1 + w, i, RIGHT_POS + (SMLCD and 3 or 5) - w, i, SOLID, 0)
-				end
-			end
+			tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) * (data.vspeed < 0 and -1 or 1)
+			local y1 = 36 - (tmp * 11)
+			local y2 = 36 - (tmp * 9)
+			lcd.drawLine(RIGHT_POS + 1, y1 - 1, RIGHT_POS + (SMLCD and 3 or 5), y2 - 1, SOLID, FORCE)
+			lcd.drawLine(RIGHT_POS + 1, y1, RIGHT_POS + (SMLCD and 3 or 5), y2, SOLID, FORCE)
 		end
 	else
 		lcd.drawLine(RIGHT_POS, 8, RIGHT_POS, 63, SOLID, FORCE)

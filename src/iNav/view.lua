@@ -134,9 +134,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Variometer
-	if config[7].v % 2 == 1 and data.startup == 0 then
+	if config[7].v % 2 == 1 then
 		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
-		if SMLCD and data.armed and not data.showDir then
+		if SMLCD and data.armed and not data.showDir and data.startup == 0 then
 			lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 19, 21, SOLID, FORCE)
 			lcd.drawLine(X_CNTR_2 + 18, 21, X_CNTR_2 + 18, 21 - (varioSpeed * 12 - 0.5), SOLID, FORCE)
 		elseif not SMLCD then

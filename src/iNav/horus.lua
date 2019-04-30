@@ -69,6 +69,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	local function tics(v, p)
 		tmp = math.floor((v + TOP) / 10) * 10
+		local i
 		for i = tmp - 40, tmp, 5 do
 			local tmp2 = Y_CNTR + ((v - i) * 3) - 9
 			if tmp2 > 10 and tmp2 < BOTTOM - 8 then
@@ -149,6 +150,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Compass
 	if data.showHead then
+		local i
 		for i = 0, 348.75, 11.25 do
 			tmp = math.floor(((i - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= 9 and tmp <= RIGHT_POS - 12 then
@@ -239,6 +241,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		if config[28].v > 0 then
 			tmp = 30 / (data.altMax - data.altMin)
 			lcd.setColor(CUSTOM_COLOR, LIGHTMAP)
+			local i
 			for i = 1, 60 do
 				cx = RIGHT_POS - 60 + i
 				cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp
