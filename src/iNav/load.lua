@@ -1,6 +1,7 @@
 local config, data, FILE_PATH = ...
 
 -- Sort config menus
+local i, ii
 for i, value in ipairs(config) do
 	for ii, value2 in ipairs(config) do
 		if i == value2.o then
