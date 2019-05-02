@@ -82,8 +82,6 @@ end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
-	-- Testing Crossfire
-	--if data.simu then data.rssi = 50 end
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
