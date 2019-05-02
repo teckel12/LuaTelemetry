@@ -135,6 +135,7 @@ local function background()
 			data.cellMin = data.battMin / data.cells
 		end
 		data.rssiLast = data.rssi
+		data.gpsFix = false
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
 			data.gpsLatLon = gpsTemp
