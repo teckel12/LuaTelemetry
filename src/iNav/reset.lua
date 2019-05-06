@@ -18,6 +18,7 @@ data.startupTime = 0
 data.thrCntr = -2000
 data.trCnSt = false
 data.fuelEst = -1
+data.distanceMax = 0
 
 data.altMin = 0
 data.altMax = data.alt_unit == 10 and 50 or 30
