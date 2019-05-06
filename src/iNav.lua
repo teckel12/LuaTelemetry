@@ -107,6 +107,11 @@ local function background()
 			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
 			data.distance = getValue(data.dist_id)
 			data.distanceMax = getValue(data.distMax_id)
+			-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+			if data.dist_unit == 10 then
+				data.distance = math.floor(data.distance * 3.28084 + 0.5)
+				data.distanceMax = data.distanceMax * 3.28084
+			end
 			data.vspeed = getValue(data.vspeed_id)
 		end
 		data.altitude = getValue(data.alt_id)
@@ -147,14 +152,14 @@ local function background()
 						data.distance = tmp
 						data.distanceMax = math.max(data.distMaxCalc, data.distance)
 						data.distMaxCalc = data.distanceMax
+						-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+						if data.dist_unit == 10 then
+							data.distance = math.floor(data.distance * 3.28084 + 0.5)
+							data.distanceMax = data.distanceMax * 3.28084
+						end
 					end
 				end
 			end
-		end
-		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
-		if data.dist_unit == 10 then
-			data.distance = math.floor(data.distance * 3.28084 + 0.5)
-			data.distanceMax = data.distanceMax * 3.28084
 		end
 		if data.distance > 0 then
 			data.distanceLast = data.distance
@@ -200,8 +205,7 @@ local function background()
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- Pos hold
 		else
 			preArmMode = data.modeId
-			--data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -920 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
-			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and 5 or 6 -- Not OK to arm(5) / Ready to fly(6)
+			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -920 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
 			data.modeId = 11 -- Failsafe
@@ -241,7 +245,7 @@ local function background()
 		end
 		playAudio("engdrm", 1)
 	end
-	if data.gpsFix ~= data.gpsFixPrev then -- GPS status change
+	if data.gpsFix ~= data.gpsFixPrev and modeIdPrev ~= 12 and data.modeId ~= 12 then -- GPS status change
 		playAudio("gps", not data.gpsFix and 1 or nil)
 		playAudio(data.gpsFix and "good" or "lost", not data.gpsFix and 1 or nil)
 	end
