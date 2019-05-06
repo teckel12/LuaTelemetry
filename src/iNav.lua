@@ -85,7 +85,7 @@ local function background()
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
-		data.rssiMin = getValue(data.rssiMin_id)
+		data.rssiMin = getValue(data.rssiMin_id) > 0 and getValue(data.rssiMin_id) or data.rssiMin
 		data.satellites = getValue(data.sat_id)
 		if data.showFuel then
 			data.fuel = getValue(data.fuel_id)
