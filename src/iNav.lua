@@ -200,7 +200,7 @@ local function background()
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- Pos hold
 		else
 			preArmMode = data.modeId
-			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -945 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
+			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -920 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
 			data.modeId = 11 -- Failsafe
