@@ -240,7 +240,7 @@ local function background()
 		end
 		playAudio("engdrm", 1)
 	end
-	if data.gpsFix ~= data.gpsFixPrev and modeIdPrev ~=12 then -- GPS status change
+	if data.gpsFix ~= data.gpsFixPrev and modeIdPrev ~= 12 and data.modeId ~= 12 then -- GPS status change
 		playAudio("gps", not data.gpsFix and 1 or nil)
 		playAudio(data.gpsFix and "good" or "lost", not data.gpsFix and 1 or nil)
 	end
