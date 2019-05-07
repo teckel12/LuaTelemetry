@@ -147,18 +147,14 @@ local function background()
 				config[15].l[0] = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
-					--tmp = calcTrig(data.gpsHome, data.gpsLatLon, false)
-					--if tmp < 5000000 then
-					--	data.distance = tmp
 					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
 					data.distanceMax = math.max(data.distMaxCalc, data.distance)
 					data.distMaxCalc = data.distanceMax
-					-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+					-- If distance is in feet, convert
 					if data.dist_unit == 10 then
 						data.distance = math.floor(data.distance * 3.28084 + 0.5)
 						data.distanceMax = data.distanceMax * 3.28084
 					end
-					--end
 				end
 			end
 		end
