@@ -35,7 +35,7 @@ if data.simu then
 	data.battMin_id = getTelemetryId("VFAS-")
 	data.hdg_id = getTelemetryId("Hdg")
 	data.fuel_id = getTelemetryId("Fuel")
-	data.showFuel = true
+	--data.showFuel = true
 	data.pitch_id = -1
 	data.roll_id = -1
 end
@@ -55,7 +55,7 @@ local function crsf(data)
 	if data.showFuel and config[23].v == 0 then
 		if data.fuelEst == -1 and data.cell > 0 then
 			if data.fuel < 25 and config[29].v - data.cell >= 0.2 then
-				data.fuelEst = math.min(1- (data.cell - config[2].v + 0.1) / (config[29].v - config[2].v), 1) * config[27].v
+				data.fuelEst = math.max(math.min(1 - (data.cell - config[2].v + 0.1) / (config[29].v - config[2].v), 1), 0) * config[27].v
 			else
 				data.fuelEst = 0
 			end
