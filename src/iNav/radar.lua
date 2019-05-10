@@ -65,12 +65,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Radar
 	if data.startup == 0 then
+		tmp = data.headingRef
 		if data.showDir or data.headingRef < 0 then
 			lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
 			lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
 			tmp = 0
-		else
-			tmp = data.headingRef
 		end
 		local cx, cy, d
 		if data.gpsHome ~= false then
@@ -103,8 +102,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local r1 = math.rad(data.heading - tmp)
 		local r2 = math.rad(data.heading - tmp + 145)
 		local r3 = math.rad(data.heading - tmp - 145)
-		tmp = d == 1 and 8 or 5
-		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, tmp)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, d == 1 and 8 or 5)
 		if data.headingHold then
 			if d == 1 then
 				lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)

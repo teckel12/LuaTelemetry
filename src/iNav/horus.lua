@@ -227,8 +227,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local LEFT_POS = RIGHT_POS + (config[7].v % 2 == 1 and 11 or 0)
 	RIGHT_POS = 479
 	X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
-	tmp = data.showMax and data.distanceMax or data.distanceLast
-	local dist = tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
+	local tmp2 = data.showMax and data.distanceMax or data.distanceLast
+	local dist = tmp2 < 1000 and math.floor(tmp2 + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp2 / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
 	if data.startup == 0 then
 		-- Launch/north-based orientation
 		if data.showDir or data.headingRef < 0 then
@@ -239,12 +239,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 		-- Altitude graph
 		if config[28].v > 0 then
-			tmp = 30 / (data.altMax - data.altMin)
+			local factor = 30 / (data.altMax - data.altMin)
 			lcd.setColor(CUSTOM_COLOR, LIGHTMAP)
 			local i
 			for i = 1, 60 do
 				cx = RIGHT_POS - 60 + i
-				cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp
+				cy = BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * factor
 				lcd.drawLine(cx, cy, cx, BOTTOM, SOLID, CUSTOM_COLOR)
 				if (i - 1) % (60 / config[28].v) == 0 then
 					lcd.setColor(CUSTOM_COLOR, DKGREY)
@@ -253,7 +253,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				end
 			end
 			if data.altMin < -1 then
-				cy = BOTTOM - (-data.altMin * tmp)
+				cy = BOTTOM - (-data.altMin * factor)
 				lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 				lcd.drawLine(RIGHT_POS - 58, cy, RIGHT_POS - 1, cy, DOTTED, CUSTOM_COLOR)
 				if cy < 142 then
