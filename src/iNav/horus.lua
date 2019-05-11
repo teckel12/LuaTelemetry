@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, prefs, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	--local SKY = 982 --lcd.RGB(0, 121, 180)
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
@@ -60,7 +60,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.setColor(CUSTOM_COLOR, r == TOP and WHITE or LIGHTGREY)
 			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
 			if r == TOP and y2 > TOP and y2 < BOTTOM - 15 then
-				lcd.drawText(x2 - 1, y2 - 8, adj, SMLSIZE + RIGHT)
+				lcd.drawText(x2 - 1, y2 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
 			end
 		else
 			return x1, y1, x2, y2
@@ -265,14 +265,19 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 		if data.gpsHome ~= false then
 			-- Craft location
-			d = data.distanceLast >= data.distRef and math.min(math.max((data.distanceLast / math.max(math.min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * 100, 7), 100) or 1
+			tmp2 = prefs[2] == 1 and 50 or 100
+			d = data.distanceLast >= data.distRef and math.min(math.max((data.distanceLast / math.max(math.min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * tmp2, 7), tmp2) or 1
 			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
 			local rad1 = math.rad(bearing)
 			cx = math.floor(math.sin(rad1) * d + 0.5)
 			cy = math.floor(math.cos(rad1) * d + 0.5)
 			-- Home position
-			local hx = X_CNTR + 2 - (d > 9 and cx / 2 or 0)
-			local hy = Y_CNTR + (d > 9 and cy / 2 or 0)
+			local hx = X_CNTR + 2
+			local hy = Y_CNTR
+			if prefs[2] ~= 1 then
+				hx = hx - (d > 9 and cx / 2 or 0)
+				hy = hy + (d > 9 and cy / 2 or 0)
+			end
 			if d >= 12 then
 				lcd.drawBitmap(icons.home, hx - 4, hy - 5)
 			elseif d > 1 then

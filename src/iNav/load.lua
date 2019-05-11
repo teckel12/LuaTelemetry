@@ -1,7 +1,7 @@
 local config, data, FILE_PATH = ...
+local i, ii, tmp
 
 -- Sort config menus
-local i, ii
 for i, value in ipairs(config) do
 	for ii, value2 in ipairs(config) do
 		if i == value2.o then
@@ -11,31 +11,30 @@ for i, value in ipairs(config) do
 	end
 end
 
--- Copy config file (remove after several revisions)
-local fh = io.open(FILE_PATH .. "config.dat", "r")
+--[[ Load global preferences
+	1 = Aircraft symbol (Horus only):		0 = Boeing/Airbus, 1 = Classic, 2 = Garmin1, 3 = Garmin2, 4 = Dynon, 5 = Waterline
+	2 = Radar home posiion (Horus only):	0 = Adjust to fit, 1 = Fixed in center
+	3 = Default orientation:				0 = Launch/pilot-based, 1 = Compass-based
+]]
+local prefs = {0, 0, 0}
+local fh = io.open(FILE_PATH .. "cfg/prefs.dat")
 if fh ~= nil then
-	local tmp = io.read(fh, 1024)
-	io.close(fh)
-	fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
-	if fh == nil then
-		data.msg = "Folder iNav/cfg missing"
-		data.startup = 1
-	else
-		io.write(fh, tmp)
-		io.close(fh)
+	for i = 1, #prefs do
+		prefs[i] = tonumber(io.read(fh, 1))
 	end
+	io.close(fh)
 end
 
--- Load config data
-fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "r")
+-- Load config for model
+fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat")
 if fh ~= nil then
-	for line = 1, #config do
-		local tmp = io.read(fh, config[line].c)
+	for i = 1, #config do
+		tmp = io.read(fh, config[i].c)
 		if tmp ~= "" then
-			config[line].v = config[line].d == nil and math.min(tonumber(tmp), config[line].x == nil and 1 or config[line].x) or tmp / 10
+			config[i].v = config[i].d == nil and math.min(tonumber(tmp), config[i].x == nil and 1 or config[i].x) or tmp / 10
 		end
 	end
 	io.close(fh)
 end
 
-return 0
+return prefs

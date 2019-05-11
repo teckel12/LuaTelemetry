@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, prefs, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local RIGHT_POS = SMLCD and 129 or 195
 	local GAUGE_WIDTH = SMLCD and 82 or 149

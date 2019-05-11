@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, prefs, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
