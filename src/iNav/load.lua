@@ -12,9 +12,9 @@ for i, value in ipairs(config) do
 end
 
 --[[ Load global preferences
-	1 = Aircraft symbol (Horus only):		0 = Boeing/Airbus, 1 = Classic, 2 = Garmin1, 3 = Garmin2, 4 = Dynon, 5 = Waterline
-	2 = Radar home posiion (Horus only):	0 = Adjust to fit, 1 = Fixed in center
-	3 = Default orientation:				0 = Launch/pilot-based, 1 = Compass-based
+	1 = Aircraft symbol (Horus only):		0 = Boeing/Airbus (default), 1 = Classic, 2 = Garmin1, 3 = Garmin2, 4 = Dynon, 5 = Waterline
+	2 = Radar home position (Horus only):	0 = Adjust to fit (default), 1 = Fixed in center
+	3 = Default orientation:				0 = Launch/pilot-based (default), 1 = Compass-based
 ]]
 local prefs = {0, 0, 0}
 local fh = io.open(FILE_PATH .. "cfg/prefs.dat")
