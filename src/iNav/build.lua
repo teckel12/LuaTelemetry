@@ -23,7 +23,7 @@ for abv = 1, 12 do
 	local fh = io.open(FILE_PATH .. "lang_" .. lang[abv] .. ".lua")
 	if fh ~= nil then
 		io.close(fh)
-		loadScript(FILE_PATH .. "lang_" .. lang[abv], env)(modes, config, labels)
+		--loadScript(FILE_PATH .. "lang_" .. lang[abv], env)(modes, config, labels)
 	end
 end
 

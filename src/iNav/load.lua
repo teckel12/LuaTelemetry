@@ -1,15 +1,5 @@
 local config, data, FILE_PATH = ...
-local i, ii, tmp
-
--- Sort config menus
-for i, value in ipairs(config) do
-	for ii, value2 in ipairs(config) do
-		if i == value2.o then
-			value.z = ii
-			value2.o = nil
-		end
-	end
-end
+local i, tmp
 
 --[[ Load global preferences
 	1 = Aircraft symbol (Horus only):		0 = Boeing/Airbus (default), 1 = Classic, 2 = Garmin1, 3 = Garmin2, 4 = Dynon, 5 = Waterline

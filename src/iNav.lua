@@ -144,7 +144,7 @@ local function background()
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
-				config[15].l[0] = gpsTemp
+				--config[15].l[0] = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
 					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
@@ -289,11 +289,12 @@ local function background()
 				beep = true
 			end
 		elseif config[7].v > 1 then -- Vario voice
-			if math.abs(data.altitude - data.altLastAlt) + 0.5 >= config[24].l[config[24].v] then
-				if math.abs(data.altitude + 0.5 - data.altLastAlt) / config[24].l[config[24].v] > 1.5 then
-					tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
+			local steps = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}
+			if math.abs(data.altitude - data.altLastAlt) + 0.5 >= steps[config[24].v] then
+				if math.abs(data.altitude + 0.5 - data.altLastAlt) / steps[config[24].v] > 1.5 then
+					tmp = math.floor((data.altitude + 0.5) / steps[config[24].v]) * steps[config[24].v]
 				else
-					tmp = math.floor(data.altitude / config[24].l[config[24].v] + 0.5) * config[24].l[config[24].v]
+					tmp = math.floor(data.altitude / steps[config[24].v] + 0.5) * steps[config[24].v]
 				end
 				if tmp > 0 and getTime() > data.altNextPlay then
 					playNumber(tmp, data.alt_unit)
@@ -449,7 +450,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
-		view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+		view(data, config, units, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
 	else
 		-- User input
 		if not data.armed then
@@ -465,7 +466,7 @@ local function run(event)
 			data.showDir = not data.showDir
 		elseif event == EVT_ENTER_BREAK and not HORUS then
 			-- Cycle through views
-			config[25].v = config[25].v >= config[25].x and 0 or config[25].v + 1
+			config[25].v = config[25].v >= (config[28].v == 0 and 2 or 3) and 0 or config[25].v + 1
 		elseif event == MENU then
 			-- Config menu
 			data.configStatus = data.configLast

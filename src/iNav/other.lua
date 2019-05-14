@@ -36,16 +36,14 @@ else
 	data.accz = 1
 end
 
--- Saved config adjustments
-config[15].v = 0
+-- Config adjustments and special cases
+-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
+-- 6=Max Altitude / 15=GPS (last fix) / 20=Speed Sensor / 25=View Mode / 28=Altitude Graph
+if config[6].v == -1 then
+	config[6].v = data.alt_unit == 10 and 400 or 120
+end
 config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 config[19].v = math.min(config[19].x, config[19].v)
-
--- Config special cases
-config[6].v = data.alt_unit == 10 and 400 or 120
-config[6].i = data.alt_unit == 10 and 10 or 1
-config[6].a = units[data.alt_unit]
-config[24].a = units[data.alt_unit]
 config[20].v = data.pitot and config[20].v or 0
 if config[28].v == 0 then
 	config[25].x = 2
