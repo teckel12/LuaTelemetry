@@ -24,7 +24,7 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		{ t = "Altitude Alert",   i = 1, l = {[0] = "Off", "On"} },
 		{ t = "Timer",            i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2"} },
 		{ t = "Rx Voltage",       i = 1, l = {[0] = "Off", "On"} },
-		{ t = "GPS",              i = 0, l = {[0] = { lat = 0, lon = 0 }} },
+		{ t = "GPS",              i = 0, l = {[0] = data.gpsLast} },
 		{ t = "GPS Coordinates",  i = 1, l = {[0] = "Decimal", "Deg/Min"} },
 		{ t = "Fuel Critical",    m = 1, i = 1, a = "%", b = 2 },
 		{ t = "Fuel Low",         m = 2, i = 1, a = "%", b = 2 },
@@ -41,15 +41,13 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" },
 	}
 
-	-- TODO: Load language translation for config menu here..
-	-- TODO: Deal with last good GPS position
-
 	if data.lang ~= "en" then
+		local modes, labels
 		local tmp = FILE_PATH .. "lang_" .. data.lang .. ".luac"
 		local fh = io.open(tmp)
 		if fh ~= nil then
 			io.close(fh)
-			loadfile(tmp)(modes, config, labels)
+			loadfile(tmp)(modes, labels, config2, true)
 			collectgarbage()
 		end
 	end

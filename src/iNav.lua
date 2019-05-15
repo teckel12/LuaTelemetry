@@ -28,13 +28,12 @@ collectgarbage()
 local prefs = loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
 collectgarbage()
 
---[[ Simulator language testing
+--[[ Simulator language testing ]]
 data.lang = "es"
 data.voice = "es"
-]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	loadfile(FILE_PATH .. "lang.luac")(modes, config, labels, data, FILE_PATH)
+	loadfile(FILE_PATH .. "lang.luac")(modes, labels, data, FILE_PATH)
 	collectgarbage()
 end
 
@@ -144,7 +143,7 @@ local function background()
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
-				--config[15].l[0] = gpsTemp
+				data.gpsLast = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
 					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
