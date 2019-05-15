@@ -1,4 +1,4 @@
-local config, data, prefs, FILE_PATH = ...
+local config, data, FILE_PATH = ...
 
 if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
 	data.widget = true
@@ -71,7 +71,7 @@ local icons = {}
 icons.lock = Bitmap.open(FILE_PATH .. "pics/lock.png")
 icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
-icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. prefs[1] .. ".png")
+icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 
 if data.widget then
 	data.hcurx_id = getFieldInfo("ail").id

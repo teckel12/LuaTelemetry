@@ -25,7 +25,7 @@ collectgarbage()
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
 collectgarbage()
 
-local prefs = loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
+loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
@@ -42,7 +42,7 @@ loadfile(FILE_PATH .. "reset.luac")(data)
 local crsf = loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, prefs, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -144,7 +144,6 @@ local function background()
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
-				data.gpsLast = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
 					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
@@ -227,7 +226,7 @@ local function background()
 		data.battPercentPlayed = 100
 		data.battLow = false
 		data.showMax = false
-		data.showDir = prefs[3] == 1 and true or false
+		data.showDir = config[32].v == 1 and true or false
 		data.configStatus = 0
 		if not data.gpsAltBase and data.gpsFix then
 			data.gpsAltBase = data.gpsAlt
@@ -479,7 +478,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 0 and "view.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 2 and "radar.luac" or "alt.luac")))))()
 			data.v = config[25].v
 		end
-		view(data, config, prefs, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 

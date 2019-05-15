@@ -17,14 +17,14 @@ local config = {
 	{ o = 10, c = 1, v = 1 }, -- Altitude Alert - 12
 	{ o = 12, c = 1, v = 1, x = 3 }, -- Timer - 13
 	{ o = 14, c = 1, v = 1 }, -- Rx Voltage - 14
-	{ o = 29, c = 1, v = 0, x = 0 }, -- GPS - 15
-	{ o = 28, c = 1, v = 0 }, -- GPS Coordinates - 16
+	{ o = 32, c = 1, v = 0, x = 0 }, -- GPS - 15
+	{ o = 31, c = 1, v = 0 }, -- GPS Coordinates - 16
 	{ o = 9,  c = 2, v = 20, x = 40 }, -- Fuel Critical - 17
 	{ o = 8,  c = 2, v = 30, x = 50 }, -- Fuel Low - 18
 	{ o = 13, c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2 }, -- Tx Voltage - 19
 	{ o = 24, c = 1, v = 0 }, -- Speed Sensor - 20
-	{ o = 27, c = 2, v = 3.5, d = true, x = 5.0 }, -- GPS Warning - 21
-	{ o = 26, c = 1, v = 0 }, -- GPS HDOP View - 22
+	{ o = 30, c = 2, v = 3.5, d = true, x = 5.0 }, -- GPS Warning - 21
+	{ o = 29, c = 1, v = 0 }, -- GPS HDOP View - 22
 	{ o = 6,  c = 1, v = 0, x = 2 }, -- Fuel Unit - 23
 	{ o = 16, c = 1, v = 3, x = 9 }, -- Vario Steps - 24
 	{ o = 25, c = 1, v = 0, x = 3 }, -- View Mode - 25
@@ -32,6 +32,9 @@ local config = {
 	{ o = 7,  c = 5, v = 1500, x = 9950 }, -- Battery Capacity - 27
 	{ o = 17, c = 1, v = 0, x = 6 }, -- Altitude Graph - 28
 	{ o = 5,  c = 2, v = 4.3, d = true, x = 4.5 }, -- Cell Calculation - 29
+	{ o = 26, c = 1, v = 0, x = 5 }, -- Aircraft symbol - 30
+	{ o = 27, c = 1, v = 0 }, -- Radar home position - 31
+	{ o = 28, c = 1, v = 0 }, -- Default orientation - 32
 }
 
 for i = 1, #config do

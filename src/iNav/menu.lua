@@ -24,7 +24,7 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		{ t = "Altitude Alert",   i = 1, l = {[0] = "Off", "On"} },
 		{ t = "Timer",            i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2"} },
 		{ t = "Rx Voltage",       i = 1, l = {[0] = "Off", "On"} },
-		{ t = "GPS",              i = 0, l = {[0] = data.gpsLast} },
+		{ t = "GPS",              i = 0, l = {[0] = data.gpsLatLon} },
 		{ t = "GPS Coordinates",  i = 1, l = {[0] = "Decimal", "Deg/Min"} },
 		{ t = "Fuel Critical",    m = 1, i = 1, a = "%", b = 2 },
 		{ t = "Fuel Low",         m = 2, i = 1, a = "%", b = 2 },
@@ -39,6 +39,9 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		{ t = "Battery Capacity", m = 150, i = 50, a = "mAh" },
 		{ t = "Altitude Graph",   i = 1, l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" },
 		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" },
+		{ t = "Aircraft symbol",  i = 1, l = {[0] = "Boeing", "Classic", "Garmin1", "Garmin2", "Dynon", "Water"} },
+		{ t = "Radar home",       i = 1, l = {[0] = "Adjust", "Center"} },
+		{ t = "Orientation",      i = 1, l = {[0] = "Launch", "Compass"} },
 	}
 
 	if data.lang ~= "en" then
@@ -106,6 +109,8 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		config2[14].p = 1
 		config2[21].p = 1
 	end
+	config2[30].p = HORUS ~= true and 1 or nil
+	config2[31].p = HORUS ~= true and 1 or nil
 
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP
