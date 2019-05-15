@@ -28,9 +28,10 @@ collectgarbage()
 local prefs = loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
 collectgarbage()
 
---[[ Simulator language testing ]]
+--[[ Simulator language testing
 data.lang = "es"
 data.voice = "es"
+]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
 	loadfile(FILE_PATH .. "lang.luac")(modes, labels, data, FILE_PATH)
