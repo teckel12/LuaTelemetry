@@ -449,7 +449,11 @@ local function run(event)
 			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
+		tmp = config[30].v
 		view(data, config, units, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+		if HORUS and config[30].v ~= tmp then
+			icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
+		end
 	else
 		-- User input
 		if not data.armed then

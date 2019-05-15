@@ -32,9 +32,9 @@ local config = {
 	{ o = 7,  c = 5, v = 1500, x = 9950 }, -- Battery Capacity - 27
 	{ o = 17, c = 1, v = 0, x = 6 }, -- Altitude Graph - 28
 	{ o = 5,  c = 2, v = 4.3, d = true, x = 4.5 }, -- Cell Calculation - 29
-	{ o = 26, c = 1, v = 0, x = 5 }, -- Aircraft symbol - 30
-	{ o = 27, c = 1, v = 0 }, -- Radar home position - 31
-	{ o = 28, c = 1, v = 0 }, -- Default orientation - 32
+	{ o = 26, c = 1, v = 0, x = 5 }, -- Aircraft Symbol - 30
+	{ o = 27, c = 1, v = 0 }, -- Center Radar Home - 31
+	{ o = 28, c = 1, v = 0 }, -- Default Orientation - 32
 }
 
 for i = 1, #config do

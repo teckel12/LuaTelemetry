@@ -53,6 +53,9 @@ else
 	config2[27].t = "Capacidad Bateria"	-- Battery Capacity
 	config2[28].t = "Grafico Altura"		-- Altitude Graph
 	config2[29].t = "Calculo Celda"		-- Cell Calculation
+	--config2[30].t = "Aircraft Symbol"	-- Aircraft Symbol
+	--config2[31].t = "Center Radar"		-- Center Radar Home
+	--config2[32].t = "Orientation"		-- Orientation
 
 	-- Max 8 characters
 	--config2[1].l =  {[0] = "Cell", "Total"}						-- "Cell", "Total"
@@ -74,6 +77,9 @@ else
 	config2[25].l = {[0] = "Clasica", "Pilot", "Radar", "Altitud"}	-- "Classic", "Pilot", "Radar", "Altitude"
 	--config2[26].l = {[0] = "Off", "On"}							-- "Off", "On"
 	--config2[28].l[0] = "Off"										-- "Off"
+	--config2[30].l[1] = "Classic"										-- "Classic"
+	--config2[31].l = {[0] = "Off", "On"}							-- "Off", "On"
+	--config2[32].l = {[0] = "Launch", "Compass"}						-- "Launch", "Compass"
 end
 
 return 0

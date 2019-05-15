@@ -39,8 +39,8 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		{ t = "Battery Capacity", m = 150, i = 50, a = "mAh" },
 		{ t = "Altitude Graph",   i = 1, l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" },
 		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" },
-		{ t = "Aircraft symbol",  i = 1, l = {[0] = "Boeing", "Classic", "Garmin1", "Garmin2", "Dynon", "Water"} },
-		{ t = "Radar home",       i = 1, l = {[0] = "Adjust", "Center"} },
+		{ t = "Aircraft Symbol",  i = 1, l = {[0] = "Boeing", "Classic", "Garmin1", "Garmin2", "Dynon", "Waterline"} },
+		{ t = "Center Radar Home",i = 1, l = {[0] = "Off", "On"} },
 		{ t = "Orientation",      i = 1, l = {[0] = "Launch", "Compass"} },
 	}
 
@@ -75,6 +75,7 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, GREY)
 		lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, CUSTOM_COLOR)
+		lcd.setColor(CUSTOM_COLOR, 12678) -- Dark grey
 	end
 	if not SMLCD then
 		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 3), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 6), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)
@@ -89,7 +90,6 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 	-- Special disabled option and limit cases
 	config2[7].p = data.crsf and 1 or (data.vspeed_id == -1 and 1 or nil)
 	config2[22].p = data.crsf and 1 or (HORUS and 1 or nil)
-	config2[25].p = HORUS and 1 or nil
 	if config2[17].p == nil then
 		config2[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
 		config2[18].p = config2[17].p
@@ -104,22 +104,30 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 	config2[20].p = not data.pitot and 1 or nil
 	config2[23].p = not data.showFuel and 1 or nil
 	config2[27].p = (not data.crsf or config[23].v > 0) and 1 or nil
+	if not data.showCurr then
+		config2[17].p = 1
+		config2[18].p = 1
+	end
 	if data.crsf then
 		config2[9].p = 1
 		config2[14].p = 1
 		config2[21].p = 1
 	end
-	config2[30].p = HORUS ~= true and 1 or nil
-	config2[31].p = HORUS ~= true and 1 or nil
+	if HORUS then
+		config2[25].p = 1
+	else
+		config2[30].p = 1
+		config2[31].p = 1
+	end
 
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP
 		local z = config[line].z
 		local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
-		if not data.showCurr and z >= 17 and z <= 18 then
-			config2[z].p = 1
+		if config2[z].p == 1 and HORUS then
+			tmp = tmp + CUSTOM_COLOR
 		end
-		lcd.drawText(CONFIG_X, y, config2[z].t, FONT)
+		lcd.drawText(CONFIG_X, y, config2[z].t, FONT + (config2[z].p == 1 and tmp or 0))
 		if config2[z].p == nil then
 			if config2[z].l == nil then
 				lcd.drawText(CONFIG_X + RIGHT, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
