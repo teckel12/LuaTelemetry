@@ -7,50 +7,52 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 	local GPS = HORUS and 45 or 21
 	local ROWS = HORUS and 9 or 5
 	local FONT = HORUS and 0 or SMLSIZE
-
+	
 	-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
 	local config2 = {
-		{ t = "Battery View",     i = 1, l = {[0] = "Cell", "Total"} },
+		{ t = "Battery View",     l = {[0] = "Cell", "Total"} },
 		{ t = "Cell Low",         m = 2.7, i = 0.1, a = "V", b = 2 },
 		{ t = "Cell Critical",    m = 2.6, i = 0.1, a = "V", b = 2 },
-		{ t = "Voice Alerts",     i = 1, l = {[0] = "Off", "Critical", "All"} },
-		{ t = "Feedback",         i = 1, l = {[0] = "Off", "Haptic", "Beeper", "All"} },
+		{ t = "Voice Alerts",     l = {[0] = "Off", "Critical", "All"} },
+		{ t = "Feedback",         l = {[0] = "Off", "Haptic", "Beeper", "All"} },
 		{ t = "Max Altitude",     i = data.alt_unit == 10 and 10 or 1, a = units[data.alt_unit], b = 10 },
-		{ t = "Variometer",       i = 1, l = {[0] = "Off", "Graph", "Voice", "Both"} },
-		{ t = "RTH Feedback",     i = 1, l = {[0] = "Off", "On"}, b = 18 },
-		{ t = "HeadFree Feedback",i = 1, l = {[0] = "Off", "On"}, b = 18 },
-		{ t = "RSSI Feedback",    i = 1, l = {[0] = "Off", "On"}, b = 18 },
-		{ t = "Battery Alerts",   i = 1, l = {[0] = "Off", "Critical", "All"} },
-		{ t = "Altitude Alert",   i = 1, l = {[0] = "Off", "On"} },
-		{ t = "Timer",            i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2"} },
-		{ t = "Rx Voltage",       i = 1, l = {[0] = "Off", "On"} },
-		{ t = "GPS",              i = 0, l = {[0] = data.gpsLatLon} },
-		{ t = "GPS Coordinates",  i = 1, l = {[0] = "Decimal", "Deg/Min"} },
-		{ t = "Fuel Critical",    m = 1, i = 1, a = "%", b = 2 },
-		{ t = "Fuel Low",         m = 2, i = 1, a = "%", b = 2 },
-		{ t = "Tx Voltage",       i = 1, l = {[0] = "Number", "Graph", "Both"} },
-		{ t = "Speed Sensor",     i = 1, l = {[0] = "GPS", "Pitot"} },
+		{ t = "Variometer",       l = {[0] = "Off", "Graph", "Voice", "Both"} },
+		{ t = "RTH Feedback",     l = {[0] = "Off", "On"}, b = 18 },
+		{ t = "HeadFree Feedback",l = {[0] = "Off", "On"}, b = 18 },
+		{ t = "RSSI Feedback",    l = {[0] = "Off", "On"}, b = 18 },
+		{ t = "Battery Alerts",   l = {[0] = "Off", "Critical", "All"} },
+		{ t = "Altitude Alert",   l = {[0] = "Off", "On"} },
+		{ t = "Timer",            l = {[0] = "Off", "Auto", "Timer1", "Timer2"} },
+		{ t = "Rx Voltage",       l = {[0] = "Off", "On"} },
+		{ t = "GPS",              i = 0, l = {[0] = data.lastLock} },
+		{ t = "GPS Coordinates",  l = {[0] = "Decimal", "Deg/Min"} },
+		{ t = "Fuel Critical",    m = 1, a = "%", b = 2 },
+		{ t = "Fuel Low",         m = 2, a = "%", b = 2 },
+		{ t = "Tx Voltage",       l = {[0] = "Number", "Graph", "Both"} },
+		{ t = "Speed Sensor",     l = {[0] = "GPS", "Pitot"} },
 		{ t = "GPS Warning",      m = 1.0, i = 0.5, a = " HDOP" },
-		{ t = "GPS HDOP View",    i = 1, l = {[0] = "Graph", "Decimal"} },
-		{ t = "Fuel Unit",        i = 1, l = {[0] = "Percent", "mAh", "mWh"} },
-		{ t = "Vario Steps",      m = 0, i = 1, a = units[data.alt_unit], l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
-		{ t = "View Mode",        i = 1, l = {[0] = "Classic", "Pilot", "Radar", "Altitude"} },
-		{ t = "AltHold Center FB",i = 1, l = {[0] = "Off", "On"}, b = 18 },
+		{ t = "GPS HDOP View",    l = {[0] = "Graph", "Decimal"} },
+		{ t = "Fuel Unit",        l = {[0] = "Percent", "mAh", "mWh"} },
+		{ t = "Vario Steps",      m = 0, a = units[data.alt_unit], l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
+		{ t = "View Mode",        l = {[0] = "Classic", "Pilot", "Radar", "Altitude"} },
+		{ t = "AltHold Center FB",l = {[0] = "Off", "On"}, b = 18 },
 		{ t = "Battery Capacity", m = 150, i = 50, a = "mAh" },
-		{ t = "Altitude Graph",   i = 1, l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" },
+		{ t = "Altitude Graph",   l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" },
 		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" },
-		{ t = "Aircraft Symbol",  i = 1, l = {[0] = "Boeing", "Classic", "Garmin1", "Garmin2", "Dynon", "Waterline"} },
-		{ t = "Center Radar Home",i = 1, l = {[0] = "Off", "On"} },
-		{ t = "Orientation",      i = 1, l = {[0] = "Launch", "Compass"} },
+		{ t = "Aircraft Symbol",  a = "" },
+		{ t = "Center Map Home",  l = {[0] = "Off", "On"} },
+		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} },
 	}
 
 	if data.lang ~= "en" then
-		local modes, labels
 		local tmp = FILE_PATH .. "lang_" .. data.lang .. ".luac"
 		local fh = io.open(tmp)
 		if fh ~= nil then
+			local modes, labels
 			io.close(fh)
 			loadfile(tmp)(modes, labels, config2, true)
+			modes = nil
+			labels = nil
 			collectgarbage()
 		end
 	end
@@ -88,22 +90,22 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 	end
 
 	-- Special disabled option and limit cases
-	config2[7].p = data.crsf and 1 or (data.vspeed_id == -1 and 1 or nil)
-	config2[22].p = data.crsf and 1 or (HORUS and 1 or nil)
-	if config2[17].p == nil then
-		config2[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
-		config2[18].p = config2[17].p
-	end
 	config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
+	config[19].v = math.min(config[19].x, config[19].v)
 	config[25].x = config[28].v == 0 and 2 or 3
 	if config[28].v == 0 and config[25].v == 3 then
 		config[25].v = 2
 	end
-	config[19].v = math.min(config[19].x, config[19].v)
-	config2[24].p = data.crsf and 1 or (config[7].v < 2 and 1 or nil)
+	config2[7].p = data.crsf and 1 or (data.vspeed_id == -1 and 1 or nil)
 	config2[20].p = not data.pitot and 1 or nil
+	config2[22].p = data.crsf and 1 or (HORUS and 1 or nil)
 	config2[23].p = not data.showFuel and 1 or nil
+	config2[24].p = data.crsf and 1 or (config[7].v < 2 and 1 or nil)
 	config2[27].p = (not data.crsf or config[23].v > 0) and 1 or nil
+	if config2[17].p == nil then
+		config2[17].p = (not data.showCurr or config[23].v ~= 0) and 1 or nil
+		config2[18].p = config2[17].p
+	end
 	if not data.showCurr then
 		config2[17].p = 1
 		config2[18].p = 1
@@ -119,6 +121,23 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		config2[30].p = 1
 		config2[31].p = 1
 	end
+	--[[ For memory usage testing...
+	if config[11].v == 0 then
+		config2[2].p = 1
+		config2[3].p = 1
+		config2[17].p = 1
+		config2[18].p = 1
+	end
+	if config[12].v == 0 then
+		config2[6].p = 1
+	end
+	if config[4].v == 0 then
+		config2[8].p = 1
+		config2[9].p = 1
+		config2[10].p = 1
+		config2[26].p = 1
+	end
+	]]
 
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP
@@ -170,12 +189,13 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		end
 	else
 		local z = config[data.configStatus].z
+		local i = config2[z].i == nil and 1 or config2[z].i
 		if event == EVT_EXIT_BREAK then
 			data.configSelect = 0
 		elseif event == INCR or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
-			config[z].v = math.min(math.floor(config[z].v * 10 + config2[z].i * 10) / 10, config[z].x == nil and 1 or config[z].x)
+			config[z].v = math.min(math.floor(config[z].v * 10 + i * 10) / 10, config[z].x == nil and 1 or config[z].x)
 		elseif event == DECR or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
-			config[z].v = math.max(math.floor(config[z].v * 10 - config2[z].i * 10) / 10, config2[z].m == nil and 0 or config2[z].m)
+			config[z].v = math.max(math.floor(config[z].v * 10 - i * 10) / 10, config2[z].m == nil and 0 or config2[z].m)
 		end
 
 		-- Special cases
@@ -195,8 +215,8 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 				data.speed_unit = getTelemetryUnit(tmp)
 			elseif z == 28 then -- Altitude graph
 				data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
-			elseif config2[z].i > 1 then
-				config[z].v = math.floor(config[z].v / config2[z].i) * config2[z].i
+			elseif i > 1 then
+				config[z].v = math.floor(config[z].v / i) * i
 			end
 		end
 	end

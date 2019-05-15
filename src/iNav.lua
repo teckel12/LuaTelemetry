@@ -144,6 +144,7 @@ local function background()
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
+				data.lastLock = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
 					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
@@ -453,6 +454,8 @@ local function run(event)
 		view(data, config, units, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
 		if HORUS and config[30].v ~= tmp then
 			icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
+			-- This could be useful!
+			--lcd.drawBitmap(icons.fg, 260, 248)
 		end
 	else
 		-- User input
