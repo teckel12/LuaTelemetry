@@ -1,7 +1,7 @@
 local SMLCD = ...
 local i, ii
 
--- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
+-- Config options: o=display Order / c=Characters / v=default Value / d=Decimal / x=maX
 local config = {
 	{ o = 1,  c = 1, v = 1 }, -- Battery View - 1
 	{ o = 3,  c = 2, v = 3.5, d = true, x = 3.9}, -- Cell Low - 2

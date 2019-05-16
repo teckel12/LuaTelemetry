@@ -8,26 +8,26 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 	local ROWS = HORUS and 9 or 5
 	local FONT = HORUS and 0 or SMLSIZE
 	
-	-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
+	-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text
 	local config2 = {
 		{ t = "Battery View",     l = {[0] = "Cell", "Total"} },
-		{ t = "Cell Low",         m = 2.7, i = 0.1, a = "V", b = 2 },
-		{ t = "Cell Critical",    m = 2.6, i = 0.1, a = "V", b = 2 },
+		{ t = "Cell Low",         m = 2.7, i = 0.1, a = "V" },
+		{ t = "Cell Critical",    m = 2.6, i = 0.1, a = "V" },
 		{ t = "Voice Alerts",     l = {[0] = "Off", "Critical", "All"} },
 		{ t = "Feedback",         l = {[0] = "Off", "Haptic", "Beeper", "All"} },
-		{ t = "Max Altitude",     i = data.alt_unit == 10 and 10 or 1, a = units[data.alt_unit], b = 10 },
+		{ t = "Max Altitude",     i = data.alt_unit == 10 and 10 or 1, a = units[data.alt_unit] },
 		{ t = "Variometer",       l = {[0] = "Off", "Graph", "Voice", "Both"} },
-		{ t = "RTH Feedback",     l = {[0] = "Off", "On"}, b = 18 },
-		{ t = "HeadFree Feedback",l = {[0] = "Off", "On"}, b = 18 },
-		{ t = "RSSI Feedback",    l = {[0] = "Off", "On"}, b = 18 },
+		{ t = "RTH Feedback",     l = {[0] = "Off", "On"} },
+		{ t = "HeadFree Feedback",l = {[0] = "Off", "On"} },
+		{ t = "RSSI Feedback",    l = {[0] = "Off", "On"} },
 		{ t = "Battery Alerts",   l = {[0] = "Off", "Critical", "All"} },
 		{ t = "Altitude Alert",   l = {[0] = "Off", "On"} },
 		{ t = "Timer",            l = {[0] = "Off", "Auto", "Timer1", "Timer2"} },
 		{ t = "Rx Voltage",       l = {[0] = "Off", "On"} },
 		{ t = "GPS",              i = 0, l = {[0] = data.lastLock} },
 		{ t = "GPS Coordinates",  l = {[0] = "Decimal", "Deg/Min"} },
-		{ t = "Fuel Critical",    m = 1, a = "%", b = 2 },
-		{ t = "Fuel Low",         m = 2, a = "%", b = 2 },
+		{ t = "Fuel Critical",    m = 1, a = "%" },
+		{ t = "Fuel Low",         m = 2, a = "%" },
 		{ t = "Tx Voltage",       l = {[0] = "Number", "Graph", "Both"} },
 		{ t = "Speed Sensor",     l = {[0] = "GPS", "Pitot"} },
 		{ t = "GPS Warning",      m = 1.0, i = 0.5, a = " HDOP" },
@@ -35,7 +35,7 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		{ t = "Fuel Unit",        l = {[0] = "Percent", "mAh", "mWh"} },
 		{ t = "Vario Steps",      m = 0, a = units[data.alt_unit], l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
 		{ t = "View Mode",        l = {[0] = "Classic", "Pilot", "Radar", "Altitude"} },
-		{ t = "AltHold Center FB",l = {[0] = "Off", "On"}, b = 18 },
+		{ t = "AltHold Center FB",l = {[0] = "Off", "On"} },
 		{ t = "Battery Capacity", m = 150, i = 50, a = "mAh" },
 		{ t = "Altitude Graph",   l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" },
 		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" },
@@ -83,19 +83,15 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 3), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 6), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)
 	end
 
-	-- Disabled options
-	for line = 1, #config do
-		local z = config[line].z
-		config2[z].p = (config2[z].b ~= nil and config[config[config2[z].b].z].v == 0) and 1 or nil
-	end
-
-	-- Special disabled option and limit cases
+	-- Special limit cases
 	config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
 	config[19].v = math.min(config[19].x, config[19].v)
 	config[25].x = config[28].v == 0 and 2 or 3
 	if config[28].v == 0 and config[25].v == 3 then
 		config[25].v = 2
 	end
+
+	-- Disabled options
 	config2[7].p = data.crsf and 1 or (data.vspeed_id == -1 and 1 or nil)
 	config2[20].p = not data.pitot and 1 or nil
 	config2[22].p = data.crsf and 1 or (HORUS and 1 or nil)
@@ -121,7 +117,6 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		config2[30].p = 1
 		config2[31].p = 1
 	end
-	--[[ For memory usage testing...
 	if config[11].v == 0 then
 		config2[2].p = 1
 		config2[3].p = 1
@@ -137,7 +132,6 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		config2[10].p = 1
 		config2[26].p = 1
 	end
-	]]
 
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP
