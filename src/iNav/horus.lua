@@ -19,45 +19,64 @@ local function view(data, config,
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
 	local tmp, pitch, roll, roll1, roll2, roll3, upsideDown
 
-	local function attitude(r, adj)
+	local function horizon()
+		local py = Y_CNTR - math.cos(math.rad(pitch)) * 170
+		local x1 = math.sin(roll1) * 200 + X_CNTR
+		local y1 = py - (math.cos(roll1) * 200)
+		local x2 = math.sin(roll2) * 200 + X_CNTR
+		local y2 = py - (math.cos(roll2) * 200)
+		-- Looks better, but can't draw fast enough at only 2 pixels wide each
+		--local steps = roll3 <= 5 and 16 or (roll3 <= 10 and 8 or (roll3 <= 15 and 4 or 2))
+		--local steps = roll3 <= 5 and 16 or (roll3 <= 10 and 8 or 4)
+		--local steps = roll3 <= 5 and 16 or 8
+		local steps = roll3 <= 10 and 16 or 8
+		local a = (y1 - y2) / (x1 - x2 + .001) * steps
+		local y = y2 - ((x2 + 1) * a) / steps
+		lcd.setColor(CUSTOM_COLOR, GROUND2)
+		tmp = upsideDown and TOP or BOTTOM - 1
+		local x
+		for x = 1, RIGHT_POS - 2, steps do
+			if x >= RIGHT_POS - 45 then
+				lcd.setColor(CUSTOM_COLOR, GROUND2)
+			elseif x >= 41 then
+				lcd.setColor(CUSTOM_COLOR, GROUND)
+			end
+			local yy = y + 0.5
+			if (not upsideDown and yy < BOTTOM) or (upsideDown and yy > 7) then
+				local tmp2 = math.min(math.max(yy, TOP), BOTTOM)
+				local tmp3 = upsideDown and tmp2 - tmp or tmp - tmp2 + 2
+				--if steps == 2 and tmp2 == TOP and x < RIGHT_POS - 3 then
+				--	lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, 4, tmp3, CUSTOM_COLOR)
+				--	x = x + 2
+				--else
+					if x == 33 and steps == 16 then
+						lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, 8, tmp3, CUSTOM_COLOR)
+						lcd.setColor(CUSTOM_COLOR, GROUND)
+						lcd.drawFilledRectangle(x + 8, upsideDown and tmp or tmp2, 8, tmp3, CUSTOM_COLOR)
+					else
+						lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, (x + steps > RIGHT_POS - 1) and RIGHT_POS - x - 1 or steps, tmp3, CUSTOM_COLOR)
+					end
+				--end
+			end
+			y = y + a
+--[[
+			lcd.setColor(CUSTOM_COLOR, steps == 32 and WHITE or (steps == 16 and GREY or DKGREY))
+			lcd.drawFilledRectangle(x, 40, 2, 2, CUSTOM_COLOR)
+			lcd.setColor(CUSTOM_COLOR, GROUND)
+			if roll3 <= 5 and x >= 33 then
+				steps = 32
+			end
+]]
+		end
+	end
+
+	local function attPitch(r, adj)
 		local py = Y_CNTR - math.cos(math.rad(pitch - adj)) * 170
 		local x1 = math.sin(roll1) * r + X_CNTR
 		local y1 = py - (math.cos(roll1) * r)
 		local x2 = math.sin(roll2) * r + X_CNTR
 		local y2 = py - (math.cos(roll2) * r)
-		if r == 200 then
-			-- Looks better, but can't draw fast enough at only 2 pixels wide each
-			--local steps = roll3 <= 5 and 16 or (roll3 <= 10 and 8 or (roll3 <= 15 and 4 or 2))
-			local steps = roll3 <= 5 and 16 or (roll3 <= 10 and 8 or 4)
-			local a = (y1 - y2) / (x1 - x2 + .001) * steps
-			local y = y2 - ((x2 + 1) * a) / steps
-			lcd.setColor(CUSTOM_COLOR, GROUND2)
-			tmp = upsideDown and TOP or BOTTOM - 1
-			for x = 1, RIGHT_POS - 2, steps do
-				if x >= RIGHT_POS - 45 then
-					lcd.setColor(CUSTOM_COLOR, GROUND2)
-				elseif x >= 41 then
-					lcd.setColor(CUSTOM_COLOR, GROUND)
-				end
-				local yy = y + 0.5
-				if (not upsideDown and yy < BOTTOM) or (upsideDown and yy > 7) then
-					local tmp2 = math.min(math.max(yy, TOP), BOTTOM)
-					if steps == 2 and tmp2 == TOP and x < RIGHT_POS - 3 then
-						lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, 4, upsideDown and tmp2 - tmp or tmp - tmp2 + 2, CUSTOM_COLOR)
-						x = x + 2
-					else
-						if x == 33 and steps == 16 then
-							lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, 8, upsideDown and tmp2 - tmp or tmp - tmp2 + 2, CUSTOM_COLOR)
-							lcd.setColor(CUSTOM_COLOR, GROUND)
-							lcd.drawFilledRectangle(x + 8, upsideDown and tmp or tmp2, 8, upsideDown and tmp2 - tmp or tmp - tmp2 + 2, CUSTOM_COLOR)
-						else
-							lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, (x + steps > RIGHT_POS - 1) and RIGHT_POS - x - 1 or steps, upsideDown and tmp2 - tmp or tmp - tmp2 + 2, CUSTOM_COLOR)
-						end
-					end
-				end
-				y = y + a
-			end
-		elseif r ~= 7 and (y1 > TOP or y2 > TOP) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
+		if r ~= 7 and (y1 > TOP or y2 > TOP) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
 			lcd.setColor(CUSTOM_COLOR, r == TOP and WHITE or LIGHTGREY)
 			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
 			if r == TOP and y2 > TOP and y2 < BOTTOM - 15 then
@@ -112,21 +131,23 @@ local function view(data, config,
 	roll3 = math.abs(roll - 90)
 	local inside = 45
 	local outside = 65
-	attitude(200, 0)
+	horizon()
 	if data.telem and roll3 < 75 then
 		tmp = pitch - 90
 		if not data.showMax then
 			lcd.drawText(X_CNTR - outside, Y_CNTR - 9, string.format("%.0f", tmp) .. "\64", SMLSIZE + RIGHT)
 		end
 		local tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 30), -30)
+		local x--[[, y]]
 		for x = tmp2 - TOP, tmp2 + TOP, roll3 < 52.5 and 5 or 10 do
 			if x ~= 0 then
-				attitude(x % 10 == 0 and TOP or 15, x)
+				attPitch(x % 10 == 0 and TOP or 15, x)
 			end
 		end
+		--[[
 		if roll3 <= 15 then
-			local x1, y1, x2, y2 = attitude(7, tmp2 - 17.5)
-			local x3, y3, x4, y4 = attitude(7, tmp2 + 17.5)
+			local x1, y1, x2, y2 = attPitch(7, tmp2 - 17.5)
+			local x3, y3, x4, y4 = attPitch(7, tmp2 + 17.5)
 			local ys = (y3 - y1) / 7
 			lcd.setColor(CUSTOM_COLOR, GREY)
 			for y = y1, y3 - 5, ys do
@@ -136,6 +157,7 @@ local function view(data, config,
 				y2 = y2 + ys
 			end
 		end
+		]]
 	end
 
 	-- Home direction
