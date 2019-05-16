@@ -8,7 +8,7 @@ local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
-local tmp, view
+local tmp, view, lang
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
@@ -25,7 +25,7 @@ collectgarbage()
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
 collectgarbage()
 
-local prefs = loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
+loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
@@ -34,7 +34,7 @@ data.voice = "es"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	loadfile(FILE_PATH .. "lang.luac")(modes, config, labels, data, FILE_PATH)
+	lang = loadfile(FILE_PATH .. "lang.luac")(modes, labels, data, FILE_PATH)
 	collectgarbage()
 end
 
@@ -42,7 +42,7 @@ loadfile(FILE_PATH .. "reset.luac")(data)
 local crsf = loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, prefs, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -144,7 +144,7 @@ local function background()
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
-				config[15].l[0] = gpsTemp
+				data.lastLock = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
 					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
@@ -227,7 +227,7 @@ local function background()
 		data.battPercentPlayed = 100
 		data.battLow = false
 		data.showMax = false
-		data.showDir = prefs[3] == 1 and true or false
+		data.showDir = config[32].v == 1 and true or false
 		data.configStatus = 0
 		if not data.gpsAltBase and data.gpsFix then
 			data.gpsAltBase = data.gpsAlt
@@ -289,11 +289,12 @@ local function background()
 				beep = true
 			end
 		elseif config[7].v > 1 then -- Vario voice
-			if math.abs(data.altitude - data.altLastAlt) + 0.5 >= config[24].l[config[24].v] then
-				if math.abs(data.altitude + 0.5 - data.altLastAlt) / config[24].l[config[24].v] > 1.5 then
-					tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
+			local steps = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}
+			if math.abs(data.altitude - data.altLastAlt) + 0.5 >= steps[config[24].v] then
+				if math.abs(data.altitude + 0.5 - data.altLastAlt) / steps[config[24].v] > 1.5 then
+					tmp = math.floor((data.altitude + 0.5) / steps[config[24].v]) * steps[config[24].v]
 				else
-					tmp = math.floor(data.altitude / config[24].l[config[24].v] + 0.5) * config[24].l[config[24].v]
+					tmp = math.floor(data.altitude / steps[config[24].v] + 0.5) * steps[config[24].v]
 				end
 				if tmp > 0 and getTime() > data.altNextPlay then
 					playNumber(tmp, data.alt_unit)
@@ -449,7 +450,16 @@ local function run(event)
 			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
-		view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+		tmp = config[30].v
+		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+		if HORUS then
+			if config[30].v ~= tmp then
+				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
+			end
+			if data.configStatus == 26 then
+				icons.sym(icons.fg)
+			end
+		end
 	else
 		-- User input
 		if not data.armed then
@@ -465,7 +475,7 @@ local function run(event)
 			data.showDir = not data.showDir
 		elseif event == EVT_ENTER_BREAK and not HORUS then
 			-- Cycle through views
-			config[25].v = config[25].v >= config[25].x and 0 or config[25].v + 1
+			config[25].v = config[25].v >= (config[28].v == 0 and 2 or 3) and 0 or config[25].v + 1
 		elseif event == MENU then
 			-- Config menu
 			data.configStatus = data.configLast
@@ -478,7 +488,7 @@ local function run(event)
 			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 0 and "view.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 2 and "radar.luac" or "alt.luac")))))()
 			data.v = config[25].v
 		end
-		view(data, config, prefs, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 

@@ -1,7 +1,9 @@
 ---
 name: "\U0001F680 Feature request"
 about: Suggest an idea for Lua Telemetry
-
+title: ''
+labels: feature request
+assignees: teckel12
 ---
 
 ### Is your feature request related to a problem? Please describe.

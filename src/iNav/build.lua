@@ -9,21 +9,22 @@ local env = "tc" -- Default: "tc" | Debug mode: "tcb"
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
 local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
-local prefs = loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
+loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 if HORUS then
-	local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_h", env)(config, data, prefs, FILE_PATH)
+	local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
 end
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_t", env)(config, data, prefs, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_t", env)(config, data, FILE_PATH)
 
 data.lang = "en"
 data.voice = "en"
-loadScript(FILE_PATH .. "lang", env)(modes, config, labels, data, FILE_PATH)
-local lang = { "nl", "fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu" }
-for abv = 1, 12 do
-	local fh = io.open(FILE_PATH .. "lang_" .. lang[abv] .. ".lua")
+local lang = loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH)
+local langs = { "nl", "fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu" }
+local config2
+for abv = 1, #langs do
+	local fh = io.open(FILE_PATH .. "lang_" .. langs[abv] .. ".lua")
 	if fh ~= nil then
 		io.close(fh)
-		loadScript(FILE_PATH .. "lang_" .. lang[abv], env)(modes, config, labels)
+		lang = loadScript(FILE_PATH .. "lang_" .. langs[abv], env)(modes, labels)
 	end
 end
 

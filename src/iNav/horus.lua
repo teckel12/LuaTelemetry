@@ -1,4 +1,5 @@
-local function view(data, config, prefs, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, 
+	modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	--local SKY = 982 --lcd.RGB(0, 121, 180)
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
@@ -265,7 +266,7 @@ local function view(data, config, prefs, modes, units, labels, gpsDegMin, hdopGr
 
 		if data.gpsHome ~= false then
 			-- Craft location
-			tmp2 = prefs[2] == 1 and 50 or 100
+			tmp2 = config[31].v == 1 and 50 or 100
 			d = data.distanceLast >= data.distRef and math.min(math.max((data.distanceLast / math.max(math.min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * tmp2, 7), tmp2) or 1
 			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
 			local rad1 = math.rad(bearing)
@@ -274,7 +275,7 @@ local function view(data, config, prefs, modes, units, labels, gpsDegMin, hdopGr
 			-- Home position
 			local hx = X_CNTR + 2
 			local hy = Y_CNTR
-			if prefs[2] ~= 1 then
+			if config[31].v ~= 1 then
 				hx = hx - (d > 9 and cx / 2 or 0)
 				hy = hy + (d > 9 and cy / 2 or 0)
 			end

@@ -1,7 +1,9 @@
 ---
 name: "\U0001F4A5 Not enough memory error"
 about: Are you getting a "not enough memory error"?
-
+title: ''
+labels: support
+assignees: teckel12
 ---
 
 If you're getting a `not enough memory error`, it means you're out of memory on your transmitter.  The Taranis series has very little free memory to work with for Lua scripts, so this error is quite common.  But, there are a few things that typically cause this error which are listed below:
