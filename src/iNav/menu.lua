@@ -1,4 +1,4 @@
-local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
 
 	local CONFIG_X = HORUS and 90 or (SMLCD and 0 or 46)
 	local TOP = HORUS and 37 or 11
@@ -7,7 +7,8 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 	local GPS = HORUS and 45 or 21
 	local ROWS = HORUS and 9 or 5
 	local FONT = HORUS and 0 or SMLSIZE
-	
+	local line
+
 	-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text
 	local config2 = {
 		{ t = "Battery View",     l = {[0] = "Cell", "Total"} },
@@ -44,19 +45,10 @@ local function view(data, config, units, event, gpsDegMin, getTelemetryId, getTe
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} },
 	}
 
-	if data.lang ~= "en" then
-		local tmp = FILE_PATH .. "lang_" .. data.lang .. ".luac"
-		local fh = io.open(tmp)
-		if fh ~= nil then
-			local modes, labels
-			io.close(fh)
-			loadfile(tmp)(modes, labels, config2, true)
-			modes = nil
-			labels = nil
-			collectgarbage()
-		end
+	if lang ~= nil then
+		lang(config2)
 	end
-		
+
 	local function saveConfig()
 		local fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
 		if fh == nil then

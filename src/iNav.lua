@@ -8,7 +8,7 @@ local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
-local tmp, view
+local tmp, view, lang
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
@@ -34,7 +34,7 @@ data.voice = "es"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	loadfile(FILE_PATH .. "lang.luac")(modes, labels, data, FILE_PATH)
+	lang = loadfile(FILE_PATH .. "lang.luac")(modes, labels, data, FILE_PATH)
 	collectgarbage()
 end
 
@@ -451,11 +451,14 @@ local function run(event)
 			data.v = 9
 		end
 		tmp = config[30].v
-		view(data, config, units, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
-		if HORUS and config[30].v ~= tmp then
-			icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
-			-- This could be useful!
-			--lcd.drawBitmap(icons.fg, 260, 248)
+		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+		if HORUS then
+			if config[30].v ~= tmp then
+				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
+			end
+			if data.configStatus == 26 then
+				icons.sym(icons.fg)
+			end
 		end
 	else
 		-- User input

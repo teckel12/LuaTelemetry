@@ -17,14 +17,14 @@ local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "f
 
 data.lang = "en"
 data.voice = "en"
-loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH)
-local lang = { "nl", "fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu" }
+local lang = loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH)
+local langs = { "nl", "fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu" }
 local config2
-for abv = 1, 12 do
-	local fh = io.open(FILE_PATH .. "lang_" .. lang[abv] .. ".lua")
+for abv = 1, #langs do
+	local fh = io.open(FILE_PATH .. "lang_" .. langs[abv] .. ".lua")
 	if fh ~= nil then
 		io.close(fh)
-		loadScript(FILE_PATH .. "lang_" .. lang[abv], env)(modes, labels, config2, false)
+		lang = loadScript(FILE_PATH .. "lang_" .. langs[abv], env)(modes, labels)
 	end
 end
 

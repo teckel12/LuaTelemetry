@@ -1,13 +1,12 @@
 local modes, labels, data, FILE_PATH = ...
+local lang
 
 if data.lang ~= "en" then
 	local tmp = FILE_PATH .. "lang_" .. data.lang .. ".luac"
 	local fh = io.open(tmp)
 	if fh ~= nil then
-		local config2
 		io.close(fh)
-		loadfile(tmp)(modes, labels, config2, false)
-		config2 = nil
+		lang = loadfile(tmp)(modes, labels)
 		collectgarbage()
 	end
 end
@@ -21,4 +20,4 @@ if data.voice ~= "en" then
 	end
 end
 
-return 0
+return lang

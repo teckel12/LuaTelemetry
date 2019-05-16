@@ -73,6 +73,19 @@ icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
 icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 
+function icons.sym(fg)
+	lcd.setColor(CUSTOM_COLOR, 982) -- Sky
+	lcd.drawFilledRectangle(106, 248, 269, 9, CUSTOM_COLOR)
+	lcd.setColor(CUSTOM_COLOR, 25121) -- Ground
+	lcd.drawFilledRectangle(106, 257, 269, 15, CUSTOM_COLOR)
+	lcd.drawBitmap(fg, 106, 248)
+	lcd.setColor(CUSTOM_COLOR, 12678) -- Dk Grey
+	lcd.drawFilledRectangle(106, 248, 40, 24, CUSTOM_COLOR)
+	lcd.drawFilledRectangle(330, 248, 45, 24, CUSTOM_COLOR)
+	lcd.setColor(CUSTOM_COLOR, WHITE)
+	lcd.drawRectangle(105, 247, 271, 26, CUSTOM_COLOR)
+end
+
 if data.widget then
 	data.hcurx_id = getFieldInfo("ail").id
 	data.hcury_id = getFieldInfo("ele").id

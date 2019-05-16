@@ -1,28 +1,28 @@
-local modes, labels, config2, docfg = ...
+local modes, labels = ...
 
-if docfg == false then
-	-- Max 7 characters
-	--modes[1].t  = "! TELEM !"	-- ! TELEM !
-	--modes[2].t  = "HORIZON"	-- HORIZON
-	--modes[3].t  = "  ANGLE"	-- ANGLE
-	--modes[4].t  = "   ACRO"	-- ACRO
-	modes[5].t  = " NO OK "		-- NOT OK
-	modes[6].t  = "  LISTO"		-- READY
-	--modes[7].t  = "POS HOLD"	-- POS HOLD
-	--modes[8].t  = "WAYPOINT"	-- WAYPOINT
-	--modes[9].t  = " MANUAL"	-- MANUAL
-	--modes[10].t = "   RTH   "	-- RTH
-	--modes[11].t = "! FAIL !"	-- ! FAIL !
-	modes[12].t = " ! GAS ! "	-- ! THROT !
-	--modes[13].t = " CRUISE"	-- CRUISE
+-- Max 7 characters
+--modes[1].t  = "! TELEM !"	-- ! TELEM !
+--modes[2].t  = "HORIZON"	-- HORIZON
+--modes[3].t  = "  ANGLE"	-- ANGLE
+--modes[4].t  = "   ACRO"	-- ACRO
+modes[5].t  = " NO OK "		-- NOT OK
+modes[6].t  = "  LISTO"		-- READY
+--modes[7].t  = "POS HOLD"	-- POS HOLD
+--modes[8].t  = "WAYPOINT"	-- WAYPOINT
+--modes[9].t  = " MANUAL"	-- MANUAL
+--modes[10].t = "   RTH   "	-- RTH
+--modes[11].t = "! FAIL !"	-- ! FAIL !
+modes[12].t = " ! GAS ! "	-- ! THROT !
+--modes[13].t = " CRUISE"	-- CRUISE
 
-	-- Max 10 characters
-	labels[1] = "Bateria"	-- Fuel
-	labels[2] = "Tension"	-- Battery
-	labels[3] = "Consumo"	-- Current
-	labels[4] = "Altitud"	-- Altitude
-	labels[5] = "Distancia"	-- Distance
-else
+-- Max 10 characters
+labels[1] = "Bateria"	-- Fuel
+labels[2] = "Tension"	-- Battery
+labels[3] = "Consumo"	-- Current
+labels[4] = "Altitud"	-- Altitude
+labels[5] = "Distancia"	-- Distance
+
+local function lang(config2)
 	-- Max 16 characters
 	config2[1].t  = "Bateria"			-- Battery View
 	config2[2].t  = "Celda baja"			-- Cell Low
@@ -81,4 +81,4 @@ else
 	--config2[32].l = {[0] = "Launch", "Compass"}						-- "Launch", "Compass"
 end
 
-return 0
+return lang
