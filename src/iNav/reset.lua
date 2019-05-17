@@ -27,9 +27,9 @@ data.altCur = 1
 data.altLst = getTime()
 data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
---[[ FPS stuff
+--[[ FPS stuff ]]
 data.fpsStart = getTime()
 data.frames = 0
-]]
+
 
 return 0

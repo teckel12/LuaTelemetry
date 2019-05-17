@@ -45,28 +45,41 @@ local function view(data, config,
 			if (not upsideDown and yy < BOTTOM) or (upsideDown and yy > 7) then
 				local tmp2 = math.min(math.max(yy, TOP), BOTTOM)
 				local tmp3 = upsideDown and tmp2 - tmp or tmp - tmp2 + 2
+				local tmp4 = upsideDown and tmp or tmp2
 				--if steps == 2 and tmp2 == TOP and x < RIGHT_POS - 3 then
-				--	lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, 4, tmp3, CUSTOM_COLOR)
+				--	lcd.drawFilledRectangle(x, tmp4, 4, tmp3, CUSTOM_COLOR)
 				--	x = x + 2
 				--else
 					if x == 33 and steps == 16 then
-						lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, 8, tmp3, CUSTOM_COLOR)
+						lcd.drawFilledRectangle(x, tmp4, 8, tmp3, CUSTOM_COLOR)
 						lcd.setColor(CUSTOM_COLOR, GROUND)
-						lcd.drawFilledRectangle(x + 8, upsideDown and tmp or tmp2, 8, tmp3, CUSTOM_COLOR)
+						lcd.drawFilledRectangle(x + 8, tmp4, 8, tmp3, CUSTOM_COLOR)
 					else
-						lcd.drawFilledRectangle(x, upsideDown and tmp or tmp2, (x + steps > RIGHT_POS - 1) and RIGHT_POS - x - 1 or steps, tmp3, CUSTOM_COLOR)
+						lcd.drawFilledRectangle(x, tmp4, (x + steps > RIGHT_POS - 1) and RIGHT_POS - x - 1 or steps, tmp3, CUSTOM_COLOR)
 					end
+					if not upsideDown and math.abs(a) > 2 then
+						if roll > 90 then
+							lcd.drawFilledRectangle(x, tmp4 - (a / 2), steps / 2, a / 2 + 1, CUSTOM_COLOR)
+						elseif x > 8 then
+							lcd.drawFilledRectangle(x - steps / 2, tmp4 - (a / 2), steps / 2, -a / 2 + 1, CUSTOM_COLOR)
+						end
+					end
+					--[[ Upside down code
+					lcd.setColor(CUSTOM_COLOR, WHITE)
+					-- positive AccY, upsideDown
+					lcd.drawFilledRectangle(x - steps / 2, tmp2 - a, steps / 2, a / 2 + 1, CUSTOM_COLOR)
+					]]
 				--end
 			end
 			y = y + a
---[[
+			--[[ Test 32 step code
 			lcd.setColor(CUSTOM_COLOR, steps == 32 and WHITE or (steps == 16 and GREY or DKGREY))
 			lcd.drawFilledRectangle(x, 40, 2, 2, CUSTOM_COLOR)
 			lcd.setColor(CUSTOM_COLOR, GROUND)
 			if roll3 <= 5 and x >= 33 then
 				steps = 32
 			end
-]]
+			]]
 		end
 	end
 
@@ -138,7 +151,7 @@ local function view(data, config,
 			lcd.drawText(X_CNTR - outside, Y_CNTR - 9, string.format("%.0f", tmp) .. "\64", SMLSIZE + RIGHT)
 		end
 		local tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 30), -30)
-		local x--[[, y]]
+		local x
 		for x = tmp2 - TOP, tmp2 + TOP, roll3 < 52.5 and 5 or 10 do
 			if x ~= 0 then
 				attPitch(x % 10 == 0 and TOP or 15, x)
@@ -146,6 +159,7 @@ local function view(data, config,
 		end
 		--[[
 		if roll3 <= 15 then
+			local y
 			local x1, y1, x2, y2 = attPitch(7, tmp2 - 17.5)
 			local x3, y3, x4, y4 = attPitch(7, tmp2 + 17.5)
 			local ys = (y3 - y1) / 7

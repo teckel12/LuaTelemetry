@@ -37,7 +37,7 @@ else
 end
 
 -- Config adjustments and special cases
--- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
+-- Config options: v=default Value / x=maX
 -- 6=Max Altitude / 15=GPS (last fix) / 20=Speed Sensor / 25=View Mode / 28=Altitude Graph
 if config[6].v == -1 then
 	config[6].v = data.alt_unit == 10 and 400 or 120
