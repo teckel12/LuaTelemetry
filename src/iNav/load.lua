@@ -1,5 +1,5 @@
 local config, data, FILE_PATH = ...
-local i, tmp
+local tmp
 
 -- Load config for model
 fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat")

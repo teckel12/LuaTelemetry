@@ -394,7 +394,7 @@ local function background()
 		-- I don't like this min/max routine at all, there's got to be a better way
 		data.altMin = 0
 		data.altMax = data.alt_unit == 10 and 50 or 30
-		local min, max, i = math.min, math.max
+		local min, max = math.min, math.max
 		for i = 1, 60 do
 			data.altMin = min(data.altMin, data.alt[i])
 			data.altMax = max(data.altMax, data.alt[i])
@@ -404,6 +404,10 @@ local function background()
 end
 
 local function run(event)
+	--[[ Show FPS
+	data.start = getTime()
+	]]
+
 	-- Run background function manually on Horus
 	if HORUS and data.startup == 0 then
 		background()

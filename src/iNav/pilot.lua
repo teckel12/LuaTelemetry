@@ -33,7 +33,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	local function tics(v, p)
-		local i
 		for i = v % 10 + 8, 56, 10 do
 			if i < 31 or i > 41 then
 				lcd.drawLine(p, i, p + 1, i, SOLID, 0)
@@ -130,7 +129,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Heading part 1
 	if data.showHead then
-		local i
 		for i = 0, 348.75, 11.25 do
 			tmp = math.floor(LEFT_POS + ((i - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= LEFT_POS and tmp <= RIGHT_POS then

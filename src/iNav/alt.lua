@@ -62,7 +62,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local BOTTOM = SMLCD and 47 or 63
 		tmp = (SMLCD and 30 or 40) / (data.altMax - data.altMin)
 		lcd.drawLine(RIGHT_POS - 60, BOTTOM,  RIGHT_POS - 1, BOTTOM, SOLID, FORCE)
-		local i
 		for i = 1, 60 do
 			local cx = RIGHT_POS - 61 + i
 			local cy = math.floor(BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp)

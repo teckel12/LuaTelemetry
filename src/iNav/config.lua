@@ -1,5 +1,4 @@
 local SMLCD = ...
-local i, ii
 
 -- Config options: o=display Order / c=Characters / v=default Value / d=Decimal / x=maX
 local config = {

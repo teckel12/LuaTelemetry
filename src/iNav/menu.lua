@@ -7,7 +7,6 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	local GPS = HORUS and 45 or 21
 	local ROWS = HORUS and 9 or 5
 	local FONT = HORUS and 0 or SMLSIZE
-	local line
 
 	-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text
 	local config2 = {
