@@ -36,7 +36,7 @@ local function title(data, config, SMLCD)
 	--[[ Show FPS ]]
 	data.frames = data.frames + 1
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-	--lcd.drawText(130, 0, getTime() - data.start, RIGHT)
+	lcd.drawText(130, 0, string.format("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
 
 	-- Reset color
 	lcd.setColor(WARNING_COLOR, YELLOW)

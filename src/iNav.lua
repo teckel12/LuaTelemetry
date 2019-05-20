@@ -404,9 +404,9 @@ local function background()
 end
 
 local function run(event)
-	--[[ Show FPS
+	--[[ Show FPS ]]
 	data.start = getTime()
-	]]
+	
 
 	-- Run background function manually on Horus
 	if HORUS and data.startup == 0 then
