@@ -103,7 +103,7 @@ local function view(data, config,
 				lcd.drawFilledRectangle(tl.x, tl.y, br.x - tl.x + 1, br.y - tl.y + 1, CUSTOM_COLOR)
 			end
 		else
-			-- Find rectangle to fill
+			-- Find rectangles to fill
 			local r1x, r1y, r2x, r2y = tl.x, tl.y, br.x, br.y
 			local trix, triy, rec = r2x, r2y, true
 			if upsideDown then
@@ -112,7 +112,7 @@ local function view(data, config,
 					trix, triy = roll > 90 and r2x or r1x, r2y
 				elseif t and b and roll < 90 then
 					r2x = math.min(i[1].x, i[2].x)
-					trix, triy = r2x, r2y
+					trix, triy = i[1].x, r1y
 				elseif t and b and roll > 90 then
 					r1x = math.max(i[1].x, i[2].x)
 					trix, triy = r1x, r1y
@@ -160,37 +160,76 @@ local function view(data, config,
 				lcd.drawFilledRectangle(r1x, r1y, r2x - r1x + 1, r2y - r1y + 1, CUSTOM_COLOR)
 			end
 
-			lcd.drawLine(i[1].x, i[1].y, i[2].x, i[2].y, SOLID, WARNING_COLOR)
-			lcd.drawLine(i[1].x, i[1].y, trix, triy, SOLID, WARNING_COLOR)
-			lcd.drawLine(i[2].x, i[2].y, trix, triy, SOLID, WARNING_COLOR)
+			--lcd.drawText(270, 20, i[1].x .. " x " .. i[1].y)
+			--lcd.drawText(270, 40, i[2].x .. " x " .. i[2].y)
+			--lcd.drawText(270, 60, trix .. " x " .. triy)
+			--lcd.drawText(270, 80, roll)
 
-			lcd.drawText(270, 20, i[1].x .. "x" .. i[1].y)
-			lcd.drawText(270, 40, i[2].x .. "x" .. i[2].y)
-			lcd.drawText(270, 60, trix .. "x" .. triy)
-
+			-- Fill remaining triangle
 			local height = i[1].y - triy
 			local top = i[1].y
 			if height == 0 then
 				height = i[2].y - triy
 				top = i[2].y
 			end
-			local width = math.abs(i[1].x - trix)
-			if width == 0 then
-				width = math.abs(i[2].x - trix)
+			local inc = 1
+			if height ~= 0 then
+				local width = math.abs(i[1].x - trix)
+				local tx1 = i[1].x
+				local tx2 = trix
+				if width == 0 then
+					width = math.abs(i[2].x - trix)
+					tx1 = i[2].x
+					tx2 = trix
+				end
+				--inc = math.abs(height) < 20 and 1 or (math.abs(height) < 40 and 2 or (math.abs(height) < width and 3 or 5))
+				inc = math.abs(height) < width and 3 or 5
+				local steps = height > 0 and inc or -inc
+				local slope = width / height * inc
+				local s = slope > 0 and 0 or inc - 1
+				slope = math.abs(slope) * (tx1 < tx2 and 1 or -1)
+
+				--lcd.drawText(270, 20, width .. " x " .. height .. " " .. inc)
+				--lcd.drawText(270, 40, triy .. " " .. top .. " " .. steps)
+				--lcd.drawText(270, 60, tx1 .. " " .. tx2)
+
+				for y = triy, top, steps do
+					if math.abs(steps) == 1 then
+						lcd.drawLine(tx1, y, tx2, y, SOLID, CUSTOM_COLOR)
+					else
+						if tx1 < tx2 then
+						--if tx1 < tx2 and tx2 - tx1 + 1 > 0 then
+							lcd.drawFilledRectangle(tx1, y - s, tx2 - tx1 + 1, inc, CUSTOM_COLOR)
+						else
+						--elseif tx1 > tx2 and tx1 - tx2 + 1 > 0 then
+							lcd.drawFilledRectangle(tx2, y - s, tx1 - tx2 + 1, inc, CUSTOM_COLOR)
+						end
+					end
+					tx1 = tx1 + slope
+				end
+
+				--lcd.drawLine(i[1].x, i[1].y, i[2].x, i[2].y, SOLID, WARNING_COLOR)
+				--lcd.drawLine(i[1].x, i[1].y, trix, triy, SOLID, WARNING_COLOR)
+				--lcd.drawLine(i[2].x, i[2].y, trix, triy, SOLID, WARNING_COLOR)
+	
+				--lcd.drawText(270, 20, i[1].x .. " x " .. i[1].y)
+				--lcd.drawText(270, 40, i[2].x .. " x " .. i[2].y)
+				--lcd.drawText(270, 60, roll)
 			end
-			local slope = width / height
-			local steps = height > 0 and 2 or -2
 
-			for y = trix, top, steps do
-				--lcd.drawFilledRectangle(trix, y, width, y, CUSTOM_COLOR)
+			-- Bonus smooth horizon, see if this actually makes it faster
+			if not upsideDown and inc <= 3 then
+				if inc ~= 1 then
+					lcd.drawLine(i[1].x, i[1].y + 2, i[2].x, i[2].y + 2, SOLID, CUSTOM_COLOR)
+					lcd.drawLine(i[1].x, i[1].y + 1, i[2].x, i[2].y + 1, SOLID, CUSTOM_COLOR)
+					lcd.setColor(CUSTOM_COLOR, 982)
+					lcd.drawLine(i[1].x, i[1].y - 1, i[2].x, i[2].y - 1, SOLID, CUSTOM_COLOR)
+					lcd.drawLine(i[1].x, i[1].y - 2, i[2].x, i[2].y - 2, SOLID, CUSTOM_COLOR)
+				end
+				lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
+				lcd.drawLine(i[1].x, i[1].y, i[2].x, i[2].y, SOLID, CUSTOM_COLOR)
 			end
 
-			lcd.drawText(270, 80, width .. "x" .. height)
-			lcd.drawText(270, 100, top .. " " .. steps .. " " .. slope)
-
-			--lcd.drawText(270, 20, i[1].x .. "x" .. i[1].y)
-			--lcd.drawText(270, 40, i[2].x .. "x" .. i[2].y)
-			--lcd.drawText(270, 60, roll)
 		end
 
 		--[[ Old method, tweaked to be fast, but maybe a more elegant method is more approprate
