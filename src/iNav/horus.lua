@@ -1,10 +1,10 @@
 local function view(data, config, 
 	modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
-	--local SKY = 982 --lcd.RGB(0, 121, 180)
+	local SKY = 982 --lcd.RGB(0, 121, 180)
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
 	--local SKY2 = 8943 --lcd.RGB(32, 92, 122)
-	local GROUND2 = 20996 --lcd.RGB(81, 65, 36)
+	--local GROUND2 = 20996 --lcd.RGB(81, 65, 36)
 	--local MAP = 800 --lcd.RGB(0, 100, 0)
 	--local DKMAP = 544 --lcd.RGB(0, 70, 0)
 	local LIGHTMAP = 1184 --lcd.RGB(0, 150, 0)
@@ -47,8 +47,8 @@ local function view(data, config,
 		local bl = { x = 1, y = BOTTOM - 1 }
 		local br = { x = RIGHT_POS - 2, y = BOTTOM - 1 }
 		local i1x, i1y, i2x, i2y, x1, x2, x3, x4, y1, y2, y3, y4
-		local ii = 1
 		local l, r, t, b = false, false, false, false
+		local ii = 1
 
 		-- Calculate horizon
 		h1.x, h1.y, h2.x, h2.y = horCalc(200, 0)
@@ -74,7 +74,7 @@ local function view(data, config,
 		end
 		if ii < 3 then
 			x3, y3 = intersect(h1, h2, bl, br)
-			if x3 and (ii ~= 2 or (x3 < 267 and x3 > 1)) then
+			if x3 and (ii ~= 2 or (x3 < 267 and x3 > 2)) then
 				--lcd.drawText(40, 115, x3 .. "x" .. y3)
 				--lcd.drawText(270, 100, "bottom")
 				i[ii].x = x3
@@ -183,12 +183,13 @@ local function view(data, config,
 					tx2 = trix
 				end
 				--inc = math.abs(height) < 20 and 1 or (math.abs(height) < 40 and 2 or (math.abs(height) < width and 3 or 5))
-				inc = math.abs(height) < width and 3 or 5
+				inc = math.abs(height) < 10 and 1 or (math.abs(height) < 20 and 2 or ((math.abs(height) < width and math.abs(roll - 90) < 55) and 3 or 5))
 				local steps = height > 0 and inc or -inc
 				local slope = width / height * inc
 				local s = slope > 0 and 0 or inc - 1
 				slope = math.abs(slope) * (tx1 < tx2 and 1 or -1)
 
+				--lcd.drawText(270, 20, inc)
 				--lcd.drawText(270, 20, width .. " x " .. height .. " " .. inc)
 				--lcd.drawText(270, 40, triy .. " " .. top .. " " .. steps)
 				--lcd.drawText(270, 60, tx1 .. " " .. tx2)
@@ -217,14 +218,21 @@ local function view(data, config,
 				--lcd.drawText(270, 60, roll)
 			end
 
-			-- Bonus smooth horizon, see if this actually makes it faster
+			-- Smooth horizon
 			if not upsideDown and inc <= 3 then
-				if inc ~= 1 then
-					lcd.drawLine(i[1].x, i[1].y + 2, i[2].x, i[2].y + 2, SOLID, CUSTOM_COLOR)
+				if inc > 1 then
+					if inc > 2 then
+						lcd.drawLine(i[1].x, i[1].y + 2, i[2].x, i[2].y + 2, SOLID, CUSTOM_COLOR)
+					end
 					lcd.drawLine(i[1].x, i[1].y + 1, i[2].x, i[2].y + 1, SOLID, CUSTOM_COLOR)
-					lcd.setColor(CUSTOM_COLOR, 982)
+					lcd.setColor(CUSTOM_COLOR, SKY)
 					lcd.drawLine(i[1].x, i[1].y - 1, i[2].x, i[2].y - 1, SOLID, CUSTOM_COLOR)
-					lcd.drawLine(i[1].x, i[1].y - 2, i[2].x, i[2].y - 2, SOLID, CUSTOM_COLOR)
+					if inc > 2 then
+						lcd.drawLine(i[1].x, i[1].y - 2, i[2].x, i[2].y - 2, SOLID, CUSTOM_COLOR)
+					end
+					if 90 - roll > 25 then
+						lcd.drawLine(i[1].x, i[1].y - 3, i[2].x, i[2].y - 3, SOLID, CUSTOM_COLOR)
+					end
 				end
 				lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 				lcd.drawLine(i[1].x, i[1].y, i[2].x, i[2].y, SOLID, CUSTOM_COLOR)
@@ -232,51 +240,6 @@ local function view(data, config,
 
 		end
 
-		--[[ Old method, tweaked to be fast, but maybe a more elegant method is more approprate
-		local steps = roll3 <= 7 and 32 or (roll3 <= 20 and 16 or 8)
-		local a = (y1 - y2) / (x1 - x2 + .001) * steps
-		local y = y2 - ((x2 + 1) * a) / steps
-		lcd.setColor(CUSTOM_COLOR, GROUND2)
-		tmp = upsideDown and TOP or BOTTOM - 1
-		for x = 1, RIGHT_POS - 2, steps do
-			if x >= RIGHT_POS - 45 then
-				lcd.setColor(CUSTOM_COLOR, GROUND2)
-			elseif x >= 41 then
-				lcd.setColor(CUSTOM_COLOR, GROUND)
-			end
-			local yy = y + 0.5
-			if (not upsideDown and yy < BOTTOM) or (upsideDown and yy > 7) then
-				local tmp2 = math.min(math.max(yy, TOP), BOTTOM)
-				local tmp3 = upsideDown and tmp2 - tmp or tmp - tmp2 + 2
-				tmp4 = upsideDown and tmp or tmp2
-				if x == 33 and steps > 8 then
-					lcd.drawFilledRectangle(x, tmp4, 8, tmp3, CUSTOM_COLOR)
-					lcd.setColor(CUSTOM_COLOR, GROUND)
-					lcd.drawFilledRectangle(x + 8, tmp4, steps == 16 and 8 or 24, tmp3, CUSTOM_COLOR)
-				else
-					lcd.drawFilledRectangle(x, tmp4, (x + steps > RIGHT_POS - 1) and RIGHT_POS - x - 1 or steps, tmp3, CUSTOM_COLOR)
-				end
-				if math.abs(a) > 3 then
-					if not upsideDown then
-						if roll > 90 then
-							lcd.drawFilledRectangle(x, tmp4 - (a / 2), steps / (x > RIGHT_POS - 14 and 3 or 2), a / 2 + 1, CUSTOM_COLOR)
-						elseif x > 8 and tmp4 - a < BOTTOM then
-							lcd.drawFilledRectangle(x - steps / 2, tmp4 - (a / 2), steps / 2, -a / 2 + 1, CUSTOM_COLOR)
-						end
-					-- Upsidedown not totally fleshed out yet, but maybe it doesn't matter?
-					--else
-					--	if roll > 90 and x > 8 then
-					--		lcd.drawFilledRectangle(x - steps / 2, tmp2 - a, steps / 2, a / 2 + 1, CUSTOM_COLOR)
-					--	elseif tmp2 > TOP and tmp2 -a / 2 < BOTTOM then
-					--		lcd.drawFilledRectangle(x, tmp2, steps / (x > RIGHT_POS - 14 and 3 or 2), -a / 2 + 1, CUSTOM_COLOR)
-					--	end
-					--
-					end
-				end
-			end
-			y = y + a
-		end
-		]]
 	end
 
 	local function pitchLine(r, adj)
@@ -313,9 +276,9 @@ local function view(data, config,
 		for i = tmp - 40, tmp, 5 do
 			local tmp2 = Y_CNTR + ((v - i) * 3) - 9
 			if tmp2 > 10 and tmp2 < BOTTOM - 8 then
-				lcd.drawLine(p, tmp2 + 8, p + 2, tmp2 + 8, SOLID, CUSTOM_COLOR)
+				lcd.drawLine(p, tmp2 + 8, p + 2, tmp2 + 8, SOLID, TEXT_COLOR)
 				if config[28].v == 0 and i % 10 == 0 and (i >= 0 or p > X_CNTR) and tmp2 < BOTTOM - 23 then
-					lcd.drawText(p + (p > X_CNTR and -1 or 4), tmp2, i, SMLSIZE + (p > X_CNTR and RIGHT or 0) + CUSTOM_COLOR)
+					lcd.drawText(p + (p > X_CNTR and -1 or 4), tmp2, i, SMLSIZE + (p > X_CNTR and RIGHT or 0) + TEXT_COLOR)
 				end
 			end
 		end
@@ -370,9 +333,11 @@ local function view(data, config,
 		end
 		pitchLines(tmp3, 15, 15, 3, LIGHTGREY) -- Center, Spread, Width, sTeps, cOlor
 		-- 2.5% pitch lines if altitude graph is off
+		--[[
 		if config[28].v == 0 and roll3 <= 20 then
 			pitchLines(tmp2, 17.5, 7, 7, GREY) -- Center, Spread, Width, sTeps, cOlor
 		end
+		]]
 	end
 
 	-- Home direction
@@ -403,7 +368,6 @@ local function view(data, config,
 	end
 
 	-- Speed & altitude tics
-	lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 	tics(data.speed, 1)
 	tics(data.altitude, RIGHT_POS - 4)
 	if config[28].v == 0 then
@@ -412,7 +376,7 @@ local function view(data, config,
 	end
 
 	-- View overlay
-	lcd.drawBitmap(icons.fg, 1, 74)
+	lcd.drawBitmap(icons.fg, 1, 20)
 
 	-- Speed & altitude
 	tmp = data.showMax and data.speedMax or data.speed

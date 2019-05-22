@@ -404,9 +404,9 @@ local function background()
 end
 
 local function run(event)
-	--[[ Show FPS ]]
+	--[[ Show FPS
 	data.start = getTime()
-	
+	]]
 
 	-- Run background function manually on Horus
 	if HORUS and data.startup == 0 then
@@ -460,9 +460,11 @@ local function run(event)
 			if config[30].v ~= tmp then
 				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 			end
+			--[[ Aircraft symbol preview
 			if data.configStatus == 26 then
 				icons.sym(icons.fg)
 			end
+			]]
 		end
 	else
 		-- User input

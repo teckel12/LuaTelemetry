@@ -36,7 +36,7 @@ local function title(data, config, SMLCD)
 	--[[ Show FPS ]]
 	data.frames = data.frames + 1
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-	lcd.drawText(130, 0, string.format("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
+	--lcd.drawText(130, 0, string.format("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
 
 	-- Reset color
 	lcd.setColor(WARNING_COLOR, YELLOW)
@@ -71,6 +71,7 @@ icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
 icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 
+--[[ Aircraft symbol preview
 function icons.sym(fg)
 	lcd.setColor(CUSTOM_COLOR, 982) -- Sky
 	lcd.drawFilledRectangle(106, 248, 269, 9, CUSTOM_COLOR)
@@ -83,6 +84,7 @@ function icons.sym(fg)
 	lcd.setColor(CUSTOM_COLOR, WHITE)
 	lcd.drawRectangle(105, 247, 271, 26, CUSTOM_COLOR)
 end
+]]
 
 if data.widget then
 	data.hcurx_id = getFieldInfo("ail").id
