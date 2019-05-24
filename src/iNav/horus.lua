@@ -97,7 +97,7 @@ local function view(data, config,
 					lcd.drawFilledRectangle(tl.x, tl.y, br.x - tl.x + 1, triy - tl.y, CUSTOM_COLOR)
 				end
 				if roll > 90 and trix < br.x then
-					lcd.drawFilledRectangle(trix + 1, triy, br.x - trix, br.y - triy + 1, CUSTOM_COLOR)
+					lcd.drawFilledRectangle(trix, triy, br.x - trix + 1, br.y - triy + 1, CUSTOM_COLOR)
 				elseif roll <= 90 and trix > tl.x then
 					lcd.drawFilledRectangle(tl.x, triy, trix - tl.x, br.y - triy + 1, CUSTOM_COLOR)
 				end
@@ -108,7 +108,7 @@ local function view(data, config,
 				if roll > 90 and trix > tl.x then
 					lcd.drawFilledRectangle(tl.x, tl.y, trix - tl.x, triy - tl.y + 1, CUSTOM_COLOR)
 				elseif roll <= 90 and trix < br.x then
-					lcd.drawFilledRectangle(trix + 1, tl.y, br.x - trix, triy - tl.y + 1, CUSTOM_COLOR)
+					lcd.drawFilledRectangle(trix, tl.y, br.x - trix + 1, triy - tl.y + 1, CUSTOM_COLOR)
 				end
 			end
 
@@ -202,9 +202,9 @@ local function view(data, config,
 		local x2 = math.sin(roll2) * r + X_CNTR
 		local y2 = py - (math.cos(roll2) * r)
 		if (y1 > TOP or y2 > TOP) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
-			lcd.setColor(CUSTOM_COLOR, r == TOP and WHITE or LIGHTGREY)
+			lcd.setColor(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
 			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
-			if r == TOP and y2 > TOP and y2 < BOTTOM - 15 then
+			if r == 20 and y2 > TOP and y2 < BOTTOM - 15 then
 				lcd.drawText(x2 - 1, y2 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
 			end
 		end
@@ -224,7 +224,7 @@ local function view(data, config,
 	end
 
 	local function tics(v, p)
-		tmp = math.floor((v + TOP) / 10) * 10
+		tmp = math.floor((v + 25) / 10) * 10
 		for i = tmp - 40, tmp, 5 do
 			local tmp2 = Y_CNTR + ((v - i) * 3) - 9
 			if tmp2 > 10 and tmp2 < BOTTOM - 8 then
@@ -347,6 +347,23 @@ local function view(data, config,
 	if data.showHead then
 		lcd.drawText(X_CNTR + 18, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
+
+	-- Start of roll indicator
+	--[[
+	lcd.drawBitmap(icons.roll, 43, 20)
+	if roll > 30 and roll < 150 and not upsideDown then
+		local r1x = X_CNTR - (math.cos(roll1) * (X_CNTR - 50))
+		local r1y = Y_CNTR - (math.sin(roll1) * (Y_CNTR - 35))
+		local r2x = X_CNTR - (math.cos(roll1 - 0.08) * (X_CNTR - 66))
+		local r2y = Y_CNTR - (math.sin(roll1 - 0.08) * (Y_CNTR - 50))
+		local r3x = X_CNTR - (math.cos(roll1 + 0.08) * (X_CNTR - 66))
+		local r3y = Y_CNTR - (math.sin(roll1 + 0.08) * (Y_CNTR - 50))
+		lcd.setColor(CUSTOM_COLOR, lcd.RGB(255, 100, 0))
+		lcd.drawLine(r1x, r1y, r2x, r2y, SOLID, CUSTOM_COLOR)
+		lcd.drawLine(r1x, r1y, r3x, r3y, SOLID, CUSTOM_COLOR)
+		lcd.drawLine(r2x, r2y, r3x, r3y, SOLID, CUSTOM_COLOR)
+	end
+	]]
 
 	-- Variometer
 	if config[7].v % 2 == 1 then
