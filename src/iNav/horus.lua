@@ -1,5 +1,4 @@
-local function view(data, config, 
-	modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local SKY = 982 --lcd.RGB(0, 121, 180)
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
@@ -112,11 +111,6 @@ local function view(data, config,
 				end
 			end
 
-			--lcd.drawText(270, 20, i[1].x .. " x " .. i[1].y)
-			--lcd.drawText(270, 40, i[2].x .. " x " .. i[2].y)
-			--lcd.drawText(270, 40, trix .. " x " .. triy)
-			--lcd.drawText(270, 80, roll)
-
 			-- Fill remaining triangle
 			local height = i[1].y - triy
 			local top = i[1].y
@@ -134,18 +128,11 @@ local function view(data, config,
 					tx1 = i[2].x
 					tx2 = trix
 				end
-				--inc = math.abs(height) < 20 and 1 or (math.abs(height) < 40 and 2 or (math.abs(height) < width and 3 or 5))
 				inc = math.abs(height) < 10 and 1 or (math.abs(height) < 20 and 2 or ((math.abs(height) < width and math.abs(roll - 90) < 55) and 3 or 5))
 				local steps = height > 0 and inc or -inc
 				local slope = width / height * inc
 				local s = slope > 0 and 0 or inc - 1
 				slope = math.abs(slope) * (tx1 < tx2 and 1 or -1)
-
-				--lcd.drawText(270, 20, inc)
-				--lcd.drawText(270, 20, width .. " x " .. height .. " " .. inc)
-				--lcd.drawText(270, 40, triy .. " " .. top .. " " .. steps)
-				--lcd.drawText(270, 60, tx1 .. " " .. tx2)
-
 				for y = triy, top, steps do
 					if math.abs(steps) == 1 then
 						lcd.drawLine(tx1, y, tx2, y, SOLID, CUSTOM_COLOR)
@@ -160,14 +147,6 @@ local function view(data, config,
 					end
 					tx1 = tx1 + slope
 				end
-
-				--lcd.drawLine(i[1].x, i[1].y, i[2].x, i[2].y, SOLID, WARNING_COLOR)
-				--lcd.drawLine(i[1].x, i[1].y, trix, triy, SOLID, WARNING_COLOR)
-				--lcd.drawLine(i[2].x, i[2].y, trix, triy, SOLID, WARNING_COLOR)
-	
-				--lcd.drawText(270, 20, i[1].x .. " x " .. i[1].y)
-				--lcd.drawText(270, 40, i[2].x .. " x " .. i[2].y)
-				--lcd.drawText(270, 60, roll)
 			end
 
 			-- Smooth horizon
@@ -201,10 +180,11 @@ local function view(data, config,
 		local y1 = py - (math.cos(roll1) * r)
 		local x2 = math.sin(roll2) * r + X_CNTR
 		local y2 = py - (math.cos(roll2) * r)
-		if (y1 > TOP or y2 > TOP) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
+		local t = config[33].v == 0 and TOP or TOP + 20
+		if (y1 > t or y2 > t) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
 			lcd.setColor(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
 			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
-			if r == 20 and y2 > TOP and y2 < BOTTOM - 15 then
+			if r == 20 and y2 > t and y2 < BOTTOM - 15 then
 				lcd.drawText(x2 - 1, y2 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
 			end
 		end
@@ -214,9 +194,10 @@ local function view(data, config,
 		local x1, y1, x2, y2 = horCalc(w, c - s)
 		local x3, y3, x4, y4 = horCalc(w, c + s)
 		local ys = (y3 - y1) / t
+		local t = config[33].v == 0 and TOP or TOP + 20
 		lcd.setColor(CUSTOM_COLOR, o)
 		for y = y1, y3 - 5, ys do
-			if (y > TOP or y2 > TOP) and (y < BOTTOM - 15 or y2 < BOTTOM - 15) then
+			if (y > t or y2 > t) and (y < BOTTOM - 15 or y2 < BOTTOM - 15) then
 				lcd.drawLine(x1, y, x2, y2, SOLID, CUSTOM_COLOR)
 			end
 			y2 = y2 + ys
@@ -322,7 +303,7 @@ local function view(data, config,
 	-- Speed & altitude tics
 	tics(data.speed, 1)
 	tics(data.altitude, RIGHT_POS - 4)
-	if config[28].v == 0 then
+	if config[28].v == 0 and config[33].v == 0 then
 		lcd.drawText(42, TOP - 1, units[data.speed_unit], SMLSIZE)
 		lcd.drawText(RIGHT_POS - 45, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
 	end
@@ -348,22 +329,17 @@ local function view(data, config,
 		lcd.drawText(X_CNTR + 18, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 
-	-- Start of roll indicator
-	--[[
-	lcd.drawBitmap(icons.roll, 43, 20)
-	if roll > 30 and roll < 150 and not upsideDown then
-		local r1x = X_CNTR - (math.cos(roll1) * (X_CNTR - 50))
-		local r1y = Y_CNTR - (math.sin(roll1) * (Y_CNTR - 35))
-		local r2x = X_CNTR - (math.cos(roll1 - 0.08) * (X_CNTR - 66))
-		local r2y = Y_CNTR - (math.sin(roll1 - 0.08) * (Y_CNTR - 50))
-		local r3x = X_CNTR - (math.cos(roll1 + 0.08) * (X_CNTR - 66))
-		local r3y = Y_CNTR - (math.sin(roll1 + 0.08) * (Y_CNTR - 50))
-		lcd.setColor(CUSTOM_COLOR, lcd.RGB(255, 100, 0))
-		lcd.drawLine(r1x, r1y, r2x, r2y, SOLID, CUSTOM_COLOR)
-		lcd.drawLine(r1x, r1y, r3x, r3y, SOLID, CUSTOM_COLOR)
-		lcd.drawLine(r2x, r2y, r3x, r3y, SOLID, CUSTOM_COLOR)
+	-- Roll indicator
+	if config[33].v == 1 then
+		lcd.drawBitmap(icons.roll, 43, 20)
+		if roll > 30 and roll < 150 and not upsideDown then
+			local x1, y1, x2, y2, x3, y3 = calcDir(math.rad(roll - 90), math.rad(roll + 55), math.rad(roll - 235), X_CNTR - (math.cos(roll1) * 75), 79 - (math.sin(roll1) * 40), 7)
+			lcd.setColor(CUSTOM_COLOR, YELLOW)
+			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
+			lcd.drawLine(x1, y1, x3, y3, SOLID, CUSTOM_COLOR)
+			lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
+		end
 	end
-	]]
 
 	-- Variometer
 	if config[7].v % 2 == 1 then

@@ -42,6 +42,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Aircraft Symbol",  a = "" },
 		{ t = "Center Map Home",  l = {[0] = "Off", "On"} },
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} },
+		{ t = "Roll Indicator",   l = {[0] = "Off", "On"} },
 	}
 
 	if lang ~= nil then
@@ -107,6 +108,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	else
 		config2[30].p = 1
 		config2[31].p = 1
+		config2[33].p = 1
 	end
 	if config[11].v == 0 then
 		config2[2].p = 1
