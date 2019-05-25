@@ -1,5 +1,4 @@
-local function view(data, config, 
-	modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local SKY = 982 --lcd.RGB(0, 121, 180)
 	local GROUND = 25121 --lcd.RGB(98, 68, 8)
@@ -32,12 +31,12 @@ local function view(data, config,
 		local d = (s1.x - e1.x) * (s2.y - e2.y) - (s1.y - e1.y) * (s2.x - e2.x)
 		local a = s1.x * e1.y - s1.y * e1.x
 		local b = s2.x * e2.y - s2.y * e2.x
-		local x = math.floor((a * (s2.x - e2.x) - (s1.x - e1.x) * b) / d + 0.5)
-		local y = math.floor((a * (s2.y - e2.y) - (s1.y - e1.y) * b) / d + 0.5)
-		if x < math.min(s2.x, e2.x) or x > math.max(s2.x, e2.x) or y < math.min(s2.y, e2.y) or y > math.max(s2.y, e2.y) then
+		local x = (a * (s2.x - e2.x) - (s1.x - e1.x) * b) / d
+		local y = (a * (s2.y - e2.y) - (s1.y - e1.y) * b) / d
+		if x < math.min(s2.x, e2.x) - 1 or x > math.max(s2.x, e2.x) + 1 or y < math.min(s2.y, e2.y) - 1 or y > math.max(s2.y, e2.y) + 1 then
 			return nil, nil
 		end
-		return x, y
+		return math.floor(x + 0.5), math.floor(y + 0.5)
 	end
 
 	local function horizon()
@@ -46,124 +45,71 @@ local function view(data, config,
 		local tr = { x = RIGHT_POS - 2, y = TOP }
 		local bl = { x = 1, y = BOTTOM - 1 }
 		local br = { x = RIGHT_POS - 2, y = BOTTOM - 1 }
-		local i1x, i1y, i2x, i2y, x1, x2, x3, x4, y1, y2, y3, y4
-		local l, r, t, b = false, false, false, false
-		local ii = 1
+		local x1, x2, x3, x4, y1, y2, y3, y4
+		local skip = false
 
 		-- Calculate horizon
 		h1.x, h1.y, h2.x, h2.y = horCalc(200, 0)
 
 		-- Find intersections between horizon and edges of attitude indicator
 		x1, y1 = intersect(h1, h2, tl, bl)
-		if x1 then
-			--lcd.drawText(1, 55, x1 .. "x" .. y1)
-			--lcd.drawText(270, 60, "left")
-			i[ii].x = x1
-			i[ii].y = y1
-			ii = ii + 1
-			l = true
-		end
 		x2, y2 = intersect(h1, h2, tr, br)
-		if x2 then
-			--lcd.drawText(268, 90, x2 .. "x" .. y2, RIGHT)
-			--lcd.drawText(270, 80, "right")
-			i[ii].x = x2
-			i[ii].y = y2
-			ii = ii + 1
-			r = true
-		end
-		if ii < 3 then
+		if x1 and x2 then
+			i[1].x, i[1].y = x1, y1
+			i[2].x, i[2].y = x2, y2
+		else
 			x3, y3 = intersect(h1, h2, bl, br)
-			if x3 and (ii ~= 2 or (x3 < 267 and x3 > 2)) then
-				--lcd.drawText(40, 115, x3 .. "x" .. y3)
-				--lcd.drawText(270, 100, "bottom")
-				i[ii].x = x3
-				i[ii].y = y3
-				ii = ii + 1
-				b = true
-			end
-			if ii < 3 then
-				x4, y4 = intersect(h1, h2, tl, tr)
-				if x4 then
-					--lcd.drawText(225, 20, x4 .. "x" .. y4, RIGHT)
-					--lcd.drawText(270, 120, "top")
-					i[ii].x = x4
-					i[ii].y = y4
-					ii = ii + 1
-					t = true
-				end
+			x4, y4 = intersect(h1, h2, tl, tr)
+			if x3 and x4 then
+				i[1].x, i[1].y = x3, y3
+				i[2].x, i[2].y = x4, y4
+			elseif (x1 or x2) and (x3 or x4) then
+				i[1].x, i[1].y = x1 and x1 or x2, y1 and y1 or y2
+				i[2].x, i[2].y = x3 and x3 or x4, y3 and y3 or y4
+			else
+				skip = true
 			end
 		end
 
-		-- Draw horizon
+		-- Draw ground
 		lcd.setColor(CUSTOM_COLOR, GROUND)
-		if ii < 3 then
+		if skip then
 			-- Must be going down hard!
 			if (pitch - 90) * (upsideDown and -1 or 1) < 0 then
 				lcd.drawFilledRectangle(tl.x, tl.y, br.x - tl.x + 1, br.y - tl.y + 1, CUSTOM_COLOR)
 			end
 		else
-			-- Find rectangles to fill
-			local r1x, r1y, r2x, r2y = tl.x, tl.y, br.x, br.y
-			local trix, triy, rec = r2x, r2y, true
+			local trix, triy
+
+			-- Find right angle coordinates of triangle
 			if upsideDown then
-				if l and r then
-					r2y = math.min(i[1].y, i[2].y)
-					trix, triy = roll > 90 and r2x or r1x, r2y
-				elseif t and b and roll < 90 then
-					r2x = math.min(i[1].x, i[2].x)
-					trix, triy = i[1].x, r1y
-				elseif t and b and roll > 90 then
-					r1x = math.max(i[1].x, i[2].x)
-					trix, triy = r1x, r1y
-				elseif (l and b) or (r and b) then
-					r2y = math.min(i[1].y, i[2].y)
-					trix, triy = i[2].x, r2y
-					if l and b then
-						lcd.drawFilledRectangle(trix, triy + 1, br.x - trix, br.y - triy, CUSTOM_COLOR)
-					else
-						lcd.drawFilledRectangle(bl.x, r2y + 1, trix - bl.x + 1, bl.y - r2y, CUSTOM_COLOR)
-					end
-				elseif l and t then
-					rec = false
-					trix, triy = r1x, r1y
-				elseif r and t then
-					triy = r1y
-					rec = false
+				trix = roll > 90 and math.max(i[1].x, i[2].x) or math.min(i[1].x, i[2].x)
+				triy = math.min(i[1].y, i[2].y)
+			else
+				trix = roll > 90 and math.min(i[1].x, i[2].x) or math.max(i[1].x, i[2].x)
+				triy = math.max(i[1].y, i[2].y)
+			end
+			
+			-- Find rectangle(s) and fill
+			if upsideDown then
+				if triy > tl.y then
+					lcd.drawFilledRectangle(tl.x, tl.y, br.x - tl.x + 1, triy - tl.y, CUSTOM_COLOR)
+				end
+				if roll > 90 and trix < br.x then
+					lcd.drawFilledRectangle(trix, triy, br.x - trix + 1, br.y - triy + 1, CUSTOM_COLOR)
+				elseif roll <= 90 and trix > tl.x then
+					lcd.drawFilledRectangle(tl.x, triy, trix - tl.x, br.y - triy + 1, CUSTOM_COLOR)
 				end
 			else
-				if l and r then
-					r1y = math.max(i[1].y, i[2].y)
-					trix, triy = roll > 90 and r1x or r2x, r1y
-				elseif t and b and roll < 90 then
-					r1x = math.max(i[1].x, i[2].x)
-					trix, triy = r1x, r2y
-				elseif t and b and roll > 90 then
-					r2x = math.min(i[1].x, i[2].x)
-					trix, triy = r2x, r2y
-				elseif (l and t) or (r and t) then
-					r1y = math.max(i[1].y, i[2].y)
-					trix, triy = i[2].x, r1y
-					if l and t then
-						lcd.drawFilledRectangle(trix, tr.y, tr.x - trix + 1, triy - tr.y, CUSTOM_COLOR)
-					else
-						lcd.drawFilledRectangle(tl.x, tl.y, trix - tl.x + 1, triy - tl.y, CUSTOM_COLOR)
-					end
-				elseif l and b then
-					rec = false
-					trix = r1x
-				elseif r and b then
-					rec = false
+				if triy < br.y then
+					lcd.drawFilledRectangle(tl.x, triy + 1, br.x - tl.x + 1, br.y - triy, CUSTOM_COLOR)
+				end
+				if roll > 90 and trix > tl.x then
+					lcd.drawFilledRectangle(tl.x, tl.y, trix - tl.x, triy - tl.y + 1, CUSTOM_COLOR)
+				elseif roll <= 90 and trix < br.x then
+					lcd.drawFilledRectangle(trix, tl.y, br.x - trix + 1, triy - tl.y + 1, CUSTOM_COLOR)
 				end
 			end
-			if rec then
-				lcd.drawFilledRectangle(r1x, r1y, r2x - r1x + 1, r2y - r1y + 1, CUSTOM_COLOR)
-			end
-
-			--lcd.drawText(270, 20, i[1].x .. " x " .. i[1].y)
-			--lcd.drawText(270, 40, i[2].x .. " x " .. i[2].y)
-			--lcd.drawText(270, 60, trix .. " x " .. triy)
-			--lcd.drawText(270, 80, roll)
 
 			-- Fill remaining triangle
 			local height = i[1].y - triy
@@ -182,18 +128,11 @@ local function view(data, config,
 					tx1 = i[2].x
 					tx2 = trix
 				end
-				--inc = math.abs(height) < 20 and 1 or (math.abs(height) < 40 and 2 or (math.abs(height) < width and 3 or 5))
 				inc = math.abs(height) < 10 and 1 or (math.abs(height) < 20 and 2 or ((math.abs(height) < width and math.abs(roll - 90) < 55) and 3 or 5))
 				local steps = height > 0 and inc or -inc
 				local slope = width / height * inc
 				local s = slope > 0 and 0 or inc - 1
 				slope = math.abs(slope) * (tx1 < tx2 and 1 or -1)
-
-				--lcd.drawText(270, 20, inc)
-				--lcd.drawText(270, 20, width .. " x " .. height .. " " .. inc)
-				--lcd.drawText(270, 40, triy .. " " .. top .. " " .. steps)
-				--lcd.drawText(270, 60, tx1 .. " " .. tx2)
-
 				for y = triy, top, steps do
 					if math.abs(steps) == 1 then
 						lcd.drawLine(tx1, y, tx2, y, SOLID, CUSTOM_COLOR)
@@ -208,14 +147,6 @@ local function view(data, config,
 					end
 					tx1 = tx1 + slope
 				end
-
-				--lcd.drawLine(i[1].x, i[1].y, i[2].x, i[2].y, SOLID, WARNING_COLOR)
-				--lcd.drawLine(i[1].x, i[1].y, trix, triy, SOLID, WARNING_COLOR)
-				--lcd.drawLine(i[2].x, i[2].y, trix, triy, SOLID, WARNING_COLOR)
-	
-				--lcd.drawText(270, 20, i[1].x .. " x " .. i[1].y)
-				--lcd.drawText(270, 40, i[2].x .. " x " .. i[2].y)
-				--lcd.drawText(270, 60, roll)
 			end
 
 			-- Smooth horizon
@@ -249,10 +180,11 @@ local function view(data, config,
 		local y1 = py - (math.cos(roll1) * r)
 		local x2 = math.sin(roll2) * r + X_CNTR
 		local y2 = py - (math.cos(roll2) * r)
-		if (y1 > TOP or y2 > TOP) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
-			lcd.setColor(CUSTOM_COLOR, r == TOP and WHITE or LIGHTGREY)
+		local t = config[33].v == 0 and TOP or TOP + 20
+		if (y1 > t or y2 > t) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
+			lcd.setColor(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
 			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
-			if r == TOP and y2 > TOP and y2 < BOTTOM - 15 then
+			if r == 20 and y2 > t and y2 < BOTTOM - 15 then
 				lcd.drawText(x2 - 1, y2 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
 			end
 		end
@@ -262,9 +194,10 @@ local function view(data, config,
 		local x1, y1, x2, y2 = horCalc(w, c - s)
 		local x3, y3, x4, y4 = horCalc(w, c + s)
 		local ys = (y3 - y1) / t
+		local t = config[33].v == 0 and TOP or TOP + 20
 		lcd.setColor(CUSTOM_COLOR, o)
 		for y = y1, y3 - 5, ys do
-			if (y > TOP or y2 > TOP) and (y < BOTTOM - 15 or y2 < BOTTOM - 15) then
+			if (y > t or y2 > t) and (y < BOTTOM - 15 or y2 < BOTTOM - 15) then
 				lcd.drawLine(x1, y, x2, y2, SOLID, CUSTOM_COLOR)
 			end
 			y2 = y2 + ys
@@ -272,7 +205,7 @@ local function view(data, config,
 	end
 
 	local function tics(v, p)
-		tmp = math.floor((v + TOP) / 10) * 10
+		tmp = math.floor((v + 25) / 10) * 10
 		for i = tmp - 40, tmp, 5 do
 			local tmp2 = Y_CNTR + ((v - i) * 3) - 9
 			if tmp2 > 10 and tmp2 < BOTTOM - 8 then
@@ -370,7 +303,7 @@ local function view(data, config,
 	-- Speed & altitude tics
 	tics(data.speed, 1)
 	tics(data.altitude, RIGHT_POS - 4)
-	if config[28].v == 0 then
+	if config[28].v == 0 and config[33].v == 0 then
 		lcd.drawText(42, TOP - 1, units[data.speed_unit], SMLSIZE)
 		lcd.drawText(RIGHT_POS - 45, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
 	end
@@ -394,6 +327,18 @@ local function view(data, config,
 	-- Heading
 	if data.showHead then
 		lcd.drawText(X_CNTR + 18, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+	end
+
+	-- Roll indicator
+	if config[33].v == 1 then
+		lcd.drawBitmap(icons.roll, 43, 20)
+		if roll > 30 and roll < 150 and not upsideDown then
+			local x1, y1, x2, y2, x3, y3 = calcDir(math.rad(roll - 90), math.rad(roll + 55), math.rad(roll - 235), X_CNTR - (math.cos(roll1) * 75), 79 - (math.sin(roll1) * 40), 7)
+			lcd.setColor(CUSTOM_COLOR, YELLOW)
+			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
+			lcd.drawLine(x1, y1, x3, y3, SOLID, CUSTOM_COLOR)
+			lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
+		end
 	end
 
 	-- Variometer
