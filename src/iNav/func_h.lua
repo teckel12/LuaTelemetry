@@ -33,10 +33,11 @@ local function title(data, config, SMLCD)
 		lcd.drawText(LCD_W, 0, (getValue(data.rfmd_id) == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + (data.telem == false and WARNING_COLOR or 0))
 	end
 
-	--[[ Show FPS ]]
+	--[[ Show FPS
 	data.frames = data.frames + 1
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
 	--lcd.drawText(130, 0, string.format("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
+	]]
 
 	-- Reset color
 	lcd.setColor(WARNING_COLOR, YELLOW)
