@@ -107,7 +107,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	drawData(data.crsf and "LQ" or "RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, data.crsf and "%" or "dB", 0, (not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
 		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
-		drawData(config[23].v == 0 and "Fuel" or config[23].l[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)
+		drawData(config[23].v == 0 and "Fuel" or data.fUnit[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)
 		if config[23].v == 0 then
 			lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 99), 100)
 			if data.fuel == 0 then

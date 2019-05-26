@@ -60,7 +60,7 @@ local function crsf(data)
 				data.fuelEst = 0
 			end
 		end
-		data.fuel = math.min(math.floor((1 - (data.fuel + data.fuelEst) / config[27].v) * 100 + 0.5), 100)
+		data.fuel = math.max(math.min(math.floor((1 - (data.fuel + data.fuelEst) / config[27].v) * 100 + 0.5), 100), 0)
 	end
 	data.fm = getValue(data.fm_id)
 	data.modePrev = data.mode
@@ -106,7 +106,8 @@ local function crsf(data)
 	end
 	]]
 
-	if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
+	--if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
+	if data.fm == "!ERR" or data.fm == "WAIT" then
 		-- Arming disabled
 		data.mode = 2
 	else

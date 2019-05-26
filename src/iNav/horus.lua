@@ -478,7 +478,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.setColor(CUSTOM_COLOR, lcd.RGB(red, green, 60))
 			lcd.drawGauge(0, TOP + 26, X1 - 3, 15, math.min(data.fuel, 99), 100, CUSTOM_COLOR)
 		else
-			lcd.drawText(X1, TOP + 1, data.fuel .. config[23].l[config[23].v], MIDSIZE + RIGHT + tmp)
+			lcd.drawText(X1, TOP + 1, data.fuel .. data.fUnit[config[23].v], MIDSIZE + RIGHT + tmp)
 		end
 		lcd.drawText(0, TOP + (config[23].v == 0 and 9 or 23), labels[1], SMLSIZE)
 	end

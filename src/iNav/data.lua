@@ -100,6 +100,7 @@ local data = {
 	simu = string.sub(r, -4) == "simu" and true or false,
 	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
 	lastLock = { lat = 0, lon = 0 },
+	fUnit = {"mAh", "mWh"},
 }
 
 return data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU

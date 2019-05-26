@@ -280,7 +280,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				lcd.drawText(LEFT_POS, data.showCurr and 17 or 21, "%", SMLSIZE + RIGHT + tmp)
 			else
 				lcd.drawText(LEFT_POS, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
-				lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, config[23].l[config[23].v], SMLSIZE + RIGHT + tmp)
+				lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, data.fUnit[config[23].v], SMLSIZE + RIGHT + tmp)
 			end
 		end
 		lcd.drawText(LEFT_POS - 5, data.showCurr and 25 or 32, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), DBLSIZE + RIGHT + tmp)

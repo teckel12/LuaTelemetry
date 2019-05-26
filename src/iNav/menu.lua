@@ -10,39 +10,39 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text
 	local config2 = {
-		{ t = "Battery View",     l = {[0] = "Cell", "Total"} },
-		{ t = "Cell Low",         m = 2.7, i = 0.1, a = "V" },
-		{ t = "Cell Critical",    m = 2.6, i = 0.1, a = "V" },
-		{ t = "Voice Alerts",     l = {[0] = "Off", "Critical", "All"} },
-		{ t = "Feedback",         l = {[0] = "Off", "Haptic", "Beeper", "All"} },
-		{ t = "Max Altitude",     i = data.alt_unit == 10 and 10 or 1, a = units[data.alt_unit] },
-		{ t = "Variometer",       l = {[0] = "Off", "Graph", "Voice", "Both"} },
-		{ t = "RTH Feedback",     l = {[0] = "Off", "On"} },
-		{ t = "HeadFree Feedback",l = {[0] = "Off", "On"} },
-		{ t = "RSSI Feedback",    l = {[0] = "Off", "On"} },
-		{ t = "Battery Alerts",   l = {[0] = "Off", "Critical", "All"} },
-		{ t = "Altitude Alert",   l = {[0] = "Off", "On"} },
-		{ t = "Timer",            l = {[0] = "Off", "Auto", "Timer1", "Timer2"} },
-		{ t = "Rx Voltage",       l = {[0] = "Off", "On"} },
-		{ t = "GPS",              i = 0, l = {[0] = data.lastLock} },
-		{ t = "GPS Coordinates",  l = {[0] = "Decimal", "Deg/Min"} },
-		{ t = "Fuel Critical",    m = 1, a = "%" },
-		{ t = "Fuel Low",         m = 2, a = "%" },
-		{ t = "Tx Voltage",       l = {[0] = "Number", "Graph", "Both"} },
-		{ t = "Speed Sensor",     l = {[0] = "GPS", "Pitot"} },
-		{ t = "GPS Warning",      m = 1.0, i = 0.5, a = " HDOP" },
-		{ t = "GPS HDOP View",    l = {[0] = "Graph", "Decimal"} },
-		{ t = "Fuel Unit",        l = {[0] = "Percent", "mAh", "mWh"} },
-		{ t = "Vario Steps",      m = 0, a = units[data.alt_unit], l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
-		{ t = "View Mode",        l = {[0] = "Classic", "Pilot", "Radar", "Altitude"} },
-		{ t = "AltHold Center FB",l = {[0] = "Off", "On"} },
-		{ t = "Battery Capacity", m = 150, i = 50, a = "mAh" },
-		{ t = "Altitude Graph",   l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" },
-		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" },
-		{ t = "Aircraft Symbol",  a = "" },
-		{ t = "Center Map Home",  l = {[0] = "Off", "On"} },
-		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} },
-		{ t = "Roll Indicator",   l = {[0] = "Off", "On"} },
+		{ t = "Battery View",     l = {[0] = "Cell", "Total"} }, -- 1
+		{ t = "Cell Low",         m = 2.7, i = 0.1, a = "V" }, -- 2
+		{ t = "Cell Critical",    m = 2.6, i = 0.1, a = "V" }, -- 3
+		{ t = "Voice Alerts",     l = {[0] = "Off", "Critical", "All"} }, -- 4
+		{ t = "Feedback",         l = {[0] = "Off", "Haptic", "Beeper", "All"} }, -- 5
+		{ t = "Max Altitude",     i = data.alt_unit == 10 and 10 or 1, a = units[data.alt_unit] }, -- 6
+		{ t = "Variometer",       l = {[0] = "Off", "Graph", "Voice", "Both"} }, -- 7
+		{ t = "RTH Feedback",     l = {[0] = "Off", "On"} }, -- 8
+		{ t = "HeadFree Feedback",l = {[0] = "Off", "On"} }, -- 9
+		{ t = "RSSI Feedback",    l = {[0] = "Off", "On"} }, -- 10
+		{ t = "Battery Alerts",   l = {[0] = "Off", "Critical", "All"} }, -- 11
+		{ t = "Altitude Alert",   l = {[0] = "Off", "On"} }, -- 12
+		{ t = "Timer",            l = {[0] = "Off", "Auto", "Timer1", "Timer2"} }, -- 13
+		{ t = "Rx Voltage",       l = {[0] = "Off", "On"} }, -- 14
+		{ t = "GPS",              i = 0, l = {[0] = data.lastLock} }, -- 15
+		{ t = "GPS Coordinates",  l = {[0] = "Decimal", "Deg/Min"} }, -- 16
+		{ t = "Fuel Critical",    m = 1, a = "%" }, -- 17
+		{ t = "Fuel Low",         m = 2, a = "%" }, -- 18
+		{ t = "Tx Voltage",       l = {[0] = "Number", "Graph", "Both"} }, -- 19
+		{ t = "Speed Sensor",     l = {[0] = "GPS", "Pitot"} }, -- 20
+		{ t = "GPS Warning",      m = 1.0, i = 0.5, a = " HDOP" }, -- 21
+		{ t = "GPS HDOP View",    l = {[0] = "Graph", "Decimal"} }, -- 22
+		{ t = "Fuel Unit",        l = {[0] = "Percent", "mAh", "mWh"} }, -- 23
+		{ t = "Vario Steps",      m = 0, a = units[data.alt_unit], l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} }, -- 24
+		{ t = "View Mode",        l = {[0] = "Classic", "Pilot", "Radar", "Altitude"} }, -- 25
+		{ t = "AltHold Center FB",l = {[0] = "Off", "On"} }, -- 26
+		{ t = "Battery Capacity", m = 150, i = 50, a = "mAh" }, -- 27
+		{ t = "Altitude Graph",   l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" }, -- 28
+		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" }, -- 29
+		{ t = "Aircraft Symbol",  a = "" }, -- 30
+		{ t = "Center Map Home",  l = {[0] = "Off", "On"} }, -- 31
+		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} }, -- 32
+		{ t = "Roll Indicator",   l = {[0] = "Off", "On"} }, -- 33
 	}
 
 	if lang ~= nil then
