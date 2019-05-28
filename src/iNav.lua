@@ -3,7 +3,7 @@
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 local buildMode = ...
-local VERSION = "1.6.2"
+local VERSION = "1.7.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
@@ -461,11 +461,10 @@ local function run(event)
 			if config[30].v ~= tmp then
 				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 			end
-			--[[ Aircraft symbol preview
-			if data.configStatus == 26 then
+			-- Aircraft symbol preview
+			if data.configStatus == 27 and data.configSelect ~= 0 then
 				icons.sym(icons.fg)
 			end
-			]]
 		end
 	else
 		-- User input
