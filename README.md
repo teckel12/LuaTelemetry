@@ -55,7 +55,7 @@
 
 ## Requirements
 
-* [OpenTX v2.2.0+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X-Lite, Horus X10/X10S or X12S (OpenTX v2.2.3+ is suggested)
+* [OpenTX v2.2.2+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X-Lite, Horus X10/X10S or X12S (OpenTX v2.2.3+ is suggested)
 * FrSky X, R9 or D series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1.0+ is suggested for full functionality) - Also compatible with Betaflight (with reduced functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
