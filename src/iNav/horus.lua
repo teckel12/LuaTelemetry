@@ -68,16 +68,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
-	-- Initalize variables on flight/telemetry reset
-	if not data.armed and data.widget then
-		tmp = model.getTimer(2)
-		if tmp.value == 0 then
-			loadfile(FILE_PATH .. "reset.luac")(data)
-			tmp.value = 3600
-			model.setTimer(2, tmp)
-		end
-	end
-
 	-- Setup
 	lcd.drawBitmap(icons.bg, 0, TOP)
 	lcd.setColor(TEXT_COLOR, WHITE)
