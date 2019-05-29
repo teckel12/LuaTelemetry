@@ -316,51 +316,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		end
 	end
---[[
-	local r = 20
-	local adj = 10
-	local p = math.sin(math.rad(adj)) * 170
-	local yc = Y_CNTR - math.cos(math.rad(pitch)) * 170
-	local x1 = X_CNTR - math.cos(roll1) * p
-	local y1 = yc - math.sin(roll1) * p
-	local xd = math.sin(roll1) * r
-	local yd = math.cos(roll1) * r
-	lcd.setColor(CUSTOM_COLOR, BLACK)
-	lcd.drawLine(x1 - xd, y1 + yd, x1 + xd, y1 - yd, SOLID, CUSTOM_COLOR)
 
-	local r = 15
-	local adj = 5
-	local p = math.sin(math.rad(adj)) * 170
-	local yc = Y_CNTR - math.cos(math.rad(pitch)) * 170
-	local x1 = X_CNTR - math.cos(roll1) * p
-	local y1 = yc - math.sin(roll1) * p
-	local xd = math.sin(roll1) * r
-	local yd = math.cos(roll1) * r
-	lcd.setColor(CUSTOM_COLOR, BLACK)
-	lcd.drawLine(x1 - xd, y1 + yd, x1 + xd, y1 - yd, SOLID, CUSTOM_COLOR)
-
-	local r = 20
-	local adj = -10
-	local p = math.sin(math.rad(adj)) * 170
-	local yc = Y_CNTR - math.cos(math.rad(pitch)) * 170
-	local x1 = X_CNTR - math.cos(roll1) * p
-	local y1 = yc - math.sin(roll1) * p
-	local xd = math.sin(roll1) * r
-	local yd = math.cos(roll1) * r
-	lcd.setColor(CUSTOM_COLOR, BLACK)
-	lcd.drawLine(x1 - xd, y1 + yd, x1 + xd, y1 - yd, SOLID, CUSTOM_COLOR)
-
-	local r = 15
-	local adj = -5
-	local p = math.sin(math.rad(adj)) * 170
-	local yc = Y_CNTR - math.cos(math.rad(pitch)) * 170
-	local x1 = X_CNTR - math.cos(roll1) * p
-	local y1 = yc - math.sin(roll1) * p
-	local xd = math.sin(roll1) * r
-	local yd = math.cos(roll1) * r
-	lcd.setColor(CUSTOM_COLOR, BLACK)
-	lcd.drawLine(x1 - xd, y1 + yd, x1 + xd, y1 - yd, SOLID, CUSTOM_COLOR)
-]]
 	-- Variometer
 	if config[7].v % 2 == 1 then
 		lcd.setColor(CUSTOM_COLOR, DKGREY)
@@ -546,7 +502,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText((X2 + X3) / 2, TOP + 18, "N", SMLSIZE)
 			lcd.drawText(X3 - 4, 211, "E", SMLSIZE + RIGHT)
 			lcd.drawText(X2 + 10, 211, "W", SMLSIZE)
-			lcd.drawText(X2 + 78, bot2, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+			lcd.drawText(X2 + 78, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 		end
 		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) / 2 + 4, 219, 25)
 		if data.headingHold then
