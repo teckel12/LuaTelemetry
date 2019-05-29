@@ -6,14 +6,16 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local HEADING_DEG = SMLCD and 170 or 190
 	local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
 	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
-	local tmp, pitch, roll, roll1, roll2, upsideDown
+	local tmp, pitch, roll, roll1, upsideDown
 
 	local function attitude(r, adj)
-		local py = 35 - math.cos(math.rad(pitch - adj)) * 85
-		local x1 = math.sin(roll1) * r + X_CNTR
-		local y1 = py - (math.cos(roll1) * r)
-		local x2 = math.sin(roll2) * r + X_CNTR
-		local y2 = py - (math.cos(roll2) * r)
+		local x = math.sin(roll1) * r
+		local y = math.cos(roll1) * r
+		local p = math.cos(math.rad(pitch - adj)) * 85
+		local x1 = X_CNTR + x
+		local y1 = 35 - y - p
+		local x2 = X_CNTR - x
+		local y2 = 35 + y - p
 		if adj == 0 then
 			local a = (y1 - y2) / (x1 - x2 + .001)
 			local y = y2 - ((x2 - LEFT_POS + 1) * a)
@@ -75,7 +77,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		upsideDown = data.accz < 0
 	end
 	roll1 = math.rad(roll)
-	roll2 = math.rad(roll + 180)
 	if data.startup == 0 and data.telem then
 		tmp = pitch - 90
 		local short = SMLCD and 4 or 6

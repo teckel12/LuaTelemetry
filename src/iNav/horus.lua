@@ -16,15 +16,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local TOP = 20
 	local BOTTOM = 146
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
-	local tmp, pitch, roll, roll1, roll2, roll3, upsideDown
+	local tmp, pitch, roll, roll1, upsideDown
 
 	local function horCalc(r, adj)
-		local py = Y_CNTR - math.cos(math.rad(pitch - adj)) * 170
-		local x1 = math.sin(roll1) * r + X_CNTR
-		local y1 = py - (math.cos(roll1) * r)
-		local x2 = math.sin(roll2) * r + X_CNTR
-		local y2 = py - (math.cos(roll2) * r)
-		return x1, y1, x2, y2
+		local x = math.sin(roll1) * r
+		local y = math.cos(roll1) * r
+		local p = math.cos(math.rad(pitch - adj)) * 170
+		return X_CNTR + x, Y_CNTR - y - p, X_CNTR - x, Y_CNTR + y - p
 	end
 
 	function intersect(s1, e1, s2, e2)
@@ -175,11 +173,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	local function pitchLine(r, adj)
 		local x1, y1, x2, y2 = horCalc(r, adj)
-		local py = Y_CNTR - math.cos(math.rad(pitch - adj)) * 170
-		local x1 = math.sin(roll1) * r + X_CNTR
-		local y1 = py - (math.cos(roll1) * r)
-		local x2 = math.sin(roll2) * r + X_CNTR
-		local y2 = py - (math.cos(roll2) * r)
 		local t = config[33].v == 0 and TOP or TOP + 20
 		if (y1 > t or y2 > t) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
 			lcd.setColor(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
@@ -243,11 +236,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		upsideDown = data.accz < 0
 	end
 	roll1 = math.rad(roll)
-	roll2 = math.rad(roll + 180)
-	roll3 = math.abs(roll - 90)
 	horizon()
-	-- Pitch lines
-	if data.telem and roll3 < 75 then
+	-- Pitch ladder
+	if data.telem and math.abs(roll - 90) < 75 then
 		tmp = pitch - 90
 		if not data.showMax then
 			lcd.drawText(X_CNTR - 65, Y_CNTR - 9, string.format("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
@@ -267,7 +258,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		pitchLines(tmp3, 15, 15, 3, LIGHTGREY) -- Center, Spread, Width, sTeps, cOlor
 		-- 2.5% pitch lines if altitude graph is off
 		--[[
-		if config[28].v == 0 and roll3 <= 20 then
+		if config[28].v == 0 and math.abs(roll - 90) <= 20 then
 			pitchLines(tmp2, 17.5, 7, 7, GREY) -- Center, Spread, Width, sTeps, cOlor
 		end
 		]]
