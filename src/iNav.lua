@@ -430,7 +430,7 @@ local function run(event)
 			data.startupTime = getTime() -- Never timeout
 			return 0
 		end
-		event = widgetEvt(data)
+		event = data.armed and 0 or widgetEvt(data)
 	end
 
 	-- Clear screen
@@ -473,7 +473,7 @@ local function run(event)
 				-- Toggle showing max/min values
 				data.showMax = not data.showMax
 			elseif event == EVT_ENTER_LONG then
-				-- Initalize variables on long <Enter>
+				-- Initalize variables on long <Enter> (replace this with the timer 3 method used on Horus)
 				loadfile(FILE_PATH .. "reset.luac")(data)
 			end
 		end
