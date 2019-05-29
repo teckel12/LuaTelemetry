@@ -16,14 +16,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local TOP = 20
 	local BOTTOM = 146
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
-	local tmp, pitch, roll, roll1, upsideDown
-
-	local function horCalc(r, adj)
-		local x = math.sin(roll1) * r
-		local y = math.cos(roll1) * r
-		local p = math.cos(math.rad(pitch - adj)) * 170
-		return X_CNTR + x, Y_CNTR - y - p, X_CNTR - x, Y_CNTR + y - p
-	end
+	local tmp, top2, bot2, pitch, roll, roll1, upsideDown
 
 	function intersect(s1, e1, s2, e2)
 		local d = (s1.x - e1.x) * (s2.y - e2.y) - (s1.y - e1.y) * (s2.x - e2.x)
@@ -37,163 +30,28 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		return math.floor(x + 0.5), math.floor(y + 0.5)
 	end
 
-	local function horizon()
-		local h1, h2, i = {}, {}, { {}, {} }
-		local tl = { x = 1, y = TOP }
-		local tr = { x = RIGHT_POS - 2, y = TOP }
-		local bl = { x = 1, y = BOTTOM - 1 }
-		local br = { x = RIGHT_POS - 2, y = BOTTOM - 1 }
-		local x1, x2, x3, x4, y1, y2, y3, y4
-		local skip = false
-
-		-- Calculate horizon
-		h1.x, h1.y, h2.x, h2.y = horCalc(200, 0)
-
-		-- Find intersections between horizon and edges of attitude indicator
-		x1, y1 = intersect(h1, h2, tl, bl)
-		x2, y2 = intersect(h1, h2, tr, br)
-		if x1 and x2 then
-			i[1].x, i[1].y = x1, y1
-			i[2].x, i[2].y = x2, y2
-		else
-			x3, y3 = intersect(h1, h2, bl, br)
-			x4, y4 = intersect(h1, h2, tl, tr)
-			if x3 and x4 then
-				i[1].x, i[1].y = x3, y3
-				i[2].x, i[2].y = x4, y4
-			elseif (x1 or x2) and (x3 or x4) then
-				i[1].x, i[1].y = x1 and x1 or x2, y1 and y1 or y2
-				i[2].x, i[2].y = x3 and x3 or x4, y3 and y3 or y4
-			else
-				skip = true
-			end
-		end
-
-		-- Draw ground
-		lcd.setColor(CUSTOM_COLOR, GROUND)
-		if skip then
-			-- Must be going down hard!
-			if (pitch - 90) * (upsideDown and -1 or 1) < 0 then
-				lcd.drawFilledRectangle(tl.x, tl.y, br.x - tl.x + 1, br.y - tl.y + 1, CUSTOM_COLOR)
-			end
-		else
-			local trix, triy
-
-			-- Find right angle coordinates of triangle
-			if upsideDown then
-				trix = roll > 90 and math.max(i[1].x, i[2].x) or math.min(i[1].x, i[2].x)
-				triy = math.min(i[1].y, i[2].y)
-			else
-				trix = roll > 90 and math.min(i[1].x, i[2].x) or math.max(i[1].x, i[2].x)
-				triy = math.max(i[1].y, i[2].y)
-			end
-			
-			-- Find rectangle(s) and fill
-			if upsideDown then
-				if triy > tl.y then
-					lcd.drawFilledRectangle(tl.x, tl.y, br.x - tl.x + 1, triy - tl.y, CUSTOM_COLOR)
-				end
-				if roll > 90 and trix < br.x then
-					lcd.drawFilledRectangle(trix, triy, br.x - trix + 1, br.y - triy + 1, CUSTOM_COLOR)
-				elseif roll <= 90 and trix > tl.x then
-					lcd.drawFilledRectangle(tl.x, triy, trix - tl.x, br.y - triy + 1, CUSTOM_COLOR)
-				end
-			else
-				if triy < br.y then
-					lcd.drawFilledRectangle(tl.x, triy + 1, br.x - tl.x + 1, br.y - triy, CUSTOM_COLOR)
-				end
-				if roll > 90 and trix > tl.x then
-					lcd.drawFilledRectangle(tl.x, tl.y, trix - tl.x, triy - tl.y + 1, CUSTOM_COLOR)
-				elseif roll <= 90 and trix < br.x then
-					lcd.drawFilledRectangle(trix, tl.y, br.x - trix + 1, triy - tl.y + 1, CUSTOM_COLOR)
+	local function pitchLadder(r, adj)
+		--[[ Caged mode
+		local x = math.sin(roll1) * r
+		local y = math.cos(roll1) * r
+		local p = math.cos(math.rad(pitch - adj)) * 170
+		local x1, y1, x2, y2 = X_CNTR + x, Y_CNTR - y - p, X_CNTR - x, Y_CNTR + y - p
+		]]
+		-- Uncaged mode
+		local p = math.sin(math.rad(adj)) * 170
+		local y = (Y_CNTR - math.cos(math.rad(pitch)) * 170) - math.sin(roll1) * p
+		if y > top2 and y < bot2 then
+			local x = X_CNTR - math.cos(roll1) * p
+			local xd = math.sin(roll1) * r
+			local yd = math.cos(roll1) * r
+			local x1, y1, x2, y2 = x - xd, y + yd, x + xd, y - yd
+			if (y1 > top2 or y2 > top2) and (y1 < bot2 or y2 < bot2) and y1 >= 0 and y2 >= 0 then
+				lcd.setColor(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
+				lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
+				if r == 20 and y2 > top2 and y2 < bot2 then
+					lcd.drawText(x1 - 1, y1 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
 				end
 			end
-
-			-- Fill remaining triangle
-			local height = i[1].y - triy
-			local top = i[1].y
-			if height == 0 then
-				height = i[2].y - triy
-				top = i[2].y
-			end
-			local inc = 1
-			if height ~= 0 then
-				local width = math.abs(i[1].x - trix)
-				local tx1 = i[1].x
-				local tx2 = trix
-				if width == 0 then
-					width = math.abs(i[2].x - trix)
-					tx1 = i[2].x
-					tx2 = trix
-				end
-				inc = math.abs(height) < 10 and 1 or (math.abs(height) < 20 and 2 or ((math.abs(height) < width and math.abs(roll - 90) < 55) and 3 or 5))
-				local steps = height > 0 and inc or -inc
-				local slope = width / height * inc
-				local s = slope > 0 and 0 or inc - 1
-				slope = math.abs(slope) * (tx1 < tx2 and 1 or -1)
-				for y = triy, top, steps do
-					if math.abs(steps) == 1 then
-						lcd.drawLine(tx1, y, tx2, y, SOLID, CUSTOM_COLOR)
-					else
-						if tx1 < tx2 then
-						--if tx1 < tx2 and tx2 - tx1 + 1 > 0 then
-							lcd.drawFilledRectangle(tx1, y - s, tx2 - tx1 + 1, inc, CUSTOM_COLOR)
-						else
-						--elseif tx1 > tx2 and tx1 - tx2 + 1 > 0 then
-							lcd.drawFilledRectangle(tx2, y - s, tx1 - tx2 + 1, inc, CUSTOM_COLOR)
-						end
-					end
-					tx1 = tx1 + slope
-				end
-			end
-
-			-- Smooth horizon
-			if not upsideDown and inc <= 3 then
-				if inc > 1 then
-					if inc > 2 then
-						lcd.drawLine(i[1].x, i[1].y + 2, i[2].x, i[2].y + 2, SOLID, CUSTOM_COLOR)
-					end
-					lcd.drawLine(i[1].x, i[1].y + 1, i[2].x, i[2].y + 1, SOLID, CUSTOM_COLOR)
-					lcd.setColor(CUSTOM_COLOR, SKY)
-					lcd.drawLine(i[1].x, i[1].y - 1, i[2].x, i[2].y - 1, SOLID, CUSTOM_COLOR)
-					if inc > 2 then
-						lcd.drawLine(i[1].x, i[1].y - 2, i[2].x, i[2].y - 2, SOLID, CUSTOM_COLOR)
-					end
-					if 90 - roll > 25 then
-						lcd.drawLine(i[1].x, i[1].y - 3, i[2].x, i[2].y - 3, SOLID, CUSTOM_COLOR)
-					end
-				end
-				lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
-				lcd.drawLine(i[1].x, i[1].y, i[2].x, i[2].y, SOLID, CUSTOM_COLOR)
-			end
-
-		end
-
-	end
-
-	local function pitchLine(r, adj)
-		local x1, y1, x2, y2 = horCalc(r, adj)
-		local t = config[33].v == 0 and TOP or TOP + 20
-		if (y1 > t or y2 > t) and (y1 < BOTTOM - 15 or y2 < BOTTOM - 15) and y1 >= 0 and y2 >= 0 then
-			lcd.setColor(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
-			lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
-			if r == 20 and y2 > t and y2 < BOTTOM - 15 then
-				lcd.drawText(x2 - 1, y2 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
-			end
-		end
-	end
-
-	local function pitchLines(c, s, w, t, o) -- Center, Spread, Width, sTeps, cOlor
-		local x1, y1, x2, y2 = horCalc(w, c - s)
-		local x3, y3, x4, y4 = horCalc(w, c + s)
-		local ys = (y3 - y1) / t
-		local t = config[33].v == 0 and TOP or TOP + 20
-		lcd.setColor(CUSTOM_COLOR, o)
-		for y = y1, y3 - 5, ys do
-			if (y > t or y2 > t) and (y < BOTTOM - 15 or y2 < BOTTOM - 15) then
-				lcd.drawLine(x1, y, x2, y2, SOLID, CUSTOM_COLOR)
-			end
-			y2 = y2 + ys
 		end
 	end
 
@@ -225,7 +83,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	lcd.setColor(TEXT_COLOR, WHITE)
 	lcd.setColor(WARNING_COLOR, data.telem and YELLOW or RED)
 
-	-- Attitude indicator
+	-- Calculate orientation
 	if data.pitchRoll then
 		pitch = (math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180
 		roll = (270 - data.roll / 10) % 180
@@ -236,32 +94,159 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		upsideDown = data.accz < 0
 	end
 	roll1 = math.rad(roll)
-	horizon()
-	-- Pitch ladder
-	if data.telem and math.abs(roll - 90) < 75 then
-		tmp = pitch - 90
-		if not data.showMax then
-			lcd.drawText(X_CNTR - 65, Y_CNTR - 9, string.format("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
+	top2 = config[33].v == 0 and TOP or TOP + 20
+	bot2 = BOTTOM - 15
+	local i = { {}, {} }
+	local tl = { x = 1, y = TOP }
+	local tr = { x = RIGHT_POS - 2, y = TOP }
+	local bl = { x = 1, y = BOTTOM - 1 }
+	local br = { x = RIGHT_POS - 2, y = BOTTOM - 1 }
+	local skip = false
+
+	-- Calculate horizon (uses simple "caged" mode for less math)
+	local x = math.sin(roll1) * 200
+	local y = math.cos(roll1) * 200
+	local p = math.cos(math.rad(pitch)) * 170
+	local h1 = { x = X_CNTR + x, y = Y_CNTR - y - p }
+	local h2 = { x = X_CNTR - x, y = Y_CNTR + y - p }
+
+	-- Find intersections between horizon and edges of attitude indicator
+	local x1, y1 = intersect(h1, h2, tl, bl)
+	local x2, y2 = intersect(h1, h2, tr, br)
+	if x1 and x2 then
+		i[1].x, i[1].y = x1, y1
+		i[2].x, i[2].y = x2, y2
+	else
+		local x3, y3 = intersect(h1, h2, bl, br)
+		local x4, y4 = intersect(h1, h2, tl, tr)
+		if x3 and x4 then
+			i[1].x, i[1].y = x3, y3
+			i[2].x, i[2].y = x4, y4
+		elseif (x1 or x2) and (x3 or x4) then
+			i[1].x, i[1].y = x1 and x1 or x2, y1 and y1 or y2
+			i[2].x, i[2].y = x3 and x3 or x4, y3 and y3 or y4
+		else
+			skip = true
 		end
-		-- 10% pitch lines
-		local tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 30), -30)
-		for x = tmp2 - 20, tmp2 + 20, 5 do
-			if x ~= 0 and x % 10 == 0 then
-				pitchLine(20, x)
+	end
+
+	-- Draw ground
+	lcd.setColor(CUSTOM_COLOR, GROUND)
+	if skip then
+		-- Must be going down hard!
+		if (pitch - 90) * (upsideDown and -1 or 1) < 0 then
+			lcd.drawFilledRectangle(tl.x, tl.y, br.x - tl.x + 1, br.y - tl.y + 1, CUSTOM_COLOR)
+		end
+	else
+		local trix, triy
+
+		-- Find right angle coordinates of triangle
+		if upsideDown then
+			trix = roll > 90 and math.max(i[1].x, i[2].x) or math.min(i[1].x, i[2].x)
+			triy = math.min(i[1].y, i[2].y)
+		else
+			trix = roll > 90 and math.min(i[1].x, i[2].x) or math.max(i[1].x, i[2].x)
+			triy = math.max(i[1].y, i[2].y)
+		end
+		
+		-- Find rectangle(s) and fill
+		if upsideDown then
+			if triy > tl.y then
+				lcd.drawFilledRectangle(tl.x, tl.y, br.x - tl.x + 1, triy - tl.y, CUSTOM_COLOR)
+			end
+			if roll > 90 and trix < br.x then
+				lcd.drawFilledRectangle(trix, triy, br.x - trix + 1, br.y - triy + 1, CUSTOM_COLOR)
+			elseif roll <= 90 and trix > tl.x then
+				lcd.drawFilledRectangle(tl.x, triy, trix - tl.x, br.y - triy + 1, CUSTOM_COLOR)
+			end
+		else
+			if triy < br.y then
+				lcd.drawFilledRectangle(tl.x, triy + 1, br.x - tl.x + 1, br.y - triy, CUSTOM_COLOR)
+			end
+			if roll > 90 and trix > tl.x then
+				lcd.drawFilledRectangle(tl.x, tl.y, trix - tl.x, triy - tl.y + 1, CUSTOM_COLOR)
+			elseif roll <= 90 and trix < br.x then
+				lcd.drawFilledRectangle(trix, tl.y, br.x - trix + 1, triy - tl.y + 1, CUSTOM_COLOR)
 			end
 		end
-		-- 5% pitch lines
-		local tmp3 = tmp2
-		if math.floor(math.abs(tmp2 / 10)) ~= math.abs(tmp2) / 10 then
-			tmp3 = tmp2 + 5
+
+		-- Fill remaining triangle
+		local height = i[1].y - triy
+		local top = i[1].y
+		if height == 0 then
+			height = i[2].y - triy
+			top = i[2].y
 		end
-		pitchLines(tmp3, 15, 15, 3, LIGHTGREY) -- Center, Spread, Width, sTeps, cOlor
-		-- 2.5% pitch lines if altitude graph is off
-		--[[
-		if config[28].v == 0 and math.abs(roll - 90) <= 20 then
-			pitchLines(tmp2, 17.5, 7, 7, GREY) -- Center, Spread, Width, sTeps, cOlor
+		local inc = 1
+		if height ~= 0 then
+			local width = math.abs(i[1].x - trix)
+			local tx1 = i[1].x
+			local tx2 = trix
+			if width == 0 then
+				width = math.abs(i[2].x - trix)
+				tx1 = i[2].x
+				tx2 = trix
+			end
+			inc = math.abs(height) < 10 and 1 or (math.abs(height) < 20 and 2 or ((math.abs(height) < width and math.abs(roll - 90) < 55) and 3 or 5))
+			local steps = height > 0 and inc or -inc
+			local slope = width / height * inc
+			local s = slope > 0 and 0 or inc - 1
+			slope = math.abs(slope) * (tx1 < tx2 and 1 or -1)
+			for y = triy, top, steps do
+				if math.abs(steps) == 1 then
+					lcd.drawLine(tx1, y, tx2, y, SOLID, CUSTOM_COLOR)
+				else
+					if tx1 < tx2 then
+					--if tx1 < tx2 and tx2 - tx1 + 1 > 0 then
+						lcd.drawFilledRectangle(tx1, y - s, tx2 - tx1 + 1, inc, CUSTOM_COLOR)
+					else
+					--elseif tx1 > tx2 and tx1 - tx2 + 1 > 0 then
+						lcd.drawFilledRectangle(tx2, y - s, tx1 - tx2 + 1, inc, CUSTOM_COLOR)
+					end
+				end
+				tx1 = tx1 + slope
+			end
 		end
-		]]
+
+		-- Smooth horizon
+		if not upsideDown and inc <= 3 then
+			if inc > 1 then
+				if inc > 2 then
+					lcd.drawLine(i[1].x, i[1].y + 2, i[2].x, i[2].y + 2, SOLID, CUSTOM_COLOR)
+				end
+				lcd.drawLine(i[1].x, i[1].y + 1, i[2].x, i[2].y + 1, SOLID, CUSTOM_COLOR)
+				lcd.setColor(CUSTOM_COLOR, SKY)
+				lcd.drawLine(i[1].x, i[1].y - 1, i[2].x, i[2].y - 1, SOLID, CUSTOM_COLOR)
+				if inc > 2 then
+					lcd.drawLine(i[1].x, i[1].y - 2, i[2].x, i[2].y - 2, SOLID, CUSTOM_COLOR)
+				end
+				if 90 - roll > 25 then
+					lcd.drawLine(i[1].x, i[1].y - 3, i[2].x, i[2].y - 3, SOLID, CUSTOM_COLOR)
+				end
+			end
+			lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
+			lcd.drawLine(i[1].x, i[1].y, i[2].x, i[2].y, SOLID, CUSTOM_COLOR)
+		end
+	end
+
+	-- Pitch ladder
+	if data.telem then
+		tmp = pitch - 90
+		local tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 30), -30)
+		for x = tmp2 - 20, tmp2 + 20, 5 do
+			-- Does this happen enough to make it faster?
+			if x ~= 0 and (x % 10 == 0 or (x > -30 and x < 30)) then
+			--if x ~= 0 then
+				pitchLadder(x % 10 == 0 and 20 or 15, x)
+			end
+		end
+		if not data.showMax then
+			--[[ Adds a shadow to the pitch
+			lcd.setColor(CUSTOM_COLOR, BLACK)
+			lcd.drawText(X_CNTR - 64, Y_CNTR - 8, string.format("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT + CUSTOM_COLOR)
+			]]
+			lcd.drawText(X_CNTR - 65, Y_CNTR - 9, string.format("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
+		end
 	end
 
 	-- Home direction
@@ -281,9 +266,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			tmp = math.floor(((i - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= 9 and tmp <= RIGHT_POS - 12 then
 				if i % 90 == 0 then
-					lcd.drawText(tmp - (i < 270 and 3 or 5), BOTTOM - 15, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
+					lcd.drawText(tmp - (i < 270 and 3 or 5), bot2, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
 				elseif i % 45 == 0 then
-					lcd.drawText(tmp - (i < 225 and 7 or 9), BOTTOM - 15, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
+					lcd.drawText(tmp - (i < 225 and 7 or 9), bot2, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
 				else
 					lcd.drawLine(tmp, BOTTOM - 4, tmp, BOTTOM - 1, SOLID, 0)
 				end
@@ -317,7 +302,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Heading
 	if data.showHead then
-		lcd.drawText(X_CNTR + 18, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(X_CNTR + 18, bot2, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 
 	-- Roll indicator
@@ -331,7 +316,51 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		end
 	end
+--[[
+	local r = 20
+	local adj = 10
+	local p = math.sin(math.rad(adj)) * 170
+	local yc = Y_CNTR - math.cos(math.rad(pitch)) * 170
+	local x1 = X_CNTR - math.cos(roll1) * p
+	local y1 = yc - math.sin(roll1) * p
+	local xd = math.sin(roll1) * r
+	local yd = math.cos(roll1) * r
+	lcd.setColor(CUSTOM_COLOR, BLACK)
+	lcd.drawLine(x1 - xd, y1 + yd, x1 + xd, y1 - yd, SOLID, CUSTOM_COLOR)
 
+	local r = 15
+	local adj = 5
+	local p = math.sin(math.rad(adj)) * 170
+	local yc = Y_CNTR - math.cos(math.rad(pitch)) * 170
+	local x1 = X_CNTR - math.cos(roll1) * p
+	local y1 = yc - math.sin(roll1) * p
+	local xd = math.sin(roll1) * r
+	local yd = math.cos(roll1) * r
+	lcd.setColor(CUSTOM_COLOR, BLACK)
+	lcd.drawLine(x1 - xd, y1 + yd, x1 + xd, y1 - yd, SOLID, CUSTOM_COLOR)
+
+	local r = 20
+	local adj = -10
+	local p = math.sin(math.rad(adj)) * 170
+	local yc = Y_CNTR - math.cos(math.rad(pitch)) * 170
+	local x1 = X_CNTR - math.cos(roll1) * p
+	local y1 = yc - math.sin(roll1) * p
+	local xd = math.sin(roll1) * r
+	local yd = math.cos(roll1) * r
+	lcd.setColor(CUSTOM_COLOR, BLACK)
+	lcd.drawLine(x1 - xd, y1 + yd, x1 + xd, y1 - yd, SOLID, CUSTOM_COLOR)
+
+	local r = 15
+	local adj = -5
+	local p = math.sin(math.rad(adj)) * 170
+	local yc = Y_CNTR - math.cos(math.rad(pitch)) * 170
+	local x1 = X_CNTR - math.cos(roll1) * p
+	local y1 = yc - math.sin(roll1) * p
+	local xd = math.sin(roll1) * r
+	local yd = math.cos(roll1) * r
+	lcd.setColor(CUSTOM_COLOR, BLACK)
+	lcd.drawLine(x1 - xd, y1 + yd, x1 + xd, y1 - yd, SOLID, CUSTOM_COLOR)
+]]
 	-- Variometer
 	if config[7].v % 2 == 1 then
 		lcd.setColor(CUSTOM_COLOR, DKGREY)
@@ -517,7 +546,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText((X2 + X3) / 2, TOP + 18, "N", SMLSIZE)
 			lcd.drawText(X3 - 4, 211, "E", SMLSIZE + RIGHT)
 			lcd.drawText(X2 + 10, 211, "W", SMLSIZE)
-			lcd.drawText(X2 + 78, BOTTOM - 15, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+			lcd.drawText(X2 + 78, bot2, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 		end
 		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) / 2 + 4, 219, 25)
 		if data.headingHold then
