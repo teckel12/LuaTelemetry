@@ -35,7 +35,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local x = math.sin(roll1) * r
 		local y = math.cos(roll1) * r
 		local p = math.cos(math.rad(pitch - adj)) * 170
-		local x1, y1, x2, y2 = X_CNTR + x, Y_CNTR - y - p, X_CNTR - x, Y_CNTR + y - p
+		local x1, y1, x2, y2 = X_CNTR - x, Y_CNTR + y - p, X_CNTR + x, Y_CNTR - y - p
 		]]
 		-- Uncaged mode
 		local p = math.sin(math.rad(adj)) * 170
@@ -48,7 +48,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			if (y1 > top2 or y2 > top2) and (y1 < bot2 or y2 < bot2) and y1 >= 0 and y2 >= 0 then
 				lcd.setColor(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
 				lcd.drawLine(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
-				if r == 20 and y2 > top2 and y2 < bot2 then
+				if r == 20 and y1 > top2 and y1 < bot2 then
 					lcd.drawText(x1 - 1, y1 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
 				end
 			end
@@ -234,9 +234,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		tmp = pitch - 90
 		local tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 30), -30)
 		for x = tmp2 - 20, tmp2 + 20, 5 do
-			-- Does this happen enough to make it faster?
 			if x ~= 0 and (x % 10 == 0 or (x > -30 and x < 30)) then
-			--if x ~= 0 then
 				pitchLadder(x % 10 == 0 and 20 or 15, x)
 			end
 		end
