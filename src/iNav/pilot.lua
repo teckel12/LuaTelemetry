@@ -8,17 +8,36 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
 	local tmp, pitch, roll, roll1, upsideDown
 
-	local function attitude(r, adj)
+	local function pitchLadder(r, adj)
+		--[[ Caged mode
 		local x = math.sin(roll1) * r
 		local y = math.cos(roll1) * r
 		local p = math.cos(math.rad(pitch - adj)) * 85
-		local x1 = X_CNTR + x
-		local y1 = 35 - y - p
-		local x2 = X_CNTR - x
-		local y2 = 35 + y - p
+		local x1, y1, x2, y2 = X_CNTR - x, 35 + y - p, X_CNTR + x, 35 - y - p
+		]]
+		-- Uncaged mode
+		local p = math.sin(math.rad(adj)) * 85
+		local y = (35 - math.cos(math.rad(pitch)) * 85) - math.sin(roll1) * p
+		if y > 15 and y < 56 then
+			local x = X_CNTR - math.cos(roll1) * p
+			local xd = math.sin(roll1) * r
+			local yd = math.cos(roll1) * r
+			local x1, y1, x2, y2 = x - xd, y + yd, x + xd, y - yd
+			if (y1 > 15 or y2 > 15) and (y1 < 56 or y2 < 56) then
+				lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or (adj % 10 == 0 and SOLID or DOTTED), SMLCD and 0 or (adj > 0 and GREY_DEFAULT or 0))
+				if not SMLCD and adj % 10 == 0 and adj ~= 0 and y1 > 15 and y1 < 56 then
+					lcd.drawText(x1 - 2, y1 - 3, math.abs(adj), SMLSIZE + RIGHT)
+				end
+			end
+		end
+		--[[ Backup old method
+		local x = math.sin(roll1) * r
+		local y = math.cos(roll1) * r
+		local p = math.cos(math.rad(pitch - adj)) * 85
+		local x1, y1, x2, y2 = X_CNTR - x, 35 + y - p, X_CNTR + x, 35 - y - p
 		if adj == 0 then
-			local a = (y1 - y2) / (x1 - x2 + .001)
-			local y = y2 - ((x2 - LEFT_POS + 1) * a)
+			local a = (y2 - y1) / (x2 - x1 + .001)
+			local y = y1 - ((x1 - LEFT_POS + 1) * a)
 			for x = LEFT_POS + 1, RIGHT_POS - 1 do
 				local yy = y + 0.5
 				if (not upsideDown and yy < 64) or (upsideDown and yy > 7) then
@@ -28,10 +47,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		elseif (y1 > 15 or y2 > 15) and (y1 < 56 or y2 < 56) then
 			lcd.drawLine(x1, y1, x2, y2, SMLCD and DOTTED or (adj % 10 == 0 and SOLID or DOTTED), SMLCD and 0 or (adj > 0 and GREY_DEFAULT or 0))
-			if not SMLCD and adj % 10 == 0 and adj ~= 0 and y2 > 15 and y2 < 56 then
-				lcd.drawText(x2 - 2, y2 - 3, math.abs(adj), SMLSIZE + RIGHT)
+			if not SMLCD and adj % 10 == 0 and adj ~= 0 and y1 > 15 and y1 < 56 then
+				lcd.drawText(x1 - 2, y1 - 3, math.abs(adj), SMLSIZE + RIGHT)
 			end
 		end
+		]]
 	end
 
 	local function tics(v, p)
@@ -66,7 +86,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 	end
 
-	-- Attitude part 1
+	-- Attitude part 1 (pitch ladder)
 	if data.pitchRoll then
 		pitch = (math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180
 		roll = (270 - data.roll / 10) % 180
@@ -80,31 +100,15 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.startup == 0 and data.telem then
 		tmp = pitch - 90
 		local short = SMLCD and 4 or 6
-		local tmp2 = tmp >= 0 and (tmp < 1 and 0 or math.floor(tmp + 0.5)) or (tmp > -1 and 0 or math.ceil(tmp - 0.5))
+		local tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 35), -35)
+		for x = tmp2 - 15, tmp2 + 15, 5 do
+			if x ~= 0 and (x % 10 == 0 or (x > -30 and x < 30)) then
+				pitchLadder(x % 10 == 0 and 11 or short, x)
+			end
+		end
 		if not data.showMax then
+			tmp2 = tmp >= 0 and (tmp < 1 and 0 or math.floor(tmp + 0.5)) or (tmp > -1 and 0 or math.ceil(tmp - 0.5))
 			lcd.drawText(X_CNTR - (SMLCD and 14 or 24), 33, math.abs(tmp2) .. (SMLCD and "" or "\64"), SMLSIZE + RIGHT)
-		end
-		if tmp <= 25 and tmp >= -10 then
-			attitude(short, 5)
-			attitude(11, 10)
-		end
-		if tmp <= 10 and tmp >= -25 then	
-			attitude(short, -5)
-			attitude(11, -10)
-		end
-		if tmp >= 0 then
-			attitude(short, 15)
-			attitude(11, 20)
-		else
-			attitude(short, -15)
-			attitude(11, -20)
-		end
-		if tmp >= 10 then
-			attitude(short, 25)
-			attitude(11, 30)
-		elseif tmp <= -10 then
-			attitude(short, -25)
-			attitude(11, -30)
 		end
 	end
 
@@ -183,9 +187,25 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		icons.lock(RIGHT_POS - 28, 33)
 	end
 
-	-- Attitude part 2
+	-- Attitude part 2 (artificial horizon)
 	lcd.drawFilledRectangle(X_CNTR - 1, 34, 3, 3, ERASE)
-	attitude(200, 0)
+	local x = math.sin(roll1) * 200
+	local y = math.cos(roll1) * 200
+	local p = math.cos(math.rad(pitch)) * 85
+	local x1, y1, x2, y2 = X_CNTR - x - 3, 35 + y - p, X_CNTR + x - 3, 35 - y - p
+	local a = (y2 - y1) / (x2 - x1 + .001)
+	local y = y1 - ((x1 - LEFT_POS + 1) * a)
+	for x = LEFT_POS + 1, RIGHT_POS - 1, 3 do
+		local yy = y + 0.5
+		if (not upsideDown and yy < 64) or (upsideDown and yy > 7) then
+			-- Draw every line method, must be slower, but should test to verify
+			--lcd.drawLine(x, math.min(math.max(yy, 8), 63), x, upsideDown and 8 or 63, SOLID, SMLCD and 0 or GREY_DEFAULT)
+			local t = upsideDown and 8 or math.min(math.max(yy, 8), 63)
+			local h = upsideDown and math.min(math.max(yy, 8), 64) - t or 65 - t
+			lcd.drawFilledRectangle(x, t, 3, h, GREY_DEFAULT)
+		end
+		y = y + a * 3
+	end
 	local inside = SMLCD and 6 or 13
 	local outside = SMLCD and 14 or 24
 	lcd.drawLine(X_CNTR - outside, 35, X_CNTR - inside, 35, SOLID, SMLCD and 0 or FORCE)

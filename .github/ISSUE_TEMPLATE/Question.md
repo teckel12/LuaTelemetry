@@ -7,7 +7,7 @@ assignees: teckel12
 ---
 
 ### Describe your question
-<!-- A clear and concise description of your question and specify the transmitter model (ie: X9D, X7)  -->
+<!-- A clear and concise description of your question and specify the transmitter model (ie: X9D, X7, Horus X10S)  -->
 
 ### To reproduce
 <!-- Steps to reproduce the behavior, example:  -->

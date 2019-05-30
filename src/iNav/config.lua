@@ -32,8 +32,8 @@ local config = {
 	{ o = 17, c = 1, v = 0, x = 6 }, -- Altitude Graph - 28
 	{ o = 5,  c = 2, v = 4.3, d = true, x = 4.5 }, -- Cell Calculation - 29
 	{ o = 27, c = 1, v = 0, x = 5 }, -- Aircraft Symbol - 30
-	{ o = 28, c = 1, v = 0 }, -- Center Radar Home - 31
-	{ o = 29, c = 1, v = 0 }, -- Default Orientation - 32
+	{ o = 28, c = 1, v = 0 }, -- Center Map Home - 31
+	{ o = 29, c = 1, v = 0 }, -- Orientation - 32
 	{ o = 26, c = 1, v = 0 }, -- Roll Indicator - 33
 }
 
