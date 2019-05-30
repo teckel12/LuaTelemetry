@@ -378,6 +378,13 @@ local function background()
 	else
 		data.battLow = false
 		data.battPercentPlayed = 100
+		-- Initalize variables on flight reset (uses timer3)
+		tmp = model.getTimer(2)
+		if tmp.value == 0 then
+			loadfile(FILE_PATH .. "reset.luac")(data)
+			tmp.value = 3600
+			model.setTimer(2, tmp)
+		end
 	end
 	data.gpsFixPrev = data.gpsFix
 	data.homeResetPrev = homeReset
@@ -468,16 +475,12 @@ local function run(event)
 		end
 	else
 		-- User input
-		if not data.armed then
-			if event == PREV or event == NEXT then
-				-- Toggle showing max/min values
-				data.showMax = not data.showMax
-			elseif event == EVT_ENTER_LONG then
-				-- Initalize variables on long <Enter> (replace this with the timer 3 method used on Horus)
-				loadfile(FILE_PATH .. "reset.luac")(data)
-			end
+		if not data.armed and (event == PREV or event == NEXT) then
+			-- Toggle showing max/min values
+			data.showMax = not data.showMax
 		end
 		if event == NEXT or event == PREV then
+			-- Toggle launch/compass-based orientation
 			data.showDir = not data.showDir
 		elseif event == EVT_ENTER_BREAK and not HORUS then
 			-- Cycle through views

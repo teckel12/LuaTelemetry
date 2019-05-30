@@ -88,7 +88,6 @@ if data.widget then
 	data.hcurx_id = getFieldInfo("ail").id
 	data.hcury_id = getFieldInfo("ele").id
 	data.hctrl_id = getFieldInfo("rud").id
-	model.setTimer(2, { mode = 0, start = 0, value = 3600, countdownBeep = 0, minuteBeep = false, persistent = 0} )
 end
 
 function widgetEvt(data)

@@ -58,4 +58,7 @@ if data.dist_id == -1 then
 	data.dist_unit = data.alt_unit
 end
 
+-- Use timer3 for flight reset detection
+model.setTimer(2, { mode = 0, start = 0, value = 3600, countdownBeep = 0, minuteBeep = false, persistent = 0} )
+
 return crsf
