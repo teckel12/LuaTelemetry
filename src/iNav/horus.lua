@@ -283,10 +283,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.altHold then
 		lcd.drawBitmap(icons.lock, RIGHT_POS - 55, Y_CNTR - 5)
 	end
-	if data.showMax then
-		lcd.drawText(41, Y_CNTR - 11, "\192", 0)
-		lcd.drawText(RIGHT_POS - 43, Y_CNTR - 11, "\192", RIGHT)
-	end
 
 	-- Heading
 	if data.showHead then
@@ -410,10 +406,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		lcd.drawLine(x1, y1, x2, y2, SOLID, TEXT_COLOR)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, TEXT_COLOR)
-		if data.showMax then
-			lcd.drawText(LEFT_POS, BOTTOM - 19, "\192", 0)
-		end
-		lcd.drawText(LEFT_POS + (data.showMax and 12 or 2), BOTTOM - 16, dist, SMLSIZE + data.telemFlags)
+		lcd.drawText(LEFT_POS + 2, BOTTOM - 16, dist, SMLSIZE + data.telemFlags)
 	end
 
 	-- Startup message
@@ -525,16 +518,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	tmp = data.showMax and data.speedMax or data.speed
 	lcd.drawText(RIGHT_POS + 1, TOP + 98, tmp >= 99.5 and math.floor(tmp + 0.5) .. units[data.speed_unit] or string.format("%.1f", tmp) .. units[data.speed_unit], MIDSIZE + RIGHT + data.telemFlags)
 
-	if data.showMax then
-		lcd.setColor(CUSTOM_COLOR, GREY)
-		lcd.drawText(2, TOP + 64, "\193", CUSTOM_COLOR)
-		lcd.drawText(2, TOP + 106, "\193", CUSTOM_COLOR)
-		lcd.drawText(X1 + 4, TOP + 18, "\192")
-		lcd.drawText(X1 + 4, TOP + 61, "\192")
-		lcd.drawText(X1 + 4, TOP + 104, "\192")
-		lcd.drawText(X3 + 4, TOP + 104, "\192")
-	end
-
 	-- Dividers
 	lcd.setColor(CUSTOM_COLOR, GREY)
 	lcd.drawLine(X1 + 3, TOP, X1 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
@@ -546,6 +529,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	lcd.setColor(CUSTOM_COLOR, LIGHTGREY)
 	lcd.drawLine(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
+
+	if data.showMax then
+		lcd.setColor(CUSTOM_COLOR, YELLOW)
+		lcd.drawFilledRectangle(190, TOP - 20, 80, 20, CUSTOM_COLOR)
+		lcd.setColor(CUSTOM_COLOR, BLACK)
+		lcd.drawText(195, TOP - 20, "Min/Max", CUSTOM_COLOR)
+	end
 end
 
 return view

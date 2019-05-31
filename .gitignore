@@ -1,5 +1,6 @@
 .vscode/
 dist/SCRIPTS/TELEMETRY/iNav/*.lua
 *.dat
+*.zip
 desktop.ini
 dist/THEMES/

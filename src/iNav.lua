@@ -432,9 +432,9 @@ local function run(event)
 
 	-- Display error if Horus widget isn't full screen
 	if data.widget then
-		if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
+		if (iNavZone.zone.w < 450 or iNavZone.zone.h < 250) and data.msg ~= false then
 			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
-			data.startupTime = getTime() -- Never timeout
+			data.startupTime = math.huge -- Never timeout
 			return 0
 		end
 		event = data.armed and 0 or widgetEvt(data)
