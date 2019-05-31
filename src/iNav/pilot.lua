@@ -192,19 +192,20 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local x = math.sin(roll1) * 200
 	local y = math.cos(roll1) * 200
 	local p = math.cos(math.rad(pitch)) * 85
-	local x1, y1, x2, y2 = X_CNTR - x - 3, 35 + y - p, X_CNTR + x - 3, 35 - y - p
+	local x1, y1, x2, y2 = X_CNTR - x - 2.5, 35 + y - p, X_CNTR + x - 2.5, 35 - y - p
 	local a = (y2 - y1) / (x2 - x1 + .001)
 	local y = y1 - ((x1 - LEFT_POS + 1) * a)
-	for x = LEFT_POS + 1, RIGHT_POS - 1, 3 do
+	for x = LEFT_POS + 1, RIGHT_POS - 1 do
 		local yy = y + 0.5
 		if (not upsideDown and yy < 64) or (upsideDown and yy > 7) then
-			-- Draw every line method, must be slower, but should test to verify
-			--lcd.drawLine(x, math.min(math.max(yy, 8), 63), x, upsideDown and 8 or 63, SOLID, SMLCD and 0 or GREY_DEFAULT)
+			lcd.drawLine(x, math.min(math.max(yy, 8), 63), x, upsideDown and 8 or 63, SOLID, SMLCD and 0 or GREY_DEFAULT)
+			--[[ Faster?
 			local t = upsideDown and 8 or math.min(math.max(yy, 8), 63)
 			local h = upsideDown and math.min(math.max(yy, 8), 64) - t or 65 - t
 			lcd.drawFilledRectangle(x, t, 3, h, GREY_DEFAULT)
+			]]
 		end
-		y = y + a * 3
+		y = y + a
 	end
 	local inside = SMLCD and 6 or 13
 	local outside = SMLCD and 14 or 24
