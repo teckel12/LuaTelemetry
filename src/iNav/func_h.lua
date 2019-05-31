@@ -85,14 +85,19 @@ function icons.sym(fg)
 end
 
 if data.widget then
-	data.hcurx_id = getFieldInfo("ail").id
+	--data.hcurx_id = getFieldInfo("ail").id
 	data.hcury_id = getFieldInfo("ele").id
-	data.hctrl_id = getFieldInfo("rud").id
+	--data.hctrl_id = getFieldInfo("rud").id
+	data.sg_id = getFieldInfo("se").id
+	data.t6_id = getFieldInfo("trim-t6").id
 end
 
 function widgetEvt(data)
 	local evt = 0
-	if not data.armed then
+	if data.lastt6 ~= nil and getValue(data.t6_id) ~= data.lastt6 then
+		evt = EVT_ROT_LEFT -- down
+	elseif not data.armed then
+		--[[
 		if data.throttle > 940 and getValue(data.hctrl_id) > 940 then
 			evt = EVT_SYS_FIRST
 		elseif getValue(data.hcurx_id) < -940 then
@@ -104,12 +109,29 @@ function widgetEvt(data)
 		elseif getValue(data.hcury_id) < -200 then
 			evt = EVT_ROT_RIGHT
 		end
+		]]
+		if getValue(data.sg_id) < 0 then
+			evt = EVT_EXIT_BREAK
+		elseif getValue(data.hcury_id) > 200 then
+			evt = EVT_ROT_LEFT -- down
+		elseif getValue(data.hcury_id) < -200 then
+			evt = EVT_ROT_RIGHT -- up
+		elseif getValue(data.sg_id) == 0 then
+			if data.configSelect == 0 then
+				evt = EVT_SYS_FIRST
+			else
+				evt = EVT_ENTER_BREAK
+			end
+		elseif getValue(data.sg_id) > 0 and data.configSelect == 0 then
+			evt = EVT_ENTER_BREAK
+		end
+		if data.lastevt == evt and math.abs(getValue(data.hcury_id)) < 940 then
+			evt = 0
+		else
+			data.lastevt = evt
+		end
 	end
-	if data.lastevt == evt and math.abs(getValue(data.hcury_id)) < 940 then
-		evt = 0
-	else
-		data.lastevt = evt
-	end
+	data.lastt6 = getValue(data.t6_id)
 	return evt
 end
 
