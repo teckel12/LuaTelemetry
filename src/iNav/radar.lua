@@ -65,12 +65,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Radar
 	if data.startup == 0 then
+		tmp = data.headingRef
 		if data.showDir or data.headingRef < 0 then
 			lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
 			lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
 			tmp = 0
-		else
-			tmp = data.headingRef
 		end
 		local cx, cy, d
 		if data.gpsHome ~= false then
@@ -103,8 +102,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local r1 = math.rad(data.heading - tmp)
 		local r2 = math.rad(data.heading - tmp + 145)
 		local r3 = math.rad(data.heading - tmp - 145)
-		tmp = d == 1 and 8 or 5
-		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, tmp)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, cx, cy, d == 1 and 8 or 5)
 		if data.headingHold then
 			if d == 1 then
 				lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
@@ -122,15 +120,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if config[7].v % 2 == 1 then
 		lcd.drawLine(RIGHT_POS, 8, RIGHT_POS, 63, SOLID, FORCE)
 		lcd.drawLine(RIGHT_POS + (SMLCD and 4 or 6), 8, RIGHT_POS + (SMLCD and 4 or 6), 63, SOLID, FORCE)
-		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
+		lcd.drawLine(RIGHT_POS + 1, 35, RIGHT_POS + (SMLCD and 3 or 5), 35, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
 		if data.armed then
-			tmp = 35 - math.floor(varioSpeed * 27 + 0.5)
-			for i = 35, tmp, (tmp > 35 and 1 or -1) do
-				local w = SMLCD and (tmp > 35 and i + 1 or 35 - i) % 3 or (tmp > 35 and i + 1 or 35 - i) % 4
-				if w < (SMLCD and 2 or 3) then
-					lcd.drawLine(RIGHT_POS + 1 + w, i, RIGHT_POS + (SMLCD and 3 or 5) - w, i, SOLID, 0)
-				end
-			end
+			tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) * (data.vspeed < 0 and -1 or 1)
+			local y1 = 36 - (tmp * 11)
+			local y2 = 36 - (tmp * 9)
+			lcd.drawLine(RIGHT_POS + 1, y1 - 1, RIGHT_POS + (SMLCD and 3 or 5), y2 - 1, SOLID, FORCE)
+			lcd.drawLine(RIGHT_POS + 1, y1, RIGHT_POS + (SMLCD and 3 or 5), y2, SOLID, FORCE)
 		end
 	else
 		lcd.drawLine(RIGHT_POS, 8, RIGHT_POS, 63, SOLID, FORCE)
@@ -160,7 +156,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	lcd.drawLine(RIGHT_POS + (config[7].v % 2 == 1 and (SMLCD and 5 or 7) or 0), 50, LCD_W, 50, SOLID, FORCE)
 	local rssiFlags = RIGHT + ((not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
-	data.rssiLast = 100
 	lcd.drawText(LCD_W - (data.crsf and 6 or 10), 52, math.min(data.showMax and data.rssiMin or data.rssiLast, data.crsf and 100 or 99), MIDSIZE + rssiFlags)
 	lcd.drawText(LCD_W, 57, data.crsf and "%" or "dB", SMLSIZE + rssiFlags)
 
@@ -173,7 +168,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			lcd.drawText(LEFT_DIV, data.showCurr and 17 or 21, "%", SMLSIZE + RIGHT + tmp)
 		else
 			lcd.drawText(LEFT_DIV, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
-			lcd.drawText(LEFT_DIV, data.showCurr and 20 or 23, config[23].l[config[23].v], SMLSIZE + RIGHT + tmp)
+			lcd.drawText(LEFT_DIV, data.showCurr and 20 or 23, data.fUnit[config[23].v], SMLSIZE + RIGHT + tmp)
 		end
 	end
 	lcd.drawText(LEFT_DIV - 5, data.showCurr and 25 or 32, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), DBLSIZE + RIGHT + tmp)

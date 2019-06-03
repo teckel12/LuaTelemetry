@@ -36,9 +36,10 @@ local function title(data, config, SMLCD)
 	--[[ Show FPS
 	data.frames = data.frames + 1
 	lcd.drawText(180, 0, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
+	--lcd.drawText(130, 0, string.format("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
 	]]
 
-	-- Reset color
+	-- Reset colors
 	lcd.setColor(WARNING_COLOR, YELLOW)
 	if data.widget then
 		if iNavZone.options.Restore % 2 == 1 then
@@ -69,13 +70,24 @@ local icons = {}
 icons.lock = Bitmap.open(FILE_PATH .. "pics/lock.png")
 icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
-icons.fg = Bitmap.open(FILE_PATH .. "pics/fg.png")
+icons.roll = Bitmap.open(FILE_PATH .. "pics/roll.png")
+icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
+
+-- Aircraft symbol preview
+function icons.sym(fg)
+	lcd.setColor(CUSTOM_COLOR, 982) -- Sky
+	lcd.drawFilledRectangle(356, 111, 123, 31, CUSTOM_COLOR)
+	lcd.setColor(CUSTOM_COLOR, 25121) -- Ground
+	lcd.drawFilledRectangle(356, 142, 123, 31, CUSTOM_COLOR)
+	lcd.drawBitmap(fg, 355, 110, 50)
+	lcd.setColor(CUSTOM_COLOR, WHITE)
+	lcd.drawRectangle(355, 110, 125, 64, CUSTOM_COLOR)
+end
 
 if data.widget then
 	data.hcurx_id = getFieldInfo("ail").id
 	data.hcury_id = getFieldInfo("ele").id
 	data.hctrl_id = getFieldInfo("rud").id
-	model.setTimer(2, { mode = 0, start = 0, value = 3600, countdownBeep = 0, minuteBeep = false, persistent = 0} )
 end
 
 function widgetEvt(data)

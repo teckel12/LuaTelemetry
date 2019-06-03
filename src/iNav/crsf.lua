@@ -11,13 +11,11 @@ data.rssiMin_id = getTelemetryId("RQly-")
 data.rfmd_id = getTelemetryId("RFMD")
 data.sat_id = getTelemetryId("Sats")
 data.fuel_id = getTelemetryId("Capa")
--- Testing Crossfire
---if data.simu then data.fuel_id = getTelemetryId("Fuel") end
 data.batt_id = getTelemetryId("RxBt")
 data.battMin_id = getTelemetryId("RxBt-")
 data.tpwr_id = getTelemetryId("TPWR")
 data.hdg_id = getTelemetryId("Yaw")
---data.rssiMin = 99
+data.rssiMin = 100
 data.tpwr = 0
 config[7].v = 0
 config[9].v = 0
@@ -26,11 +24,28 @@ config[21].v = 2.5
 config[22].v = 0
 config[23].x = 1
 
+-- Testing Crossfire
+--[[
+if data.simu then
+	data.rssi_id = getTelemetryId("RSSI")
+	data.rssiMin_id = getTelemetryId("RSSI-")
+	data.sat_id = getTelemetryId("Tmp2")
+	data.fuel_id = getTelemetryId("Fuel")
+	data.batt_id = getTelemetryId("VFAS")
+	data.battMin_id = getTelemetryId("VFAS-")
+	data.hdg_id = getTelemetryId("Hdg")
+	data.fuel_id = getTelemetryId("Fuel")
+	--data.showFuel = true
+	data.pitch_id = -1
+	data.roll_id = -1
+end
+]]
+
 local function crsf(data)
 	data.tpwr = getValue(data.tpwr_id)
 	data.pitch = math.deg(getValue(data.pitch_id)) * 10
 	data.roll = math.deg(getValue(data.roll_id)) * 10
-	--data.heading = math.deg(getValue(data.hdg_id))
+	--data.heading = math.deg(getValue(data.hdg_id)) -- Crossfire Hdg seems to be based on GPS movement
 	-- The following is done due to an int rollover bug in the Crossfire protocol
 	local tmp = getValue(data.hdg_id)
 	if tmp < -0.27 then
@@ -40,12 +55,12 @@ local function crsf(data)
 	if data.showFuel and config[23].v == 0 then
 		if data.fuelEst == -1 and data.cell > 0 then
 			if data.fuel < 25 and config[29].v - data.cell >= 0.2 then
-				data.fuelEst = math.min(1- (data.cell - config[2].v + 0.1) / (config[29].v - config[2].v), 1) * config[27].v
+				data.fuelEst = math.max(math.min(1 - (data.cell - config[2].v + 0.1) / (config[29].v - config[2].v), 1), 0) * config[27].v
 			else
 				data.fuelEst = 0
 			end
 		end
-		data.fuel = math.min(math.floor((1 - (data.fuel + data.fuelEst) / config[27].v) * 100 + 0.5), 100)
+		data.fuel = math.max(math.min(math.floor((1 - (data.fuel + data.fuelEst) / config[27].v) * 100 + 0.5), 100), 0)
 	end
 	data.fm = getValue(data.fm_id)
 	data.modePrev = data.mode
@@ -58,7 +73,41 @@ local function crsf(data)
 		data.fm = string.sub(data.fm, 1, 4)
 	end
 
-	if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
+	-- Testing Crossfire
+	--[[
+	if data.simu then
+		data.mode = getValue(data.mode_id)
+		local modeA = data.mode / 10000
+		local modeB = data.mode / 1000 % 10
+		local modeC = data.mode / 100 % 10
+		local modeD = data.mode / 10 % 10
+		local modeE = data.mode % 10
+		if bit32.band(modeE, 2) == 2 then
+			data.fm = "WAIT"
+		elseif bit32.band(modeE, 4) == 4 then
+			if bit32.band(modeA, 4) == 4 then
+				data.fm = "!FS!"
+			elseif bit32.band(modeB, 1) == 1 then
+				data.fm = "RTH"
+			elseif bit32.band(modeC, 4) == 4 then
+				data.fm = "HOLD"
+			elseif bit32.band(modeC, 2) == 2 then
+				data.fm = "AH"
+			elseif bit32.band(modeD, 2) == 2 then
+				data.fm = "HOR"
+			elseif bit32.band(modeD, 1) == 1 then
+				data.fm = "ANGL"
+			else
+				data.fm = "ACRO"
+			end
+		elseif bit32.band(modeE, 1) == 1 then
+			data.fm = "OK"
+		end
+	end
+	]]
+
+	--if data.fm == 0 or data.fm == "!ERR" or data.fm == "WAIT" then
+	if data.fm == "!ERR" or data.fm == "WAIT" then
 		-- Arming disabled
 		data.mode = 2
 	else
@@ -96,6 +145,22 @@ local function crsf(data)
 			data.mode = 40004
 		end
 	end
+
+	-- Testing Crossfire
+	--[[
+	if data.simu then
+		data.fuel = getValue(data.fuel_id)
+		data.heading = getValue(data.hdg_id)
+		data.accx = getValue(data.accx_id)
+		data.accy = getValue(data.accy_id)
+		data.accz = getValue(data.accz_id)
+		data.rxBatt = getValue(data.rxBatt_id)
+		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
+		data.distance = getValue(data.dist_id)
+		data.distanceMax = getValue(data.distMax_id)
+		data.vspeed = getValue(data.vspeed_id)
+	end
+	]]
 
 	return 0
 end

@@ -107,7 +107,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	drawData(data.crsf and "LQ" or "RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, data.crsf and "%" or "dB", 0, (not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
 		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
-		drawData(config[23].v == 0 and "Fuel" or config[23].l[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)
+		drawData(config[23].v == 0 and "Fuel" or data.fUnit[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)
 		if config[23].v == 0 then
 			lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 99), 100)
 			if data.fuel == 0 then
@@ -134,9 +134,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Variometer
-	if config[7].v % 2 == 1 and data.startup == 0 then
+	if config[7].v % 2 == 1 then
 		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
-		if SMLCD and data.armed and not data.showDir then
+		if SMLCD and data.armed and not data.showDir and data.startup == 0 then
 			lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 19, 21, SOLID, FORCE)
 			lcd.drawLine(X_CNTR_2 + 18, 21, X_CNTR_2 + 18, 21 - (varioSpeed * 12 - 0.5), SOLID, FORCE)
 		elseif not SMLCD then

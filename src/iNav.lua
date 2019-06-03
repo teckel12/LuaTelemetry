@@ -3,12 +3,12 @@
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 local buildMode = ...
-local VERSION = "1.6.1"
+local VERSION = "1.7.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
-local tmp, view
+local tmp, view, lang
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
@@ -34,7 +34,7 @@ data.voice = "es"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	loadfile(FILE_PATH .. "lang.luac")(modes, config, labels, data, FILE_PATH)
+	lang = loadfile(FILE_PATH .. "lang.luac")(modes, labels, data, FILE_PATH)
 	collectgarbage()
 end
 
@@ -61,9 +61,10 @@ local function calcTrig(gps1, gps2, deg)
 		local y = math.sin(a2 - a1) * math.cos(o2)
 		return math.deg(math.atan2(y, x))
 	else
-		--[[ This is slightly more accurate, but only at extreme distances
+		--[[ Spherical-Earth math: More accurate but only at extreme distances
 		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009;
 		]]
+		-- Flat-Earth math
 		local x = (a2 - a1) * math.cos((o1 + o2) / 2)
 		local y = o2 - o1
 		return math.sqrt(x * x + y * y) * 6371009
@@ -82,12 +83,10 @@ end
 
 local function background()
 	data.rssi = getValue(data.rssi_id)
-	-- Testing Crossfire
-	--if data.simu then data.rssi = 50 end
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
-		data.rssiMin = getValue(data.rssiMin_id)
+		data.rssiMin = getValue(data.rssiMin_id) > 0 and getValue(data.rssiMin_id) or data.rssiMin
 		data.satellites = getValue(data.sat_id)
 		if data.showFuel then
 			data.fuel = getValue(data.fuel_id)
@@ -109,6 +108,11 @@ local function background()
 			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
 			data.distance = getValue(data.dist_id)
 			data.distanceMax = getValue(data.distMax_id)
+			-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+			if data.dist_unit == 10 then
+				data.distance = math.floor(data.distance * 3.28084 + 0.5)
+				data.distanceMax = data.distanceMax * 3.28084
+			end
 			data.vspeed = getValue(data.vspeed_id)
 		end
 		data.altitude = getValue(data.alt_id)
@@ -135,27 +139,25 @@ local function background()
 			data.cellMin = data.battMin / data.cells
 		end
 		data.rssiLast = data.rssi
+		data.gpsFix = false
 		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
-				config[15].l[0] = gpsTemp
+				data.lastLock = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
-					tmp = calcTrig(data.gpsHome, data.gpsLatLon, false)
-					if tmp < 5000000 then
-						data.distance = tmp
-						data.distanceMax = math.max(data.distMaxCalc, data.distance)
-						data.distMaxCalc = data.distanceMax
+					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
+					data.distanceMax = math.max(data.distMaxCalc, data.distance)
+					data.distMaxCalc = data.distanceMax
+					-- If distance is in feet, convert
+					if data.dist_unit == 10 then
+						data.distance = math.floor(data.distance * 3.28084 + 0.5)
+						data.distanceMax = data.distanceMax * 3.28084
 					end
 				end
 			end
-		end
-		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
-		if data.dist_unit == 10 then
-			data.distance = math.floor(data.distance * 3.28084 + 0.5)
-			data.distanceMax = data.distanceMax * 3.28084
 		end
 		if data.distance > 0 then
 			data.distanceLast = data.distance
@@ -201,7 +203,7 @@ local function background()
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- Pos hold
 		else
 			preArmMode = data.modeId
-			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -945 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
+			data.modeId = (bit32.band(modeE, 2) == 2 or modeE == 0) and (data.throttle > -920 and 12 or 5) or 6 -- Not OK to arm(5) / Throttle warning(12) / Ready to fly(6)
 		end
 		if bit32.band(modeA, 4) == 4 then
 			data.modeId = 11 -- Failsafe
@@ -226,7 +228,7 @@ local function background()
 		data.battPercentPlayed = 100
 		data.battLow = false
 		data.showMax = false
-		data.showDir = false
+		data.showDir = config[32].v == 1 and true or false
 		data.configStatus = 0
 		if not data.gpsAltBase and data.gpsFix then
 			data.gpsAltBase = data.gpsAlt
@@ -241,7 +243,7 @@ local function background()
 		end
 		playAudio("engdrm", 1)
 	end
-	if data.gpsFix ~= data.gpsFixPrev then -- GPS status change
+	if data.gpsFix ~= data.gpsFixPrev and modeIdPrev ~= 12 and data.modeId ~= 12 then -- GPS status change
 		playAudio("gps", not data.gpsFix and 1 or nil)
 		playAudio(data.gpsFix and "good" or "lost", not data.gpsFix and 1 or nil)
 	end
@@ -288,11 +290,12 @@ local function background()
 				beep = true
 			end
 		elseif config[7].v > 1 then -- Vario voice
-			if math.abs(data.altitude - data.altLastAlt) + 0.5 >= config[24].l[config[24].v] then
-				if math.abs(data.altitude + 0.5 - data.altLastAlt) / config[24].l[config[24].v] > 1.5 then
-					tmp = math.floor((data.altitude + 0.5) / config[24].l[config[24].v]) * config[24].l[config[24].v]
+			local steps = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50}
+			if math.abs(data.altitude - data.altLastAlt) + 0.5 >= steps[config[24].v] then
+				if math.abs(data.altitude + 0.5 - data.altLastAlt) / steps[config[24].v] > 1.5 then
+					tmp = math.floor((data.altitude + 0.5) / steps[config[24].v]) * steps[config[24].v]
 				else
-					tmp = math.floor(data.altitude / config[24].l[config[24].v] + 0.5) * config[24].l[config[24].v]
+					tmp = math.floor(data.altitude / steps[config[24].v] + 0.5) * steps[config[24].v]
 				end
 				if tmp > 0 and getTime() > data.altNextPlay then
 					playNumber(tmp, data.alt_unit)
@@ -301,15 +304,17 @@ local function background()
 				end
 			end
 		end
-		if data.showCurr and config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 then -- Fuel notifications
+		if data.showCurr and config[23].v == 0 and data.battPercentPlayed > data.fuel and config[11].v == 2 and config[4].v == 2 and getTime() > data.battNextPlay then -- Fuel notifications
 			if data.fuel >= config[17].v and data.fuel <= config[18].v and data.fuel > config[17].v then -- Fuel low
 				playAudio("batlow")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
+				data.battNextPlay = getTime() + 500
 			elseif data.fuel % 10 == 0 and data.fuel < 100 and data.fuel > config[18].v then -- Fuel 10% notification
 				playAudio("battry")
 				playNumber(data.fuel, 13)
 				data.battPercentPlayed = data.fuel
+				data.battNextPlay = getTime() + 500
 			end
 		end
 		if ((data.showCurr and config[23].v == 0 and data.fuel <= config[17].v) or data.cell < config[3].v) and config[11].v > 0 then -- Voltage/fuel critial
@@ -319,19 +324,15 @@ local function background()
 					playNumber(data.fuel, 13)
 					data.battPercentPlayed = data.fuel
 				end
-				data.battNextPlay = getTime() + 500
+				data.battNextPlay = getTime() + 1000
 			else
 				vibrate = true
 				beep = true
 			end
 			data.battLow = true
-		elseif data.cell < config[2].v and config[11].v == 2 then -- Voltage notification
-			if not data.battLow then
-				playAudio("batlow")
-				data.battLow = true
-			end
-		else
-			data.battNextPlay = 0
+		elseif data.cell < config[2].v and config[11].v == 2 and not data.battLow then -- Voltage notification
+			playAudio("batlow")
+			data.battLow = true
 		end
 		if (data.headFree and config[9].v == 1) or modes[data.modeId].f ~= 0 then
 			if data.modeId ~= 10 or (data.modeId == 10 and config[8].v == 1) then
@@ -377,6 +378,13 @@ local function background()
 	else
 		data.battLow = false
 		data.battPercentPlayed = 100
+		-- Initalize variables on flight reset (uses timer3)
+		tmp = model.getTimer(2)
+		if tmp.value == 0 then
+			loadfile(FILE_PATH .. "reset.luac")(data)
+			tmp.value = 3600
+			model.setTimer(2, tmp)
+		end
 	end
 	data.gpsFixPrev = data.gpsFix
 	data.homeResetPrev = homeReset
@@ -385,14 +393,34 @@ local function background()
 	if data.armed and data.gpsFix and data.gpsHome == false then
 		data.gpsHome = data.gpsLatLon
 	end
+
+	-- Altitude graph
+	if data.armed and config[28].v > 0 and getTime() >= data.altLst + (config[28].v * 100) then
+		data.alt[data.altCur] = data.altitude
+		data.altCur = data.altCur == 60 and 1 or data.altCur + 1
+		data.altLst = getTime()
+		-- I don't like this min/max routine at all, there's got to be a better way
+		data.altMin = 0
+		data.altMax = data.alt_unit == 10 and 50 or 30
+		local min, max = math.min, math.max
+		for i = 1, 60 do
+			data.altMin = min(data.altMin, data.alt[i])
+			data.altMax = max(data.altMax, data.alt[i])
+		end
+		data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
+	end
 end
 
 local function run(event)
+	--[[ Show FPS
+	data.start = getTime()
+	]]
+
 	-- Run background function manually on Horus
 	if HORUS and data.startup == 0 then
 		background()
 	end
-			
+
 	-- Startup message
 	if data.startup == 1 then
 		data.startupTime = getTime()
@@ -404,14 +432,14 @@ local function run(event)
 
 	-- Display error if Horus widget isn't full screen
 	if data.widget then
-		if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
+		if (iNavZone.zone.w < 450 or iNavZone.zone.h < 250) and data.msg ~= false then
 			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
-			data.startupTime = getTime() -- Never timeout
+			data.startupTime = math.huge -- Never timeout
 			return 0
 		end
-		event = widgetEvt(data)
+		event = data.armed and 0 or widgetEvt(data)
 	end
-	
+
 	-- Clear screen
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
@@ -434,23 +462,29 @@ local function run(event)
 			view = loadfile(FILE_PATH .. "menu.luac")()
 			data.v = 9
 		end
-		view(data, config, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
-	else
-		-- User input
-		if not data.armed then
-			if event == PREV or event == NEXT then
-				-- Toggle showing max/min values
-				data.showMax = not data.showMax
-			elseif event == EVT_ENTER_LONG then
-				-- Initalize variables on long <Enter>
-				loadfile(FILE_PATH .. "reset.luac")(data)
+		tmp = config[30].v
+		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+		if HORUS then
+			if config[30].v ~= tmp then
+				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
+			end
+			-- Aircraft symbol preview
+			if data.configStatus == 27 and data.configSelect ~= 0 then
+				icons.sym(icons.fg)
 			end
 		end
+	else
+		-- User input
+		if not data.armed and (event == PREV or event == NEXT) then
+			-- Toggle showing max/min values
+			data.showMax = not data.showMax
+		end
 		if event == NEXT or event == PREV then
+			-- Toggle launch/compass-based orientation
 			data.showDir = not data.showDir
 		elseif event == EVT_ENTER_BREAK and not HORUS then
 			-- Cycle through views
-			config[25].v = config[25].v >= config[25].x and 0 or config[25].v + 1
+			config[25].v = config[25].v >= (config[28].v == 0 and 2 or 3) and 0 or config[25].v + 1
 		elseif event == MENU then
 			-- Config menu
 			data.configStatus = data.configLast

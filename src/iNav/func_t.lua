@@ -1,4 +1,5 @@
-local config, data, FILE_PATH = ...
+local config, data, 
+FILE_PATH = ...
 
 local function title(data, config, SMLCD)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)

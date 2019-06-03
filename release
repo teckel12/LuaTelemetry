@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo -n Packaging release files
+
+rm LuaTelemetry-Taranis-en.zip > /dev/null 2>&1
+rm LuaTelemetry-Taranis.zip > /dev/null 2>&1
+rm LuaTelemetry-Horus-en.zip > /dev/null 2>&1
+rm LuaTelemetry-Horus.zip > /dev/null 2>&1
+echo -n .
+
+cd dist
+
+zip -9 -q -r ../LuaTelemetry-Taranis-en.zip SCRIPTS/* -x *.lua -x *.dat -x */pics/* -x */de/* -x */es/* -x */fr/*
+echo -n .
+zip -9 -q -r ../LuaTelemetry-Taranis.zip SCRIPTS/* -x *.lua -x *.dat -x */pics/*
+echo -n .
+zip -9 -q -r ../LuaTelemetry-Horus-en.zip SCRIPTS/* WIDGETS/* -x *.lua -x *.dat -x */de/* -x */es/* -x */fr/*
+echo -n .
+zip -9 -q -r ../LuaTelemetry-Horus.zip SCRIPTS/* WIDGETS/* -x *.lua -x *.dat
+echo -n .
+zip -9 -q -r ../LuaTelemetry.zip SCRIPTS/* WIDGETS/* -x *.lua -x *.dat
+echo -n .
+
+zip -9 -q ../LuaTelemetry-Taranis-en.zip SCRIPTS/TELEMETRY/iNav.lua
+echo -n .
+zip -9 -q ../LuaTelemetry-Taranis.zip SCRIPTS/TELEMETRY/iNav.lua
+echo -n .
+zip -9 -q ../LuaTelemetry-Horus-en.zip SCRIPTS/TELEMETRY/iNav.lua WIDGETS/iNav/main.lua
+echo -n .
+zip -9 -q ../LuaTelemetry-Horus.zip SCRIPTS/TELEMETRY/iNav.lua WIDGETS/iNav/main.lua
+echo -n .
+zip -9 -q ../LuaTelemetry.zip SCRIPTS/TELEMETRY/iNav.lua WIDGETS/iNav/main.lua
+
+cd ..
+
+echo " Complete"
