@@ -34,7 +34,7 @@ local config = {
 	{ o = 27, c = 1, v = 0, x = 5 }, -- Aircraft Symbol - 30
 	{ o = 28, c = 1, v = 0 }, -- Center Map Home - 31
 	{ o = 29, c = 1, v = 0 }, -- Orientation - 32
-	{ o = 26, c = 1, v = 0 }, -- Roll Indicator - 33
+	{ o = 26, c = 1, v = 0 }, -- Roll Scale - 33
 }
 
 for i = 1, #config do

@@ -289,7 +289,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawText(X_CNTR + 18, bot2, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 
-	-- Roll indicator
+	-- Roll scale
 	if config[33].v == 1 then
 		lcd.drawBitmap(icons.roll, 43, 20)
 		if roll > 30 and roll < 150 and not upsideDown then

@@ -42,7 +42,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Aircraft Symbol",  a = "" }, -- 30
 		{ t = "Center Map Home",  l = {[0] = "Off", "On"} }, -- 31
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} }, -- 32
-		{ t = "Roll Indicator",   l = {[0] = "Off", "On"} }, -- 33
+		{ t = "Roll Scale",       l = {[0] = "Off", "On"} }, -- 33
 	}
 
 	if lang ~= nil then

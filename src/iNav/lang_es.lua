@@ -56,7 +56,7 @@ local function lang(config2)
 	--config2[30].t = "Aircraft Symbol"	-- Aircraft Symbol
 	--config2[31].t = "Center Map"		-- Center Map Home
 	--config2[32].t = "Orientation"		-- Orientation
-	--config2[33].t = "Roll Indicator"	-- Roll Indicator
+	--config2[33].t = "Roll Scale"		-- Roll Scale
 
 	-- Max 8 characters
 	--config2[1].l =  {[0] = "Cell", "Total"}						-- "Cell", "Total"

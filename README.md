@@ -41,7 +41,7 @@
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
 * Radar (map) view shows model in relationship to home position, can be displayed either as launch/pilot-based or compass-based orientation
 * Altitude graph view shows altitude for the last 1-6 minutes
-* Horus and Jumper T16 transmitters show all views at the same time, and include additional features like roll indicator and uncaged pitch ladder
+* Horus and Jumper T16 transmitters show all views at the same time, and include additional features like roll scale
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
