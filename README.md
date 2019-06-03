@@ -82,7 +82,7 @@
 
 * [Team Black Sheep](https://www.team-blacksheep.com/) - Sponsoring TBS Crossfire telemetry support
 * [FrSky](https://www.frsky-rc.com/) - Sponsoring Horus transmitter support
-* [Jumper](hhttps://www.jumper.xyz/) - Sponsoring Jumper T16 transmitter support
+* [Jumper](https://www.jumper.xyz/) - Sponsoring Jumper T16 transmitter support
 
 ## Setup
 
