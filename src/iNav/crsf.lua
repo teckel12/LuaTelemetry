@@ -15,8 +15,10 @@ data.batt_id = getTelemetryId("RxBt")
 data.battMin_id = getTelemetryId("RxBt-")
 data.tpwr_id = getTelemetryId("TPWR")
 data.hdg_id = getTelemetryId("Yaw")
+data.fpv_id = getTelemetryId("Hdg")
 data.rssiMin = 100
 data.tpwr = 0
+data.fpv = 0
 config[7].v = 0
 config[9].v = 0
 config[14].v = 0
@@ -45,13 +47,13 @@ local function crsf(data)
 	data.tpwr = getValue(data.tpwr_id)
 	data.pitch = math.deg(getValue(data.pitch_id)) * 10
 	data.roll = math.deg(getValue(data.roll_id)) * 10
-	--data.heading = math.deg(getValue(data.hdg_id)) -- Crossfire Hdg seems to be based on GPS movement
 	-- The following is done due to an int rollover bug in the Crossfire protocol
 	local tmp = getValue(data.hdg_id)
 	if tmp < -0.27 then
 		tmp = tmp + 0.27
 	end
 	data.heading = math.deg(tmp)
+	data.fpv = getValue(data.fpv_id) -- Flight path vector?
 	if data.showFuel and config[23].v == 0 then
 		if data.fuelEst == -1 and data.cell > 0 then
 			if data.fuel < 25 and config[29].v - data.cell >= 0.2 then
