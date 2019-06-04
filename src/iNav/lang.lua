@@ -1,4 +1,4 @@
-local modes, labels, data, FILE_PATH = ...
+local modes, labels, data, FILE_PATH, env = ...
 local lang
 
 if data.lang ~= "en" then
@@ -6,7 +6,7 @@ if data.lang ~= "en" then
 	local fh = io.open(tmp)
 	if fh ~= nil then
 		io.close(fh)
-		lang = loadfile(tmp)(modes, labels)
+		lang = loadScript(tmp, env)(modes, labels)
 		collectgarbage()
 	end
 end

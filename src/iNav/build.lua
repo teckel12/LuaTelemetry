@@ -4,7 +4,7 @@ local FLASH = 3
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
 local v, r, m, i, e = getVersion()
-local env = "tc" -- Default: "tc" | Debug mode: "tcb"
+local env = "tc"
 
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
@@ -17,7 +17,7 @@ local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "f
 
 data.lang = "en"
 data.voice = "en"
-local lang = loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH)
+local lang = loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH, env)
 local langs = { "nl", "fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu" }
 local config2
 for abv = 1, #langs do
@@ -30,7 +30,7 @@ end
 
 loadScript(FILE_PATH .. "reset", env)(data)
 local crsf = loadScript(FILE_PATH .. "crsf", env)(config, data, getTelemetryId)
-crsf = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
+crsf = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()

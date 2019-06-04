@@ -9,23 +9,25 @@ local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
 local tmp, view, lang
+local env = "bx"
+--env = "tx" -- Uncomment for debug mode
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
-if string.sub(r, -4) == "simu" and buildMode ~= false then
+if string.sub(r, -4) == "simu" and buildMode ~= false and env == "bx" then
 	loadScript(FILE_PATH .. "build", "tx")(buildMode)
 end
 
-local config = loadfile(FILE_PATH .. "config.luac")(SMLCD)
+local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 collectgarbage()
 
-local modes, units, labels = loadfile(FILE_PATH .. "modes.luac")()
+local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
 collectgarbage()
 
-local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadfile(FILE_PATH .. "data.luac")(r, m, i, HORUS)
+local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 collectgarbage()
 
-loadfile(FILE_PATH .. "load.luac")(config, data, FILE_PATH)
+loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
@@ -34,15 +36,15 @@ data.voice = "es"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	lang = loadfile(FILE_PATH .. "lang.luac")(modes, labels, data, FILE_PATH)
+	lang = loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH, env)
 	collectgarbage()
 end
 
-loadfile(FILE_PATH .. "reset.luac")(data)
-local crsf = loadfile(FILE_PATH .. "other.luac")(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH)
+loadScript(FILE_PATH .. "reset", env)(data)
+local crsf = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadfile(FILE_PATH .. (HORUS and "func_h.luac" or "func_t.luac"))(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. (HORUS and "func_h" or "func_t"), env)(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -381,7 +383,7 @@ local function background()
 		-- Initalize variables on flight reset (uses timer3)
 		tmp = model.getTimer(2)
 		if tmp.value == 0 then
-			loadfile(FILE_PATH .. "reset.luac")(data)
+			loadScript(FILE_PATH .. "reset", env)(data)
 			tmp.value = 3600
 			model.setTimer(2, tmp)
 		end
@@ -459,7 +461,7 @@ local function run(event)
 		if data.v ~= 9 then
 			view = nil
 			collectgarbage()
-			view = loadfile(FILE_PATH .. "menu.luac")()
+			view = loadScript(FILE_PATH .. "menu", env)()
 			data.v = 9
 		end
 		tmp = config[30].v
@@ -494,7 +496,7 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadfile(FILE_PATH .. (HORUS and "horus.luac" or (config[25].v == 0 and "view.luac" or (config[25].v == 1 and "pilot.luac" or (config[25].v == 2 and "radar.luac" or "alt.luac")))))()
+			view = loadScript(FILE_PATH .. (HORUS and "horus" or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))), env)()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
