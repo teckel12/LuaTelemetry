@@ -90,6 +90,7 @@
 * [Download latest release](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
 * [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
 * [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
+* [Download Options](https://github.com/iNavFlight/LuaTelemetry/wiki/Download-Options)
 
 ## Information & Settings
 
