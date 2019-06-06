@@ -85,51 +85,33 @@ function icons.sym(fg)
 end
 
 if data.widget then
-	--data.hcurx_id = getFieldInfo("ail").id
+	data.hcurx_id = getFieldInfo("ail").id
 	data.hcury_id = getFieldInfo("ele").id
-	--data.hctrl_id = getFieldInfo("rud").id
-	data.sg_id = getFieldInfo("se").id
+	data.hctrl_id = getFieldInfo("rud").id
 	data.t6_id = getFieldInfo("trim-t6").id
 end
 
 function widgetEvt(data)
 	local evt = 0
-	if data.lastt6 ~= nil and getValue(data.t6_id) ~= data.lastt6 then
-		evt = EVT_ROT_LEFT -- down
-	elseif not data.armed then
-		--[[
-		if data.throttle > 940 and getValue(data.hctrl_id) > 940 then
-			evt = EVT_SYS_FIRST
-		elseif getValue(data.hcurx_id) < -940 then
-			evt = EVT_EXIT_BREAK
-		elseif getValue(data.hcurx_id) > 940 then
-			evt = EVT_ENTER_BREAK
-		elseif getValue(data.hcury_id) > 200 then
-			evt = EVT_ROT_LEFT
-		elseif getValue(data.hcury_id) < -200 then
-			evt = EVT_ROT_RIGHT
-		end
-		]]
-		if getValue(data.sg_id) < 0 then
-			evt = EVT_EXIT_BREAK
-		elseif getValue(data.hcury_id) > 200 then
-			evt = EVT_ROT_LEFT -- down
-		elseif getValue(data.hcury_id) < -200 then
-			evt = EVT_ROT_RIGHT -- up
-		elseif getValue(data.sg_id) == 0 then
-			if data.configSelect == 0 then
-				evt = EVT_SYS_FIRST
-			else
-				evt = EVT_ENTER_BREAK
-			end
-		elseif getValue(data.sg_id) > 0 and data.configSelect == 0 then
-			evt = EVT_ENTER_BREAK
+	if not data.armed then
+		if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 20 and math.abs(getValue(data.hcury_id)) < 20 then
+			evt = EVT_SYS_FIRST -- Enter config menu
+		elseif getValue(data.hcurx_id) < -940 and data.throttle < -940 then
+			evt = EVT_EXIT_BREAK -- Left (exit)
+		elseif getValue(data.hcurx_id) > 940 and data.throttle < -940 then
+			evt = EVT_ENTER_BREAK -- Right (enter)
+		elseif getValue(data.hcury_id) > 200 and data.throttle < -940 then
+			evt = EVT_ROT_LEFT -- Down
+		elseif getValue(data.hcury_id) < -200 and data.throttle < -940 then
+			evt = EVT_ROT_RIGHT -- Up
 		end
 		if data.lastevt == evt and math.abs(getValue(data.hcury_id)) < 940 then
 			evt = 0
 		else
 			data.lastevt = evt
 		end
+	elseif data.lastt6 ~= nil and getValue(data.t6_id) ~= data.lastt6 then
+		evt = EVT_ROT_LEFT -- Down
 	end
 	data.lastt6 = getValue(data.t6_id)
 	return evt

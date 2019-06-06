@@ -74,6 +74,7 @@ local data = {
 	rssiLast = 0,
 	vspeed = 0,
 	hdop = 0,
+	throttle = 0,
 	homeResetPrev = false,
 	gpsFixPrev = false,
 	altNextPlay = 0,
