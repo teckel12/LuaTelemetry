@@ -303,7 +303,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		-- Flight path vector
-		if data.crsf and data.fpv_id > -1 and data.speed > 8 and math.abs(data.fpv - data.heading) < 45 then
+		if data.crsf and data.fpv_id > -1 and data.speed > 8 and math.abs(data.fpv - data.heading) < 58 then
 			local fpv = math.floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 			lcd.setColor(CUSTOM_COLOR, lcd.RGB(0, 255, 0))
 			lcd.drawFilledRectangle(fpv - 3, Y_CNTR - 3, 7, 7, SOLID + CUSTOM_COLOR)
