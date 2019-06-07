@@ -232,6 +232,7 @@ local function background()
 		data.showMax = false
 		data.showDir = config[32].v == 1 and true or false
 		data.configStatus = 0
+		data.configSelect = 0
 		if not data.gpsAltBase and data.gpsFix then
 			data.gpsAltBase = data.gpsAlt
 		end
@@ -439,7 +440,7 @@ local function run(event)
 			data.startupTime = math.huge -- Never timeout
 			return 0
 		end
-		event = data.armed and 0 or widgetEvt(data)
+		event = widgetEvt(data)
 	end
 
 	-- Clear screen
