@@ -84,25 +84,23 @@ function icons.sym(fg)
 	lcd.drawRectangle(355, 110, 125, 64, CUSTOM_COLOR)
 end
 
---if data.widget then
-	data.hcurx_id = getFieldInfo("ail").id
-	data.hcury_id = getFieldInfo("ele").id
-	data.hctrl_id = getFieldInfo("rud").id
-	data.t6_id = getFieldInfo("trim-t6").id
-	function icons.alert()
-		lcd.setColor(CUSTOM_COLOR, BLACK)
-		lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
-		lcd.setColor(CUSTOM_COLOR, YELLOW)
-		lcd.drawRectangle(19, 127, 441, 32, CUSTOM_COLOR)
-		lcd.drawText(28, 128, data.stickMsg, MIDSIZE + CUSTOM_COLOR)
-	end
---end
+data.hcurx_id = getFieldInfo("ail").id
+data.hcury_id = getFieldInfo("ele").id
+data.hctrl_id = getFieldInfo("rud").id
+data.t6_id = getFieldInfo("trim-t6").id
+function icons.alert()
+	lcd.setColor(CUSTOM_COLOR, BLACK)
+	lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
+	lcd.setColor(CUSTOM_COLOR, YELLOW)
+	lcd.drawRectangle(19, 127, 441, 32, CUSTOM_COLOR)
+	lcd.drawText(28, 128, data.stickMsg, MIDSIZE + CUSTOM_COLOR)
+end
 
 function widgetEvt(data)
 	local evt = 0
 	if not data.armed then
-		data.stickMsg = (data.throttle >= -940 or math.abs(getValue(data.hctrl_id)) >= 30) and "Return throttle stick to bottom center" or nil
-		if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 30 and math.abs(getValue(data.hcury_id)) < 30 then
+		data.stickMsg = (data.throttle >= -940 or math.abs(getValue(data.hctrl_id)) >= 50) and "Return throttle stick to bottom center" or nil
+		if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 50 and math.abs(getValue(data.hcury_id)) < 50 then
 			evt = EVT_SYS_FIRST -- Enter config menu
 		elseif data.stickMsg == nil then
 			if getValue(data.hcurx_id) < -940 then
