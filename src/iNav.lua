@@ -434,19 +434,20 @@ local function run(event)
 	end
 
 	-- Display error if Horus widget isn't full screen
-	if data.widget then
-		if (iNavZone.zone.w < 450 or iNavZone.zone.h < 250) and data.msg ~= false then
-			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
-			data.startupTime = math.huge -- Never timeout
-			return 0
-		end
-		event = widgetEvt(data)
+	if data.widget and data.msg ~= false and (iNavZone.zone.w < 450 or iNavZone.zone.h < 250) then
+		lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
+		data.startupTime = math.huge -- Never timeout
+		return 0
 	end
 
 	-- Clear screen
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
+		-- On Horus use sticks to control the menu
+		if event == 0 then
+			event = widgetEvt(data)
+		end
 	else
 		lcd.clear()
 	end
@@ -474,6 +475,10 @@ local function run(event)
 			-- Aircraft symbol preview
 			if data.configStatus == 27 and data.configSelect ~= 0 then
 				icons.sym(icons.fg)
+			end
+			-- Return throttle stick to bottom center
+			if data.stickMsg ~= nil and not data.armed then
+				icons.alert()
 			end
 		end
 	else

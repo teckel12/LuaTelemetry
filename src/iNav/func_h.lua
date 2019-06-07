@@ -84,26 +84,36 @@ function icons.sym(fg)
 	lcd.drawRectangle(355, 110, 125, 64, CUSTOM_COLOR)
 end
 
-if data.widget then
+--if data.widget then
 	data.hcurx_id = getFieldInfo("ail").id
 	data.hcury_id = getFieldInfo("ele").id
 	data.hctrl_id = getFieldInfo("rud").id
 	data.t6_id = getFieldInfo("trim-t6").id
-end
+	function icons.alert()
+		lcd.setColor(CUSTOM_COLOR, BLACK)
+		lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
+		lcd.setColor(CUSTOM_COLOR, YELLOW)
+		lcd.drawRectangle(19, 127, 441, 32, CUSTOM_COLOR)
+		lcd.drawText(28, 128, data.stickMsg, MIDSIZE + CUSTOM_COLOR)
+	end
+--end
 
 function widgetEvt(data)
 	local evt = 0
 	if not data.armed then
-		if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 20 and math.abs(getValue(data.hcury_id)) < 20 then
+		data.stickMsg = (data.throttle >= -940 or math.abs(getValue(data.hctrl_id)) >= 30) and "Return throttle stick to bottom center" or nil
+		if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 30 and math.abs(getValue(data.hcury_id)) < 30 then
 			evt = EVT_SYS_FIRST -- Enter config menu
-		elseif getValue(data.hcurx_id) < -940 and data.throttle < -940 then
-			evt = EVT_EXIT_BREAK -- Left (exit)
-		elseif getValue(data.hcurx_id) > 940 and data.throttle < -940 then
-			evt = EVT_ENTER_BREAK -- Right (enter)
-		elseif getValue(data.hcury_id) > 200 and data.throttle < -940 then
-			evt = EVT_ROT_LEFT -- Down
-		elseif getValue(data.hcury_id) < -200 and data.throttle < -940 then
-			evt = EVT_ROT_RIGHT -- Up
+		elseif data.stickMsg == nil then
+			if getValue(data.hcurx_id) < -940 then
+				evt = EVT_EXIT_BREAK -- Left (exit)
+			elseif getValue(data.hcurx_id) > 940 then
+				evt = EVT_ENTER_BREAK -- Right (enter)
+			elseif getValue(data.hcury_id) > 200 then
+				evt = EVT_ROT_LEFT -- Down
+			elseif getValue(data.hcury_id) < -200 then
+				evt = EVT_ROT_RIGHT -- Up
+			end
 		end
 		if data.lastevt == evt and math.abs(getValue(data.hcury_id)) < 940 then
 			evt = 0
