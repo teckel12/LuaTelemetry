@@ -270,6 +270,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if config[28].v == 0 and config[33].v == 0 then
 		lcd.drawText(42, TOP - 1, units[data.speed_unit], SMLSIZE)
 		lcd.drawText(RIGHT_POS - 45, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+	elseif config[33].v == 0 then
+		lcd.drawText(39, Y_CNTR - 25, units[data.speed_unit], SMLSIZE + RIGHT)
+		lcd.drawText(RIGHT_POS - 6, Y_CNTR - 25, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
 	end
 
 	-- View overlay
