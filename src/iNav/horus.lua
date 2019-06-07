@@ -270,10 +270,25 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if config[28].v == 0 and config[33].v == 0 then
 		lcd.drawText(42, TOP - 1, units[data.speed_unit], SMLSIZE)
 		lcd.drawText(RIGHT_POS - 45, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+	elseif config[33].v == 0 then
+		lcd.drawText(39, Y_CNTR - 25, units[data.speed_unit], SMLSIZE + RIGHT)
+		lcd.drawText(RIGHT_POS - 6, Y_CNTR - 25, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
 	end
 
 	-- View overlay
 	lcd.drawBitmap(icons.fg, 1, 20)
+
+	-- Flight path vector
+	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 and data.crsf and data.fpv_id > -1 and math.abs(data.fpv - data.heading) < 45 then
+		local fpv = math.floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
+		lcd.setColor(CUSTOM_COLOR, lcd.RGB(0, 255, 0))
+		lcd.drawFilledRectangle(fpv - 3, Y_CNTR - 3, 7, 7, SOLID + CUSTOM_COLOR)
+		lcd.drawLine(fpv - 9, Y_CNTR, fpv + 9, Y_CNTR, SOLID, CUSTOM_COLOR)
+		lcd.drawLine(fpv, Y_CNTR - 6, fpv, Y_CNTR, SOLID, CUSTOM_COLOR)
+		lcd.drawText(X_CNTR + 18, bot2 - 15, math.floor(data.fpv + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + CUSTOM_COLOR)
+		lcd.setColor(CUSTOM_COLOR, DKGREY)
+		lcd.drawFilledRectangle(fpv - 2, Y_CNTR - 2, 5, 5, SOLID + CUSTOM_COLOR)
+	end
 
 	-- Speed & altitude
 	tmp = data.showMax and data.speedMax or data.speed
