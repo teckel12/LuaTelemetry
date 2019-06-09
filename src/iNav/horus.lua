@@ -441,16 +441,16 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Box 1 (fuel, battery, rssi)
 	tmp = (not data.telem or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if data.showFuel then
-		if config[23].v == 0 then
+		if config[23].v > 0 or (data.crsf and data.showMax) then
+			lcd.drawText(X1, TOP + 1, data.fuel .. data.fUnit[data.crsf and 1 or config[23].v], MIDSIZE + RIGHT + tmp)
+		else
 			lcd.drawText(X1 - 3, TOP, data.fuel .. "%", MIDSIZE + RIGHT + tmp)
 			local red = data.fuel >= config[18].v and math.max(math.floor((100 - data.fuel) / (100 - config[18].v) * 255), 0) or 255
 			local green = data.fuel < config[18].v and math.max(math.floor((data.fuel - config[17].v) / (config[18].v - config[17].v) * 255), 0) or 255
 			lcd.setColor(CUSTOM_COLOR, lcd.RGB(red, green, 60))
 			lcd.drawGauge(0, TOP + 26, X1 - 3, 15, math.min(data.fuel, 99), 100, CUSTOM_COLOR)
-		else
-			lcd.drawText(X1, TOP + 1, data.fuel .. data.fUnit[config[23].v], MIDSIZE + RIGHT + tmp)
 		end
-		lcd.drawText(0, TOP + (config[23].v == 0 and 9 or 23), labels[1], SMLSIZE)
+		lcd.drawText(0, TOP + ((config[23].v > 0 or (data.crsf and data.showMax)) and 23 or 9), labels[1], SMLSIZE)
 	end
 
 	local val = data.showMax and data.cellMin or data.cell

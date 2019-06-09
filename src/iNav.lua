@@ -445,7 +445,7 @@ local function run(event)
 		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
 		lcd.clear(CUSTOM_COLOR)
 		-- On Horus use sticks to control the menu
-		if event == 0 then
+		if event == 0 or event == nil then
 			event = widgetEvt(data)
 		end
 	else

@@ -1,10 +1,5 @@
 local config, data, getTelemetryId = ...
 
-local function getCrsfUnit(n)
-	local field = getFieldInfo(n)
-	return field and field.unit or 0
-end
-
 data.crsf = true
 data.rssi_id = getTelemetryId("RQly")
 data.rssiMin_id = getTelemetryId("RQly-")
