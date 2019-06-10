@@ -35,7 +35,7 @@
 ## Features
 
 * Works with all FrSky telemetry receivers (X, R9 and D series), all TBS Crossfire receivers, all FrSky Taranis and Horus transmitters, and the Jumper T16 transmitter
-* Compatible with Betaflight using FrSky X or R9 series receivers (with reduced functionality) and TBS Crossfire support with Betaflight >3.5.5
+* Compatible with Betaflight using FrSky X or R9 series receivers (with reduced functionality) and TBS Crossfire support with Betaflight 4.0.0+
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with magnetometer sensor on multirotor or fixed-wing with GPS)
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
