@@ -1,0 +1,34 @@
+#!/bin/bash
+
+echo
+echo Compiling INAV Lua Telemetry...
+echo
+
+mkdir obj
+
+luac52 -s -o obj/main.luac dist/WIDGETS/iNav/main.lua
+luac52 -s -o obj/iNav.luac src/iNav.lua
+luac52 -s -o obj/alt.luac src/iNav/alt.lua
+luac52 -s -o obj/config.luac src/iNav/config.lua
+luac52 -s -o obj/crsf.luac src/iNav/crsf.lua
+luac52 -s -o obj/data.luac src/iNav/data.lua
+luac52 -s -o obj/func_h.luac src/iNav/func_h.lua
+luac52 -s -o obj/func_t.luac src/iNav/func_t.lua
+luac52 -s -o obj/horus.luac src/iNav/horus.lua
+luac52 -s -o obj/lang.luac src/iNav/lang.lua
+luac52 -s -o obj/lang_de.luac src/iNav/lang_de.lua
+luac52 -s -o obj/lang_es.luac src/iNav/lang_es.lua
+luac52 -s -o obj/lang_fr.luac src/iNav/lang_fr.lua
+luac52 -s -o obj/load.luac src/iNav/load.lua
+luac52 -s -o obj/menu.luac src/iNav/menu.lua
+luac52 -s -o obj/modes.luac src/iNav/modes.lua
+luac52 -s -o obj/other.luac src/iNav/other.lua
+luac52 -s -o obj/pilot.luac src/iNav/pilot.lua
+luac52 -s -o obj/radar.luac src/iNav/radar.lua
+luac52 -s -o obj/reset.luac src/iNav/reset.lua
+luac52 -s -o obj/view.luac src/iNav/view.lua
+
+rm -fR obj/
+
+echo
+echo Complete

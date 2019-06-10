@@ -4,3 +4,4 @@ dist/SCRIPTS/TELEMETRY/iNav/*.lua
 *.zip
 desktop.ini
 dist/THEMES/
+obj/
