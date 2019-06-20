@@ -16,7 +16,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local TOP = 20
 	local BOTTOM = 146
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
-	local tmp, top2, bot2, pitch, roll, roll1, upsideDown
+	local tmp, tmp2, top2, bot2, pitch, roll, roll1, upsideDown
 
 	function intersect(s1, e1, s2, e2)
 		local d = (s1.x - e1.x) * (s2.y - e2.y) - (s1.y - e1.y) * (s2.x - e2.x)
@@ -348,8 +348,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local LEFT_POS = RIGHT_POS + (config[7].v % 2 == 1 and 11 or 0)
 	RIGHT_POS = 479
 	X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
-	local tmp2 = data.showMax and data.distanceMax or data.distanceLast
-	local dist = tmp2 < 1000 and math.floor(tmp2 + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp2 / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
 	if data.startup == 0 then
 		-- Launch/north-based orientation
 		if data.showDir or data.headingRef < 0 then
@@ -419,7 +417,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawLine(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		lcd.drawLine(x1, y1, x2, y2, SOLID, TEXT_COLOR)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, TEXT_COLOR)
-		lcd.drawText(LEFT_POS + 2, BOTTOM - 16, dist, SMLSIZE + data.telemFlags)
+		tmp = data.distanceLast < 1000 and math.floor(data.distanceLast + 0.5) .. units[data.dist_unit] or (string.format("%.1f", data.distanceLast / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
+		lcd.drawText(LEFT_POS + 2, BOTTOM - 16, tmp, SMLSIZE + data.telemFlags)
 	end
 
 	-- Startup message
@@ -474,8 +473,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	tmp = data.showMax and data.altitudeMax or data.altitude
 	lcd.drawText(X1 + 9, TOP + 1, labels[4], SMLSIZE)
 	lcd.drawText(X2, TOP + 12, math.floor(tmp + 0.5) .. units[data.alt_unit], MIDSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	tmp2 = data.showMax and data.distanceMax or data.distanceLast
+	tmp = tmp2 < 1000 and math.floor(tmp2 + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp2 / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
 	lcd.drawText(X1 + 9, TOP + 44, labels[5], SMLSIZE)
-	lcd.drawText(X2, TOP + 55, dist, MIDSIZE + RIGHT + data.telemFlags)
+	lcd.drawText(X2, TOP + 55, tmp, MIDSIZE + RIGHT + data.telemFlags)
 	if data.showCurr then
 		tmp = data.showMax and data.currentMax or data.current
 		lcd.drawText(X1 + 9, TOP + 87, labels[3], SMLSIZE)
