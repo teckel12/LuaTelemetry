@@ -61,15 +61,15 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		-- Altitude graph
 		local BOTTOM = SMLCD and 47 or 63
 		tmp = (SMLCD and 30 or 40) / (data.altMax - data.altMin)
-		lcd.drawLine(RIGHT_POS - 60, BOTTOM,  RIGHT_POS - 1, BOTTOM, SOLID, FORCE)
+		lcd.drawLine(RIGHT_POS - 60, BOTTOM,  RIGHT_POS - 1, BOTTOM, SOLID, SMLCD and FORCE or GREY_DEFAULT + FORCE)
 		for i = 1, 60 do
 			local cx = RIGHT_POS - 61 + i
 			local cy = math.floor(BOTTOM - (data.alt[((data.altCur - 2 + i) % 60) + 1] - data.altMin) * tmp)
 			if cy < BOTTOM then
-				lcd.drawLine(cx, cy, cx, BOTTOM - 1, SOLID, FORCE)
+				lcd.drawLine(cx, cy, cx, BOTTOM - 1, SOLID, SMLCD and FORCE or GREY_DEFAULT + FORCE)
 			end
 			if (i ~= 1 or not SMLCD) and (i - 1) % (60 / config[28].v) == 0 then
-				lcd.drawLine(cx, BOTTOM - (SMLCD and 30 or 40), cx, BOTTOM, DOTTED, SMLCD and 0 or GREY_DEFAULT)
+				lcd.drawLine(cx, BOTTOM - (SMLCD and 30 or 40), cx, BOTTOM, DOTTED, 0)
 			end
 		end
 		if data.altMin < -1 then
