@@ -10,12 +10,14 @@ local HORUS = LCD_W >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
 local tmp, view, lang
 local env = "bx"
---env = "tx" -- Uncomment for debug mode
 
 -- Build with Companion
 local v, r, m, i, e = getVersion()
-if string.sub(r, -4) == "simu" and buildMode ~= false and env == "bx" then
-	loadScript(FILE_PATH .. "build", "tx")(buildMode)
+if string.sub(r, -4) == "simu" then
+	env = "tx"
+	if buildMode ~= false then
+		loadScript(FILE_PATH .. "build", "tx")(buildMode)
+	end
 end
 
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
