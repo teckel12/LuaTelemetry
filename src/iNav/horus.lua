@@ -441,7 +441,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	tmp = (not data.telem or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if data.showFuel then
 		if config[23].v > 0 or (data.crsf and data.showMax) then
-			lcd.drawText(X1, TOP + 1, data.fuel .. data.fUnit[data.crsf and 1 or config[23].v], MIDSIZE + RIGHT + tmp)
+			lcd.drawText(X1, TOP + 1, (data.crsf and data.fuelRaw or data.fuel) .. data.fUnit[data.crsf and 1 or config[23].v], MIDSIZE + RIGHT + tmp)
 		else
 			lcd.drawText(X1 - 3, TOP, data.fuel .. "%", MIDSIZE + RIGHT + tmp)
 			local red = data.fuel >= config[18].v and math.max(math.floor((100 - data.fuel) / (100 - config[18].v) * 255), 0) or 255
