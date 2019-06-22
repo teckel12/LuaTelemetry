@@ -14,6 +14,7 @@ data.fpv_id = getTelemetryId("Hdg")
 data.rssiMin = 100
 data.tpwr = 0
 data.fpv = 0
+data.fuelRaw = 0
 config[7].v = 0
 config[9].v = 0
 config[14].v = 0
@@ -52,6 +53,7 @@ local function crsf(data)
 	if data.fpv_id > -1 then
 		data.fpv = (getValue(data.fpv_id) < 0 and getValue(data.fpv_id) + 65.54 or getValue(data.fpv_id)) * 10
 	end
+	data.fuelRaw = data.fuel
 	if data.showFuel and config[23].v == 0 then
 		if data.fuelEst == -1 and data.cell > 0 then
 			if data.fuel < 25 and config[29].v - data.cell >= 0.2 then
