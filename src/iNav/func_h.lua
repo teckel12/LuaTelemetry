@@ -120,10 +120,12 @@ function widgetEvt(data)
 		else
 			data.lastevt = evt
 		end
-	elseif data.lastt6 ~= nil and getValue(data.t6_id) ~= data.lastt6 then
+	end
+	if evt == 0 and data.lastt6 ~= nil and getValue(data.t6_id) ~= data.lastt6 then
 		evt = EVT_ROT_LEFT -- Down
 	end
 	data.lastt6 = getValue(data.t6_id)
+
 	return evt
 end
 
