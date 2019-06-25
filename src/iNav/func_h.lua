@@ -90,6 +90,8 @@ data.hcurx_id = getFieldInfo("ail").id
 data.hcury_id = getFieldInfo("ele").id
 data.hctrl_id = getFieldInfo("rud").id
 data.t6_id = getFieldInfo("trim-t6").id
+data.lastevt = 0
+data.lastt6 = nil
 function icons.alert()
 	lcd.setColor(CUSTOM_COLOR, BLACK)
 	lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
@@ -110,21 +112,24 @@ function widgetEvt(data)
 			elseif getValue(data.hcurx_id) > 940 then
 				evt = EVT_ENTER_BREAK -- Right (enter)
 			elseif getValue(data.hcury_id) > 200 then
-				evt = EVT_ROT_LEFT -- Down
+				evt = EVT_ROT_LEFT -- Up
 			elseif getValue(data.hcury_id) < -200 then
-				evt = EVT_ROT_RIGHT -- Up
+				evt = EVT_ROT_RIGHT -- Down
 			end
 		end
-		if data.lastevt == evt and math.abs(getValue(data.hcury_id)) < 940 then
+		if data.lastevt == evt and (data.configStatus == 0 or math.abs(getValue(data.hcury_id)) < 940) then
 			evt = 0
 		else
 			data.lastevt = evt
 		end
 	end
 	if evt == 0 and data.lastt6 ~= nil and getValue(data.t6_id) ~= data.lastt6 then
-		evt = EVT_ROT_LEFT -- Down
+		evt = EVT_ROT_RIGHT -- Down
 	end
 	data.lastt6 = getValue(data.t6_id)
+	if data.lastt6 == 0 then
+		data.lastt6 = nil
+	end
 
 	return evt
 end
