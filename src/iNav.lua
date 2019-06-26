@@ -11,7 +11,7 @@ local FLASH = HORUS and WARNING_COLOR or 3
 local tmp, view, lang
 local env = "bx"
 
--- Build with Companion
+-- Build with Companion and allow debugging
 local v, r, m, i, e = getVersion()
 if string.sub(r, -4) == "simu" then
 	env = "tx"
@@ -56,20 +56,29 @@ local function playAudio(f, a)
 end
 
 local function calcTrig(gps1, gps2, deg)
+	--[[ Used only if the Earth was spherical, which it clearly isn't
 	local o1 = math.rad(gps1.lat)
 	local a1 = math.rad(gps1.lon)
 	local o2 = math.rad(gps2.lat)
 	local a2 = math.rad(gps2.lon)
+	]]
 	if deg then
+		--[[ Spherical-Earth math: More accurate but only at extreme distances
 		local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
 		local y = math.sin(a2 - a1) * math.cos(o2)
 		return math.deg(math.atan2(y, x))
+		]]
+		local x = (gps2.lon - gps1.lon) * math.cos(math.rad(gps1.lat))
+		local y = gps2.lat - gps1.lat
+		return math.deg(math.pi / 2.0 - math.atan2(y, x))
 	else
 		--[[ Spherical-Earth math: More accurate but only at extreme distances
-		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009;
+		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009
 		]]
 		-- Flat-Earth math
-		local x = (a2 - a1) * math.cos((o1 + o2) / 2)
+		local o1 = math.rad(gps1.lat)
+		local o2 = math.rad(gps2.lat)
+		local x = (math.rad(gps2.lon) - math.rad(gps1.lon)) * math.cos((o1 + o2) / 2)
 		local y = o2 - o1
 		return math.sqrt(x * x + y * y) * 6371009
 	end
@@ -86,11 +95,13 @@ local function calcDir(r1, r2, r3, x, y, r)
 end
 
 local function background()
-	data.rssi = getValue(data.rssi_id)
+	--data.rssi = getValue(data.rssi_id)
+	data.rssi, data.rssiLow, data.rssiCrit = getRSSI()
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
-		data.rssiMin = getValue(data.rssiMin_id) > 0 and getValue(data.rssiMin_id) or data.rssiMin
+		--data.rssiMin = getValue(data.rssiMin_id) > 0 and getValue(data.rssiMin_id) or data.rssiMin
+		data.rssiMin = math.min(data.rssiMin, data.rssi)
 		data.satellites = getValue(data.sat_id)
 		if data.showFuel then
 			data.fuel = getValue(data.fuel_id)
