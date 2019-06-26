@@ -68,17 +68,18 @@ local function calcTrig(gps1, gps2, deg)
 		local y = math.sin(a2 - a1) * math.cos(o2)
 		return math.deg(math.atan2(y, x))
 		]]
+		-- Flat-Earth math
 		local x = (gps2.lon - gps1.lon) * math.cos(math.rad(gps1.lat))
-		local y = gps2.lat - gps1.lat
-		return math.deg(math.pi / 2.0 - math.atan2(y, x))
+		return math.deg(1.5708 - math.atan2(gps2.lat - gps1.lat, x))
 	else
 		--[[ Spherical-Earth math: More accurate but only at extreme distances
 		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009
 		]]
 		-- Flat-Earth math
-		local o1 = math.rad(gps1.lat)
-		local o2 = math.rad(gps2.lat)
-		local x = (math.rad(gps2.lon) - math.rad(gps1.lon)) * math.cos((o1 + o2) / 2)
+		local rad = math.rad
+		local o1 = rad(gps1.lat)
+		local o2 = rad(gps2.lat)
+		local x = (rad(gps2.lon) - rad(gps1.lon)) * math.cos((o1 + o2) / 2)
 		local y = o2 - o1
 		return math.sqrt(x * x + y * y) * 6371009
 	end
