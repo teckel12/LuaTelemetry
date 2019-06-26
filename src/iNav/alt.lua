@@ -82,7 +82,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 		-- Orientation
 		if not SMLCD and data.telem then
-			if data.showDir or data.headingRef < 0 then
+			if data.showDir or data.headingRef == -1 then
 				lcd.drawText(LEFT_POS + 12, 29, "N", SMLSIZE)
 				lcd.drawText(LEFT_POS + 25 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 				tmp = data.heading

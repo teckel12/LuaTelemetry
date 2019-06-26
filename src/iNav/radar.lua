@@ -54,7 +54,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		else
 			lcd.drawText(LEFT_POS + 2, 17, "Ptch", SMLSIZE)
 		end
-	elseif data.showDir or data.headingRef < 0 then
+	elseif data.showDir or data.headingRef == -1 then
 		-- Heading
 		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
@@ -66,7 +66,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Radar
 	if data.startup == 0 then
 		tmp = data.headingRef
-		if data.showDir or data.headingRef < 0 then
+		if data.showDir or data.headingRef == -1 then
 			lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
 			lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
 			tmp = 0

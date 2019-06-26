@@ -71,7 +71,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Orientation
-	if data.telem and data.headingRef >= 0 and data.startup == 0 then
+	if data.telem and data.headingRef ~= -1 and data.startup == 0 then
 		local x = LEFT_POS + 13.5
 		local r1 = math.rad(data.heading - data.headingRef)
 		local r2 = math.rad(data.heading - data.headingRef + 145)

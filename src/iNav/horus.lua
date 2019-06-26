@@ -352,7 +352,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Calc orientation
 	tmp = data.headingRef
-	if data.showDir or data.headingRef < 0 then
+	if data.showDir or data.headingRef == -1 then
 		tmp = 0
 	end
 	local r1 = rad(data.heading - tmp)
@@ -365,7 +365,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
 	if data.startup == 0 then
 		-- Launch/north-based orientation
-		if data.showDir or data.headingRef < 0 then
+		if data.showDir or data.headingRef == -1 then
 			text(LEFT_POS + 2, Y_CNTR - 9, "W", SMLSIZE)
 			text(RIGHT_POS, Y_CNTR - 9, "E", SMLSIZE + RIGHT)
 		end
@@ -508,7 +508,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	if data.showHead then
-		if data.showDir or data.headingRef < 0 then
+		if data.showDir or data.headingRef == -1 then
 			text((X2 + X3) / 2, TOP + 18, "N", SMLSIZE)
 			text(X3 - 4, 211, "E", SMLSIZE + RIGHT)
 			text(X2 + 10, 211, "W", SMLSIZE)

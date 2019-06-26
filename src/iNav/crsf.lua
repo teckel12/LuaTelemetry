@@ -39,6 +39,9 @@ end
 ]]
 
 local function crsf(data)
+	if data.rssi == 99 then
+		data.rssi = data.rssi + 1
+	end
 	data.tpwr = getValue(data.tpwr_id)
 	data.pitch = math.deg(getValue(data.pitch_id)) * 10
 	data.roll = math.deg(getValue(data.roll_id)) * 10
@@ -47,7 +50,7 @@ local function crsf(data)
 	if tmp < -0.27 then
 		tmp = tmp + 0.27
 	end
-	data.heading = math.deg(tmp)
+	data.heading = (math.deg(tmp) + 360) % 360
 	-- Flight path vector
 	if data.fpv_id > -1 then
 		data.fpv = (getValue(data.fpv_id) < 0 and getValue(data.fpv_id) + 65.54 or getValue(data.fpv_id)) * 10
