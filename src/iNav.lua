@@ -63,7 +63,7 @@ local function calcTrig(gps1, gps2, deg)
 	local a2 = math.rad(gps2.lon)
 	]]
 	if deg then
-		--[[ Spherical-Earth math: More accurate but only at extreme distances
+		--[[ Spherical-Earth math: More accurate if the Earth was a sphere, but you know it's not
 		local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
 		local y = math.sin(a2 - a1) * math.cos(o2)
 		return math.deg(math.atan2(y, x))
@@ -72,7 +72,7 @@ local function calcTrig(gps1, gps2, deg)
 		local x = (gps2.lon - gps1.lon) * math.cos(math.rad(gps1.lat))
 		return math.deg(1.5708 - math.atan2(gps2.lat - gps1.lat, x))
 	else
-		--[[ Spherical-Earth math: More accurate but only at extreme distances
+		--[[ Spherical-Earth math: More accurate if the Earth was a sphere but again, it's not so who cares?
 		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009
 		]]
 		-- Flat-Earth math

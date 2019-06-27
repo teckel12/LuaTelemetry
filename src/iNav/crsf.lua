@@ -53,7 +53,7 @@ local function crsf(data)
 	data.heading = (math.deg(tmp) + 360) % 360
 	-- Flight path vector
 	if data.fpv_id > -1 then
-		data.fpv = (getValue(data.fpv_id) < 0 and getValue(data.fpv_id) + 65.54 or getValue(data.fpv_id)) * 10
+		data.fpv = ((getValue(data.fpv_id) < 0 and getValue(data.fpv_id) + 65.54 or getValue(data.fpv_id)) * 10 + 360) % 360
 	end
 	data.fuelRaw = data.fuel
 	if data.showFuel and config[23].v == 0 then
@@ -68,7 +68,8 @@ local function crsf(data)
 	end
 	data.fm = getValue(data.fm_id)
 	data.modePrev = data.mode
-	data.satellites = data.satellites + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100)
+	--Fake HDOP based on satellite lock count and assume GPS fix when there's at least 6 satellites
+	data.satellites = data.satellites + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100) + (data.satellites >= 6 and 1000 or 0)
 
 	-- In Betaflight 4.0+, flight mode ends with '*' when not armed
 	local bfArmed = true
@@ -115,8 +116,8 @@ local function crsf(data)
 		-- Arming disabled
 		data.mode = 2
 	else
-		-- Not in a waiting or error state so it must have a satellite lock and home position set
-		data.satellites = data.satellites + 3000
+		-- Not in a waiting or error state so it must have a GPS home fix
+		data.satellites = data.satellites + 2000
 		-- Home reset, use last mode
 		if data.fm == "HRST" then
 			data.satellites = data.satellites + 4000
