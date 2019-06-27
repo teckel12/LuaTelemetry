@@ -319,13 +319,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		-- Flight path vector
 		if data.crsf and data.fpv_id > -1 and data.speed > 8 and abs(data.fpv - data.heading) < 58 then
-			local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
-			color(CUSTOM_COLOR, rgb(0, 255, 0))
-			fill(fpv - 3, Y_CNTR - 3, 7, 7, SOLID + CUSTOM_COLOR)
-			line(fpv - 9, Y_CNTR, fpv + 9, Y_CNTR, SOLID, CUSTOM_COLOR)
-			line(fpv, Y_CNTR - 6, fpv, Y_CNTR, SOLID, CUSTOM_COLOR)
-			color(CUSTOM_COLOR, DKGREY)
-			fill(fpv - 2, Y_CNTR - 2, 5, 5, SOLID + CUSTOM_COLOR)
+			local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 10.5)
+			bmap(icons.fpv, fpv, Y_CNTR - 6)
 		end
 	end
 
