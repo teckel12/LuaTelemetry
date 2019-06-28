@@ -318,9 +318,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		-- Flight path vector
-		if data.crsf and data.fpv_id > -1 and data.speed > 8 and abs(data.fpv - data.heading) < 58 then
-			local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 10.5)
-			bmap(icons.fpv, fpv, Y_CNTR - 6)
+		if data.crsf and data.fpv_id > -1 and data.speed >= 8 then
+			tmp = (data.fpv - data.heading + 360) % 360
+			if tmp >= 302 or tmp <= 57 then
+				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 10.5)
+				bmap(icons.fpv, fpv, Y_CNTR - 16)
+			end
 		end
 	end
 
