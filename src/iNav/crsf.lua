@@ -145,7 +145,7 @@ local function crsf(data)
 		elseif data.fm == "WP" then
 			data.mode = 2015
 		elseif data.fm == "RTH" then
-			data.mode = 1715
+			data.mode = 1615
 		elseif data.fm == "!FS!" then
 			data.mode = 40004
 		end
