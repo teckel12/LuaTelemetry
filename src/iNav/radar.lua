@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
@@ -78,7 +78,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			if SMLCD and not data.armed then
 				d = math.min(d, 18)
 			end
-			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - tmp
 			local rad1 = math.rad(bearing)
 			cx = math.floor(math.sin(rad1) * d + 0.5)
 			cy = math.floor(math.cos(rad1) * d + 0.5)

@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local SKY = 982 --rgb(0, 121, 180)
 	local GROUND = 25121 --rgb(98, 68, 8)
@@ -311,7 +311,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Home direction
 	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 then
 		if data.distanceLast >= data.distRef then
-			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) + 540 % 360
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
 			local home = floor(((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 			if home >= 3 and home <= RIGHT_POS - 6 then
 				bmap(icons.home, home - 3, BOTTOM - 26)
@@ -400,7 +400,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			-- Craft location
 			tmp2 = config[31].v == 1 and 50 or 100
 			d = data.distanceLast >= data.distRef and min(max((data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * tmp2, 7), tmp2) or 1
-			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - tmp
 			local rad1 = rad(bearing)
 			cx = floor(sin(rad1) * d + 0.5)
 			cy = floor(cos(rad1) * d + 0.5)

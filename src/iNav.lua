@@ -55,34 +55,15 @@ local function playAudio(f, a)
 	end
 end
 
-local function calcTrig(gps1, gps2, deg)
-	--[[ Used only if the Earth was spherical, which it clearly isn't
-	local o1 = math.rad(gps1.lat)
-	local a1 = math.rad(gps1.lon)
-	local o2 = math.rad(gps2.lat)
-	local a2 = math.rad(gps2.lon)
+local function calcBearing(gps1, gps2)
+	--[[ Spherical-Earth math: More accurate if the Earth was a sphere, but obviously it's not
+	local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+	local y = math.sin(a2 - a1) * math.cos(o2)
+	return math.deg(math.atan2(y, x))
 	]]
-	if deg then
-		--[[ Spherical-Earth math: More accurate if the Earth was a sphere, but you know it's not
-		local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-		local y = math.sin(a2 - a1) * math.cos(o2)
-		return math.deg(math.atan2(y, x))
-		]]
-		-- Flat-Earth math
-		local x = (gps2.lon - gps1.lon) * math.cos(math.rad(gps1.lat))
-		return math.deg(1.5708 - math.atan2(gps2.lat - gps1.lat, x))
-	else
-		--[[ Spherical-Earth math: More accurate if the Earth was a sphere but again, it's not so who cares?
-		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009
-		]]
-		-- Flat-Earth math
-		local rad = math.rad
-		local o1 = rad(gps1.lat)
-		local o2 = rad(gps2.lat)
-		local x = (rad(gps2.lon) - rad(gps1.lon)) * math.cos((o1 + o2) / 2)
-		local y = o2 - o1
-		return math.sqrt(x * x + y * y) * 6371009
-	end
+	-- Flat-Earth math
+	local x = (gps2.lon - gps1.lon) * math.cos(math.rad(gps1.lat))
+	return math.deg(1.5708 - math.atan2(gps2.lat - gps1.lat, x))
 end
 
 local function calcDir(r1, r2, r3, x, y, r)
@@ -164,7 +145,16 @@ local function background()
 				data.lastLock = gpsTemp
 				-- Calculate distance to home if sensor is missing or in simlulator
 				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
-					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
+					--[[ Spherical-Earth math: More accurate if the Earth was a sphere but again, it's not so who cares?
+					math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009
+					]]
+					-- Flat-Earth math
+					local rad = math.rad
+					local o1 = rad(data.gpsHome.lat)
+					local o2 = rad(data.gpsLatLon.lat)
+					local x = (rad(data.gpsLatLon.lon) - rad(data.gpsHome.lon)) * math.cos((o1 + o2) / 2)
+					local y = o2 - o1
+					data.distance = math.sqrt(x * x + y * y) * 6371009
 					data.distanceMax = math.max(data.distMaxCalc, data.distance)
 					data.distMaxCalc = data.distanceMax
 					-- If distance is in feet, convert
@@ -519,7 +509,7 @@ local function run(event)
 			view = loadScript(FILE_PATH .. (HORUS and "horus" or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))), env)()
 			data.v = config[25].v
 		end
-		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 
