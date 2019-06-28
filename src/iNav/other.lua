@@ -61,4 +61,29 @@ end
 -- Use timer3 for flight reset detection
 model.setTimer(2, { mode = 0, start = 0, value = 3600, countdownBeep = 0, minuteBeep = false, persistent = 0} )
 
-return crsf
+-- Calculate distance to home if sensor is missing or in simlulator
+local distCalc = nil
+if data.dist_id == -1 or data.simu then
+	function distCalc(data)
+		local rad = math.rad
+		local o1 = rad(data.gpsHome.lat)
+		local o2 = rad(data.gpsLatLon.lat)
+		--[[ Spherical-Earth math: More accurate if the Earth was a sphere, but it's not so who cares?
+		data.distance = math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(rad(data.gpsLatLon.lon) - rad(data.gpsHome.lon))) * 6371009
+		]]
+		-- Flat-Earth math
+		local x = (rad(data.gpsLatLon.lon) - rad(data.gpsHome.lon)) * math.cos((o1 + o2) / 2)
+		local y = o2 - o1
+		data.distance = math.sqrt(x * x + y * y) * 6371009
+		data.distanceMax = math.max(data.distMaxCalc, data.distance)
+		data.distMaxCalc = data.distanceMax
+		-- If distance is in feet, convert
+		if data.dist_unit == 10 then
+			data.distance = math.floor(data.distance * 3.28084 + 0.5)
+			data.distanceMax = data.distanceMax * 3.28084
+		end
+		return 0
+	end
+end
+
+return crsf, distCalc
