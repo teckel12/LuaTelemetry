@@ -1,8 +1,6 @@
 local config, data, getTelemetryId = ...
 
 data.crsf = true
---data.rssi_id = getTelemetryId("RQly")
---data.rssiMin_id = getTelemetryId("RQly-")
 data.rfmd_id = getTelemetryId("RFMD")
 data.sat_id = getTelemetryId("Sats")
 data.fuel_id = getTelemetryId("Capa")
@@ -24,8 +22,6 @@ config[23].x = 1
 -- Testing Crossfire
 --[[
 if data.simu then
-	--data.rssi_id = getTelemetryId("RSSI")
-	--data.rssiMin_id = getTelemetryId("RSSI-")
 	data.sat_id = getTelemetryId("Tmp2")
 	data.fuel_id = getTelemetryId("Fuel")
 	data.batt_id = getTelemetryId("VFAS")

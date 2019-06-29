@@ -43,6 +43,8 @@ if data.lang ~= "en" or data.voice ~= "en" then
 end
 
 loadScript(FILE_PATH .. "reset", env)(data)
+collectgarbage()
+
 local crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env)
 collectgarbage()
 
@@ -77,12 +79,10 @@ local function calcDir(r1, r2, r3, x, y, r)
 end
 
 local function background()
-	--data.rssi = getValue(data.rssi_id)
 	data.rssi, data.rssiLow, data.rssiCrit = getRSSI()
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
-		--data.rssiMin = getValue(data.rssiMin_id) > 0 and getValue(data.rssiMin_id) or data.rssiMin
 		data.rssiMin = math.min(data.rssiMin, data.rssi)
 		data.satellites = getValue(data.sat_id)
 		if data.showFuel then
