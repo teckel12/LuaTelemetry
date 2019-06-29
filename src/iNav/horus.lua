@@ -60,7 +60,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			local xd = sin(roll1) * r
 			local yd = cos(roll1) * r
 			local x1, y1, x2, y2 = x - xd, y + yd, x + xd, y - yd
-			if (y1 > top2 or y2 > top2) and (y1 < bot2 or y2 < bot2) and y1 >= 0 and y2 >= 0 then
+			if (y1 > top2 or y2 > top2) and (y1 < bot2 or y2 < bot2) and x1 >= 0 and x2 >= 0 then
 				color(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
 				line(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
 				if r == 20 and y1 > top2 and y1 < bot2 then
@@ -244,10 +244,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		if not data.showMax then
-			--[[ Adds a shadow to the pitch
-			color(CUSTOM_COLOR, BLACK)
-			text(X_CNTR - 64, Y_CNTR - 8, fmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT + CUSTOM_COLOR)
-			]]
 			text(X_CNTR - 65, Y_CNTR - 9, fmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
 		end
 	end
@@ -318,11 +314,18 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		-- Flight path vector
-		if data.crsf and data.fpv_id > -1 and data.speed >= 8 then
+		if data.crsf and data.fpv_id > -1 and config[15].v == 1 and data.speed >= 8 then
 			tmp = (data.fpv - data.heading + 360) % 360
 			if tmp >= 302 or tmp <= 57 then
-				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 10.5)
-				bmap(icons.fpv, fpv, Y_CNTR - 16)
+				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 0.5)
+				local r = fpv - X_CNTR -- Adjust from center
+				local adj = pitch - 90 -- Pitch degrees, change to climb/descend vector
+				local p = sin(rad(adj)) * 170
+				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
+				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 6
+				if y > top2 and y < bot2 and x >= 0 then
+					bmap(icons.fpv, x, y)
+				end
 			end
 		end
 	end

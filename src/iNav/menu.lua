@@ -24,8 +24,8 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Altitude Alert",   l = {[0] = "Off", "On"} }, -- 12
 		{ t = "Timer",            l = {[0] = "Off", "Auto", "Timer1", "Timer2"} }, -- 13
 		{ t = "Rx Voltage",       l = {[0] = "Off", "On"} }, -- 14
-		{ t = "GPS",              i = 0, l = {[0] = data.lastLock} }, -- 15
-		{ t = "GPS Coordinates",  l = {[0] = "Decimal", "Deg/Min"} }, -- 16
+		{ t = "Flight Vector",    l = {[0] = "Off", "On"} }, -- 15
+		{ t = "GPS",              l = {[0] = string.format("%10.6f %11.6f", data.lastLock.lat, data.lastLock.lon), gpsDegMin(data.lastLock.lat, true) .. "  " .. gpsDegMin(data.lastLock.lon, false)} }, -- 16
 		{ t = "Fuel Critical",    m = 1, a = "%" }, -- 17
 		{ t = "Fuel Low",         m = 2, a = "%" }, -- 18
 		{ t = "Tx Voltage",       l = {[0] = "Number", "Graph", "Both"} }, -- 19
@@ -93,6 +93,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	-- Disabled options
 	config2[7].p = data.crsf and 1 or (data.vspeed_id == -1 and 1 or nil)
+	config2[15].p = not data.crsf and 1 or (not HORUS and 1 or nil)
 	config2[20].p = not data.pitot and 1 or nil
 	config2[22].p = data.crsf and 1 or (HORUS and 1 or nil)
 	config2[23].p = not data.showFuel and 1 or nil
@@ -149,11 +150,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 				if not config2[z].l then
 					lcd.drawText(CONFIG_X + RSIDE, y, config[z].v, FONT + tmp)
 				else
-					if z == 15 then
-						lcd.drawText(CONFIG_X + GPS, y, config[16].v == 0 and string.format("%10.6f %11.6f", config2[z].l[config[z].v].lat, config2[z].l[config[z].v].lon) or " " .. gpsDegMin(config2[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config2[z].l[config[z].v].lon, false), FONT + tmp)
-					else
-						lcd.drawText(CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp)
-					end
+					lcd.drawText(z == 16 and LCD_W - CONFIG_X or CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp + (z == 16 and RIGHT or 0))
 				end
 			end
 		else
