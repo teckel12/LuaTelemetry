@@ -76,7 +76,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		lcd.drawText(72, TOP, data.satellites % 100, FONT + RIGHT)
 		if not data.crsf then
 			lcd.drawText(4, TOP + LINE, "DOP:", FONT)
-			lcd.drawText(72, TOP + LINE, (9 - data.hdop) / 2 + 0.8, FONT + RIGHT)
+			lcd.drawText(72, TOP + LINE, (data.hdop == 0 and not data.gpsFix) and "---" or (9 - data.hdop) / 2 + 0.8, FONT + RIGHT)
 		end
 	end
 	if not SMLCD then
