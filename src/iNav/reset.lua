@@ -25,7 +25,7 @@ data.speedMax = 0
 data.currentMax = 0
 data.battMin = 0
 data.cellMin = 0
-data.rssiMin = 0
+data.rssiMin = 100
 
 data.altMin = 0
 data.altMax = data.alt_unit == 10 and 50 or 30

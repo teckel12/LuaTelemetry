@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_POS = SMLCD and 0 or 36
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
@@ -71,7 +71,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Orientation
-	if data.telem and data.headingRef >= 0 and data.startup == 0 then
+	if data.telem and data.headingRef ~= -1 and data.startup == 0 then
 		local x = LEFT_POS + 13.5
 		local r1 = math.rad(data.heading - data.headingRef)
 		local r2 = math.rad(data.heading - data.headingRef + 145)
@@ -116,7 +116,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 and ((SMLCD and not data.showDir) or not SMLCD) then
 		local home = X_CNTR - 3
 		if data.distanceLast >= data.distRef then
-			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) + 540 % 360
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
 			home = math.floor(LEFT_POS + ((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 		end
 		if home >= LEFT_POS - (SMLCD and 0 or 7) and home <= RIGHT_POS - 1 then
@@ -156,11 +156,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawText(LEFT_POS + 12, 42, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
 		tmp = (not data.telem or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 		if data.showFuel then
-			if config[23].v == 0 then
+			if config[23].v > 0 or (data.crsf and data.showMax) then
+				lcd.drawText(RIGHT_POS - 2, 9, (data.crsf and data.fuelRaw or data.fuel), SMLSIZE + RIGHT + tmp)
+			else
 				lcd.drawText(RIGHT_POS - 7, 8, data.fuel, MIDSIZE + RIGHT + tmp)
 				lcd.drawText(RIGHT_POS - 2, 13, "%", SMLSIZE + RIGHT + tmp)
-			else
-				lcd.drawText(RIGHT_POS - 2, 9, data.fuel, SMLSIZE + RIGHT + tmp)
 			end
 		end
 		lcd.drawText(RIGHT_POS - 7, 19, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
@@ -297,12 +297,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawFilledRectangle(LEFT_POS - 7, 49, 7, 14, ERASE)
 		tmp = (not data.telem or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 		if data.showFuel then
-			if config[23].v == 0 then
+			if config[23].v > 0 or (data.crsf and data.showMax) then
+				lcd.drawText(LEFT_POS, data.showCurr and 8 or 10, (data.crsf and data.fuelRaw or data.fuel), MIDSIZE + RIGHT + tmp)
+				lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, data.fUnit[data.crsf and 1 or config[23].v], SMLSIZE + RIGHT + tmp)
+			else
 				lcd.drawText(LEFT_POS - 5, data.showCurr and 8 or 12, data.fuel, DBLSIZE + RIGHT + tmp)
 				lcd.drawText(LEFT_POS, data.showCurr and 17 or 21, "%", SMLSIZE + RIGHT + tmp)
-			else
-				lcd.drawText(LEFT_POS, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
-				lcd.drawText(LEFT_POS, data.showCurr and 20 or 23, data.fUnit[config[23].v], SMLSIZE + RIGHT + tmp)
 			end
 		end
 		lcd.drawText(LEFT_POS - 5, data.showCurr and 25 or 32, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), DBLSIZE + RIGHT + tmp)

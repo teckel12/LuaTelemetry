@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
@@ -54,7 +54,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		else
 			lcd.drawText(LEFT_POS + 2, 17, "Ptch", SMLSIZE)
 		end
-	elseif data.showDir or data.headingRef < 0 then
+	elseif data.showDir or data.headingRef == -1 then
 		-- Heading
 		lcd.drawText(X_CNTR + 14 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
@@ -66,7 +66,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Radar
 	if data.startup == 0 then
 		tmp = data.headingRef
-		if data.showDir or data.headingRef < 0 then
+		if data.showDir or data.headingRef == -1 then
 			lcd.drawText(LEFT_POS + 2, 33, "W", SMLSIZE)
 			lcd.drawText(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
 			tmp = 0
@@ -78,7 +78,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			if SMLCD and not data.armed then
 				d = math.min(d, 18)
 			end
-			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - tmp
 			local rad1 = math.rad(bearing)
 			cx = math.floor(math.sin(rad1) * d + 0.5)
 			cy = math.floor(math.cos(rad1) * d + 0.5)
@@ -163,12 +163,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	lcd.drawLine(LEFT_DIV, 8, LEFT_DIV, 63, SOLID, FORCE)
 	tmp = (not data.telem or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 	if data.showFuel then
-		if config[23].v == 0 then
+		if config[23].v > 0 or (data.crsf and data.showMax) then
+			lcd.drawText(LEFT_DIV, data.showCurr and 8 or 10, (data.crsf and data.fuelRaw or data.fuel), MIDSIZE + RIGHT + tmp)
+			lcd.drawText(LEFT_DIV, data.showCurr and 20 or 23, data.fUnit[data.crsf and 1 or config[23].v], SMLSIZE + RIGHT + tmp)
+		else
 			lcd.drawText(LEFT_DIV - 5, data.showCurr and 8 or 12, data.fuel, DBLSIZE + RIGHT + tmp)
 			lcd.drawText(LEFT_DIV, data.showCurr and 17 or 21, "%", SMLSIZE + RIGHT + tmp)
-		else
-			lcd.drawText(LEFT_DIV, data.showCurr and 8 or 10, data.fuel, MIDSIZE + RIGHT + tmp)
-			lcd.drawText(LEFT_DIV, data.showCurr and 20 or 23, data.fUnit[config[23].v], SMLSIZE + RIGHT + tmp)
 		end
 	end
 	lcd.drawText(LEFT_DIV - 5, data.showCurr and 25 or 32, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), DBLSIZE + RIGHT + tmp)

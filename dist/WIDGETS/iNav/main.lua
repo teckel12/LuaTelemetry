@@ -24,6 +24,7 @@ end
 -- This function allow updates when you change widgets settings
 local function update(iNavZone, options)
 	iNavZone.options = options
+	return
 end
 
 -- Called periodically when custom telemetry screen containing widget is visible.

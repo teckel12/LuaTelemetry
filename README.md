@@ -1,4 +1,4 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper T16 - v1.7.0
+## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper T16 - v1.7.1
 
 ### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis, Horus & Jumper T16 transmitters
 
@@ -35,13 +35,13 @@
 ## Features
 
 * Works with all FrSky telemetry receivers (X, R9 and D series), all TBS Crossfire receivers, all FrSky Taranis and Horus transmitters, and the Jumper T16 transmitter
-* Compatible with Betaflight using FrSky X or R9 series receivers (with reduced functionality) and TBS Crossfire support with Betaflight >3.5.5
+* Compatible with Betaflight using FrSky X or R9 series receivers (with reduced functionality) and TBS Crossfire support with Betaflight 4.0.0+
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with magnetometer sensor on multirotor or fixed-wing with GPS)
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
 * Radar (map) view shows model in relationship to home position, can be displayed either as launch/pilot-based or compass-based orientation
 * Altitude graph view shows altitude for the last 1-6 minutes
-* Horus and Jumper T16 transmitters show all views at the same time, and include additional features like roll indicator and uncaged pitch ladder
+* Horus and Jumper T16 transmitters show all views at the same time, and include additional features like roll scale
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
@@ -55,7 +55,7 @@
 
 ## Requirements
 
-* [OpenTX v2.2.2+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X-Lite, Horus X10/X10S or X12S (OpenTX v2.2.3+ is suggested)
+* [OpenTX v2.2.2+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X9 Lite, X-Lite/X-Lite Pro, Horus X10/X10S or X12S (OpenTX v2.2.3+ is suggested)
 * Jumper T16 requires [JumperTX 2.2.3+](https://www.jumper.xyz/jumpertx-t16) (May 23, 2019 or after release)
 * FrSky X, R9 or D series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1.0+ is suggested for full functionality) - Also compatible with Betaflight (with reduced functionality)
@@ -90,6 +90,7 @@
 * [Download latest release](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
 * [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
 * [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
+* [Download Options](https://github.com/iNavFlight/LuaTelemetry/wiki/Download-Options)
 
 ## Information & Settings
 

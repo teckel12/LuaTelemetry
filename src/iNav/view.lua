@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local RIGHT_POS = SMLCD and 129 or 195
 	local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -62,7 +62,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.showHead and data.startup == 0 then
 		if data.telem then
 			local indicatorDisplayed = false
-			if data.showDir or data.headingRef < 0 or not SMLCD then
+			if data.showDir or data.headingRef == -1 or not SMLCD then
 				lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE)
 				lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
 				lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
@@ -72,7 +72,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				drawDirection(data.heading, 140, 7, X_CNTR_1, 23)
 				indicatorDisplayed = true
 			end
-			if not data.showDir or data.headingRef >= 0 or not SMLCD then
+			if not data.showDir or data.headingRef ~= -1 or not SMLCD then
 				if not indicatorDisplayed or not SMLCD then
 					drawDirection(data.heading - data.headingRef, 145, 8, SMLCD and 63 or 133, 19)
 				end
@@ -80,7 +80,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		if data.gpsHome ~= false and data.distanceLast >= data.distRef then
 			if not data.showDir or not SMLCD then
-				local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - data.headingRef
+				local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - data.headingRef
 				local rad1 = math.rad(bearing)
 				local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_2
 				local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)
