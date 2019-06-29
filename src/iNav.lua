@@ -11,7 +11,7 @@ local FLASH = HORUS and WARNING_COLOR or 3
 local tmp, view, lang
 local env = "bx"
 
--- Build with Companion
+-- Build with Companion and allow debugging
 local v, r, m, i, e = getVersion()
 if string.sub(r, -4) == "simu" then
 	env = "tx"
@@ -43,7 +43,9 @@ if data.lang ~= "en" or data.voice ~= "en" then
 end
 
 loadScript(FILE_PATH .. "reset", env)(data)
-local crsf = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env)
+collectgarbage()
+
+local crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env)
 collectgarbage()
 
 local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. (HORUS and "func_h" or "func_t"), env)(config, data, FILE_PATH)
@@ -55,24 +57,15 @@ local function playAudio(f, a)
 	end
 end
 
-local function calcTrig(gps1, gps2, deg)
-	local o1 = math.rad(gps1.lat)
-	local a1 = math.rad(gps1.lon)
-	local o2 = math.rad(gps2.lat)
-	local a2 = math.rad(gps2.lon)
-	if deg then
-		local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
-		local y = math.sin(a2 - a1) * math.cos(o2)
-		return math.deg(math.atan2(y, x))
-	else
-		--[[ Spherical-Earth math: More accurate but only at extreme distances
-		return math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(a2 - a1)) * 6371009;
-		]]
-		-- Flat-Earth math
-		local x = (a2 - a1) * math.cos((o1 + o2) / 2)
-		local y = o2 - o1
-		return math.sqrt(x * x + y * y) * 6371009
-	end
+local function calcBearing(gps1, gps2)
+	--[[ Spherical-Earth math: More accurate if the Earth was a sphere, but obviously it's not
+	local x = (math.cos(o1) * math.sin(o2)) - (math.sin(o1) * math.cos(o2) * math.cos(a2 - a1))
+	local y = math.sin(a2 - a1) * math.cos(o2)
+	return math.deg(math.atan2(y, x))
+	]]
+	-- Flat-Earth math
+	local x = (gps2.lon - gps1.lon) * math.cos(math.rad(gps1.lat))
+	return math.deg(1.5708 - math.atan2(gps2.lat - gps1.lat, x))
 end
 
 local function calcDir(r1, r2, r3, x, y, r)
@@ -86,11 +79,11 @@ local function calcDir(r1, r2, r3, x, y, r)
 end
 
 local function background()
-	data.rssi = getValue(data.rssi_id)
+	data.rssi, data.rssiLow, data.rssiCrit = getRSSI()
 	if data.rssi > 0 then
 		data.telem = true
 		data.telemFlags = 0
-		data.rssiMin = getValue(data.rssiMin_id) > 0 and getValue(data.rssiMin_id) or data.rssiMin
+		data.rssiMin = math.min(data.rssiMin, data.rssi)
 		data.satellites = getValue(data.sat_id)
 		if data.showFuel then
 			data.fuel = getValue(data.fuel_id)
@@ -150,16 +143,8 @@ local function background()
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
 				data.lastLock = gpsTemp
-				-- Calculate distance to home if sensor is missing or in simlulator
-				if data.gpsHome ~= false and (data.dist_id == -1 or data.simu) then
-					data.distance = calcTrig(data.gpsHome, data.gpsLatLon, false)
-					data.distanceMax = math.max(data.distMaxCalc, data.distance)
-					data.distMaxCalc = data.distanceMax
-					-- If distance is in feet, convert
-					if data.dist_unit == 10 then
-						data.distance = math.floor(data.distance * 3.28084 + 0.5)
-						data.distanceMax = data.distanceMax * 3.28084
-					end
+				if data.gpsHome ~= false and distCalc ~= nil then
+					distCalc(data)
 				end
 			end
 		end
@@ -507,7 +492,7 @@ local function run(event)
 			view = loadScript(FILE_PATH .. (HORUS and "horus" or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))), env)()
 			data.v = config[25].v
 		end
-		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 	end
 	collectgarbage()
 

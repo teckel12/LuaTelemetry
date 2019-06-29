@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local SKY = 982 --rgb(0, 121, 180)
 	local GROUND = 25121 --rgb(98, 68, 8)
@@ -311,21 +311,19 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Home direction
 	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 then
 		if data.distanceLast >= data.distRef then
-			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) + 540 % 360
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
 			local home = floor(((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
 			if home >= 3 and home <= RIGHT_POS - 6 then
 				bmap(icons.home, home - 3, BOTTOM - 26)
 			end
 		end
 		-- Flight path vector
-		if data.crsf and data.fpv_id > -1 and data.speed > 8 and abs(data.fpv - data.heading) < 58 then
-			local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
-			color(CUSTOM_COLOR, rgb(0, 255, 0))
-			fill(fpv - 3, Y_CNTR - 3, 7, 7, SOLID + CUSTOM_COLOR)
-			line(fpv - 9, Y_CNTR, fpv + 9, Y_CNTR, SOLID, CUSTOM_COLOR)
-			line(fpv, Y_CNTR - 6, fpv, Y_CNTR, SOLID, CUSTOM_COLOR)
-			color(CUSTOM_COLOR, DKGREY)
-			fill(fpv - 2, Y_CNTR - 2, 5, 5, SOLID + CUSTOM_COLOR)
+		if data.crsf and data.fpv_id > -1 and data.speed >= 8 then
+			tmp = (data.fpv - data.heading + 360) % 360
+			if tmp >= 302 or tmp <= 57 then
+				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 10.5)
+				bmap(icons.fpv, fpv, Y_CNTR - 16)
+			end
 		end
 	end
 
@@ -352,7 +350,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Calc orientation
 	tmp = data.headingRef
-	if data.showDir or data.headingRef < 0 then
+	if data.showDir or data.headingRef == -1 then
 		tmp = 0
 	end
 	local r1 = rad(data.heading - tmp)
@@ -365,7 +363,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
 	if data.startup == 0 then
 		-- Launch/north-based orientation
-		if data.showDir or data.headingRef < 0 then
+		if data.showDir or data.headingRef == -1 then
 			text(LEFT_POS + 2, Y_CNTR - 9, "W", SMLSIZE)
 			text(RIGHT_POS, Y_CNTR - 9, "E", SMLSIZE + RIGHT)
 		end
@@ -402,7 +400,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			-- Craft location
 			tmp2 = config[31].v == 1 and 50 or 100
 			d = data.distanceLast >= data.distRef and min(max((data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * tmp2, 7), tmp2) or 1
-			local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - tmp
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - tmp
 			local rad1 = rad(bearing)
 			cx = floor(sin(rad1) * d + 0.5)
 			cy = floor(cos(rad1) * d + 0.5)
@@ -459,29 +457,41 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			text(X1, TOP + 1, (data.crsf and data.fuelRaw or data.fuel) .. data.fUnit[data.crsf and 1 or config[23].v], MIDSIZE + RIGHT + tmp)
 		else
 			text(X1 - 3, TOP, data.fuel .. "%", MIDSIZE + RIGHT + tmp)
-			local red = data.fuel >= config[18].v and max(floor((100 - data.fuel) / (100 - config[18].v) * 255), 0) or 255
-			local green = data.fuel < config[18].v and max(floor((data.fuel - config[17].v) / (config[18].v - config[17].v) * 255), 0) or 255
-			color(CUSTOM_COLOR, rgb(red, green, 60))
+			if data.fl ~= data.fuel then
+				local red = data.fuel >= config[18].v and max(floor((100 - data.fuel) / (100 - config[18].v) * 255), 0) or 255
+				local green = data.fuel < config[18].v and max(floor((data.fuel - config[17].v) / (config[18].v - config[17].v) * 255), 0) or 255
+				data.fc = rgb(red, green, 60)
+				data.fl = data.fuel
+			end
+			color(CUSTOM_COLOR, data.fc)
 			lcd.drawGauge(0, TOP + 26, X1 - 3, 15, min(data.fuel, 99), 100, CUSTOM_COLOR)
 		end
 		text(0, TOP + ((config[23].v > 0 or (data.crsf and data.showMax)) and 23 or 9), labels[1], SMLSIZE)
 	end
 
-	local val = data.showMax and data.cellMin or data.cell
+	local val = math.floor((data.showMax and data.cellMin or data.cell) * 100 + 0.5) / 100
 	text(X1 - 3, TOP + 42, fmt(config[1].v == 0 and "%.2fV" or "%.1fV", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
 	text(0, TOP + 51, labels[2], SMLSIZE)
-	local red = val >= config[2].v and max(floor((4.2 - val) / (4.2 - config[2].v) * 255), 0) or 255
-	local green = val < config[2].v and max(floor((val - config[3].v) / (config[2].v - config[3].v) * 255), 0) or 255
-	color(CUSTOM_COLOR, rgb(red, green, 60))
+	if data.bl ~= val then
+		local red = val >= config[2].v and max(floor((4.2 - val) / (4.2 - config[2].v) * 255), 0) or 255
+		local green = val < config[2].v and max(floor((val - config[3].v) / (config[2].v - config[3].v) * 255), 0) or 255
+		data.bc = rgb(red, green, 60)
+		data.bl = val
+	end
+	color(CUSTOM_COLOR, data.bc)
 	lcd.drawGauge(0, TOP + 68, X1 - 3, 15, min(max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 99), 100, CUSTOM_COLOR)
 
 	tmp = (not data.telem or data.rssi < data.rssiLow) and FLASH or 0
 	val = data.showMax and data.rssiMin or data.rssiLast
 	text(X1 - 3, TOP + 84, val .. (data.crsf and "%" or "dB"), MIDSIZE + RIGHT + tmp)
 	text(0, TOP + 93, data.crsf and "LQ" or "RSSI", SMLSIZE)
-	local red = val >= data.rssiLow and max(floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
-	local green = val < data.rssiLow and max(floor((val - data.rssiCrit) / (data.rssiLow - data.rssiCrit) * 255), 0) or 255
-	color(CUSTOM_COLOR, rgb(red, green, 60))
+	if data.rl ~= val then
+		local red = val >= data.rssiLow and max(floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
+		local green = val < data.rssiLow and max(floor((val - data.rssiCrit) / (data.rssiLow - data.rssiCrit) * 255), 0) or 255
+		data.rc = rgb(red, green, 60)
+		data.rl = val
+	end
+	color(CUSTOM_COLOR, data.rc)
 	lcd.drawGauge(0, TOP + 110, X1 - 3, 15, min(val, 99), 100, CUSTOM_COLOR)
 
 	-- Box 2 (altitude, distance, current)
@@ -508,7 +518,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	if data.showHead then
-		if data.showDir or data.headingRef < 0 then
+		if data.showDir or data.headingRef == -1 then
 			text((X2 + X3) / 2, TOP + 18, "N", SMLSIZE)
 			text(X3 - 4, 211, "E", SMLSIZE + RIGHT)
 			text(X2 + 10, 211, "W", SMLSIZE)

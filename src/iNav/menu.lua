@@ -3,7 +3,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	local CONFIG_X = HORUS and 90 or (SMLCD and 0 or 46)
 	local TOP = HORUS and 37 or 11
 	local LINE = HORUS and 22 or 9
-	local RIGHT = HORUS and 200 or 83
+	local RSIDE = HORUS and 200 or 83
 	local GPS = HORUS and 45 or 21
 	local ROWS = HORUS and 9 or 5
 	local FONT = HORUS and 0 or SMLSIZE
@@ -70,6 +70,14 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		lcd.setColor(CUSTOM_COLOR, GREY)
 		lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, 12678) -- Dark grey
+		lcd.drawFilledRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
+		lcd.drawRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
+		lcd.drawText(4, TOP, "Sats:", FONT)
+		lcd.drawText(72, TOP, data.satellites % 100, FONT + RIGHT)
+		if not data.crsf then
+			lcd.drawText(4, TOP + LINE, "DOP:", FONT)
+			lcd.drawText(72, TOP + LINE, (9 - data.hdop) / 2 + 0.8, FONT + RIGHT)
+		end
 	end
 	if not SMLCD then
 		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 3), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 6), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)
@@ -136,20 +144,20 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		lcd.drawText(CONFIG_X, y, config2[z].t, FONT + (config2[z].p == 1 and tmp or 0))
 		if config2[z].p == nil then
 			if config2[z].l == nil then
-				lcd.drawText(CONFIG_X + RIGHT, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
+				lcd.drawText(CONFIG_X + RSIDE, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
 			else
 				if not config2[z].l then
-					lcd.drawText(CONFIG_X + RIGHT, y, config[z].v, FONT + tmp)
+					lcd.drawText(CONFIG_X + RSIDE, y, config[z].v, FONT + tmp)
 				else
 					if z == 15 then
 						lcd.drawText(CONFIG_X + GPS, y, config[16].v == 0 and string.format("%10.6f %11.6f", config2[z].l[config[z].v].lat, config2[z].l[config[z].v].lon) or " " .. gpsDegMin(config2[z].l[config[z].v].lat, true) .. "  " .. gpsDegMin(config2[z].l[config[z].v].lon, false), FONT + tmp)
 					else
-						lcd.drawText(CONFIG_X + RIGHT, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp)
+						lcd.drawText(CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp)
 					end
 				end
 			end
 		else
-			lcd.drawText(CONFIG_X + RIGHT, y, "--", FONT + tmp)
+			lcd.drawText(CONFIG_X + RSIDE, y, "--", FONT + tmp)
 		end
 	end
 
