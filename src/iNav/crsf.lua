@@ -35,9 +35,7 @@ end
 ]]
 
 local function crsf(data)
-	if data.rssi == 99 then
-		data.rssi = data.rssi + 1
-	end
+	if data.rssi == 99 then data.rssi = 100 end
 	data.tpwr = getValue(data.tpwr_id)
 	data.pitch = math.deg(getValue(data.pitch_id)) * 10
 	data.roll = math.deg(getValue(data.roll_id)) * 10

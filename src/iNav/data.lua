@@ -10,7 +10,6 @@ local function getTelemetryUnit(n)
 	return (field and field.unit <= 10) and field.unit or 0
 end
 
-local rssi, low, crit = getRSSI()
 local tx = string.sub(r, 0, 2)
 if string.sub(r, 0, 3) == "x9e" or HORUS then
 	tx = "x7"
@@ -25,8 +24,6 @@ local MENU = tx == "xl" and EVT_SHIFT_BREAK or (HORUS and EVT_SYS_FIRST or EVT_M
 local general = getGeneralSettings()
 local distSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
-	rssiLow = low,
-	rssiCrit = crit,
 	txBattMin = general.battMin,
 	txBattMax = general.battMax,
 	lang = string.lower(general.language),

@@ -3,7 +3,7 @@
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 local buildMode = ...
-local VERSION = "1.7.1"
+local VERSION = "1.7.2"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
@@ -399,6 +399,7 @@ local function background()
 		end
 		data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
 	end
+	data.bkgd = true
 end
 
 local function run(event)
@@ -406,10 +407,11 @@ local function run(event)
 	data.start = getTime()
 	]]
 
-	-- Run background function manually on Horus
-	if HORUS and data.startup == 0 then
+	-- Insure background() has run before rendering screen
+	if not data.bkgd then
 		background()
 	end
+	data.bkgd = false
 
 	-- Startup message
 	if data.startup == 1 then
