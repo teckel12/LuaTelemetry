@@ -43,11 +43,15 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Center Map Home",  l = {[0] = "Off", "On"} }, -- 31
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} }, -- 32
 		{ t = "Roll Scale",       l = {[0] = "Off", "On"} }, -- 33
+		{ t = "Review Logs" }, -- 34
 	}
 
+	-- Import language changes
 	if lang ~= nil then
 		lang(config2)
 	end
+
+	config2[34].l = config[34].l
 
 	local function saveConfig()
 		local fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
@@ -133,6 +137,9 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		config2[9].p = 1
 		config2[10].p = 1
 		config2[26].p = 1
+	end
+	if config[34].x == -1 then
+		config2[34].p = 1
 	end
 
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
