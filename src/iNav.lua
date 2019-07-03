@@ -158,15 +158,24 @@ local function background()
 	data.txBatt = getValue(data.txBatt_id)
 	data.throttle = getValue(data.thr_id)
 
+	-- For testing
+	--data.doLogs = true
+	--config[34].l[config[34].v] = "Test16"
+	--config[34].l[config[34].v] = "2019-06-28"
+	--config[34].l[config[34].v] = "2019-05-31"
+
 	if data.doLogs then
-		if not data.armed then
+		if bit32.band(data.mode % 10, 4) ~= 4 then -- Checking if it's really armed
 			if playLog == nil then
-				playLog = loadScript(FILE_PATH .. "playlog", env)(data, date)
+				loadScript(FILE_PATH .. "reset", env)(data)
+				data.doLogs = true
+				playLog = loadScript(FILE_PATH .. "playlog", env)(data, config, date)
 			end
-			playLog(data, config[34].l[config[34].v])
+			playLog(data, config, config[34].l[config[34].v])
 			if not data.doLogs then
 				playLog = nil
 				collectgarbage()
+				loadScript(FILE_PATH .. "reset", env)(data)
 			end
 		else
 			data.doLogs = false
@@ -200,12 +209,12 @@ local function background()
 		else
 			data.modeId = 4 -- Acro
 		end
-		data.headFree = bit32.band(modeB, 4) == 4 and true or false
-		data.headingHold = bit32.band(modeC, 1) == 1 and true or false
+		data.headFree = bit32.band(modeB, 4) == 4
+		data.headingHold = bit32.band(modeC, 1) == 1
 		if bit32.band(modeE, 4) == 4 then
 			data.armed = true
-			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
-			homeReset = data.satellites >= 4000 and true or false
+			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4)
+			homeReset = data.satellites >= 4000
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- Pos hold
 		else
 			preArmMode = data.modeId
@@ -234,7 +243,7 @@ local function background()
 		data.battPercentPlayed = 100
 		data.battLow = false
 		data.showMax = false
-		data.showDir = config[32].v == 1 and true or false
+		data.showDir = config[32].v == 1
 		data.configStatus = 0
 		data.configSelect = 0
 		if not data.gpsAltBase and data.gpsFix then
@@ -489,7 +498,7 @@ local function run(event)
 		end
 	else
 		-- User input
-		if not data.armed and (event == PREV or event == NEXT) then
+		if not data.armed and (event == PREV or event == NEXT) and not data.doLogs then
 			-- Toggle showing max/min values
 			data.showMax = not data.showMax
 		end

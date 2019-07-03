@@ -12,14 +12,14 @@ if data.fm_id > -1 then
 	collectgarbage()
 end
 
-data.showCurr = data.curr_id > -1 and true or false
-data.showFuel = data.fuel_id > -1 and true or false
-data.showHead = data.hdg_id > -1 and true or false
-data.pitot = getTelemetryId("ASpd") > -1 and true or false
+data.showCurr = data.curr_id > -1
+data.showFuel = data.fuel_id > -1
+data.showHead = data.hdg_id > -1
+data.pitot = getTelemetryId("ASpd") > -1
 data.distRef = data.dist_unit == 10 and 20 or 6
 data.alt_unit = data.alt_id == -1 and data.gpsAlt_unit or data.alt_unit
 data.dist_unit = data.dist_unit == 0 and 9 or data.dist_unit
-data.pitchRoll = ((getTelemetryId("0430") > -1 or getTelemetryId("0008") > -1 or getTelemetryId("Ptch") > -1) and (getTelemetryId("0440") > -1 or getTelemetryId("0020") > -1 or getTelemetryId("Roll") > -1)) and true or false
+data.pitchRoll = ((getTelemetryId("0430") > -1 or getTelemetryId("0008") > -1 or getTelemetryId("Ptch") > -1) and (getTelemetryId("0440") > -1 or getTelemetryId("0020") > -1 or getTelemetryId("Roll") > -1))
 if data.pitchRoll then
 	local pitchSensor = getTelemetryId("Ptch") > -1 and "Ptch" or (getTelemetryId("0430") > -1 and "0430" or "0008")
 	local rollSensor = getTelemetryId("Roll") > -1 and "Roll" or (getTelemetryId("0440") > -1 and "0440" or "0020")

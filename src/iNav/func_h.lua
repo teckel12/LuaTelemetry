@@ -33,7 +33,7 @@ local function title(data, config, SMLCD)
 	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
 		text(LCD_W, 0, fmt("%.1fV", data.rxBatt), RIGHT)
 	elseif data.crsf then
-		text(LCD_W, 0, (getValue(data.rfmd_id) == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + (data.telem == false and WARNING_COLOR or 0))
+		text(LCD_W, 0, (data.rfmd == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + (data.telem == false and WARNING_COLOR or 0))
 	end
 
 	--[[ Show FPS

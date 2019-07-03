@@ -1,149 +1,181 @@
-local data, date = ...
+local data, config, date = ...
 local logfh
 local raw = ""
 local label
 
---Date,Time,Tmp1(@C),Tmp2(@C),A4(V),VFAS(V),Curr(A),Alt(ft),A2(V),RSSI(dB),RxBt(V),Fuel(%),VSpd(f/s),Hdg(@),Ptch(@),Roll(@),Dist(ft),GAlt(ft),GSpd(mph),GPS,Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
-
-local function playLog(data, date)
+local function playLog(data, config, date)
 
 	local function parseLine(line)
-		local res = {}
+		local record = {}
 		local pos = 1
 		local i = 0
-		local sep = ','
 		while true do
 			local c = string.sub(line, pos, pos)
-			local startp, endp = string.find(line, sep, pos)
+			local startp, endp = string.find(line, ",", pos)
 			if startp then
-				res[i] = string.sub(line, pos, startp-1)
+				record[i] = string.sub(line, pos, startp-1)
 				pos = endp + 1
 			else
-				res[i] = string.sub(line,pos)
+				record[i] = string.sub(line,pos)
 				break
 			end
 			i = i + 1
 		end
-		return res
+		return record
 	end
 
 	if logfh == nil then
 		logfh = io.open("/LOGS/" .. model.getInfo().name .. "-" .. date .. ".csv")
+		data.showMax = false
 	end
 	if logfh ~= nil then
+
+		-- Load next record
 		local pos = nil
 		local read = nil
 		while pos == nil and read ~= "" do
-			local read = io.read(logfh, 255)
+			read = io.read(logfh, 255)
 			raw = raw .. read
 			pos = string.find(raw, "\n")
 		end
-		if pos == nil then
-			pos = string.len(raw)
-		end
-		local line = string.sub(raw, 0, pos)
-		raw = string.sub(raw, pos + 1)
-		local res = parseLine(line)
-		if label == nil then
-			label = res
-			for i = 1, #label do
-				--label[i]
+		if read == "" then
+			-- End of file
+			io.close(logfh)
+			data.doLogs = false
+		else
+			-- Parse record
+			if pos == nil then
+				pos = string.len(raw)
+			end
+			local line = string.sub(raw, 0, pos)
+			raw = string.sub(raw, pos + 1)
+			local record = parseLine(line)
+
+			if label == nil then
+				-- Define column labels
+				label = {}
+				for i = 0, #record do
+					local unit = string.find(record[i], "%(")
+					if unit ~= nil then
+						label[string.lower(string.sub(record[i], 0, unit - 1))] = i
+					else
+						label[string.lower(record[i])] = i
+						if record[i] == "Rud" then break end
+					end
+				end
+			else
+				-- Assign log values
+				data.time = string.sub(record[label.time], 0, string.find(record[label.time], "%.") - 1)
+				if data.crsf then
+					--Crossfire
+					--Date,Time,FM,1RSS(dB),2RSS(dB),RQly(%),RSNR(dB),RFMD,TPWR(mW),TRSS(dB),TQly(%),TSNR(dB),RxBt(V),Curr(A),Capa(mAh),GPS,GSpd(mph),Hdg(@),Alt(ft),Sats,Ptch(rad),Roll(rad),Yaw(rad),Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
+					data.rssiLast = tonumber(record[label.rqly])
+					data.tpwr = tonumber(record[label.tpwr])
+					data.rfmd = tonumber(record[label.rfmd])
+					data.pitch = math.deg(tonumber(record[label.ptch])) * 10
+					data.roll = math.deg(tonumber(record[label.roll])) * 10
+					data.batt = tonumber(record[label.rxbt])
+					-- The following shenanigans are requred due to int rollover bugs in the Crossfire protocol for yaw and hdg
+					local tmp = tonumber(record[label.yaw])
+					if tmp < -0.27 then
+						tmp = tmp + 0.27
+					end
+					data.heading = (math.deg(tmp) + 360) % 360
+					-- Flight path vector
+					if data.fpv_id > -1 then
+						tmp = tonumber(record[label.hdg])
+						data.fpv = ((tmp < 0 and tmp + 65.54 or tmp) * 10 + 360) % 360
+					end
+					data.fuel = tonumber(record[label.capa])
+					data.fuelRaw = data.fuel
+					if data.showFuel and config[23].v == 0 then
+						if data.fuelEst == -1 and data.cell > 0 then
+							if data.fuel < 25 and config[29].v - data.cell >= 0.2 then
+								data.fuelEst = math.max(math.min(1 - (data.cell - config[2].v + 0.1) / (config[29].v - config[2].v), 1), 0) * config[27].v
+							else
+								data.fuelEst = 0
+							end
+						end
+						data.fuel = math.max(math.min(math.floor((1 - (data.fuel + data.fuelEst) / config[27].v) * 100 + 0.5), 100), 0)
+					end
+					-- Don't know the flight mode with Crossfire, so assume armed and ACRO
+					data.mode = 5
+					data.satellites = tonumber(record[label.sats])
+					--Fake HDOP based on satellite lock count and assume GPS fix when there's at least 6 satellites
+					data.satellites = data.satellites + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100) + (data.satellites >= 6 and 3000 or 0)
+				else
+					-- S.Port
+					--Date,Time,Tmp1(@C),Tmp2(@C),A4(V),VFAS(V),Curr(A),Alt(ft),A2(V),RSSI(dB),RxBt(V),Fuel(%),VSpd(f/s),Hdg(@),Ptch(@),Roll(@),Dist(ft),GAlt(ft),GSpd(mph),GPS,Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
+					data.rssiLast = tonumber(record[label.rssi])
+					data.satellites = tonumber(record[label.tmp2])
+					data.fuel = tonumber(record[label.fuel])
+					data.heading = tonumber(record[label.hdg])
+					if data.pitchRoll then
+						data.pitch = tonumber(record[label.ptch])
+						data.roll = tonumber(record[label.roll])
+					else
+						data.accx = tonumber(record[label.accx])
+						data.accy = tonumber(record[label.accy])
+						data.accz = tonumber(record[label.accz])
+					end
+					data.mode = tonumber(record[label.tmp1])
+					data.rxBatt = tonumber(record[label.rxbt])
+					data.gpsAlt = data.satellites > 1000 and tonumber(record[label.galt]) or 0
+					data.distance = tonumber(record[label.dist])
+					data.vspeed = tonumber(record[label.vspd])
+					data.batt = tonumber(record[label.vfas])
+				end
+				data.altitude = tonumber(record[label.alt])
+				if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
+					data.altitude = data.gpsAlt - data.gpsAltBase
+				end
+				data.speed = tonumber(record[label.gspd])
+				if data.showCurr then
+					data.current = tonumber(record[label.curr])
+				end
+				if data.a4_id > -1 then
+					data.cell = tonumber(record[label.a4])
+				else
+					if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
+						data.cells = math.floor(data.batt / config[29].v) + 1
+						print(data.cells)
+					end
+					data.cell = data.batt / data.cells
+				end
+				-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+				if data.dist_unit == 10 then
+					data.distance = math.floor(data.distance * 3.28084 + 0.5)
+				end
+				data.gpsFix = false
+				pos = string.find(record[label.gps], " ")
+				if pos ~= nil then
+					data.gpsLatLon = {
+						lat = tonumber(string.sub(record[label.gps], 0, pos - 1)),
+						lon = tonumber(string.sub(record[label.gps], pos + 1))
+					}
+					if data.satellites > 1000 then
+						data.gpsFix = true
+						data.lastLock = data.gpsLatLon
+						if data.gpsHome ~= false and distCalc ~= nil then
+							distCalc(data)
+						end
+					end
+				end
+				if data.distance > 0 then
+					data.distanceLast = data.distance
+				end
+				if data.rssiLast > 0 then
+					data.telem = true
+					data.telemFlags = 0
+				else
+					data.telem = false
+					data.telemFlags = FLASH
+				end
 			end
 		end
-		print(line)
-		print(res[0])
-		print(res[1])
-		print(res[2])
-
-		io.close(logfh)
-		data.doLogs = false
-		print(date)
-		print(pos)
-
 	else
-
+		data.doLogs = false
 	end
 end
 
 return playLog
-
---[[
-data.rssi, data.rssiLow, data.rssiCrit = getRSSI()
-if data.rssi > 0 then
-	data.telem = true
-	data.telemFlags = 0
-	data.rssiMin = math.min(data.rssiMin, data.rssi)
-	data.satellites = getValue(data.sat_id)
-	if data.showFuel then
-		data.fuel = getValue(data.fuel_id)
-	end
-	if data.crsf then
-		crsf(data)
-	else
-		data.heading = getValue(data.hdg_id)
-		if data.pitchRoll then
-			data.pitch = getValue(data.pitch_id)
-			data.roll = getValue(data.roll_id)
-		else
-			data.accx = getValue(data.accx_id)
-			data.accy = getValue(data.accy_id)
-			data.accz = getValue(data.accz_id)
-		end
-		data.mode = getValue(data.mode_id)
-		data.rxBatt = getValue(data.rxBatt_id)
-		data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
-		data.distance = getValue(data.dist_id)
-		data.distanceMax = getValue(data.distMax_id)
-		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
-		if data.dist_unit == 10 then
-			data.distance = math.floor(data.distance * 3.28084 + 0.5)
-			data.distanceMax = data.distanceMax * 3.28084
-		end
-		data.vspeed = getValue(data.vspeed_id)
-	end
-	data.altitude = getValue(data.alt_id)
-	if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
-		data.altitude = data.gpsAlt - data.gpsAltBase
-	end
-	data.speed = getValue(data.speed_id)
-	if data.showCurr then
-		data.current = getValue(data.curr_id)
-		data.currentMax = getValue(data.currMax_id)
-	end
-	data.altitudeMax = getValue(data.altMax_id)
-	data.speedMax = getValue(data.speedMax_id)
-	data.batt = getValue(data.batt_id)
-	data.battMin = getValue(data.battMin_id)
-	if data.a4_id > -1 then
-		data.cell = getValue(data.a4_id)
-		data.cellMin = getValue(data.a4Min_id)
-	else
-		if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
-			data.cells = math.floor(data.batt / config[29].v) + 1
-		end
-		data.cell = data.batt / data.cells
-		data.cellMin = data.battMin / data.cells
-	end
-	data.rssiLast = data.rssi
-	data.gpsFix = false
-	local gpsTemp = getValue(data.gpsLatLon_id)
-	if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
-		data.gpsLatLon = gpsTemp
-		if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
-			data.gpsFix = true
-			data.lastLock = gpsTemp
-			if data.gpsHome ~= false and distCalc ~= nil then
-				distCalc(data)
-			end
-		end
-	end
-	if data.distance > 0 then
-		data.distanceLast = data.distance
-	end
-else
-	data.telem = false
-	data.telemFlags = FLASH
-end
-data.txBatt = getValue(data.txBatt_id)
-data.throttle = getValue(data.thr_id)
-]]
