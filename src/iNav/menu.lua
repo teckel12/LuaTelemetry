@@ -43,7 +43,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Center Map Home",  l = {[0] = "Off", "On"} }, -- 31
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} }, -- 32
 		{ t = "Roll Scale",       l = {[0] = "Off", "On"} }, -- 33
-		{ t = "Review Logs" }, -- 34
+		{ t = "Review Log" }, -- 34
 	}
 
 	-- Import language changes
@@ -175,8 +175,12 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 			data.configStatus = data.configStatus == #config and 1 or data.configStatus + 1
 			data.configTop = data.configStatus > math.min(#config, data.configTop + ROWS) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
 			while config2[config[data.configStatus].z].p ~= nil do
-				data.configStatus = math.min(data.configStatus + 1, #config)
+				data.configStatus = math.min(data.configStatus + 1, #config + 1)
 				data.configTop = data.configStatus > math.min(#config, data.configTop + ROWS) and data.configTop + 1 or data.configTop
+				if data.configStatus == #config + 1 then
+					data.configStatus, data.configTop = 1, 1
+					break
+				end
 			end
 		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
 			data.configStatus = data.configStatus == 1 and #config or data.configStatus - 1
@@ -222,6 +226,12 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	if event == EVT_ENTER_BREAK then
 		data.configSelect = (data.configSelect == 0) and BLINK or 0
+		if data.configSelect == 0 and data.configStatus == 34 then
+			saveConfig()
+			data.configLast = data.configStatus
+			data.configStatus = 0
+			data.doLogs = true
+		end
 	end
 
 end

@@ -8,7 +8,7 @@ local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
-local tmp, view, lang
+local tmp, view, lang, playLog
 local env = "bx"
 
 -- Build with Companion and allow debugging
@@ -157,6 +157,23 @@ local function background()
 	end
 	data.txBatt = getValue(data.txBatt_id)
 	data.throttle = getValue(data.thr_id)
+
+	if data.doLogs then
+		if not data.armed then
+			if playLog == nil then
+				playLog = loadScript(FILE_PATH .. "playlog", env)(data, date)
+			end
+			playLog(data, config[34].l[config[34].v])
+			if not data.doLogs then
+				playLog = nil
+				collectgarbage()
+			end
+		else
+			data.doLogs = false
+			playLog = nil
+			collectgarbage()
+		end
+	end
 
 	local armedPrev = data.armed
 	local headFreePrev = data.headFree
