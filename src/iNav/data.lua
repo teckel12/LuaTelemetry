@@ -76,7 +76,6 @@ local data = {
 	altLastAlt = 0,
 	battNextPlay = 0,
 	battPercentPlayed = 100,
-	armed = false,
 	headFree = false,
 	headingHold = false,
 	altHold = false,

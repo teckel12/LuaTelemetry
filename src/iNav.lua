@@ -165,13 +165,17 @@ local function background()
 	--config[34].l[config[34].v] = "2019-05-31"
 
 	if data.doLogs then
-		if data.rssi <= 0 then
-			data.mode = 0
-		end
-		if bit32.band(data.mode % 10, 4) ~= 4 then -- Checking if it's really armed
+		-- Checking if it's really armed
+		if data.rssi > 0 and bit32.band(data.mode % 10, 4) == 4 then
+			-- Armed, kill playback
+			data.doLogs = false
+			playLog = nil
+			collectgarbage()
+		else
+			-- Not armed, continue playback
 			if playLog == nil then
 				loadScript(FILE_PATH .. "reset", env)(data)
-				data.doLogs = true
+				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
 				playLog = loadScript(FILE_PATH .. "playlog", env)(data, config, date)
 			end
 			playLog(data, config, config[34].l[config[34].v])
@@ -180,10 +184,6 @@ local function background()
 				collectgarbage()
 				loadScript(FILE_PATH .. "reset", env)(data)
 			end
-		else
-			data.doLogs = false
-			playLog = nil
-			collectgarbage()
 		end
 	end
 
@@ -514,6 +514,12 @@ local function run(event)
 		elseif event == MENU then
 			-- Config menu
 			data.configStatus = data.configLast
+		elseif event == EVT_EXIT_BREAK and data.doLogs then
+			-- Exit log playback
+			data.doLogs = false
+			playLog = nil
+			collectgarbage()
+			loadScript(FILE_PATH .. "reset", env)(data)
 		end
 		
 		-- Views

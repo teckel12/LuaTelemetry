@@ -1,5 +1,6 @@
 local data = ...
 
+data.armed = false
 data.startup = 1
 data.timerStart = 0
 data.timer = 0
