@@ -69,7 +69,7 @@ local function playLog(data, config, date)
 				if data.crsf then
 					--Crossfire
 					--Date,Time,FM,1RSS(dB),2RSS(dB),RQly(%),RSNR(dB),RFMD,TPWR(mW),TRSS(dB),TQly(%),TSNR(dB),RxBt(V),Curr(A),Capa(mAh),GPS,GSpd(mph),Hdg(@),Alt(ft),Sats,Ptch(rad),Roll(rad),Yaw(rad),Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
-					data.rssiLast = tonumber(record[label.rqly])
+					data.rssi = tonumber(record[label.rqly])
 					data.tpwr = tonumber(record[label.tpwr])
 					data.rfmd = tonumber(record[label.rfmd])
 					data.pitch = math.deg(tonumber(record[label.ptch])) * 10
@@ -106,7 +106,7 @@ local function playLog(data, config, date)
 				else
 					-- S.Port
 					--Date,Time,Tmp1(@C),Tmp2(@C),A4(V),VFAS(V),Curr(A),Alt(ft),A2(V),RSSI(dB),RxBt(V),Fuel(%),VSpd(f/s),Hdg(@),Ptch(@),Roll(@),Dist(ft),GAlt(ft),GSpd(mph),GPS,Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
-					data.rssiLast = tonumber(record[label.rssi])
+					data.rssi = tonumber(record[label.rssi])
 					data.satellites = tonumber(record[label.tmp2])
 					data.fuel = tonumber(record[label.fuel])
 					data.heading = tonumber(record[label.hdg])
@@ -146,6 +146,7 @@ local function playLog(data, config, date)
 				if data.dist_unit == 10 then
 					data.distance = math.floor(data.distance * 3.28084 + 0.5)
 				end
+				data.rssiLast = data.rssi
 				data.gpsFix = false
 				pos = string.find(record[label.gps], " ")
 				if pos ~= nil then
@@ -164,13 +165,8 @@ local function playLog(data, config, date)
 				if data.distance > 0 then
 					data.distanceLast = data.distance
 				end
-				if data.rssiLast > 0 then
-					data.telem = true
-					data.telemFlags = 0
-				else
-					data.telem = false
-					data.telemFlags = FLASH
-				end
+				data.telem = true
+				data.telemFlags = 0
 			end
 		end
 	else

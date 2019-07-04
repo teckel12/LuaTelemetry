@@ -165,6 +165,9 @@ local function background()
 	--config[34].l[config[34].v] = "2019-05-31"
 
 	if data.doLogs then
+		if data.rssi <= 0 then
+			data.mode = 0
+		end
 		if bit32.band(data.mode % 10, 4) ~= 4 then -- Checking if it's really armed
 			if playLog == nil then
 				loadScript(FILE_PATH .. "reset", env)(data)
