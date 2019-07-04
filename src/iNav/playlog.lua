@@ -89,14 +89,7 @@ local function playLog(data, config, date)
 					data.fuel = tonumber(record[label.capa])
 					data.fuelRaw = data.fuel
 					if data.showFuel and config[23].v == 0 then
-						if data.fuelEst == -1 and data.cell > 0 then
-							if data.fuel < 25 and config[29].v - data.cell >= 0.2 then
-								data.fuelEst = math.max(math.min(1 - (data.cell - config[2].v + 0.1) / (config[29].v - config[2].v), 1), 0) * config[27].v
-							else
-								data.fuelEst = 0
-							end
-						end
-						data.fuel = math.max(math.min(math.floor((1 - (data.fuel + data.fuelEst) / config[27].v) * 100 + 0.5), 100), 0)
+						data.fuel = math.max(math.min(math.floor((1 - (data.fuel) / config[27].v) * 100 + 0.5), 100), 0)
 					end
 					-- Don't know the flight mode with Crossfire, so assume armed and ACRO
 					data.mode = 5
