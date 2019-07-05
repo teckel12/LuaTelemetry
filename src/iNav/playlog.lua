@@ -1,6 +1,7 @@
 local logfh
 local raw = ""
 local label
+local seek
 
 local function playLog(data, config, distCalc, date)
 
@@ -26,16 +27,18 @@ local function playLog(data, config, distCalc, date)
 	if logfh == nil then
 		logfh = io.open("/LOGS/" .. model.getInfo().name .. "-" .. date .. ".csv")
 		data.showMax = false
+		seek = 0
 	end
 	if logfh ~= nil then
 
 		-- Load next record
-		local pos = nil
+		local pos = string.find(raw, "\n")
 		local read = nil
 		while pos == nil and read ~= "" do
 			read = io.read(logfh, 255)
 			raw = raw .. read
 			pos = string.find(raw, "\n")
+			seek = seek + 255
 		end
 		if read == "" then
 			-- End of file
