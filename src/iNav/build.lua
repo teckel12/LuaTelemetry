@@ -38,6 +38,7 @@ loadScript(FILE_PATH .. "alt", env)()
 loadScript(FILE_PATH .. "horus", env)()
 loadScript(FILE_PATH .. "menu", env)()
 loadScript(FILE_PATH .. "log", env)()
+loadScript(FILE_PATH .. "logsrch", env)()
 
 if buildMode == nil then
 	loadScript("/WIDGETS/iNav/main", env)(true)

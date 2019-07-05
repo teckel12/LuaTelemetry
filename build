@@ -21,6 +21,7 @@ luac52 -s -o obj/lang_es.luac src/iNav/lang_es.lua
 luac52 -s -o obj/lang_fr.luac src/iNav/lang_fr.lua
 luac52 -s -o obj/load.luac src/iNav/load.lua
 luac52 -s -o obj/log.luac src/iNav/log.lua
+luac52 -s -o obj/logsrch.luac src/iNav/logsrch.lua
 luac52 -s -o obj/menu.luac src/iNav/menu.lua
 luac52 -s -o obj/modes.luac src/iNav/modes.lua
 luac52 -s -o obj/other.luac src/iNav/other.lua

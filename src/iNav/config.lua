@@ -35,7 +35,7 @@ local config = {
 	{ o = 29, c = 1, v = 0 }, -- Center Map Home - 31
 	{ o = 30, c = 1, v = 0 }, -- Orientation - 32
 	{ o = 26, c = 1, v = 0 }, -- Roll Scale - 33
-	{ o = 34, c = 1, v = 0, l = {[0] = "?"} }, -- Review Log Date - 34
+	{ o = 34, c = 1, v = 0, l = {[0] = "???"} }, -- Review Log Date - 34
 }
 
 for i = 1, #config do

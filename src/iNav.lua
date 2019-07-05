@@ -81,8 +81,8 @@ end
 local function endLog()
 	data.doLogs = false
 	playLog = nil
-	collectgarbage()
 	loadScript(FILE_PATH .. "reset", env)(data)
+	collectgarbage()
 end
 
 local function background()
@@ -488,7 +488,7 @@ local function run(event)
 			data.v = 9
 		end
 		tmp = config[30].v
-		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS, env)
 		if HORUS then
 			if config[30].v ~= tmp then
 				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
