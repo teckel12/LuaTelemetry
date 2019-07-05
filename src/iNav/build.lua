@@ -37,7 +37,7 @@ loadScript(FILE_PATH .. "radar", env)()
 loadScript(FILE_PATH .. "alt", env)()
 loadScript(FILE_PATH .. "horus", env)()
 loadScript(FILE_PATH .. "menu", env)()
-local playlog = loadScript(FILE_PATH .. "playlog", env)(data, config, date)
+loadScript(FILE_PATH .. "playlog", env)()
 
 if buildMode == nil then
 	loadScript("/WIDGETS/iNav/main", env)(true)

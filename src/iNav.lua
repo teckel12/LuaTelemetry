@@ -176,9 +176,9 @@ local function background()
 			if playLog == nil then
 				loadScript(FILE_PATH .. "reset", env)(data)
 				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
-				playLog = loadScript(FILE_PATH .. "playlog", env)(data, config, date)
+				playLog = loadScript(FILE_PATH .. "playlog", env)()
 			end
-			playLog(data, config, config[34].l[config[34].v])
+			playLog(data, config, distCalc, config[34].l[config[34].v])
 			if not data.doLogs then
 				playLog = nil
 				collectgarbage()
@@ -367,7 +367,7 @@ local function background()
 		if data.hdop < 11 - config[21].v * 2 then
 			beep = true
 		end
-		if vibrate and (config[5].v == 1 or config[5].v == 3) then
+		if vibrate and (config[5].v == 1 or config[5].v == 3) and not data.doLogs then
 			playHaptic(25, 3000)
 		end
 		if beep and config[5].v >= 2 then

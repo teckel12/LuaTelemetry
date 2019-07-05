@@ -1,9 +1,8 @@
-local data, config, date = ...
 local logfh
 local raw = ""
 local label
 
-local function playLog(data, config, date)
+local function playLog(data, config, distCalc, date)
 
 	local function parseLine(line)
 		local record = {}
