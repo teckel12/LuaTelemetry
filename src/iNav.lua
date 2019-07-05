@@ -78,6 +78,13 @@ local function calcDir(r1, r2, r3, x, y, r)
 	return x1, y1, x2, y2, x3, y3
 end
 
+local function endLog()
+	data.doLogs = false
+	playLog = nil
+	collectgarbage()
+	loadScript(FILE_PATH .. "reset", env)(data)
+end
+
 local function background()
 	data.rssi, data.rssiLow, data.rssiCrit = getRSSI()
 	if data.rssi > 0 then
@@ -168,21 +175,17 @@ local function background()
 		-- Checking if it's really armed
 		if data.rssi > 0 and bit32.band(data.mode % 10, 4) == 4 then
 			-- Armed, kill playback
-			data.doLogs = false
-			playLog = nil
-			collectgarbage()
+			endLog()
 		else
 			-- Not armed, continue playback
 			if playLog == nil then
 				loadScript(FILE_PATH .. "reset", env)(data)
 				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
-				playLog = loadScript(FILE_PATH .. "playlog", env)()
+				playLog = loadScript(FILE_PATH .. "log", env)(env)
 			end
 			playLog(data, config, distCalc, config[34].l[config[34].v])
 			if not data.doLogs then
-				playLog = nil
-				collectgarbage()
-				loadScript(FILE_PATH .. "reset", env)(data)
+				endLog()
 			end
 		end
 	end
@@ -516,10 +519,7 @@ local function run(event)
 			data.configStatus = data.configLast
 		elseif event == EVT_EXIT_BREAK and data.doLogs then
 			-- Exit log playback
-			data.doLogs = false
-			playLog = nil
-			collectgarbage()
-			loadScript(FILE_PATH .. "reset", env)(data)
+			endLog()
 		end
 		
 		-- Views

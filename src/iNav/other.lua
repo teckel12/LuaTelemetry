@@ -49,6 +49,7 @@ if config[28].v == 0 then
 	config[25].x = 2
 	config[25].v = math.min(config[25].v, 2)
 end
+config[34].v = 0
 
 local tmp = config[20].v == 0 and "GSpd" or "ASpd"
 data.speed_id = getTelemetryId(tmp)

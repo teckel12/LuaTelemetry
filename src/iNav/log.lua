@@ -1,3 +1,5 @@
+local env = ...
+
 local logfh
 local raw = ""
 local label

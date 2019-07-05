@@ -138,9 +138,6 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		config2[10].p = 1
 		config2[26].p = 1
 	end
-	if config[34].x == -1 then
-		config2[34].p = 1
-	end
 
 	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP
@@ -226,11 +223,47 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	if event == EVT_ENTER_BREAK then
 		data.configSelect = (data.configSelect == 0) and BLINK or 0
-		if data.configSelect == 0 and data.configStatus == 34 then
-			saveConfig()
-			data.configLast = data.configStatus
-			data.configStatus = 0
-			data.doLogs = true
+		print(data.configSelect)
+		print(data.configStatus)
+		if data.configStatus == 34 then
+			print(config2[34].l[0])
+			if data.configSelect == 1 and config2[34].l[0] == "?" then
+				-- Search for logs
+				local log = getDateTime()
+				local logCnt = 0
+				local days = 0
+				while logCnt < 5 and days < 16 do
+					local logDate = string.format("%04d-%02d-%02d", log.year, log.mon, log.day)
+					local fh = io.open("/LOGS/" .. model.getInfo().name .. "-" .. logDate .. ".csv")
+					if fh ~= nil then
+						io.close(fh)
+						config[34].l[logCnt] = logDate
+						logCnt = logCnt + 1
+					end
+					log.day = log.day - 1
+					if log.day == 0 then
+						log.day = 31
+						log.mon = log.mon - 1
+						if log.mon == 0 then
+							log.mon = 12
+							log.year = log.year - 1
+						end
+					end
+					days = days + 1
+				end
+				if logCnt == 0 then
+					data.configSelect = 0
+					config2[34].p = 1
+				else
+					config2[34].l = config[34].l
+					config[34].x = logCnt - 1
+				end
+			elseif data.configSelect == 0 then
+				saveConfig()
+				data.configLast = data.configStatus
+				data.configStatus = 0
+				data.doLogs = true
+			end
 		end
 	end
 
