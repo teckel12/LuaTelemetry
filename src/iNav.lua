@@ -81,6 +81,7 @@ end
 local function endLog()
 	data.doLogs = false
 	playLog = nil
+	collectgarbage()
 	loadScript(FILE_PATH .. "reset", env)(data)
 	collectgarbage()
 end
@@ -171,6 +172,7 @@ local function background()
 	--config[34].l[config[34].v] = "2019-06-28"
 	--config[34].l[config[34].v] = "2019-05-31"
 
+	-- Log playback
 	if data.doLogs then
 		-- Checking if it's really armed
 		if data.rssi > 0 and bit32.band(data.mode % 10, 4) == 4 then
@@ -181,7 +183,7 @@ local function background()
 			if playLog == nil then
 				loadScript(FILE_PATH .. "reset", env)(data)
 				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
-				playLog = loadScript(FILE_PATH .. "log", env)(env)
+				playLog = loadScript(FILE_PATH .. "log", env)(env, FILE_PATH)
 			end
 			playLog(data, config, distCalc, config[34].l[config[34].v])
 			if not data.doLogs then

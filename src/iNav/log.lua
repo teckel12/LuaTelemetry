@@ -1,9 +1,7 @@
-local env = ...
+local env, FILE_PATH = ...
 
-local logfh
+local logfh, label, seek, fake
 local raw = ""
-local label
-local seek
 
 local function playLog(data, config, distCalc, date)
 
@@ -27,7 +25,8 @@ local function playLog(data, config, distCalc, date)
 	end
 
 	if logfh == nil then
-		logfh = io.open("/LOGS/" .. model.getInfo().name .. "-" .. date .. ".csv")
+		logfh = io.open("/LOGS/" .. model.getInfo().name .. "-20" .. date .. ".csv")
+		fake = loadScript(FILE_PATH .. (data.crsf and "log_c" or "log_s"), env)()
 		data.showMax = false
 		seek = 0
 	end
@@ -63,65 +62,16 @@ local function playLog(data, config, distCalc, date)
 					if unit ~= nil then
 						label[string.lower(string.sub(record[i], 0, unit - 1))] = i
 					else
-						label[string.lower(record[i])] = i
 						if record[i] == "Rud" then break end
+						label[string.lower(record[i])] = i
 					end
 				end
 			else
 				-- Assign log values
 				data.time = string.sub(record[label.time], 0, string.find(record[label.time], "%.") - 1)
-				if data.crsf then
-					--Crossfire
-					--Date,Time,FM,1RSS(dB),2RSS(dB),RQly(%),RSNR(dB),RFMD,TPWR(mW),TRSS(dB),TQly(%),TSNR(dB),RxBt(V),Curr(A),Capa(mAh),GPS,GSpd(mph),Hdg(@),Alt(ft),Sats,Ptch(rad),Roll(rad),Yaw(rad),Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
-					data.rssi = tonumber(record[label.rqly])
-					data.tpwr = tonumber(record[label.tpwr])
-					data.rfmd = tonumber(record[label.rfmd])
-					data.pitch = math.deg(tonumber(record[label.ptch])) * 10
-					data.roll = math.deg(tonumber(record[label.roll])) * 10
-					data.batt = tonumber(record[label.rxbt])
-					-- The following shenanigans are requred due to int rollover bugs in the Crossfire protocol for yaw and hdg
-					local tmp = tonumber(record[label.yaw])
-					if tmp < -0.27 then
-						tmp = tmp + 0.27
-					end
-					data.heading = (math.deg(tmp) + 360) % 360
-					-- Flight path vector
-					if data.fpv_id > -1 then
-						tmp = tonumber(record[label.hdg])
-						data.fpv = ((tmp < 0 and tmp + 65.54 or tmp) * 10 + 360) % 360
-					end
-					data.fuel = tonumber(record[label.capa])
-					data.fuelRaw = data.fuel
-					if data.showFuel and config[23].v == 0 then
-						data.fuel = math.max(math.min(math.floor((1 - (data.fuel) / config[27].v) * 100 + 0.5), 100), 0)
-					end
-					-- Don't know the flight mode with Crossfire, so assume armed and ACRO
-					data.mode = 5
-					data.satellites = tonumber(record[label.sats])
-					--Fake HDOP based on satellite lock count and assume GPS fix when there's at least 6 satellites
-					data.satellites = data.satellites + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100) + (data.satellites >= 6 and 3000 or 0)
-				else
-					-- S.Port
-					--Date,Time,Tmp1(@C),Tmp2(@C),A4(V),VFAS(V),Curr(A),Alt(ft),A2(V),RSSI(dB),RxBt(V),Fuel(%),VSpd(f/s),Hdg(@),Ptch(@),Roll(@),Dist(ft),GAlt(ft),GSpd(mph),GPS,Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
-					data.rssi = tonumber(record[label.rssi])
-					data.satellites = tonumber(record[label.tmp2])
-					data.fuel = tonumber(record[label.fuel])
-					data.heading = tonumber(record[label.hdg])
-					if data.pitchRoll then
-						data.pitch = tonumber(record[label.ptch])
-						data.roll = tonumber(record[label.roll])
-					else
-						data.accx = tonumber(record[label.accx])
-						data.accy = tonumber(record[label.accy])
-						data.accz = tonumber(record[label.accz])
-					end
-					data.mode = tonumber(record[label.tmp1])
-					data.rxBatt = tonumber(record[label.rxbt])
-					data.gpsAlt = data.satellites > 1000 and tonumber(record[label.galt]) or 0
-					data.distance = tonumber(record[label.dist])
-					data.vspeed = tonumber(record[label.vspd])
-					data.batt = tonumber(record[label.vfas])
-				end
+
+				fake(data, config, record, label)
+
 				data.altitude = tonumber(record[label.alt])
 				if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 					data.altitude = data.gpsAlt - data.gpsAltBase
@@ -135,7 +85,6 @@ local function playLog(data, config, distCalc, date)
 				else
 					if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
 						data.cells = math.floor(data.batt / config[29].v) + 1
-						print(data.cells)
 					end
 					data.cell = data.batt / data.cells
 				end

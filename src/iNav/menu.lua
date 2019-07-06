@@ -7,6 +7,11 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	local GPS = HORUS and 45 or 21
 	local ROWS = HORUS and 9 or 5
 	local FONT = HORUS and 0 or SMLSIZE
+	local text = lcd.drawText
+	local min = math.min
+	local max = math.max
+	local floor = math.floor
+	local format = string.format
 
 	-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text
 	local config2 = {
@@ -25,7 +30,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Timer",            l = {[0] = "Off", "Auto", "Timer1", "Timer2"} }, -- 13
 		{ t = "Rx Voltage",       l = {[0] = "Off", "On"} }, -- 14
 		{ t = "Flight Vector",    l = {[0] = "Off", "On"} }, -- 15
-		{ t = "GPS",              l = {[0] = string.format("%10.6f %11.6f", data.lastLock.lat, data.lastLock.lon), gpsDegMin(data.lastLock.lat, true) .. "  " .. gpsDegMin(data.lastLock.lon, false)} }, -- 16
+		{ t = "GPS",              l = {[0] = format("%10.6f %11.6f", data.lastLock.lat, data.lastLock.lon), gpsDegMin(data.lastLock.lat, true) .. "  " .. gpsDegMin(data.lastLock.lon, false)} }, -- 16
 		{ t = "Fuel Critical",    m = 1, a = "%" }, -- 17
 		{ t = "Fuel Low",         m = 2, a = "%" }, -- 18
 		{ t = "Tx Voltage",       l = {[0] = "Number", "Graph", "Both"} }, -- 19
@@ -51,6 +56,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		lang(config2)
 	end
 
+	-- Get log dates
 	config2[34].l = config[34].l
 
 	local function saveConfig()
@@ -61,9 +67,9 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		else
 			for line = 1, #config do
 				if config[line].d == nil then
-					io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
+					io.write(fh, format("%0" .. config[line].c .. "d", config[line].v))
 				else 
-					io.write(fh, math.floor(config[line].v * 10))
+					io.write(fh, floor(config[line].v * 10))
 				end
 			end
 			io.close(fh)
@@ -76,11 +82,11 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		lcd.setColor(CUSTOM_COLOR, 12678) -- Dark grey
 		lcd.drawFilledRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
 		lcd.drawRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
-		lcd.drawText(4, TOP, "Sats:", FONT)
-		lcd.drawText(72, TOP, data.satellites % 100, FONT + RIGHT)
+		text(4, TOP, "Sats:", FONT)
+		text(72, TOP, data.satellites % 100, FONT + RIGHT)
 		if not data.crsf then
-			lcd.drawText(4, TOP + LINE, "DOP:", FONT)
-			lcd.drawText(72, TOP + LINE, (data.hdop == 0 and not data.gpsFix) and "---" or (9 - data.hdop) / 2 + 0.8, FONT + RIGHT)
+			text(4, TOP + LINE, "DOP:", FONT)
+			text(72, TOP + LINE, (data.hdop == 0 and not data.gpsFix) and "---" or (9 - data.hdop) / 2 + 0.8, FONT + RIGHT)
 		end
 	end
 	if not SMLCD then
@@ -89,7 +95,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	-- Special limit cases
 	config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
-	config[19].v = math.min(config[19].x, config[19].v)
+	config[19].v = min(config[19].x, config[19].v)
 	config[25].x = config[28].v == 0 and 2 or 3
 	if config[28].v == 0 and config[25].v == 3 then
 		config[25].v = 2
@@ -138,30 +144,30 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		config2[10].p = 1
 		config2[26].p = 1
 	end
-	if config[34].l[0] == nil then
+	if config[34].x == -1 then
 		config2[34].p = 1
 	end
 
-	for line = data.configTop, math.min(#config, data.configTop + ROWS) do
+	for line = data.configTop, min(#config, data.configTop + ROWS) do
 		local y = (line - data.configTop) * LINE + TOP
 		local z = config[line].z
 		local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
 		if config2[z].p == 1 and HORUS then
 			tmp = tmp + CUSTOM_COLOR
 		end
-		lcd.drawText(CONFIG_X, y, config2[z].t, FONT + (config2[z].p == 1 and tmp or 0))
+		text(CONFIG_X, y, config2[z].t, FONT + (config2[z].p == 1 and tmp or 0))
 		if config2[z].p == nil then
 			if config2[z].l == nil then
-				lcd.drawText(CONFIG_X + RSIDE, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
+				text(CONFIG_X + RSIDE, y, (config[z].d ~= nil and format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
 			else
 				if not config2[z].l then
-					lcd.drawText(CONFIG_X + RSIDE, y, config[z].v, FONT + tmp)
+					text(CONFIG_X + RSIDE, y, config[z].v, FONT + tmp)
 				else
-					lcd.drawText(z == 16 and LCD_W - CONFIG_X or CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp + (z == 16 and RIGHT or 0))
+					text(z == 16 and LCD_W - CONFIG_X or CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp + (z == 16 and RIGHT or 0))
 				end
 			end
 		else
-			lcd.drawText(CONFIG_X + RSIDE, y, "--", FONT + tmp)
+			text(CONFIG_X + RSIDE, y, "--", FONT + tmp)
 		end
 	end
 
@@ -173,10 +179,10 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 			data.configStatus = 0
 		elseif event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
 			data.configStatus = data.configStatus == #config and 1 or data.configStatus + 1
-			data.configTop = data.configStatus > math.min(#config, data.configTop + ROWS) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
+			data.configTop = data.configStatus > min(#config, data.configTop + ROWS) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
 			while config2[config[data.configStatus].z].p ~= nil do
-				data.configStatus = math.min(data.configStatus + 1, #config + 1)
-				data.configTop = data.configStatus > math.min(#config, data.configTop + ROWS) and data.configTop + 1 or data.configTop
+				data.configStatus = min(data.configStatus + 1, #config + 1)
+				data.configTop = data.configStatus > min(#config, data.configTop + ROWS) and data.configTop + 1 or data.configTop
 				if data.configStatus == #config + 1 then
 					data.configStatus, data.configTop = 1, 1
 					break
@@ -186,7 +192,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 			data.configStatus = data.configStatus == 1 and #config or data.configStatus - 1
 			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == #config and #config - ROWS or data.configTop)
 			while config2[config[data.configStatus].z].p ~= nil do
-				data.configStatus = math.max(data.configStatus - 1, 1)
+				data.configStatus = max(data.configStatus - 1, 1)
 				data.configTop = data.configStatus < data.configTop and data.configTop - 1 or data.configTop
 			end
 		end
@@ -196,21 +202,21 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		if event == EVT_EXIT_BREAK then
 			data.configSelect = 0
 		elseif event == INCR or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
-			config[z].v = math.min(math.floor(config[z].v * 10 + i * 10) / 10, config[z].x == nil and 1 or config[z].x)
+			config[z].v = min(floor(config[z].v * 10 + i * 10) / 10, config[z].x == nil and 1 or config[z].x)
 		elseif event == DECR or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
-			config[z].v = math.max(math.floor(config[z].v * 10 - i * 10) / 10, config2[z].m == nil and 0 or config2[z].m)
+			config[z].v =max(floor(config[z].v * 10 - i * 10) / 10, config2[z].m == nil and 0 or config2[z].m)
 		end
 
 		-- Special cases
 		if event then
 			if z == 2 then -- Cell low > critical
-				config[2].v = math.max(config[2].v, config[3].v + 0.1)
+				config[2].v = max(config[2].v, config[3].v + 0.1)
 			elseif z == 3 then -- Cell critical < low
-				config[3].v = math.min(config[3].v, config[2].v - 0.1)
+				config[3].v = min(config[3].v, config[2].v - 0.1)
 			elseif z == 18 then -- Fuel low > critical
-				config[18].v = math.max(config[18].v, config[17].v + 1)
+				config[18].v = max(config[18].v, config[17].v + 1)
 			elseif z == 17 then -- Fuel critical < low
-				config[17].v = math.min(config[17].v, config[18].v - 1)
+				config[17].v = min(config[17].v, config[18].v - 1)
 			elseif z == 20 then -- Speed sensor
 				local tmp = config[20].v == 0 and "GSpd" or "ASpd"
 				data.speed_id = getTelemetryId(tmp)
@@ -219,33 +225,19 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 			elseif z == 28 then -- Altitude graph
 				data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 			elseif i > 1 then
-				config[z].v = math.floor(config[z].v / i) * i
+				config[z].v = floor(config[z].v / i) * i
 			end
 		end
 	end
 
 	if event == EVT_ENTER_BREAK then
 		data.configSelect = (data.configSelect == 0) and BLINK or 0
-		print(data.configSelect)
-		print(data.configStatus)
-		if data.configStatus == 34 then
-			print(config2[34].l[0])
-			if data.configSelect == 1 and config2[34].l[0] == "???" then
-				results = loadScript(FILE_PATH .. "logsrch", env)()
-				collectgarbage()
-				if #results == 0 then
-					config[34].l[0] = nil
-					data.configSelect = 0
-					data.configStatus = 33
-				else
-					config[34].l, config[34].x = results, #results
-				end
-			elseif data.configSelect == 0 then
-				saveConfig()
-				data.configLast = data.configStatus
-				data.configStatus = 0
-				data.doLogs = true
-			end
+		if data.configStatus == 34 and data.configSelect == 0 then
+			-- Log file selected
+			saveConfig()
+			data.configLast = data.configStatus
+			data.configStatus = 0
+			data.doLogs = true
 		end
 	end
 
