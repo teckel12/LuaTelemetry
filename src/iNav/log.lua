@@ -3,7 +3,7 @@ local env, FILE_PATH = ...
 local logfh, label, seek, fake
 local raw = ""
 
-local function playLog(data, config, distCalc, date)
+local function playLog(data, config, distCalc, date, gpsTemp)
 
 	local function parseLine(line)
 		local record = {}
@@ -26,7 +26,7 @@ local function playLog(data, config, distCalc, date)
 
 	if logfh == nil then
 		logfh = io.open("/LOGS/" .. model.getInfo().name .. "-20" .. date .. ".csv")
-		fake = loadScript(FILE_PATH .. (data.crsf and "log_c" or "log_s"), env)()
+		fake = loadScript(FILE_PATH .. "log_" .. (data.crsf and "c" or "s"), env)()
 		data.showMax = false
 		seek = 0
 	end
@@ -67,11 +67,10 @@ local function playLog(data, config, distCalc, date)
 					end
 				end
 			else
-				-- Assign log values
-				data.time = string.sub(record[label.time], 0, string.find(record[label.time], "%.") - 1)
-
+				-- Fake telemetry specific to Crossfire or S.Port
 				fake(data, config, record, label)
 
+				data.time = string.sub(record[label.time], 0, string.find(record[label.time], "%.") - 1)
 				data.altitude = tonumber(record[label.alt])
 				if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 					data.altitude = data.gpsAlt - data.gpsAltBase
@@ -82,34 +81,13 @@ local function playLog(data, config, distCalc, date)
 				end
 				if data.a4_id > -1 then
 					data.cell = tonumber(record[label.a4])
-				else
-					if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
-						data.cells = math.floor(data.batt / config[29].v) + 1
-					end
-					data.cell = data.batt / data.cells
 				end
-				-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
-				if data.dist_unit == 10 then
-					data.distance = math.floor(data.distance * 3.28084 + 0.5)
-				end
-				data.rssiLast = data.rssi
-				data.gpsFix = false
 				pos = string.find(record[label.gps], " ")
 				if pos ~= nil then
-					data.gpsLatLon = {
+					gpsTemp = {
 						lat = tonumber(string.sub(record[label.gps], 0, pos - 1)),
 						lon = tonumber(string.sub(record[label.gps], pos + 1))
 					}
-					if data.satellites > 1000 then
-						data.gpsFix = true
-						data.lastLock = data.gpsLatLon
-						if data.gpsHome ~= false and distCalc ~= nil then
-							distCalc(data)
-						end
-					end
-				end
-				if data.distance > 0 then
-					data.distanceLast = data.distance
 				end
 				data.telem = true
 				data.telemFlags = 0

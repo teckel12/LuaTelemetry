@@ -87,6 +87,7 @@ local function endLog()
 end
 
 local function background()
+	local gpsTemp
 	data.rssi, data.rssiLow, data.rssiCrit = getRSSI()
 	if data.rssi > 0 then
 		data.telem = true
@@ -113,11 +114,6 @@ local function background()
 			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
 			data.distance = getValue(data.dist_id)
 			data.distanceMax = getValue(data.distMax_id)
-			-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
-			if data.dist_unit == 10 then
-				data.distance = math.floor(data.distance * 3.28084 + 0.5)
-				data.distanceMax = data.distanceMax * 3.28084
-			end
 			data.vspeed = getValue(data.vspeed_id)
 		end
 		data.altitude = getValue(data.alt_id)
@@ -133,31 +129,10 @@ local function background()
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
+		gpsTemp = getValue(data.gpsLatLon_id)
 		if data.a4_id > -1 then
 			data.cell = getValue(data.a4_id)
 			data.cellMin = getValue(data.a4Min_id)
-		else
-			if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
-				data.cells = math.floor(data.batt / config[29].v) + 1
-			end
-			data.cell = data.batt / data.cells
-			data.cellMin = data.battMin / data.cells
-		end
-		data.rssiLast = data.rssi
-		data.gpsFix = false
-		local gpsTemp = getValue(data.gpsLatLon_id)
-		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
-			data.gpsLatLon = gpsTemp
-			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
-				data.gpsFix = true
-				data.lastLock = gpsTemp
-				if data.gpsHome ~= false and distCalc ~= nil then
-					distCalc(data)
-				end
-			end
-		end
-		if data.distance > 0 then
-			data.distanceLast = data.distance
 		end
 	else
 		data.telem = false
@@ -185,10 +160,40 @@ local function background()
 				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
 				playLog = loadScript(FILE_PATH .. "log", env)(env, FILE_PATH)
 			end
-			playLog(data, config, distCalc, config[34].l[config[34].v])
+			playLog(data, config, distCalc, config[34].l[config[34].v], gpsTemp)
 			if not data.doLogs then
 				endLog()
 			end
+		end
+	end
+
+	if data.rssi > 0 then
+		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+		if data.dist_unit == 10  and not data.crsf then
+			data.distance = math.floor(data.distance * 3.28084 + 0.5)
+			data.distanceMax = data.distanceMax * 3.28084
+		end
+		if data.a4_id == -1 then
+			if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
+				data.cells = math.floor(data.batt / config[29].v) + 1
+			end
+			data.cell = data.batt / data.cells
+			data.cellMin = data.battMin / data.cells
+		end
+		data.rssiLast = data.rssi
+		data.gpsFix = false
+		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
+			data.gpsLatLon = data.gpsTemp
+			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
+				data.gpsFix = true
+				data.lastLock = gpsTemp
+				if data.gpsHome ~= false and distCalc ~= nil then
+					distCalc(data)
+				end
+			end
+		end
+		if data.distance > 0 then
+			data.distanceLast = data.distance
 		end
 	end
 
