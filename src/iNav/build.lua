@@ -30,7 +30,7 @@ end
 
 loadScript(FILE_PATH .. "reset", env)(data)
 local crsf = loadScript(FILE_PATH .. "crsf", env)(config, data, getTelemetryId)
-crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env)
+crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()

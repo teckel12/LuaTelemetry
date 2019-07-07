@@ -97,7 +97,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	end
 
 	-- Special limit cases
-	config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
+	config[19].x = SMLCD and ((config[14].v == 1 or data.crsf) and 1 or 2) or 2
 	config[19].v = min(config[19].x, config[19].v)
 	config[25].x = config[28].v == 0 and 2 or 3
 	if config[28].v == 0 and config[25].v == 3 then

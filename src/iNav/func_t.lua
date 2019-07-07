@@ -16,7 +16,7 @@ local function title(data, config, SMLCD)
 		end
 	end
 	if config[19].v ~= 1 then
-		lcd.drawText(SMLCD and (config[14].v == 1 and 105 or LCD_W) or 128, 1, string.format("%.1fV", data.txBatt), SMLSIZE + RIGHT + INVERS)
+		lcd.drawText(SMLCD and ((config[14].v == 1 or data.crsf) and 105 or LCD_W) or 128, 1, string.format("%.1fV", data.txBatt), SMLSIZE + RIGHT + INVERS)
 	end
 	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
 		lcd.drawText(LCD_W, 1, string.format("%.1fV", data.rxBatt), SMLSIZE + RIGHT + INVERS)

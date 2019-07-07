@@ -1,4 +1,4 @@
-local config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env = ...
+local config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD = ...
 local crsf = nil
 
 -- Detect Crossfire
@@ -42,7 +42,7 @@ end
 if config[6].v == -1 then
 	config[6].v = data.alt_unit == 10 and 400 or 120
 end
-config[19].x = config[14].v == 0 and 2 or SMLCD and 1 or 2
+config[19].x = SMLCD and ((config[14].v == 1 or data.crsf) and 1 or 2) or 2
 config[19].v = math.min(config[19].x, config[19].v)
 config[20].v = data.pitot and config[20].v or 0
 if config[28].v == 0 then
