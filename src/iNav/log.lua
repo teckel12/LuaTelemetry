@@ -1,9 +1,11 @@
 local env, FILE_PATH = ...
 
-local logfh, label, seek, fake
+local logfh, label, fake--, seek
 local raw = ""
 
-local function playLog(data, config, distCalc, date, gpsTemp)
+local function playLog(data, config, distCalc, date)
+
+	local gpsTemp = nil
 
 	local function parseLine(line)
 		local record = {}
@@ -28,7 +30,7 @@ local function playLog(data, config, distCalc, date, gpsTemp)
 		logfh = io.open("/LOGS/" .. model.getInfo().name .. "-20" .. date .. ".csv")
 		fake = loadScript(FILE_PATH .. "log_" .. (data.crsf and "c" or "s"), env)()
 		data.showMax = false
-		seek = 0
+		--seek = 0
 	end
 	if logfh ~= nil then
 
@@ -39,7 +41,7 @@ local function playLog(data, config, distCalc, date, gpsTemp)
 			read = io.read(logfh, 255)
 			raw = raw .. read
 			pos = string.find(raw, "\n")
-			seek = seek + 255
+			--seek = seek + 255
 		end
 		if read == "" then
 			-- End of file
@@ -96,6 +98,8 @@ local function playLog(data, config, distCalc, date, gpsTemp)
 	else
 		data.doLogs = false
 	end
+
+	return gpsTemp
 end
 
 return playLog

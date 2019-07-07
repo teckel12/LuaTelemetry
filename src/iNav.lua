@@ -83,7 +83,6 @@ local function endLog()
 	playLog = nil
 	collectgarbage()
 	loadScript(FILE_PATH .. "reset", env)(data)
-	collectgarbage()
 end
 
 local function background()
@@ -143,9 +142,7 @@ local function background()
 
 	-- For testing
 	--data.doLogs = true
-	--config[34].l[config[34].v] = "Test16"
 	--config[34].l[config[34].v] = "2019-06-28"
-	--config[34].l[config[34].v] = "2019-05-31"
 
 	-- Log playback
 	if data.doLogs then
@@ -160,7 +157,7 @@ local function background()
 				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
 				playLog = loadScript(FILE_PATH .. "log", env)(env, FILE_PATH)
 			end
-			playLog(data, config, distCalc, config[34].l[config[34].v], gpsTemp)
+			gpsTemp = playLog(data, config, distCalc, config[34].l[config[34].v])
 			if not data.doLogs then
 				endLog()
 			end
@@ -183,7 +180,7 @@ local function background()
 		data.rssiLast = data.rssi
 		data.gpsFix = false
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
-			data.gpsLatLon = data.gpsTemp
+			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
 				data.gpsFix = true
 				data.lastLock = gpsTemp

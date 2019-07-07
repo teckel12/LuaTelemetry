@@ -68,7 +68,7 @@ local function lang(config2)
 	--config2[10].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[11].l = {[0] = "Off", "Critico", "Todo"}		-- "Off", "Critical", "All"
 	--config2[12].l = {[0] = "Off", "On"}				-- "Off", "On"
-	--config2[13].l = {[0] = "Off", "Auto", "Timer1", "Timer2"}	-- "Off", "Auto", "Timer1", "Timer2"
+	--config2[13].l = {[0] = "Off", "Auto", "1", "2"}		-- "Off", "Auto", "1", "2"
 	--config2[14].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[16].l = {[0] = "Decimal", "Grados"}			-- "Decimal", "Deg/Min"
 	config2[19].l = {[0] = "Numero", "Grafico", "Ambos"}		-- "Number", "Graph", "Both"
@@ -81,6 +81,8 @@ local function lang(config2)
 	--config2[31].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[32].l = {[0] = "Brazo", "Brujula"}			-- "Launch", "Compass"
 	--config2[33].l = {[0] = "Off", "On"}				-- "Off", "On"
+
+	return {[0] = "Off", "On"}	-- "Off", "On"
 end
 
 return lang

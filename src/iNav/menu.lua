@@ -12,6 +12,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	local max = math.max
 	local floor = math.floor
 	local format = string.format
+	local offOn = {[0] = "Off", "On"}
 
 	-- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text
 	local config2 = {
@@ -22,15 +23,15 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Feedback",         l = {[0] = "Off", "Haptic", "Beeper", "All"} }, -- 5
 		{ t = "Max Altitude",     i = data.alt_unit == 10 and 10 or 1, a = units[data.alt_unit] }, -- 6
 		{ t = "Variometer",       l = {[0] = "Off", "Graph", "Voice", "Both"} }, -- 7
-		{ t = "RTH Feedback",     l = {[0] = "Off", "On"} }, -- 8
-		{ t = "HeadFree Feedback",l = {[0] = "Off", "On"} }, -- 9
-		{ t = "RSSI Feedback",    l = {[0] = "Off", "On"} }, -- 10
+		{ t = "RTH Feedback",     l = 1 }, -- 8
+		{ t = "HeadFree Feedback",l = 1 }, -- 9
+		{ t = "RSSI Feedback",    l = 1 }, -- 10
 		{ t = "Battery Alerts",   l = {[0] = "Off", "Critical", "All"} }, -- 11
-		{ t = "Altitude Alert",   l = {[0] = "Off", "On"} }, -- 12
-		{ t = "Timer",            l = {[0] = "Off", "Auto", "Timer1", "Timer2"} }, -- 13
-		{ t = "Rx Voltage",       l = {[0] = "Off", "On"} }, -- 14
-		{ t = "Flight Vector",    l = {[0] = "Off", "On"} }, -- 15
-		{ t = "GPS",              l = {[0] = format("%10.6f %11.6f", data.lastLock.lat, data.lastLock.lon), gpsDegMin(data.lastLock.lat, true) .. "  " .. gpsDegMin(data.lastLock.lon, false)} }, -- 16
+		{ t = "Altitude Alert",   l = 1 }, -- 12
+		{ t = "Timer",            l = {[0] = "Off", "Auto", "1", "2"} }, -- 13
+		{ t = "Rx Voltage",       l = 1 }, -- 14
+		{ t = "Flight Vector",    l = 1 }, -- 15
+		{ t = "GPS",              l = 0 }, -- 16
 		{ t = "Fuel Critical",    m = 1, a = "%" }, -- 17
 		{ t = "Fuel Low",         m = 2, a = "%" }, -- 18
 		{ t = "Tx Voltage",       l = {[0] = "Number", "Graph", "Both"} }, -- 19
@@ -40,20 +41,20 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Fuel Unit",        l = {[0] = "Percent", "mAh", "mWh"} }, -- 23
 		{ t = "Vario Steps",      m = 0, a = units[data.alt_unit], l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} }, -- 24
 		{ t = "View Mode",        l = {[0] = "Classic", "Pilot", "Radar", "Altitude"} }, -- 25
-		{ t = "AltHold Center FB",l = {[0] = "Off", "On"} }, -- 26
+		{ t = "AltHold Center FB",l = 1 }, -- 26
 		{ t = "Battery Capacity", m = 150, i = 50, a = "mAh" }, -- 27
 		{ t = "Altitude Graph",   l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" }, -- 28
 		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" }, -- 29
 		{ t = "Aircraft Symbol",  a = "" }, -- 30
-		{ t = "Center Map Home",  l = {[0] = "Off", "On"} }, -- 31
+		{ t = "Center Map Home",  l = 1 }, -- 31
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} }, -- 32
-		{ t = "Roll Scale",       l = {[0] = "Off", "On"} }, -- 33
+		{ t = "Roll Scale",       l = 1 }, -- 33
 		{ t = "Review Log" }, -- 34
 	}
 
 	-- Import language changes
 	if lang ~= nil then
-		lang(config2)
+		offOn = lang(config2)
 	end
 
 	-- Get log dates
@@ -74,6 +75,8 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 			end
 			io.close(fh)
 		end
+		data.configLast = data.configStatus
+		data.configStatus = 0
 	end
 
 	if HORUS then
@@ -148,55 +151,38 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		config2[34].p = 1
 	end
 
-	for line = data.configTop, min(#config, data.configTop + ROWS) do
-		local y = (line - data.configTop) * LINE + TOP
-		local z = config[line].z
-		local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
-		if config2[z].p == 1 and HORUS then
-			tmp = tmp + CUSTOM_COLOR
-		end
-		text(CONFIG_X, y, config2[z].t, FONT + (config2[z].p == 1 and tmp or 0))
-		if config2[z].p == nil then
-			if config2[z].l == nil then
-				text(CONFIG_X + RSIDE, y, (config[z].d ~= nil and format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
-			else
-				if not config2[z].l then
-					text(CONFIG_X + RSIDE, y, config[z].v, FONT + tmp)
-				else
-					text(z == 16 and LCD_W - CONFIG_X or CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp + (z == 16 and RIGHT or 0))
-				end
-			end
-		else
-			text(CONFIG_X + RSIDE, y, "--", FONT + tmp)
-		end
+	if event == EVT_ENTER_BREAK and config2[config[data.configStatus].z].p == nil then
+		data.configSelect = (data.configSelect == 0) and BLINK or 0
 	end
 
+	-- Select config option
 	if data.configSelect == 0 then
-		-- Select config option
 		if event == EVT_EXIT_BREAK then
 			saveConfig()
-			data.configLast = data.configStatus
-			data.configStatus = 0
 		elseif event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
 			data.configStatus = data.configStatus == #config and 1 or data.configStatus + 1
 			data.configTop = data.configStatus > min(#config, data.configTop + ROWS) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
-			while config2[config[data.configStatus].z].p ~= nil do
-				data.configStatus = min(data.configStatus + 1, #config + 1)
-				data.configTop = data.configStatus > min(#config, data.configTop + ROWS) and data.configTop + 1 or data.configTop
-				if data.configStatus == #config + 1 then
-					data.configStatus, data.configTop = 1, 1
-					break
-				end
-			end
 		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
 			data.configStatus = data.configStatus == 1 and #config or data.configStatus - 1
 			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == #config and #config - ROWS or data.configTop)
-			while config2[config[data.configStatus].z].p ~= nil do
-				data.configStatus = max(data.configStatus - 1, 1)
-				data.configTop = data.configStatus < data.configTop and data.configTop - 1 or data.configTop
-			end
+		elseif event == EVT_ENTER_BREAK and data.configStatus == 34 then
+			-- Log file selected
+			saveConfig()
+			data.doLogs = true
 		end
-	else
+	end
+
+	-- Delete invisible menus
+	local bottom = min(#config, data.configTop + ROWS)
+	for line = 1, #config do
+		if line < data.configTop or line > bottom then
+			config2[config[line].z] = nil
+		end
+	end
+	collectgarbage()
+
+	-- Select config items
+	if data.configSelect ~= 0 then
 		local z = config[data.configStatus].z
 		local i = config2[z].i == nil and 1 or config2[z].i
 		if event == EVT_EXIT_BREAK then
@@ -208,7 +194,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		end
 
 		-- Special cases
-		if event then
+		if event ~= 0 and event ~= nil then
 			if z == 2 then -- Cell low > critical
 				config[2].v = max(config[2].v, config[3].v + 0.1)
 			elseif z == 3 then -- Cell critical < low
@@ -223,21 +209,46 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 				data.speedMax_id = getTelemetryId(tmp .. "+")
 				data.speed_unit = getTelemetryUnit(tmp)
 			elseif z == 28 then -- Altitude graph
-				data.alt = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+				for i = 1, 60 do
+					data.alt[i] = 0
+				end
 			elseif i > 1 then
 				config[z].v = floor(config[z].v / i) * i
 			end
 		end
 	end
 
-	if event == EVT_ENTER_BREAK then
-		data.configSelect = (data.configSelect == 0) and BLINK or 0
-		if data.configStatus == 34 and data.configSelect == 0 then
-			-- Log file selected
-			saveConfig()
-			data.configLast = data.configStatus
-			data.configStatus = 0
-			data.doLogs = true
+	-- Print screen
+	for line = data.configTop, bottom do
+		local y = (line - data.configTop) * LINE + TOP
+		local z = config[line].z
+		local tmp = (data.configStatus == line and INVERS + data.configSelect or 0) + (config[z].d ~= nil and PREC1 or 0)
+		if config2[z].p == 1 and HORUS then
+			tmp = tmp + CUSTOM_COLOR
+		end
+		text(CONFIG_X, y, config2[z].t, FONT + ((config2[z].p == 1 and HORUS) and CUSTOM_COLOR or 0))
+		if config2[z].p == nil then
+			if config2[z].l == nil then
+				text(CONFIG_X + RSIDE, y, (config[z].d ~= nil and format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
+			else
+				if config2[z].l == 0 then
+					if config[z].v == 0 then
+						config2[z].l = { [0] = format("%10.6f %11.6f", data.lastLock.lat, data.lastLock.lon) }
+					else
+						config2[z].l = { gpsDegMin(data.lastLock.lat, true) .. "  " .. gpsDegMin(data.lastLock.lon, false) }
+					end
+				elseif config2[z].l == 1 then
+					config2[z].l = offOn
+				end
+				if not config2[z].l then
+					text(CONFIG_X + RSIDE, y, config[z].v, FONT + tmp)
+				else
+					text(z == 16 and LCD_W - CONFIG_X or CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp + (z == 16 and RIGHT or 0))
+				end
+			end
+			config2[z] = nil
+		else
+			text(CONFIG_X + RSIDE, y, "--", FONT + tmp)
 		end
 	end
 
