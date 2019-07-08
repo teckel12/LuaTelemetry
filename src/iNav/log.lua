@@ -41,7 +41,7 @@ local function playLog(data, config, distCalc, date)
 			read = io.read(logfh, 255)
 			raw = raw .. read
 			pos = string.find(raw, "\n")
-			--seek = seek + 255
+			--seek = seek + 1
 		end
 		if read == "" then
 			-- End of file

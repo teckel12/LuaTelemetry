@@ -7,12 +7,12 @@ local function fake(data, config, record, label)
 	data.fuel = tonumber(record[label.fuel])
 	data.heading = tonumber(record[label.hdg])
 	if data.pitchRoll then
-		data.pitch = tonumber(record[label.ptch])
-		data.roll = tonumber(record[label.roll])
+		data.pitch = label.pitch == nil and 0 or tonumber(record[label.ptch])
+		data.roll = label.roll == nil and 0 or tonumber(record[label.roll])
 	else
-		data.accx = tonumber(record[label.accx])
-		data.accy = tonumber(record[label.accy])
-		data.accz = tonumber(record[label.accz])
+		data.accx = label.accx == nil and 0 or tonumber(record[label.accx])
+		data.accy = label.accy == nil and 0 or tonumber(record[label.accy])
+		data.accz = label.accz == nil and 1 or tonumber(record[label.accz])
 	end
 	data.mode = tonumber(record[label.tmp1])
 	data.rxBatt = tonumber(record[label.rxbt])
