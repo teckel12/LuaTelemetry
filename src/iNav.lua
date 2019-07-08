@@ -525,7 +525,7 @@ local function run(event)
 			-- Exit log playback
 			endLog()
 		end
-		
+
 		-- Views
 		if data.v ~= config[25].v then
 			view = nil

@@ -11,7 +11,7 @@ local function getTelemetryUnit(n)
 end
 
 local tx = string.sub(r, 0, 2)
-if string.sub(r, 0, 3) == "x9e" or HORUS then
+if HORUS or string.sub(r, 0, 3) == "x9e" or string.sub(r, 0, 6) == "x9lite" then
 	tx = "x7"
 end
 local tmp = tx == "x9" and EVT_PLUS_FIRST or (tx == "xl" and EVT_UP_FIRST)
