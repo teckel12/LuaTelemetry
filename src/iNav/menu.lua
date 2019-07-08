@@ -93,7 +93,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		end
 	end
 	if not SMLCD then
-		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 3), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 6), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)
+		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 5), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 10), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)
 	end
 
 	-- Special limit cases
@@ -165,7 +165,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
 			data.configStatus = data.configStatus == 1 and #config or data.configStatus - 1
 			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == #config and #config - ROWS or data.configTop)
-		elseif event == EVT_ENTER_BREAK and data.configStatus == 34 then
+		elseif event == EVT_ENTER_BREAK and data.configStatus == 34 and config2[34].p == nil then
 			-- Log file selected
 			saveConfig()
 			data.doLogs = true
