@@ -28,7 +28,7 @@ local function crsf(data)
 	data.roll = math.deg(getValue(data.roll_id)) * 10
 	-- The following shenanigans are requred due to int rollover bugs in the Crossfire protocol for yaw and hdg
 	local tmp = getValue(data.hdg_id)
-	if tmp < -0.27 then
+	if tmp < -0.26 then
 		tmp = tmp + 0.27
 	end
 	data.heading = (math.deg(tmp) + 360) % 360
