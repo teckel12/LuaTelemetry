@@ -478,6 +478,9 @@ local function run(event)
 		lcd.clear()
 	end
 
+	-- Store event in data to process in the background
+	data.event = event
+
 	-- Display system error
 	if data.msg then
 		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) / 2, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
@@ -522,9 +525,6 @@ local function run(event)
 		elseif event == MENU then
 			-- Config menu
 			data.configStatus = data.configLast
-		elseif event == EVT_EXIT_BREAK and data.doLogs then
-			-- Exit log playback
-			endLog()
 		end
 
 		-- Views
