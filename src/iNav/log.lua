@@ -28,7 +28,7 @@ local function playLog(data, config, distCalc, date)
 
 	if logfh == nil then
 		logfh = io.open("/LOGS/" .. model.getInfo().name .. "-20" .. date .. ".csv")
-		fake = loadScript(FILE_PATH .. "log_" .. (data.crsf and "c" or "s"), env)()
+		fake = loadScript(FILE_PATH .. "log_" .. (data.crsf and "c" or "s") .. ".luac", env)()
 		data.showMax = false
 		--seek = 0
 	end

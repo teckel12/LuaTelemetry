@@ -10,6 +10,7 @@ local HORUS = LCD_W >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
 local tmp, view, lang, playLog
 local env = "bx"
+local ext = ".luac"
 
 -- Build with Companion and allow debugging
 local v, r, m, i, e = getVersion()
@@ -20,16 +21,16 @@ if string.sub(r, -4) == "simu" then
 	end
 end
 
-local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
+local config = loadScript(FILE_PATH .. "config" .. ext, env)(SMLCD)
 collectgarbage()
 
-local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
+local modes, units, labels = loadScript(FILE_PATH .. "modes" .. ext, env)()
 collectgarbage()
 
-local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
+local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data" .. ext, env)(r, m, i, HORUS)
 collectgarbage()
 
-loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
+loadScript(FILE_PATH .. "load" .. ext, env)(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
@@ -38,17 +39,17 @@ data.voice = "es"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	lang = loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH, env)
+	lang = loadScript(FILE_PATH .. "lang" .. ext, env)(modes, labels, data, FILE_PATH, env)
 	collectgarbage()
 end
 
-loadScript(FILE_PATH .. "reset", env)(data)
+loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 collectgarbage()
 
-local crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD)
+local crsf, distCalc = loadScript(FILE_PATH .. "other" .. ext, env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t"), env)(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -82,7 +83,7 @@ local function endLog()
 	data.doLogs = false
 	playLog = nil
 	collectgarbage()
-	loadScript(FILE_PATH .. "reset", env)(data)
+	loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 end
 
 local function background()
@@ -153,9 +154,9 @@ local function background()
 		else
 			-- Not armed, continue playback
 			if playLog == nil then
-				loadScript(FILE_PATH .. "reset", env)(data)
+				loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
-				playLog = loadScript(FILE_PATH .. "log", env)(env, FILE_PATH)
+				playLog = loadScript(FILE_PATH .. "log" .. ext, env)(env, FILE_PATH)
 			end
 			gpsTemp = playLog(data, config, distCalc, config[34].l[config[34].v])
 			if not data.doLogs then
@@ -407,7 +408,7 @@ local function background()
 		-- Initalize variables on flight reset (uses timer3)
 		tmp = model.getTimer(2)
 		if tmp.value == 0 then
-			loadScript(FILE_PATH .. "reset", env)(data)
+			loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 			tmp.value = 3600
 			model.setTimer(2, tmp)
 		end
@@ -488,7 +489,7 @@ local function run(event)
 		if data.v ~= 9 then
 			view = nil
 			collectgarbage()
-			view = loadScript(FILE_PATH .. "menu", env)()
+			view = loadScript(FILE_PATH .. "menu" .. ext, env)()
 			data.v = 9
 		end
 		tmp = config[30].v
@@ -530,7 +531,7 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadScript(FILE_PATH .. (HORUS and "horus" or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))), env)()
+			view = loadScript(FILE_PATH .. (HORUS and "horus" or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))) .. ext, env)()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)

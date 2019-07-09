@@ -2,7 +2,7 @@ local modes, labels, data, FILE_PATH, env = ...
 local lang
 
 if data.lang ~= "en" then
-	local tmp = FILE_PATH .. "lang_" .. data.lang
+	local tmp = FILE_PATH .. "lang_" .. data.lang .. ".luac"
 	local fh = io.open(tmp)
 	if fh ~= nil then
 		io.close(fh)
