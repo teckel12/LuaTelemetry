@@ -572,11 +572,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	color(CUSTOM_COLOR, LIGHTGREY)
 	line(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
 
-	if data.showMax or (data.doLogs == true and data.time ~= nil) then
+	if data.showMax then
 		color(CUSTOM_COLOR, YELLOW)
 		fill(190, TOP - 20, 80, 20, CUSTOM_COLOR)
 		color(CUSTOM_COLOR, BLACK)
-		text(265, TOP - 20, data.showMax and "Min/Max" or data.time, CUSTOM_COLOR + RIGHT)
+		text(265, TOP - 20, "Min/Max", CUSTOM_COLOR + RIGHT)
 	end
 end
 

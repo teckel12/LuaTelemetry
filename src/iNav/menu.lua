@@ -147,7 +147,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		config2[10].p = 1
 		config2[26].p = 1
 	end
-	if config[34].x == -1 then
+	if config[34].x == -1 or data.armed then
 		config2[34].p = 1
 	end
 

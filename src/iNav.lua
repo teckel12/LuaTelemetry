@@ -81,7 +81,11 @@ end
 
 local function endLog()
 	data.doLogs = false
+	if clearlog ~= nil then
+		clearLog()
+	end
 	playLog = nil
+	clearLog = nil
 	collectgarbage()
 	loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 end
@@ -156,7 +160,7 @@ local function background()
 			if playLog == nil then
 				loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
-				playLog = loadScript(FILE_PATH .. "log" .. ext, env)(env, FILE_PATH)
+				playLog, clearLog = loadScript(FILE_PATH .. "log" .. ext, env)(env, FILE_PATH)
 			end
 			gpsTemp = playLog(data, config, distCalc, config[34].l[config[34].v], NEXT, PREV)
 			if not data.doLogs then
@@ -293,12 +297,10 @@ local function background()
 	end
 	if data.armed then
 		data.distanceLast = data.distance
-		if not data.doLogs then
-			if config[13].v == 1 then
-				data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
-			elseif config[13].v > 1 then
-				data.timer = model.getTimer(config[13].v - 2)["value"]
-			end
+		if config[13].v == 1 then
+			data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
+		elseif config[13].v > 1 then
+			data.timer = model.getTimer(config[13].v - 2)["value"]
 		end
 		if data.altHold ~= altHoldPrev then -- Alt hold status change
 			playAudio("althld")

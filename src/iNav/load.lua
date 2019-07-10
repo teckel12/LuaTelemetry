@@ -13,7 +13,7 @@ if fh ~= nil then
 end
 
 local log = getDateTime()
-local path = "/LOGS/" .. model.getInfo().name .. "-20"
+local path = "/LOGS/" .. string.gsub(model.getInfo().name, " ", "_") .. "-20"
 config[34].x = -1
 
 for days = 1, 15 do

@@ -4,6 +4,10 @@ local logfh, label, record, fake, start, starti, time, timel, seek
 local raw = ""
 local ele_id = getFieldInfo("ele").id
 
+local function clearLog()
+	logfh, label, record, fake, start, starti, time, timel, seek, raw, ele_id = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+end
+
 local function playLog(data, config, distCalc, date, NEXT, PREV)
 
 	local gpsTemp = nil
@@ -28,7 +32,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 	end
 
 	if logfh == nil then
-		logfh = io.open("/LOGS/" .. model.getInfo().name .. "-20" .. date .. ".csv")
+		logfh = io.open("/LOGS/" .. string.gsub(model.getInfo().name, " ", "_") .. "-20" .. date .. ".csv")
 		fake = loadScript(FILE_PATH .. "log_" .. (data.crsf and "c" or "s") .. ".luac", env)()
 		data.showMax = false
 		seek = 0
@@ -37,28 +41,30 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		-- Load next record
 		local pos = string.find(raw, "\n")
 		local read = nil
-		local ele = getValue(ele_id)
+		local ele = getValue(ele_id) / 200
 		local speed = 0
 		-- Seek forward/back
-		--[[ Not quite ready for prime-time
-		if seek > 0 and math.abs(ele) > 100 then
-			speed = math.floor(ele / 500) * 200
-			print(speed)
-			if speed ~= 0 then
-				io.seek(logfh, seek * 200 + speed)
+		if seek > 2 and math.abs(ele) > 1 then
+			speed = ele > 0 and math.floor(ele) or math.ceil(ele) - 1
+			io.seek(logfh, math.max(seek + speed, 0) * 200)
+			raw = ""
+			pos = nil
+			starti = getTime() - (time - start) * 100
+			seek = seek + speed
+			while pos == nil and read ~= "" do
 				read = io.read(logfh, 200)
-				pos = string.find(read, "\n")
-				if pos ~= nil then
-					raw = string.sub(read, pos + 1)
-					pos = nil
-					seek = seek + (speed / 200) + 1
-				end
+				raw = raw .. read
+				pos = string.find(raw, "\n")
+				seek = seek + 1
+			end
+			if pos ~= nil then
+				raw = string.sub(raw, pos + 1)
+				pos = string.find(raw, "\n")
 			end
 		-- Jump to next log segment
 		elseif timel ~= nil and time - timel > 2 then
 			start = nil
 		end
-		]]
 		if start == nil or speed ~= 0 or time - start < (getTime() - starti) / 100 then
 			while pos == nil and read ~= "" do
 				read = io.read(logfh, 200)
@@ -69,6 +75,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 			-- End of file
 			if read == "" then
 				io.close(logfh)
+				clearLog()
 				data.doLogs = false
 				return 0
 			else
@@ -104,7 +111,6 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 				start = time
 				starti = getTime()
 			end
-			data.timer = time - start
 
 			-- Fake telemetry that's similar on Crossfire and S.Port
 			data.time = string.sub(record[label.time], 0, 8)
@@ -136,4 +142,4 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 	return gpsTemp
 end
 
-return playLog
+return playLog, clearLog
