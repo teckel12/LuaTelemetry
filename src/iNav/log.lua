@@ -2,8 +2,9 @@ local env, FILE_PATH = ...
 
 local logfh, label, record, fake, start, starti, time, timel, seek
 local raw = ""
+local ele_id = getFieldInfo("ele").id
 
-local function playLog(data, config, distCalc, date)
+local function playLog(data, config, distCalc, date, NEXT, PREV)
 
 	local gpsTemp = nil
 
@@ -36,29 +37,37 @@ local function playLog(data, config, distCalc, date)
 		-- Load next record
 		local pos = string.find(raw, "\n")
 		local read = nil
-		-- Jump to next log segment
-		if timel ~= nil and time - timel > 2 then
-			start = nil
-		end
-		if start == nil or time - start < (getTime() - starti) / 100 then
-			if data.event == EVT_ROT_RIGHT then
-				io.seek(logfh, seek * 200 + 1980)
+		local ele = getValue(ele_id)
+		local speed = 0
+		-- Seek forward/back
+		--[[ Not quite ready for prime-time
+		if seek > 0 and math.abs(ele) > 100 then
+			speed = math.floor(ele / 500) * 200
+			print(speed)
+			if speed ~= 0 then
+				io.seek(logfh, seek * 200 + speed)
 				read = io.read(logfh, 200)
 				pos = string.find(read, "\n")
 				if pos ~= nil then
 					raw = string.sub(read, pos + 1)
 					pos = nil
-					seek = seek + 10
+					seek = seek + (speed / 200) + 1
 				end
 			end
+		-- Jump to next log segment
+		elseif timel ~= nil and time - timel > 2 then
+			start = nil
+		end
+		]]
+		if start == nil or speed ~= 0 or time - start < (getTime() - starti) / 100 then
 			while pos == nil and read ~= "" do
 				read = io.read(logfh, 200)
 				raw = raw .. read
 				pos = string.find(raw, "\n")
 				seek = seek + 1
 			end
-			-- End of file, or cancel playback
-			if read == "" or data.event == EVT_EXIT_BREAK then
+			-- End of file
+			if read == "" then
 				io.close(logfh)
 				data.doLogs = false
 				return 0
@@ -95,6 +104,7 @@ local function playLog(data, config, distCalc, date)
 				start = time
 				starti = getTime()
 			end
+			data.timer = time - start
 
 			-- Fake telemetry that's similar on Crossfire and S.Port
 			data.time = string.sub(record[label.time], 0, 8)

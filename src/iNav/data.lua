@@ -16,10 +16,8 @@ if HORUS or string.sub(r, 0, 3) == "x9e" or string.sub(r, 0, 6) == "x9lite" then
 end
 local tmp = tx == "x9" and EVT_PLUS_FIRST or (tx == "xl" and EVT_UP_FIRST)
 local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
-local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
 tmp = tx == "x9" and EVT_MINUS_FIRST or (tx == "xl" and EVT_DOWN_FIRST)
 local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
-local DECR = tx == "x7" and EVT_ROT_LEFT or tmp
 local MENU = tx == "xl" and EVT_SHIFT_BREAK or (HORUS and EVT_SYS_FIRST or EVT_MENU_BREAK)
 local general = getGeneralSettings()
 local distSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
@@ -92,4 +90,4 @@ local data = {
 	fUnit = {"mAh", "mWh"},
 }
 
-return data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU
+return data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU

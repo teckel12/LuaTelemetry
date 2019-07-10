@@ -1,4 +1,4 @@
-local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS, env)
+local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
 
 	local CONFIG_X = HORUS and 90 or (SMLCD and 0 or 46)
 	local TOP = HORUS and 37 or 11
@@ -187,9 +187,9 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		local i = config2[z].i == nil and 1 or config2[z].i
 		if event == EVT_EXIT_BREAK then
 			data.configSelect = 0
-		elseif event == INCR or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
+		elseif event == NEXT or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
 			config[z].v = min(floor(config[z].v * 10 + i * 10) / 10, config[z].x == nil and 1 or config[z].x)
-		elseif event == DECR or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
+		elseif event == PREV or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
 			config[z].v =max(floor(config[z].v * 10 - i * 10) / 10, config2[z].m == nil and 0 or config2[z].m)
 		end
 

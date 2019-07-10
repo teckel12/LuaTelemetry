@@ -27,7 +27,7 @@ collectgarbage()
 local modes, units, labels = loadScript(FILE_PATH .. "modes" .. ext, env)()
 collectgarbage()
 
-local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data" .. ext, env)(r, m, i, HORUS)
+local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU = loadScript(FILE_PATH .. "data" .. ext, env)(r, m, i, HORUS)
 collectgarbage()
 
 loadScript(FILE_PATH .. "load" .. ext, env)(config, data, FILE_PATH)
@@ -158,7 +158,7 @@ local function background()
 				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
 				playLog = loadScript(FILE_PATH .. "log" .. ext, env)(env, FILE_PATH)
 			end
-			gpsTemp = playLog(data, config, distCalc, config[34].l[config[34].v])
+			gpsTemp = playLog(data, config, distCalc, config[34].l[config[34].v], NEXT, PREV)
 			if not data.doLogs then
 				endLog()
 			end
@@ -293,10 +293,12 @@ local function background()
 	end
 	if data.armed then
 		data.distanceLast = data.distance
-		if config[13].v == 1 then
-			data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
-		elseif config[13].v > 1 then
-			data.timer = model.getTimer(config[13].v - 2)["value"]
+		if not data.doLogs then
+			if config[13].v == 1 then
+				data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
+			elseif config[13].v > 1 then
+				data.timer = model.getTimer(config[13].v - 2)["value"]
+			end
 		end
 		if data.altHold ~= altHoldPrev then -- Alt hold status change
 			playAudio("althld")
@@ -478,9 +480,6 @@ local function run(event)
 		lcd.clear()
 	end
 
-	-- Store event in data to process in the background
-	data.event = event
-
 	-- Display system error
 	if data.msg then
 		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) / 2, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
@@ -496,7 +495,7 @@ local function run(event)
 			data.v = 9
 		end
 		tmp = config[30].v
-		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS, env)
+		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
 		if HORUS then
 			if config[30].v ~= tmp then
 				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
@@ -512,7 +511,7 @@ local function run(event)
 		end
 	else
 		-- User input
-		if not data.armed and (event == PREV or event == NEXT) and not data.doLogs then
+		if not data.armed and (event == PREV or event == NEXT) then
 			-- Toggle showing max/min values
 			data.showMax = not data.showMax
 		end
@@ -525,6 +524,9 @@ local function run(event)
 		elseif event == MENU then
 			-- Config menu
 			data.configStatus = data.configLast
+		elseif event == EVT_EXIT_BREAK and data.doLogs then
+			-- Exit playback
+			endLog()
 		end
 
 		-- Views

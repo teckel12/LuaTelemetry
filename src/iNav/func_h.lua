@@ -124,8 +124,12 @@ function widgetEvt(data)
 			data.lastevt = evt
 		end
 	end
-	if evt == 0 and data.lastt6 ~= nil and getValue(data.t6_id) ~= data.lastt6 then
-		evt = EVT_ROT_RIGHT -- Down
+	if evt == 0 and data.lastt6 ~= nil then
+		if getValue(data.t6_id) > data.lastt6 then
+			evt = EVT_ROT_LEFT -- Up
+		elseif getValue(data.t6_id) < data.lastt6 then
+			evt = EVT_ROT_RIGHT -- Down
+		end
 	end
 	if evt == 0 and data.doLogs and getValue(data.hcurx_id) < -940 then
 		evt = EVT_EXIT_BREAK -- Left (exit)
