@@ -6,10 +6,6 @@ local raw = ""
 local ele_id = getFieldInfo("ele").id
 local ail_id = getFieldInfo("ail").id
 
-local function clearLog()
-	logfh, label, record, fake, start, starti, time, timel, seek, raw, pause, ele_id, ail_id = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
-end
-
 local function playLog(data, config, distCalc, date, NEXT, PREV)
 
 	local gpsTemp = nil
@@ -57,13 +53,13 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 			if not pause or ele < 0 then
 				speed = ele > 0 and math.floor(ele) or math.ceil(ele) - 1
 				seek = math.max(seek + speed, 0)
-				io.seek(logfh, seek * 200)
+				io.seek(logfh, seek * 400)
 				raw = ""
 				pos = nil
 				start = nil
 				pause = false
 				while pos == nil and read ~= "" do
-					read = io.read(logfh, 200)
+					read = io.read(logfh, 400)
 					raw = raw .. read
 					pos = string.find(raw, "\n")
 					seek = seek + 1
@@ -76,7 +72,6 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		elseif ail < -940 then
 			-- Exit playback
 			io.close(logfh)
-			clearLog()
 			data.doLogs = false
 			return 0
 		elseif pause and ail <= 940 then
@@ -87,7 +82,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		-- Load next record
 		if not pause and (start == nil or speed ~= 0 or time - start < (getTime() - starti) / 100) then
 			while pos == nil and read ~= "" do
-				read = io.read(logfh, 200)
+				read = io.read(logfh, 400)
 				raw = raw .. read
 				pos = string.find(raw, "\n")
 			end
@@ -160,4 +155,4 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 	return gpsTemp
 end
 
-return playLog, clearLog
+return playLog
