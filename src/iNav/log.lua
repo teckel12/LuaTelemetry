@@ -1,11 +1,13 @@
 local env, FILE_PATH = ...
 
 local logfh, label, record, fake, start, starti, time, timel, seek
+local pause = false
 local raw = ""
 local ele_id = getFieldInfo("ele").id
+local ail_id = getFieldInfo("ail").id
 
 local function clearLog()
-	logfh, label, record, fake, start, starti, time, timel, seek, raw, ele_id = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+	logfh, label, record, fake, start, starti, time, timel, seek, raw, pause, ele_id, ail_id = nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 end
 
 local function playLog(data, config, distCalc, date, NEXT, PREV)
@@ -38,48 +40,63 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		seek = 0
 	end
 	if logfh ~= nil then
-		-- Load next record
 		local pos = string.find(raw, "\n")
 		local read = nil
 		local ele = getValue(ele_id) / 200
+		local ail = getValue(ail_id)
 		local speed = 0
-		-- Seek forward/back
-		if seek > 2 and math.abs(ele) > 1 then
-			speed = ele > 0 and math.floor(ele) or math.ceil(ele) - 1
-			io.seek(logfh, math.max(seek + speed, 0) * 200)
-			raw = ""
-			pos = nil
-			starti = getTime() - (time - start) * 100
-			seek = seek + speed
-			while pos == nil and read ~= "" do
-				read = io.read(logfh, 200)
-				raw = raw .. read
-				pos = string.find(raw, "\n")
-				seek = seek + 1
-			end
-			if pos ~= nil then
-				raw = string.sub(raw, pos + 1)
-				pos = string.find(raw, "\n")
-			end
-		-- Jump to next log segment
-		elseif timel ~= nil and time - timel > 2 then
+		if timel ~= nil and time - timel > 2 then
+			-- Jump to next log segment
 			start = nil
+		elseif ail > 940 and seek > 2 then
+			-- Pause
+			pause = true
+			start = nil
+		elseif math.abs(ele) > 1 then
+			-- Seek forward/back
+			if not pause or ele < 0 then
+				speed = ele > 0 and math.floor(ele) or math.ceil(ele) - 1
+				seek = math.max(seek + speed, 0)
+				io.seek(logfh, seek * 200)
+				raw = ""
+				pos = nil
+				start = nil
+				pause = false
+				while pos == nil and read ~= "" do
+					read = io.read(logfh, 200)
+					raw = raw .. read
+					pos = string.find(raw, "\n")
+					seek = seek + 1
+				end
+				if pos ~= nil then
+					raw = string.sub(raw, pos + 1)
+					pos = string.find(raw, "\n")
+				end
+			end
+		elseif ail < -940 then
+			-- Exit playback
+			io.close(logfh)
+			clearLog()
+			data.doLogs = false
+			return 0
+		elseif pause and ail <= 940 then
+			-- Resume
+			pause = false
 		end
-		if start == nil or speed ~= 0 or time - start < (getTime() - starti) / 100 then
+
+		-- Load next record
+		if not pause and (start == nil or speed ~= 0 or time - start < (getTime() - starti) / 100) then
 			while pos == nil and read ~= "" do
 				read = io.read(logfh, 200)
 				raw = raw .. read
 				pos = string.find(raw, "\n")
-				seek = seek + 1
 			end
-			-- End of file
 			if read == "" then
-				io.close(logfh)
-				clearLog()
-				data.doLogs = false
-				return 0
+				-- End of file
+				pause = true
 			else
 				-- Parse record
+				seek = seek + 1
 				if pos == nil then
 					pos = string.len(raw)
 				end
@@ -88,6 +105,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 				record = parseLine(line)
 			end
 		end
+
 		-- Define column labels
 		if label == nil then
 			label = {}

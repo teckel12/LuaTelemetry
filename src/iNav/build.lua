@@ -6,6 +6,10 @@ local HORUS = LCD_W >= 480
 local v, r, m, i, e = getVersion()
 local env = "tc"
 
+print("")
+print("--------------------- COMPILE SCRIPTS ---------------------")
+print("")
+
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
 local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
@@ -44,5 +48,9 @@ loadScript(FILE_PATH .. "log_s", env)()
 if buildMode == nil then
 	loadScript("/WIDGETS/iNav/main", env)(true)
 end
+
+print("")
+print("--------------------- COMPILE COMPLETE ---------------------")
+print("")
 
 return 0

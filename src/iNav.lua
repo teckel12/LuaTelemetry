@@ -145,10 +145,6 @@ local function background()
 	data.txBatt = getValue(data.txBatt_id)
 	data.throttle = getValue(data.thr_id)
 
-	-- For testing
-	--data.doLogs = true
-	--config[34].l[config[34].v] = "2019-06-28"
-
 	-- Log playback
 	if data.doLogs then
 		-- Checking if it's really armed
