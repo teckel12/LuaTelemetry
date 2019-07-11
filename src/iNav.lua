@@ -12,6 +12,10 @@ local tmp, view, lang, playLog
 local env = "bx"
 local ext = ".luac"
 
+function toNum(x)
+	if x == nil then return 0 else return tonumber(x) end
+end
+
 -- Build with Companion and allow debugging
 local v, r, m, i, e = getVersion()
 if string.sub(r, -4) == "simu" then

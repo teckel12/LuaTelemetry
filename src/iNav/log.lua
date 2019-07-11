@@ -119,7 +119,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 
 			-- Sync playback to clock
 			timel = time
-			time = tonumber(string.sub(record[label.time], 1, 2)) * 3600 + tonumber(string.sub(record[label.time], 4, 5)) * 60 + tonumber(string.sub(record[label.time], 7))
+			time = toNum(string.sub(record[label.time], 1, 2)) * 3600 + toNum(string.sub(record[label.time], 4, 5)) * 60 + toNum(string.sub(record[label.time], 7))
 			if start == nil then
 				start = time
 				starti = getTime()
@@ -127,22 +127,22 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 
 			-- Fake telemetry that's similar on Crossfire and S.Port
 			data.time = string.sub(record[label.time], 0, 8)
-			data.altitude = tonumber(record[label.alt])
+			data.altitude = toNum(record[label.alt])
 			if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 				data.altitude = data.gpsAlt - data.gpsAltBase
 			end
-			data.speed = tonumber(record[label.gspd])
+			data.speed = toNum(record[label.gspd])
 			if data.showCurr then
-				data.current = tonumber(record[label.curr])
+				data.current = toNum(record[label.curr])
 			end
 			if data.a4_id > -1 then
-				data.cell = tonumber(record[label.a4])
+				data.cell = toNum(record[label.a4])
 			end
 			pos = string.find(record[label.gps], " ")
 			if pos ~= nil then
 				gpsTemp = {
-					lat = tonumber(string.sub(record[label.gps], 0, pos - 1)),
-					lon = tonumber(string.sub(record[label.gps], pos + 1))
+					lat = toNum(string.sub(record[label.gps], 0, pos - 1)),
+					lon = toNum(string.sub(record[label.gps], pos + 1))
 				}
 			end
 			data.telem = true
