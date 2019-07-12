@@ -55,6 +55,7 @@ local tmp = config[20].v == 0 and "GSpd" or "ASpd"
 data.speed_id = getTelemetryId(tmp)
 data.speedMax_id = getTelemetryId(tmp .. "+")
 data.speed_unit = getTelemetryUnit(tmp)
+if data.speed_unit == 0 then data.speed_unit = 7 end
 if data.dist_id == -1 then
 	data.dist_unit = data.alt_unit
 end

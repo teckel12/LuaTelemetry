@@ -41,10 +41,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		local ele = getValue(ele_id) / 200
 		local ail = getValue(ail_id)
 		local speed = 0
-		if timel ~= nil and time - timel > 2 then
-			-- Jump to next log segment
-			start = nil
-		elseif ail > 940 and seek > 2 then
+		if ail > 940 and seek > 2 then
 			-- Pause
 			pause = true
 			start = nil
@@ -77,6 +74,9 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		elseif pause and ail <= 940 then
 			-- Resume
 			pause = false
+		elseif timel ~= nil and time - timel > 2 then
+			-- Jump to next log segment
+			start = nil
 		end
 
 		-- Load next record
