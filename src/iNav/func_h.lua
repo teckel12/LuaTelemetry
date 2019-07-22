@@ -14,17 +14,21 @@ local function title(data, config, SMLCD)
 	local fmt = string.format
 
 	color(CUSTOM_COLOR, BLACK)
-	fill(0, 0, LCD_W, 20, CUSTOM_COLOR)
+	fill(0, 0, LCD_W, 20, SOLID + CUSTOM_COLOR)
 	text(0, 0, model.getInfo().name)
 	if config[13].v > 0 then
-		lcd.drawTimer(340, 0, data.timer)
+		if data.doLogs and data.time ~= nil then
+			text(340, 0, data.time, WARNING_COLOR)
+		else
+			lcd.drawTimer(340, 0, data.timer)
+		end
 	end
 	if config[19].v > 0 then
-		fill(197, 3, 43, 14, TEXT_COLOR)
-		fill(240, 6, 2, 8, TEXT_COLOR)
+		fill(197, 3, 43, 14, SOLID + TEXT_COLOR)
+		fill(240, 6, 2, 8, SOLID + TEXT_COLOR)
 		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		for i = 200, tmp, 4 do
-			fill(i, 5, 2, 10, CUSTOM_COLOR)
+			fill(i, 5, 2, 10, SOLID + CUSTOM_COLOR)
 		end
 	end
 	if config[19].v ~= 1 then
@@ -33,7 +37,7 @@ local function title(data, config, SMLCD)
 	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
 		text(LCD_W, 0, fmt("%.1fV", data.rxBatt), RIGHT)
 	elseif data.crsf then
-		text(LCD_W, 0, (getValue(data.rfmd_id) == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + (data.telem == false and WARNING_COLOR or 0))
+		text(LCD_W, 0, (data.rfmd == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + (data.telem == false and WARNING_COLOR or 0))
 	end
 
 	--[[ Show FPS
@@ -65,7 +69,7 @@ local function hdopGraph(x, y)
 		if i > data.hdop then
 			lcd.setColor(CUSTOM_COLOR, GREY)
 		end
-		fill(i * 4 + x - 16, y - (i * 3 - 10), 2, i * 3 - 10, CUSTOM_COLOR)
+		fill(i * 4 + x - 16, y - (i * 3 - 10), 2, i * 3 - 10, SOLID + CUSTOM_COLOR)
 	end
 end
 
@@ -80,11 +84,11 @@ icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 -- Aircraft symbol preview
 function icons.sym(fg)
 	lcd.setColor(CUSTOM_COLOR, 982) -- Sky
-	lcd.drawFilledRectangle(356, 111, 123, 31, CUSTOM_COLOR)
+	lcd.drawFilledRectangle(356, 111, 123, 31, SOLID + CUSTOM_COLOR)
 	lcd.setColor(CUSTOM_COLOR, 25121) -- Ground
-	lcd.drawFilledRectangle(356, 142, 123, 31, CUSTOM_COLOR)
+	lcd.drawFilledRectangle(356, 142, 123, 31, SOLID + CUSTOM_COLOR)
 	lcd.drawBitmap(fg, 355, 110, 50)
-	lcd.drawRectangle(355, 110, 125, 64, TEXT_COLOR)
+	lcd.drawRectangle(355, 110, 125, 64, SOLID + TEXT_COLOR)
 end
 
 data.hcurx_id = getFieldInfo("ail").id
@@ -95,9 +99,9 @@ data.lastevt = 0
 data.lastt6 = nil
 function icons.alert()
 	lcd.setColor(CUSTOM_COLOR, BLACK)
-	lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
+	lcd.drawFilledRectangle(20, 128, 439, 30, SOLID + CUSTOM_COLOR)
 	lcd.setColor(CUSTOM_COLOR, YELLOW)
-	lcd.drawRectangle(19, 127, 441, 32, CUSTOM_COLOR)
+	lcd.drawRectangle(19, 127, 441, 32, SOLID + CUSTOM_COLOR)
 	lcd.drawText(28, 128, data.stickMsg, MIDSIZE + CUSTOM_COLOR)
 end
 
@@ -124,8 +128,15 @@ function widgetEvt(data)
 			data.lastevt = evt
 		end
 	end
-	if evt == 0 and data.lastt6 ~= nil and getValue(data.t6_id) ~= data.lastt6 then
-		evt = EVT_ROT_RIGHT -- Down
+	if evt == 0 and data.lastt6 ~= nil then
+		if getValue(data.t6_id) > data.lastt6 then
+			evt = EVT_ROT_LEFT -- Up
+		elseif getValue(data.t6_id) < data.lastt6 then
+			evt = EVT_ROT_RIGHT -- Down
+		end
+	end
+	if evt == 0 and data.doLogs and getValue(data.hcurx_id) < -940 then
+		evt = EVT_EXIT_BREAK -- Left (exit)
 	end
 	data.lastt6 = getValue(data.t6_id)
 	if data.lastt6 == 0 then

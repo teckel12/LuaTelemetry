@@ -8,8 +8,9 @@ local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
-local tmp, view, lang
+local tmp, view, lang, playLog
 local env = "bx"
+local ext = ".luac"
 
 -- Build with Companion and allow debugging
 local v, r, m, i, e = getVersion()
@@ -20,16 +21,16 @@ if string.sub(r, -4) == "simu" then
 	end
 end
 
-local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
+local config = loadScript(FILE_PATH .. "config" .. ext, env)(SMLCD)
 collectgarbage()
 
-local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
+local modes, units, labels = loadScript(FILE_PATH .. "modes" .. ext, env)()
 collectgarbage()
 
-local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
+local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU = loadScript(FILE_PATH .. "data" .. ext, env)(r, m, i, HORUS)
 collectgarbage()
 
-loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
+loadScript(FILE_PATH .. "load" .. ext, env)(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
@@ -38,17 +39,17 @@ data.voice = "es"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
-	lang = loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH, env)
+	lang = loadScript(FILE_PATH .. "lang" .. ext, env)(modes, labels, data, FILE_PATH, env)
 	collectgarbage()
 end
 
-loadScript(FILE_PATH .. "reset", env)(data)
+loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 collectgarbage()
 
-local crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env)
+local crsf, distCalc = loadScript(FILE_PATH .. "other" .. ext, env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. (HORUS and "func_h" or "func_t"), env)(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -78,7 +79,14 @@ local function calcDir(r1, r2, r3, x, y, r)
 	return x1, y1, x2, y2, x3, y3
 end
 
+local function endLog()
+	playLog = nil
+	collectgarbage()
+	loadScript(FILE_PATH .. "reset" .. ext, env)(data)
+end
+
 local function background()
+	local gpsTemp
 	data.rssi, data.rssiLow, data.rssiCrit = getRSSI()
 	if data.rssi > 0 then
 		data.telem = true
@@ -105,13 +113,8 @@ local function background()
 			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
 			data.distance = getValue(data.dist_id)
 			data.distanceMax = getValue(data.distMax_id)
-			-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
-			if data.dist_unit == 10 then
-				data.distance = math.floor(data.distance * 3.28084 + 0.5)
-				data.distanceMax = data.distanceMax * 3.28084
-			end
-			data.vspeed = getValue(data.vspeed_id)
 		end
+		data.vspeed = getValue(data.vspeed_id)
 		data.altitude = getValue(data.alt_id)
 		if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 			data.altitude = data.gpsAlt - data.gpsAltBase
@@ -125,10 +128,45 @@ local function background()
 		data.speedMax = getValue(data.speedMax_id)
 		data.batt = getValue(data.batt_id)
 		data.battMin = getValue(data.battMin_id)
+		gpsTemp = getValue(data.gpsLatLon_id)
 		if data.a4_id > -1 then
 			data.cell = getValue(data.a4_id)
 			data.cellMin = getValue(data.a4Min_id)
+		end
+	else
+		data.telem = false
+		data.telemFlags = FLASH
+	end
+	data.txBatt = getValue(data.txBatt_id)
+	data.throttle = getValue(data.thr_id)
+
+	-- Log playback
+	if data.doLogs then
+		-- Checking if it's really armed
+		if data.rssi > 0 and bit32.band(data.mode % 10, 4) == 4 then
+			-- Armed, kill playback
+			endLog()
 		else
+			-- Not armed, continue playback
+			if playLog == nil then
+				loadScript(FILE_PATH .. "reset" .. ext, env)(data)
+				data.doLogs = true -- Resist removing this, the reset above sets doLogs to false, so this is needed
+				playLog = loadScript(FILE_PATH .. "log" .. ext, env)(env, FILE_PATH)
+			end
+			gpsTemp = playLog(data, config, distCalc, config[34].l[config[34].v], NEXT, PREV)
+			if not data.doLogs then
+				endLog()
+			end
+		end
+	end
+
+	if data.rssi > 0 then
+		-- Dist doesn't have a known unit so the transmitter doesn't auto-convert
+		if data.dist_unit == 10  and not data.crsf then
+			data.distance = math.floor(data.distance * 3.28084 + 0.5)
+			data.distanceMax = data.distanceMax * 3.28084
+		end
+		if data.a4_id == -1 then
 			if data.batt / data.cells > config[29].v or data.batt / data.cells < 2.2 then
 				data.cells = math.floor(data.batt / config[29].v) + 1
 			end
@@ -137,7 +175,6 @@ local function background()
 		end
 		data.rssiLast = data.rssi
 		data.gpsFix = false
-		local gpsTemp = getValue(data.gpsLatLon_id)
 		if type(gpsTemp) == "table" and gpsTemp.lat ~= nil and gpsTemp.lon ~= nil then
 			data.gpsLatLon = gpsTemp
 			if data.satellites > 1000 and gpsTemp.lat ~= 0 and gpsTemp.lon ~= 0 then
@@ -151,12 +188,7 @@ local function background()
 		if data.distance > 0 then
 			data.distanceLast = data.distance
 		end
-	else
-		data.telem = false
-		data.telemFlags = FLASH
 	end
-	data.txBatt = getValue(data.txBatt_id)
-	data.throttle = getValue(data.thr_id)
 
 	local armedPrev = data.armed
 	local headFreePrev = data.headFree
@@ -183,12 +215,12 @@ local function background()
 		else
 			data.modeId = 4 -- Acro
 		end
-		data.headFree = bit32.band(modeB, 4) == 4 and true or false
-		data.headingHold = bit32.band(modeC, 1) == 1 and true or false
+		data.headFree = bit32.band(modeB, 4) == 4
+		data.headingHold = bit32.band(modeC, 1) == 1
 		if bit32.band(modeE, 4) == 4 then
 			data.armed = true
-			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4) and true or false
-			homeReset = data.satellites >= 4000 and true or false
+			data.altHold = (bit32.band(modeC, 2) == 2 or bit32.band(modeC, 4) == 4)
+			homeReset = data.satellites >= 4000
 			data.modeId = bit32.band(modeC, 4) == 4 and 7 or data.modeId -- Pos hold
 		else
 			preArmMode = data.modeId
@@ -217,7 +249,7 @@ local function background()
 		data.battPercentPlayed = 100
 		data.battLow = false
 		data.showMax = false
-		data.showDir = config[32].v == 1 and true or false
+		data.showDir = config[32].v == 1
 		data.configStatus = 0
 		data.configSelect = 0
 		if not data.gpsAltBase and data.gpsFix then
@@ -338,7 +370,7 @@ local function background()
 		if data.hdop < 11 - config[21].v * 2 then
 			beep = true
 		end
-		if vibrate and (config[5].v == 1 or config[5].v == 3) then
+		if vibrate and (config[5].v == 1 or config[5].v == 3) and not data.doLogs then
 			playHaptic(25, 3000)
 		end
 		if beep and config[5].v >= 2 then
@@ -371,7 +403,7 @@ local function background()
 		-- Initalize variables on flight reset (uses timer3)
 		tmp = model.getTimer(2)
 		if tmp.value == 0 then
-			loadScript(FILE_PATH .. "reset", env)(data)
+			loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 			tmp.value = 3600
 			model.setTimer(2, tmp)
 		end
@@ -452,11 +484,11 @@ local function run(event)
 		if data.v ~= 9 then
 			view = nil
 			collectgarbage()
-			view = loadScript(FILE_PATH .. "menu", env)()
+			view = loadScript(FILE_PATH .. "menu" .. ext, env)()
 			data.v = 9
 		end
 		tmp = config[30].v
-		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, INCR, NEXT, DECR, HORUS)
+		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
 		if HORUS then
 			if config[30].v ~= tmp then
 				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
@@ -485,13 +517,16 @@ local function run(event)
 		elseif event == MENU then
 			-- Config menu
 			data.configStatus = data.configLast
+		elseif event == EVT_EXIT_BREAK and data.doLogs then
+			-- Exit playback
+			endLog()
 		end
-		
+
 		-- Views
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadScript(FILE_PATH .. (HORUS and "horus" or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))), env)()
+			view = loadScript(FILE_PATH .. (HORUS and "horus" or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))) .. ext, env)()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
