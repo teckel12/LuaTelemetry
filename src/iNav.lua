@@ -12,10 +12,6 @@ local tmp, view, lang, playLog
 local env = "bx"
 local ext = ".luac"
 
-function toNum(x)
-	if x == nil then return 0 else return tonumber(x) end
-end
-
 -- Build with Companion and allow debugging
 local v, r, m, i, e = getVersion()
 if string.sub(r, -4) == "simu" then
@@ -84,7 +80,6 @@ local function calcDir(r1, r2, r3, x, y, r)
 end
 
 local function endLog()
-	data.doLogs = false
 	playLog = nil
 	collectgarbage()
 	loadScript(FILE_PATH .. "reset" .. ext, env)(data)

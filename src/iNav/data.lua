@@ -83,6 +83,7 @@ local data = {
 	configTop = 1,
 	configSelect = 0,
 	crsf = false,
+	alt = {},
 	v = -1,
 	simu = string.sub(r, -4) == "simu",
 	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,

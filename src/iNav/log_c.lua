@@ -1,7 +1,7 @@
 --Crossfire
 --Date,Time,FM,1RSS(dB),2RSS(dB),RQly(%),RSNR(dB),RFMD,TPWR(mW),TRSS(dB),TQly(%),TSNR(dB),RxBt(V),Curr(A),Capa(mAh),GPS,GSpd(mph),Hdg(@),Alt(ft),Sats,Ptch(rad),Roll(rad),Yaw(rad),Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
 
-local function fake(data, config, record, label)
+local function fake(data, config, record, label, toNum)
 	data.rssi = toNum(record[label.rqly])
 	data.tpwr = toNum(record[label.tpwr])
 	data.rfmd = toNum(record[label.rfmd])

@@ -1,7 +1,7 @@
 -- S.Port
 --Date,Time,Tmp1(@C),Tmp2(@C),A4(V),VFAS(V),Curr(A),Alt(ft),A2(V),RSSI(dB),RxBt(V),Fuel(%),VSpd(f/s),Hdg(@),Ptch(@),Roll(@),Dist(ft),GAlt(ft),GSpd(mph),GPS,Rud,Ele,Thr,Ail,S1,6P,S2,LS,RS,SA,SB,SC,SD,SE,SF,SG,SH,LSW,TxBat(V)
 
-local function fake(data, config, record, label)
+local function fake(data, config, record, label, toNum)
 	data.rssi = toNum(record[label.rssi])
 	data.satellites = toNum(record[label.tmp2])
 	data.fuel = toNum(record[label.fuel])

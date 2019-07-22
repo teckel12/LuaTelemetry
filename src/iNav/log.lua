@@ -10,6 +10,10 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 
 	local gpsTemp = nil
 
+	local function toNum(x)
+		if x == nil then return 0 else return tonumber(x) end
+	end
+
 	local function parseLine(line)
 		local record = {}
 		local pos = 1
@@ -115,7 +119,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 			end
 		else
 			-- Fake telemetry specific to Crossfire or S.Port
-			fake(data, config, record, label)
+			fake(data, config, record, label, toNum)
 
 			-- Sync playback to clock
 			timel = time

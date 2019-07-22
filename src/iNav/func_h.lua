@@ -17,7 +17,7 @@ local function title(data, config, SMLCD)
 	fill(0, 0, LCD_W, 20, CUSTOM_COLOR)
 	text(0, 0, model.getInfo().name)
 	if config[13].v > 0 then
-		if data.doLogs == true and data.time ~= nil then
+		if data.doLogs and data.time ~= nil then
 			text(340, 0, data.time, WARNING_COLOR)
 		else
 			lcd.drawTimer(340, 0, data.timer)

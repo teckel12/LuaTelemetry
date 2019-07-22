@@ -3,8 +3,9 @@ local config, data, FILE_PATH = ...
 local function title(data, config, SMLCD)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
 	lcd.drawText(0, 0, model.getInfo().name, INVERS)
-	if data.doLogs == true and data.time ~= nil then
+	if data.doLogs and data.time ~= nil then
 		lcd.drawText(SMLCD and 50 or 145, 1, data.time, SMLSIZE + 3)
+		lcd.drawLine(SMLCD and 50 or 145, 7, SMLCD and 83 or 178, 7, SOLID, FORCE)
 	elseif config[13].v > 0 then
 		lcd.drawTimer(SMLCD and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
 	end
