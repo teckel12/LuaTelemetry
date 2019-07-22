@@ -6,32 +6,32 @@ local raw = ""
 local ele_id = getFieldInfo("ele").id
 local ail_id = getFieldInfo("ail").id
 
+local function toNum(x)
+	if x == nil then return 0 else return tonumber(x) end
+end
+
+local function parseLine(line)
+	local record = {}
+	local pos = 1
+	local i = 0
+	while true do
+		local c = string.sub(line, pos, pos)
+		local startp, endp = string.find(line, ",", pos)
+		if startp then
+			record[i] = string.sub(line, pos, startp-1)
+			pos = endp + 1
+		else
+			record[i] = string.sub(line,pos)
+			break
+		end
+		i = i + 1
+	end
+	return record
+end
+
 local function playLog(data, config, distCalc, date, NEXT, PREV)
 
 	local gpsTemp = nil
-
-	local function toNum(x)
-		if x == nil then return 0 else return tonumber(x) end
-	end
-
-	local function parseLine(line)
-		local record = {}
-		local pos = 1
-		local i = 0
-		while true do
-			local c = string.sub(line, pos, pos)
-			local startp, endp = string.find(line, ",", pos)
-			if startp then
-				record[i] = string.sub(line, pos, startp-1)
-				pos = endp + 1
-			else
-				record[i] = string.sub(line,pos)
-				break
-			end
-			i = i + 1
-		end
-		return record
-	end
 
 	if logfh == nil then
 		logfh = io.open("/LOGS/" .. string.gsub(model.getInfo().name, " ", "_") .. "-20" .. date .. ".csv")
