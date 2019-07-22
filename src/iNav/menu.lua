@@ -105,7 +105,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	end
 
 	-- Disabled options
-	config2[7].p = data.crsf and 1 or (data.vspeed_id == -1 and 1 or nil)
+	config2[7].p = data.vspeed_id == -1 and 1 or nil
 	config2[15].p = not data.crsf and 1 or (not HORUS and 1 or nil)
 	config2[20].p = not data.pitot and 1 or nil
 	config2[22].p = data.crsf and 1 or (HORUS and 1 or nil)

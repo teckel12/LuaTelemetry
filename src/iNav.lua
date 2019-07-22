@@ -113,8 +113,8 @@ local function background()
 			data.gpsAlt = data.satellites > 1000 and getValue(data.gpsAlt_id) or 0
 			data.distance = getValue(data.dist_id)
 			data.distanceMax = getValue(data.distMax_id)
-			data.vspeed = getValue(data.vspeed_id)
 		end
+		data.vspeed = getValue(data.vspeed_id)
 		data.altitude = getValue(data.alt_id)
 		if data.alt_id == -1 and data.gpsAltBase and data.gpsFix and data.satellites > 3000 then
 			data.altitude = data.gpsAlt - data.gpsAltBase

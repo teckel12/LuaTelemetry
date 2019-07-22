@@ -13,7 +13,6 @@ data.tpwr = 0
 data.rfmd = "--"
 data.fpv = 0
 data.fuelRaw = 0
-config[7].v = 0
 config[9].v = 0
 config[14].v = 0
 config[21].v = 2.5

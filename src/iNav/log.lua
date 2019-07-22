@@ -136,6 +136,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 				data.altitude = data.gpsAlt - data.gpsAltBase
 			end
 			data.speed = toNum(record[label.gspd])
+			data.vspeed = toNum(record[label.vspd])
 			if data.showCurr then
 				data.current = toNum(record[label.curr])
 			end
