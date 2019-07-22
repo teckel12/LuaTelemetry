@@ -14,7 +14,7 @@ local function title(data, config, SMLCD)
 	local fmt = string.format
 
 	color(CUSTOM_COLOR, BLACK)
-	fill(0, 0, LCD_W, 20, CUSTOM_COLOR)
+	fill(0, 0, LCD_W, 20, SOLID + CUSTOM_COLOR)
 	text(0, 0, model.getInfo().name)
 	if config[13].v > 0 then
 		if data.doLogs and data.time ~= nil then
@@ -24,11 +24,11 @@ local function title(data, config, SMLCD)
 		end
 	end
 	if config[19].v > 0 then
-		fill(197, 3, 43, 14, TEXT_COLOR)
-		fill(240, 6, 2, 8, TEXT_COLOR)
+		fill(197, 3, 43, 14, SOLID + TEXT_COLOR)
+		fill(240, 6, 2, 8, SOLID + TEXT_COLOR)
 		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
 		for i = 200, tmp, 4 do
-			fill(i, 5, 2, 10, CUSTOM_COLOR)
+			fill(i, 5, 2, 10, SOLID + CUSTOM_COLOR)
 		end
 	end
 	if config[19].v ~= 1 then
@@ -69,7 +69,7 @@ local function hdopGraph(x, y)
 		if i > data.hdop then
 			lcd.setColor(CUSTOM_COLOR, GREY)
 		end
-		fill(i * 4 + x - 16, y - (i * 3 - 10), 2, i * 3 - 10, CUSTOM_COLOR)
+		fill(i * 4 + x - 16, y - (i * 3 - 10), 2, i * 3 - 10, SOLID + CUSTOM_COLOR)
 	end
 end
 
@@ -84,11 +84,11 @@ icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 -- Aircraft symbol preview
 function icons.sym(fg)
 	lcd.setColor(CUSTOM_COLOR, 982) -- Sky
-	lcd.drawFilledRectangle(356, 111, 123, 31, CUSTOM_COLOR)
+	lcd.drawFilledRectangle(356, 111, 123, 31, SOLID + CUSTOM_COLOR)
 	lcd.setColor(CUSTOM_COLOR, 25121) -- Ground
-	lcd.drawFilledRectangle(356, 142, 123, 31, CUSTOM_COLOR)
+	lcd.drawFilledRectangle(356, 142, 123, 31, SOLID + CUSTOM_COLOR)
 	lcd.drawBitmap(fg, 355, 110, 50)
-	lcd.drawRectangle(355, 110, 125, 64, TEXT_COLOR)
+	lcd.drawRectangle(355, 110, 125, 64, SOLID + TEXT_COLOR)
 end
 
 data.hcurx_id = getFieldInfo("ail").id
@@ -99,9 +99,9 @@ data.lastevt = 0
 data.lastt6 = nil
 function icons.alert()
 	lcd.setColor(CUSTOM_COLOR, BLACK)
-	lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
+	lcd.drawFilledRectangle(20, 128, 439, 30, SOLID + CUSTOM_COLOR)
 	lcd.setColor(CUSTOM_COLOR, YELLOW)
-	lcd.drawRectangle(19, 127, 441, 32, CUSTOM_COLOR)
+	lcd.drawRectangle(19, 127, 441, 32, SOLID + CUSTOM_COLOR)
 	lcd.drawText(28, 128, data.stickMsg, MIDSIZE + CUSTOM_COLOR)
 end
 

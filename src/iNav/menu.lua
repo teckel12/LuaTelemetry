@@ -81,9 +81,9 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	if HORUS then
 		lcd.setColor(CUSTOM_COLOR, GREY)
-		lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, CUSTOM_COLOR)
+		lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, SOLID + CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, 12678) -- Dark grey
-		lcd.drawFilledRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
+		lcd.drawFilledRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, SOLID + CUSTOM_COLOR)
 		lcd.drawRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
 		text(4, TOP, "Sats:", FONT)
 		text(72, TOP, data.satellites % 100, FONT + RIGHT)

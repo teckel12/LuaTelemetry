@@ -140,7 +140,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if skip then
 		-- Must be going down hard!
 		if (pitch - 90) * (upsideDown and -1 or 1) < 0 then
-			fill(tl.x, tl.y, br.x - tl.x + 1, br.y - tl.y + 1, CUSTOM_COLOR)
+			fill(tl.x, tl.y, br.x - tl.x + 1, br.y - tl.y + 1, SOLID + CUSTOM_COLOR)
 		end
 	else
 		local trix, triy
@@ -157,21 +157,21 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		-- Find rectangle(s) and fill
 		if upsideDown then
 			if triy > tl.y then
-				fill(tl.x, tl.y, br.x - tl.x + 1, triy - tl.y, CUSTOM_COLOR)
+				fill(tl.x, tl.y, br.x - tl.x + 1, triy - tl.y, SOLID + CUSTOM_COLOR)
 			end
 			if roll > 90 and trix < br.x then
-				fill(trix, triy, br.x - trix + 1, br.y - triy + 1, CUSTOM_COLOR)
+				fill(trix, triy, br.x - trix + 1, br.y - triy + 1, SOLID + CUSTOM_COLOR)
 			elseif roll <= 90 and trix > tl.x then
-				fill(tl.x, triy, trix - tl.x, br.y - triy + 1, CUSTOM_COLOR)
+				fill(tl.x, triy, trix - tl.x, br.y - triy + 1, SOLID + CUSTOM_COLOR)
 			end
 		else
 			if triy < br.y then
-				fill(tl.x, triy + 1, br.x - tl.x + 1, br.y - triy, CUSTOM_COLOR)
+				fill(tl.x, triy + 1, br.x - tl.x + 1, br.y - triy, SOLID + CUSTOM_COLOR)
 			end
 			if roll > 90 and trix > tl.x then
-				fill(tl.x, tl.y, trix - tl.x, triy - tl.y + 1, CUSTOM_COLOR)
+				fill(tl.x, tl.y, trix - tl.x, triy - tl.y + 1, SOLID + CUSTOM_COLOR)
 			elseif roll <= 90 and trix < br.x then
-				fill(trix, tl.y, br.x - trix + 1, triy - tl.y + 1, CUSTOM_COLOR)
+				fill(trix, tl.y, br.x - trix + 1, triy - tl.y + 1, SOLID + CUSTOM_COLOR)
 			end
 		end
 
@@ -203,10 +203,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				else
 					if tx1 < tx2 then
 					--if tx1 < tx2 and tx2 - tx1 + 1 > 0 then
-						fill(tx1, y - s, tx2 - tx1 + 1, inc, CUSTOM_COLOR)
+						fill(tx1, y - s, tx2 - tx1 + 1, inc, SOLID + CUSTOM_COLOR)
 					else
 					--elseif tx1 > tx2 and tx1 - tx2 + 1 > 0 then
-						fill(tx2, y - s, tx1 - tx2 + 1, inc, CUSTOM_COLOR)
+						fill(tx2, y - s, tx1 - tx2 + 1, inc, SOLID + CUSTOM_COLOR)
 					end
 				end
 				tx1 = tx1 + slope
@@ -333,7 +333,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Variometer
 	if config[7].v % 2 == 1 then
 		color(CUSTOM_COLOR, DKGREY)
-		fill(RIGHT_POS, TOP, 10, BOTTOM - 20, CUSTOM_COLOR)
+		fill(RIGHT_POS, TOP, 10, BOTTOM - 20, SOLID + CUSTOM_COLOR)
 		color(CUSTOM_COLOR, LIGHTGREY)
 		line(RIGHT_POS + 10, TOP, RIGHT_POS + 10, BOTTOM - 1, SOLID, CUSTOM_COLOR)
 		color(CUSTOM_COLOR, GREY)
@@ -574,7 +574,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	if data.showMax then
 		color(CUSTOM_COLOR, YELLOW)
-		fill(190, TOP - 20, 80, 20, CUSTOM_COLOR)
+		fill(190, TOP - 20, 80, 20, SOLID + CUSTOM_COLOR)
 		color(CUSTOM_COLOR, BLACK)
 		text(265, TOP - 20, "Min/Max", CUSTOM_COLOR + RIGHT)
 	end
