@@ -74,8 +74,6 @@ if data.dist_id == -1 or data.simu then
 		data.distance = math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(rad(data.gpsLatLon.lon) - rad(data.gpsHome.lon))) * 6371009
 		]]
 		-- Flat-Earth math
-		--local x = math.rad(data.gpsLatLon.lon - data.gpsHome.lon) * math.cos(math.rad(data.gpsHome.lat))
-		--local y = math.rad(data.gpsLatLon.lat - data.gpsHome.lat)
 		local x = math.abs(math.rad(data.gpsLatLon.lon - data.gpsHome.lon) * math.cos(math.rad(data.gpsHome.lat)))
 		local y = math.abs(math.rad(data.gpsLatLon.lat - data.gpsHome.lat))
 		data.distance = math.sqrt(x * x + y * y) * 6371009
