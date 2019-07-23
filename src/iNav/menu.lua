@@ -83,14 +83,6 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		lcd.setColor(CUSTOM_COLOR, GREY)
 		lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, 12678) -- Dark grey
-		lcd.drawFilledRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
-		lcd.drawRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
-		text(4, TOP, "Sats:", FONT)
-		text(72, TOP, data.satellites % 100, FONT + RIGHT)
-		if not data.crsf then
-			text(4, TOP + LINE, "DOP:", FONT)
-			text(72, TOP + LINE, (data.hdop == 0 and not data.gpsFix) and "---" or (9 - data.hdop) * 0.5 + 0.8, FONT + RIGHT)
-		end
 	end
 	if not SMLCD then
 		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 5), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 10), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)

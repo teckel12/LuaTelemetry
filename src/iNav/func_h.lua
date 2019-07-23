@@ -12,6 +12,12 @@ local function title(data, config, SMLCD)
 	local fill = lcd.drawFilledRectangle
 	local color = lcd.setColor
 	local fmt = string.format
+	local tmp = 0
+
+	if not data.telem then
+		color(WARNING_COLOR, RED)
+		tmp = WARNING_COLOR
+	end
 
 	color(CUSTOM_COLOR, BLACK)
 	fill(0, 0, LCD_W, 20, CUSTOM_COLOR)
@@ -34,10 +40,23 @@ local function title(data, config, SMLCD)
 	if config[19].v ~= 1 then
 		text(290, 0, fmt("%.1fV", data.txBatt), RIGHT)
 	end
-	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
-		text(LCD_W, 0, fmt("%.1fV", data.rxBatt), RIGHT)
+
+	if data.rxBatt > 0 and config[14].v == 1 then
+		text(LCD_W, 0, fmt("%.1fV", data.rxBatt), RIGHT + tmp)
 	elseif data.crsf then
-		text(LCD_W, 0, (data.rfmd == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + (data.telem == false and WARNING_COLOR or 0))
+		text(LCD_W, 0, (data.rfmd == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + tmp)
+	end
+
+	if data.configStatus > 0 then
+		color(CUSTOM_COLOR, 12678) -- Dark grey
+		fill(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
+		lcd.drawRectangle(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
+		text(4, 37, "Sats:", 0)
+		text(72, 37, data.satellites % 100, RIGHT + tmp)
+		if not data.crsf then
+			text(4, 59, "DOP:", 0)
+			text(72, 59, (data.hdop == 0 and not data.gpsFix) and "---" or (9 - data.hdop) * 0.5 + 0.8, RIGHT + tmp)
+		end
 	end
 
 	--[[ Show FPS
