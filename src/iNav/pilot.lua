@@ -78,7 +78,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local r3 = math.rad(data.heading - data.headingRef - 145)
 		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, x, 21, 7)
 		if data.headingHold then
-			lcd.drawFilledRectangle((x2 + x3) / 2 - 1, (y2 + y3) / 2 - 1, 3, 3, SOLID)
+			lcd.drawFilledRectangle((x2 + x3) * 0.5 - 1, (y2 + y3) * 0.5 - 1, 3, 3, SOLID)
 		else
 			lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
 		end
@@ -88,8 +88,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Attitude part 1 (pitch ladder)
 	if data.pitchRoll then
-		pitch = (math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180
-		roll = (270 - data.roll / 10) % 180
+		pitch = (math.abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch * 0.1) % 180
+		roll = (270 - data.roll * 0.1) % 180
 		upsideDown = math.abs(data.roll) > 900
 	else
 		pitch = 90 - math.deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
@@ -100,7 +100,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.startup == 0 and data.telem then
 		tmp = pitch - 90
 		local short = SMLCD and 4 or 6
-		local tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 35), -35)
+		local tmp2 = math.max(math.min((tmp >= 0 and math.floor(tmp * 0.2) or math.ceil(tmp * 0.2)) * 5, 35), -35)
 		for x = tmp2 - 15, tmp2 + 15, 5 do
 			if x ~= 0 and (x % 10 == 0 or (x > -30 and x < 30)) then
 				pitchLadder(x % 10 == 0 and 11 or short, x)
@@ -117,7 +117,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		local home = X_CNTR - 3
 		if data.distanceLast >= data.distRef then
 			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
-			home = math.floor(LEFT_POS + ((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
+			home = math.floor(LEFT_POS + ((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
 		end
 		if home >= LEFT_POS - (SMLCD and 0 or 7) and home <= RIGHT_POS - 1 then
 			tmp = (home > X_CNTR - 15 and home < X_CNTR + 10) and 49 or 50
@@ -135,7 +135,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Heading part 1
 	if data.showHead then
 		for i = 0, 348.75, 11.25 do
-			tmp = math.floor(LEFT_POS + ((i - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
+			tmp = math.floor(LEFT_POS + ((i - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= LEFT_POS and tmp <= RIGHT_POS then
 				if i % 90 == 0 then
 					lcd.drawText(tmp - 2, 57, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
@@ -255,7 +255,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawLine(RIGHT_POS + (SMLCD and 4 or 6), 8, RIGHT_POS + (SMLCD and 4 or 6), 63, SOLID, FORCE)
 		lcd.drawLine(RIGHT_POS + 1, 35, RIGHT_POS + (SMLCD and 3 or 5), 35, SMLCD and DOTTED or SOLID, SMLCD and 0 or GREY_DEFAULT)
 		if data.armed then
-			tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) * (data.vspeed < 0 and -1 or 1)
+			tmp = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -1 or 1)
 			local y1 = 36 - (tmp * 11)
 			local y2 = 36 - (tmp * 9)
 			lcd.drawLine(RIGHT_POS + 1, y1 - 1, RIGHT_POS + (SMLCD and 3 or 5), y2 - 1, SOLID, FORCE)
@@ -269,7 +269,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	lcd.drawText(LCD_W, data.crsf and 20 or 8, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
 	icons.gps(LCD_W - (SMLCD and 23 or 22), data.crsf and 24 or 12)
 	if data.crsf then
-		lcd.drawText(LCD_W, SMLCD and 9 or 11, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(LCD_W, SMLCD and 9 or 11, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr * 0.001 .. "W", SMLSIZE + RIGHT + data.telemFlags)
 	else
 		lcd.drawText(LCD_W + 1, SMLCD and 43 or 24, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	end

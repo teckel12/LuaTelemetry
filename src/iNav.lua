@@ -203,10 +203,10 @@ local function background()
 		data.headFree = false
 		data.headingHold = false
 		data.altHold = false
-		local modeA = data.mode / 10000
-		local modeB = data.mode / 1000 % 10
-		local modeC = data.mode / 100 % 10
-		local modeD = data.mode / 10 % 10
+		local modeA = data.mode * 0.0001
+		local modeB = data.mode * 0.001 % 10
+		local modeC = data.mode * 0.01 % 10
+		local modeD = data.mode * 0.1 % 10
 		local modeE = data.mode % 10
 		if bit32.band(modeD, 2) == 2 then
 			data.modeId = 2 -- Horizon
@@ -278,7 +278,7 @@ local function background()
 	elseif preArmMode ~= false and data.preArmModePrev ~= preArmMode then
 		playAudio(modes[preArmMode].w)
 	end
-	data.hdop = math.floor(data.satellites / 100) % 10
+	data.hdop = math.floor(data.satellites * 0.01) % 10
 	if data.headingHold ~= headingHoldPrev then -- Heading hold status change
 		playAudio("hedhld")
 		playAudio(data.headingHold and "active" or "off")
@@ -289,7 +289,7 @@ local function background()
 	if data.armed then
 		data.distanceLast = data.distance
 		if config[13].v == 1 then
-			data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
+			data.timer = (getTime() - data.timerStart) * 0.01 -- Armed so update timer
 		elseif config[13].v > 1 then
 			data.timer = model.getTimer(config[13].v - 2)["value"]
 		end
@@ -429,7 +429,7 @@ local function background()
 			data.altMin = min(data.altMin, data.alt[i])
 			data.altMax = max(data.altMax, data.alt[i])
 		end
-		data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
+		data.altMax = math.ceil(data.altMax * (data.alt_unit == 10 and 0.1 or 0.2)) * (data.alt_unit == 10 and 10 or 5)
 	end
 	data.bkgd = true
 end
@@ -475,7 +475,7 @@ local function run(event)
 
 	-- Display system error
 	if data.msg then
-		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) / 2, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
+		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) * 0.5, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
 		return 0
 	end
 

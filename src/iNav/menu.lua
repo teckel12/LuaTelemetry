@@ -89,7 +89,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		text(72, TOP, data.satellites % 100, FONT + RIGHT)
 		if not data.crsf then
 			text(4, TOP + LINE, "DOP:", FONT)
-			text(72, TOP + LINE, (data.hdop == 0 and not data.gpsFix) and "---" or (9 - data.hdop) / 2 + 0.8, FONT + RIGHT)
+			text(72, TOP + LINE, (data.hdop == 0 and not data.gpsFix) and "---" or (9 - data.hdop) * 0.5 + 0.8, FONT + RIGHT)
 		end
 	end
 	if not SMLCD then
@@ -188,9 +188,9 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		if event == EVT_EXIT_BREAK then
 			data.configSelect = 0
 		elseif event == NEXT or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
-			config[z].v = min(floor(config[z].v * 10 + i * 10) / 10, config[z].x == nil and 1 or config[z].x)
+			config[z].v = min(floor(config[z].v * 10 + i * 10) * 0.1, config[z].x == nil and 1 or config[z].x)
 		elseif event == PREV or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
-			config[z].v =max(floor(config[z].v * 10 - i * 10) / 10, config2[z].m == nil and 0 or config2[z].m)
+			config[z].v =max(floor(config[z].v * 10 - i * 10) * 0.1, config2[z].m == nil and 0 or config2[z].m)
 		end
 
 		-- Special cases

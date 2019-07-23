@@ -42,7 +42,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 	if logfh ~= nil then
 		local pos = string.find(raw, "\n")
 		local read = nil
-		local ele = getValue(ele_id) / 200
+		local ele = getValue(ele_id) * 0.005
 		local ail = getValue(ail_id)
 		local speed = 0
 		if ail > 940 and seek > 2 then
@@ -84,7 +84,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		end
 
 		-- Load next record
-		if not pause and (start == nil or speed ~= 0 or time - start < (getTime() - starti) / 100) then
+		if not pause and (start == nil or speed ~= 0 or time - start < (getTime() - starti) * 0.01) then
 			while pos == nil and read ~= "" do
 				read = io.read(logfh, 400)
 				raw = raw .. read
