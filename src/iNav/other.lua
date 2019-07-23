@@ -67,15 +67,17 @@ model.setTimer(2, { mode = 0, start = 0, value = 3600, countdownBeep = 0, minute
 local distCalc = nil
 if data.dist_id == -1 or data.simu then
 	function distCalc(data)
-		local rad = math.rad
 		--[[ Spherical-Earth math: More accurate if the Earth was a sphere, but it's not so who cares?
+		local rad = math.rad
 		local o1 = rad(data.gpsHome.lat)
 		local o2 = rad(data.gpsLatLon.lat)
 		data.distance = math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(rad(data.gpsLatLon.lon) - rad(data.gpsHome.lon))) * 6371009
 		]]
 		-- Flat-Earth math
-		local x = rad(data.gpsLatLon.lon - data.gpsHome.lon) * math.cos(rad(data.gpsHome.lat))
-		local y = rad(data.gpsLatLon.lat - data.gpsHome.lat)
+		--local x = math.rad(data.gpsLatLon.lon - data.gpsHome.lon) * math.cos(math.rad(data.gpsHome.lat))
+		--local y = math.rad(data.gpsLatLon.lat - data.gpsHome.lat)
+		local x = math.abs(math.rad(data.gpsLatLon.lon - data.gpsHome.lon) * math.cos(math.rad(data.gpsHome.lat)))
+		local y = math.abs(math.rad(data.gpsLatLon.lat - data.gpsHome.lat))
 		data.distance = math.sqrt(x * x + y * y) * 6371009
 		data.distanceMax = math.max(data.distMaxCalc, data.distance)
 		data.distMaxCalc = data.distanceMax
