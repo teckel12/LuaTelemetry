@@ -68,14 +68,14 @@ local distCalc = nil
 if data.dist_id == -1 or data.simu then
 	function distCalc(data)
 		local rad = math.rad
+		--[[ Spherical-Earth math: More accurate if the Earth was a sphere, but it's not so who cares?
 		local o1 = rad(data.gpsHome.lat)
 		local o2 = rad(data.gpsLatLon.lat)
-		--[[ Spherical-Earth math: More accurate if the Earth was a sphere, but it's not so who cares?
 		data.distance = math.acos(math.sin(o1) * math.sin(o2) + math.cos(o1) * math.cos(o2) * math.cos(rad(data.gpsLatLon.lon) - rad(data.gpsHome.lon))) * 6371009
 		]]
 		-- Flat-Earth math
-		local x = (rad(data.gpsLatLon.lon) - rad(data.gpsHome.lon)) * math.cos((o1 + o2) / 2)
-		local y = o2 - o1
+		local x = rad(data.gpsLatLon.lon - data.gpsHome.lon) * math.cos(rad(data.gpsHome.lat))
+		local y = rad(data.gpsLatLon.lat - data.gpsHome.lat)
 		data.distance = math.sqrt(x * x + y * y) * 6371009
 		data.distanceMax = math.max(data.distMaxCalc, data.distance)
 		data.distMaxCalc = data.distanceMax
