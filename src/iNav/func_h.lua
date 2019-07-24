@@ -1,12 +1,5 @@
 local config, data, FILE_PATH = ...
 
-if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
-	data.widget = true
-	if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
-		data.msg = "Full screen required"
-	end
-end
-
 local function title(data, config, SMLCD)
 	local text = lcd.drawText
 	local fill = lcd.drawFilledRectangle
@@ -100,69 +93,88 @@ icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
 icons.roll = Bitmap.open(FILE_PATH .. "pics/roll.png")
 icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 
--- Aircraft symbol preview
-function icons.sym(fg)
-	lcd.setColor(CUSTOM_COLOR, 982) -- Sky
-	lcd.drawFilledRectangle(356, 111, 123, 31, CUSTOM_COLOR)
-	lcd.setColor(CUSTOM_COLOR, 25121) -- Ground
-	lcd.drawFilledRectangle(356, 142, 123, 31, CUSTOM_COLOR)
-	lcd.drawBitmap(fg, 355, 110, 50)
-	lcd.drawRectangle(355, 110, 125, 64, TEXT_COLOR)
-end
-
 data.hcurx_id = getFieldInfo("ail").id
 data.hcury_id = getFieldInfo("ele").id
 data.hctrl_id = getFieldInfo("rud").id
 data.t6_id = getFieldInfo("trim-t6").id
 data.lastevt = 0
 data.lastt6 = nil
-function icons.alert()
-	lcd.setColor(CUSTOM_COLOR, BLACK)
-	lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
-	lcd.setColor(CUSTOM_COLOR, YELLOW)
-	lcd.drawRectangle(19, 127, 441, 32, CUSTOM_COLOR)
-	lcd.drawText(28, 128, data.stickMsg, MIDSIZE + CUSTOM_COLOR)
+
+if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
+	data.widget = true
+	if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
+		data.startupTime = math.huge
+		function icons.nfs()
+			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, "Full screen required", SMLSIZE + WARNING_COLOR)
+		end
+	end
 end
 
-function widgetEvt(data)
-	local evt = 0
-	if not data.armed then
-		data.stickMsg = (data.throttle >= -940 or math.abs(getValue(data.hctrl_id)) >= 50) and "Return throttle stick to bottom center" or nil
-		if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 50 and math.abs(getValue(data.hcury_id)) < 50 then
-			evt = EVT_SYS_FIRST -- Enter config menu
-		elseif data.stickMsg == nil then
-			if getValue(data.hcurx_id) < -940 then
-				evt = EVT_EXIT_BREAK -- Left (exit)
-			elseif getValue(data.hcurx_id) > 940 then
-				evt = EVT_ENTER_BREAK -- Right (enter)
-			elseif getValue(data.hcury_id) > 200 then
-				evt = EVT_ROT_LEFT -- Up
-			elseif getValue(data.hcury_id) < -200 then
-				evt = EVT_ROT_RIGHT -- Down
+function icons.clear(event, data)
+	lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
+	lcd.clear(CUSTOM_COLOR)
+	if event == 0 or event == nil then
+		event = 0
+		if not data.armed then
+			data.stickMsg = (data.throttle >= -940 or math.abs(getValue(data.hctrl_id)) >= 50) and "Return throttle stick to bottom center" or nil
+			if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 50 and math.abs(getValue(data.hcury_id)) < 50 then
+				event = EVT_SYS_FIRST -- Enter config menu
+			elseif data.stickMsg == nil then
+				if getValue(data.hcurx_id) < -940 then
+					event = EVT_EXIT_BREAK -- Left (exit)
+				elseif getValue(data.hcurx_id) > 940 then
+					event = EVT_ENTER_BREAK -- Right (enter)
+				elseif getValue(data.hcury_id) > 200 then
+					event = EVT_ROT_LEFT -- Up
+				elseif getValue(data.hcury_id) < -200 then
+					event = EVT_ROT_RIGHT -- Down
+				end
+			end
+			if data.lastevt == event and (data.configStatus == 0 or math.abs(getValue(data.hcury_id)) < 940) then
+				event = 0
+			else
+				data.lastevt = event
 			end
 		end
-		if data.lastevt == evt and (data.configStatus == 0 or math.abs(getValue(data.hcury_id)) < 940) then
-			evt = 0
-		else
-			data.lastevt = evt
+		if event == 0 and data.lastt6 ~= nil then
+			if getValue(data.t6_id) > data.lastt6 then
+				event = EVT_ROT_LEFT -- Up
+			elseif getValue(data.t6_id) < data.lastt6 then
+				event = EVT_ROT_RIGHT -- Down
+			end
+		end
+		if event == 0 and data.doLogs and getValue(data.hcurx_id) < -940 then
+			event = EVT_EXIT_BREAK -- Left (exit)
+		end
+		data.lastt6 = getValue(data.t6_id)
+		if data.lastt6 == 0 then
+			data.lastt6 = nil
 		end
 	end
-	if evt == 0 and data.lastt6 ~= nil then
-		if getValue(data.t6_id) > data.lastt6 then
-			evt = EVT_ROT_LEFT -- Up
-		elseif getValue(data.t6_id) < data.lastt6 then
-			evt = EVT_ROT_RIGHT -- Down
-		end
-	end
-	if evt == 0 and data.doLogs and getValue(data.hcurx_id) < -940 then
-		evt = EVT_EXIT_BREAK -- Left (exit)
-	end
-	data.lastt6 = getValue(data.t6_id)
-	if data.lastt6 == 0 then
-		data.lastt6 = nil
-	end
-
-	return evt
+	return event
 end
 
-return title, gpsDegMin, hdopGraph, icons, widgetEvt
+function icons.menu(config, data, icons, prev)
+	if config[30].v ~= prev then
+		icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
+	end
+	-- Aircraft symbol preview
+	if data.configStatus == 27 and data.configSelect ~= 0 then
+		lcd.setColor(CUSTOM_COLOR, 982) -- Sky
+		lcd.drawFilledRectangle(356, 111, 123, 31, CUSTOM_COLOR)
+		lcd.setColor(CUSTOM_COLOR, 25121) -- Ground
+		lcd.drawFilledRectangle(356, 142, 123, 31, CUSTOM_COLOR)
+		lcd.drawBitmap(icons.fg, 355, 110, 50)
+		lcd.drawRectangle(355, 110, 125, 64, TEXT_COLOR)	
+	end
+	-- Return throttle stick to bottom center
+	if data.stickMsg ~= nil and not data.armed then
+		lcd.setColor(CUSTOM_COLOR, BLACK)
+		lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
+		lcd.setColor(CUSTOM_COLOR, YELLOW)
+		lcd.drawRectangle(19, 127, 441, 32, CUSTOM_COLOR)
+		lcd.drawText(28, 128, data.stickMsg, MIDSIZE + CUSTOM_COLOR)	
+	end
+end
+
+return title, gpsDegMin, hdopGraph, icons

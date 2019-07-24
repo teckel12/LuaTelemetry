@@ -62,10 +62,13 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	local function saveConfig()
 		local fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
+		--[[
 		if fh == nil then
 			data.msg = "Folder iNav/cfg missing"
 			data.startup = 1
 		else
+		]]
+		if fh ~= nil then
 			for line = 1, #config do
 				if config[line].d == nil then
 					io.write(fh, format("%0" .. config[line].c .. "d", config[line].v))

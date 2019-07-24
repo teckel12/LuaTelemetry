@@ -49,7 +49,7 @@ collectgarbage()
 local crsf, distCalc = loadScript(FILE_PATH .. "other" .. ext, env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -451,33 +451,29 @@ local function run(event)
 		data.startup = 2
 	elseif data.startup == 2 and getTime() - data.startupTime >= 200 then
 		data.startup = 0
-		data.msg = false
-	end
-
-	-- Display error if Horus widget isn't full screen
-	if data.widget and data.msg ~= false and (iNavZone.zone.w < 450 or iNavZone.zone.h < 250) then
-		lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
-		data.startupTime = math.huge -- Never timeout
-		return 0
+		--data.msg = false
 	end
 
 	-- Clear screen
 	if HORUS then
-		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
-		lcd.clear(CUSTOM_COLOR)
-		-- On Horus use sticks to control the menu
-		if event == 0 or event == nil then
-			event = widgetEvt(data)
+		-- Display error if Horus widget isn't full screen
+		if icons.nfs ~= nil then
+			icons.nfs()
+			return 0
 		end
+		-- On Horus use sticks to control the menu
+		event = icons.clear(event, data)
 	else
 		lcd.clear()
 	end
 
 	-- Display system error
+	--[[
 	if data.msg then
 		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) * 0.5, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
 		return 0
 	end
+	]]
 
 	-- Config menu or views
 	if data.configStatus > 0 then
@@ -490,17 +486,7 @@ local function run(event)
 		tmp = config[30].v
 		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
 		if HORUS then
-			if config[30].v ~= tmp then
-				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
-			end
-			-- Aircraft symbol preview
-			if data.configStatus == 27 and data.configSelect ~= 0 then
-				icons.sym(icons.fg)
-			end
-			-- Return throttle stick to bottom center
-			if data.stickMsg ~= nil and not data.armed then
-				icons.alert()
-			end
+			icons.menu(config, data, icons, tmp)
 		end
 	else
 		-- User input
