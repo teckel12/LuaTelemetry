@@ -62,10 +62,13 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	local function saveConfig()
 		local fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
+		--[[
 		if fh == nil then
 			data.msg = "Folder iNav/cfg missing"
 			data.startup = 1
 		else
+		]]
+		if fh ~= nil then
 			for line = 1, #config do
 				if config[line].d == nil then
 					io.write(fh, format("%0" .. config[line].c .. "d", config[line].v))
@@ -83,14 +86,6 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		lcd.setColor(CUSTOM_COLOR, GREY)
 		lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, 12678) -- Dark grey
-		lcd.drawFilledRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
-		lcd.drawRectangle(0, TOP - 7, 75, (LINE * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
-		text(4, TOP, "Sats:", FONT)
-		text(72, TOP, data.satellites % 100, FONT + RIGHT)
-		if not data.crsf then
-			text(4, TOP + LINE, "DOP:", FONT)
-			text(72, TOP + LINE, (data.hdop == 0 and not data.gpsFix) and "---" or (9 - data.hdop) / 2 + 0.8, FONT + RIGHT)
-		end
 	end
 	if not SMLCD then
 		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 5), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 10), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)
@@ -188,9 +183,9 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		if event == EVT_EXIT_BREAK then
 			data.configSelect = 0
 		elseif event == NEXT or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
-			config[z].v = min(floor(config[z].v * 10 + i * 10) / 10, config[z].x == nil and 1 or config[z].x)
+			config[z].v = min(floor(config[z].v * 10 + i * 10) * 0.1, config[z].x == nil and 1 or config[z].x)
 		elseif event == PREV or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
-			config[z].v =max(floor(config[z].v * 10 - i * 10) / 10, config2[z].m == nil and 0 or config2[z].m)
+			config[z].v =max(floor(config[z].v * 10 - i * 10) * 0.1, config2[z].m == nil and 0 or config2[z].m)
 		end
 
 		-- Special cases

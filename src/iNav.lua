@@ -49,7 +49,7 @@ collectgarbage()
 local crsf, distCalc = loadScript(FILE_PATH .. "other" .. ext, env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, FILE_PATH)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -203,10 +203,10 @@ local function background()
 		data.headFree = false
 		data.headingHold = false
 		data.altHold = false
-		local modeA = data.mode / 10000
-		local modeB = data.mode / 1000 % 10
-		local modeC = data.mode / 100 % 10
-		local modeD = data.mode / 10 % 10
+		local modeA = data.mode * 0.0001
+		local modeB = data.mode * 0.001 % 10
+		local modeC = data.mode * 0.01 % 10
+		local modeD = data.mode * 0.1 % 10
 		local modeE = data.mode % 10
 		if bit32.band(modeD, 2) == 2 then
 			data.modeId = 2 -- Horizon
@@ -278,7 +278,7 @@ local function background()
 	elseif preArmMode ~= false and data.preArmModePrev ~= preArmMode then
 		playAudio(modes[preArmMode].w)
 	end
-	data.hdop = math.floor(data.satellites / 100) % 10
+	data.hdop = math.floor(data.satellites * 0.01) % 10
 	if data.headingHold ~= headingHoldPrev then -- Heading hold status change
 		playAudio("hedhld")
 		playAudio(data.headingHold and "active" or "off")
@@ -289,7 +289,7 @@ local function background()
 	if data.armed then
 		data.distanceLast = data.distance
 		if config[13].v == 1 then
-			data.timer = (getTime() - data.timerStart) / 100 -- Armed so update timer
+			data.timer = (getTime() - data.timerStart) * 0.01 -- Armed so update timer
 		elseif config[13].v > 1 then
 			data.timer = model.getTimer(config[13].v - 2)["value"]
 		end
@@ -429,7 +429,7 @@ local function background()
 			data.altMin = min(data.altMin, data.alt[i])
 			data.altMax = max(data.altMax, data.alt[i])
 		end
-		data.altMax = math.ceil(data.altMax / (data.alt_unit == 10 and 10 or 5)) * (data.alt_unit == 10 and 10 or 5)
+		data.altMax = math.ceil(data.altMax * (data.alt_unit == 10 and 0.1 or 0.2)) * (data.alt_unit == 10 and 10 or 5)
 	end
 	data.bkgd = true
 end
@@ -451,33 +451,29 @@ local function run(event)
 		data.startup = 2
 	elseif data.startup == 2 and getTime() - data.startupTime >= 200 then
 		data.startup = 0
-		data.msg = false
-	end
-
-	-- Display error if Horus widget isn't full screen
-	if data.widget and data.msg ~= false and (iNavZone.zone.w < 450 or iNavZone.zone.h < 250) then
-		lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, data.msg, SMLSIZE + WARNING_COLOR)
-		data.startupTime = math.huge -- Never timeout
-		return 0
+		--data.msg = false
 	end
 
 	-- Clear screen
 	if HORUS then
-		lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
-		lcd.clear(CUSTOM_COLOR)
-		-- On Horus use sticks to control the menu
-		if event == 0 or event == nil then
-			event = widgetEvt(data)
+		-- Display error if Horus widget isn't full screen
+		if icons.nfs ~= nil then
+			icons.nfs()
+			return 0
 		end
+		-- On Horus use sticks to control the menu
+		event = icons.clear(event, data)
 	else
 		lcd.clear()
 	end
 
 	-- Display system error
+	--[[
 	if data.msg then
-		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) / 2, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
+		lcd.drawText((LCD_W - string.len(data.msg) * (HORUS and 13 or 5.2)) * 0.5, HORUS and 130 or 27, data.msg, HORUS and MIDSIZE or 0)
 		return 0
 	end
+	]]
 
 	-- Config menu or views
 	if data.configStatus > 0 then
@@ -490,17 +486,7 @@ local function run(event)
 		tmp = config[30].v
 		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
 		if HORUS then
-			if config[30].v ~= tmp then
-				icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
-			end
-			-- Aircraft symbol preview
-			if data.configStatus == 27 and data.configSelect ~= 0 then
-				icons.sym(icons.fg)
-			end
-			-- Return throttle stick to bottom center
-			if data.stickMsg ~= nil and not data.armed then
-				icons.alert()
-			end
+			icons.menu(config, data, icons, tmp)
 		end
 	else
 		-- User input

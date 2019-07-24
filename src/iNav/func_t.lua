@@ -47,7 +47,7 @@ local function hdopGraph(x, y, s, SMLCD)
 			lcd.drawLine(x - 8 + (i * 2), (data.hdop >= i or not SMLCD) and y + 8 - i or y + 5, x - 8 + (i * 2), y + 5, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		lcd.drawText(x + 12, s == SMLSIZE and y or y - 2, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, s + RIGHT + (tmp and 3 or 0))
+		lcd.drawText(x + 12, s == SMLSIZE and y or y - 2, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) * 0.5 + 0.8, s + RIGHT + (tmp and 3 or 0))
 	end
 end
 
@@ -78,4 +78,4 @@ function icons.home(x, y)
 	lcd.drawPoint(x + 3, y + 4)
 end
 
-return title, gpsDegMin, hdopGraph, icons, nil
+return title, gpsDegMin, hdopGraph, icons
