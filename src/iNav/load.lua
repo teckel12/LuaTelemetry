@@ -1,40 +1,40 @@
 local config, data, FILE_PATH = ...
 
--- Sort config menus
-for i, value in ipairs(config) do
-	for ii, value2 in ipairs(config) do
-		if i == value2.o then
-			value.z = ii
-			value2.o = nil
-		end
-	end
-end
-
--- Copy config file (remove after several revisions)
-local fh = io.open(FILE_PATH .. "config.dat", "r")
+-- Load config for model
+fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat")
 if fh ~= nil then
-	local tmp = io.read(fh, 1024)
-	io.close(fh)
-	fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
-	if fh == nil then
-		data.msg = "Folder iNav/cfg missing"
-		data.startup = 1
-	else
-		io.write(fh, tmp)
-		io.close(fh)
-	end
-end
-
--- Load config data
-fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "r")
-if fh ~= nil then
-	for line = 1, #config do
-		local tmp = io.read(fh, config[line].c)
+	for i = 1, #config do
+		local tmp = io.read(fh, config[i].c)
 		if tmp ~= "" then
-			config[line].v = config[line].d == nil and math.min(tonumber(tmp), config[line].x == nil and 1 or config[line].x) or tmp / 10
+			config[i].v = config[i].d == nil and math.min(tonumber(tmp), config[i].x == nil and 1 or config[i].x) or tmp * 0.1
 		end
 	end
 	io.close(fh)
 end
 
-return 0
+local log = getDateTime()
+local path = "/LOGS/" .. string.gsub(model.getInfo().name, " ", "_") .. "-20"
+config[34].x = -1
+
+for days = 1, 15 do
+	local logDate = string.sub(log.year, 3) .. "-" .. string.sub("0" .. log.mon, -2) .. "-" .. string.sub("0" .. log.day, -2)
+	local fh = io.open(path .. logDate .. ".csv")
+	if fh ~= nil then
+		io.close(fh)
+		config[34].x = config[34].x + 1
+		config[34].l[config[34].x] = logDate
+		if config[34].x == 5 then break end
+	end
+	collectgarbage()
+	log.day = log.day - 1
+	if log.day == 0 then
+		log.day = 31
+		log.mon = log.mon - 1
+		if log.mon == 0 then
+			log.mon = 12
+			log.year = log.year - 1
+		end
+	end
+end
+
+return

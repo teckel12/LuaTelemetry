@@ -1,11 +1,13 @@
 ---
-name: "\U0001F41B Bug report"
-about: Report a bug or issue with Lua Telemetry
-
+name: "\U0001F41B Possible bug"
+about: Report a possible bug or issue with Lua Telemetry
+title: ''
+labels: 'bug?'
+assignees: teckel12
 ---
 
 ### Describe the bug
-<!-- A clear and concise description of what the bug is and specify the transmitter model (ie: X9D, X7)  -->
+<!-- A clear and concise description of the bug and specify the transmitter model (ie: X9D, X7, Horus X10S)  -->
 
 ### To reproduce
 <!-- Steps to reproduce the behavior, example:  -->

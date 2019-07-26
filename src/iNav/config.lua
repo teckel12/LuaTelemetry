@@ -1,34 +1,50 @@
 local SMLCD = ...
 
--- Config options: o=display Order / t=Text / c=Characters / v=default Value / l=Lookup text / d=Decimal / m=Min / x=maX / i=Increment / a=Append text / b=Blocked by
+-- Config options: o=display Order / c=Characters / v=default Value / d=Decimal / x=maX
 local config = {
-	{ o = 1,  t = "Battery View",     c = 1, v = 1, i = 1, l = {[0] = "Cell", "Total"} },
-	{ o = 3,  t = "Cell Low",         c = 2, v = 3.5, d = true, m = 2.7, x = 3.9, i = 0.1, a = "V", b = 2 },
-	{ o = 4,  t = "Cell Critical",    c = 2, v = 3.4, d = true, m = 2.6, x = 3.8, i = 0.1, a = "V", b = 2 },
-	{ o = 16, t = "Voice Alerts",     c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
-	{ o = 17, t = "Feedback",         c = 1, v = 3, x = 3, i = 1, l = {[0] = "Off", "Haptic", "Beeper", "All"} },
-	{ o = 10, t = "Max Altitude",     c = 4, x = 9999, b = 9 },
-	{ o = 14, t = "Variometer",       c = 1, v = 0, i = 1, x = 3, l = {[0] = "Off", "Graph", "Voice", "Both"} },
-	{ o = 18, t = "RTH Feedback",     c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 17 },
-	{ o = 19, t = "HeadFree Feedback",c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 17 },
-	{ o = 20, t = "RSSI Feedback",    c = 1, v = 1, i = 1, l = {[0] = "Off", "On"}, b = 17 },
-	{ o = 2,  t = "Battery Alerts",   c = 1, v = 2, x = 2, i = 1, l = {[0] = "Off", "Critical", "All"} },
-	{ o = 9,  t = "Altitude Alert",   c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 11, t = "Timer",            c = 1, v = 1, x = 4, i = 1, l = {[0] = "Off", "Auto", "Timer1", "Timer2", "Timer3"} },
-	{ o = 13, t = "Rx Voltage",       c = 1, v = 1, i = 1, l = {[0] = "Off", "On"} },
-	{ o = 27, t = "GPS",              c = 1, v = 0, x = 0, i = 0, l = {[0] = { lat = 0, lon = 0 }} },
-	{ o = 26, t = "GPS Coordinates",  c = 1, v = 0, i = 1, l = {[0] = "Decimal", "Deg/Min"} },
-	{ o = 8,  t = "Fuel Critical",    c = 2, v = 20, m = 1, x = 40, i = 1, a = "%", b = 2 },
-	{ o = 7,  t = "Fuel Low",         c = 2, v = 30, m = 2, x = 50, i = 1, a = "%", b = 2 },
-	{ o = 12, t = "Tx Voltage",       c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2, i = 1, l = {[0] = "Number", "Graph", "Both"} },
-	{ o = 22, t = "Speed Sensor",     c = 1, v = 0, i = 1, l = {[0] = "GPS", "Pitot"} },
-	{ o = 25, t = "GPS Warning",      c = 2, v = 3.5, d = true, m = 1.0, x = 5.0, i = 0.5, a = " HDOP" },
-	{ o = 24, t = "GPS HDOP View",    c = 1, v = 0, i = 1, l = {[0] = "Graph", "Decimal"} },
-	{ o = 5,  t = "Fuel Unit",        c = 1, v = 0, i = 1, x = 2, l = {[0] = "Percent", "mAh", "mWh"} },
-	{ o = 15, t = "Vario Steps",      c = 1, v = 3, m = 0, x = 9, i = 1, l = {[0] = 1, 2, 5, 10, 15, 20, 25, 30, 40, 50} },
-	{ o = 23, t = "View Mode",        c = 1, v = 0, i = 1, x = 2, l = {[0] = "Classic", "Pilot", "Radar"} },
-	{ o = 21, t = "AltHold Center FB",c = 1, v = 0, i = 1, l = {[0] = "Off", "On"}, b = 17 },
-	{ o = 6,  t = "Battery Capacity", c = 5, v = 1500, m = 150, x = 9950, i = 50, a = "mAh" },
+	{ o = 1,  c = 1, v = 1 }, -- Battery View - 1
+	{ o = 3,  c = 2, v = 3.5, d = true, x = 3.9}, -- Cell Low - 2
+	{ o = 4,  c = 2, v = 3.4, d = true, x = 3.8 }, -- Cell Critical - 3
+	{ o = 18, c = 1, v = 2, x = 2 }, -- Voice Alerts - 4
+	{ o = 19, c = 1, v = 3, x = 3 }, -- Feedback - 5
+	{ o = 11, c = 4, v = -1, x = 9999 }, -- Max Altitude - 6
+	{ o = 15, c = 1, v = 0, x = 3 }, -- Variometer - 7
+	{ o = 20, c = 1, v = 1 }, -- RTH Feedback - 8
+	{ o = 21, c = 1, v = 1 }, -- HeadFree Feedback - 9
+	{ o = 22, c = 1, v = 1 }, -- RSSI Feedback - 10
+	{ o = 2,  c = 1, v = 2, x = 2 }, -- Battery Alerts - 11
+	{ o = 10, c = 1, v = 1 }, -- Altitude Alert - 12
+	{ o = 12, c = 1, v = 1, x = 3 }, -- Timer - 13
+	{ o = 14, c = 1, v = 1 }, -- Rx Voltage - 14
+	{ o = 28, c = 1, v = 0 }, -- Flight Path Vector - 15
+	{ o = 33, c = 1, v = 0 }, -- GPS - 16
+	{ o = 9,  c = 2, v = 20, x = 40 }, -- Fuel Critical - 17
+	{ o = 8,  c = 2, v = 30, x = 50 }, -- Fuel Low - 18
+	{ o = 13, c = 1, v = SMLCD and 1 or 2, x = SMLCD and 1 or 2 }, -- Tx Voltage - 19
+	{ o = 24, c = 1, v = 0 }, -- Speed Sensor - 20
+	{ o = 32, c = 2, v = 3.5, d = true, x = 5.0 }, -- GPS Warning - 21
+	{ o = 31, c = 1, v = 0 }, -- GPS HDOP View - 22
+	{ o = 6,  c = 1, v = 0, x = 2 }, -- Fuel Unit - 23
+	{ o = 16, c = 1, v = 3, x = 9 }, -- Vario Steps - 24
+	{ o = 25, c = 1, v = 0, x = 3 }, -- View Mode - 25
+	{ o = 23, c = 1, v = 0 }, -- AltHold Center FB - 26
+	{ o = 7,  c = 5, v = 1500, x = 9950 }, -- Battery Capacity - 27
+	{ o = 17, c = 1, v = 0, x = 6 }, -- Altitude Graph - 28
+	{ o = 5,  c = 2, v = 4.3, d = true, x = 4.5 }, -- Cell Calculation - 29
+	{ o = 27, c = 1, v = 0, x = 5 }, -- Aircraft Symbol - 30
+	{ o = 29, c = 1, v = 0 }, -- Center Map Home - 31
+	{ o = 30, c = 1, v = 0 }, -- Orientation - 32
+	{ o = 26, c = 1, v = 0 }, -- Roll Scale - 33
+	{ o = 34, c = 1, v = 0, l = {[0] = "?"} }, -- Review Log Date - 34
 }
+
+for i = 1, #config do
+	for ii = 1, #config do
+		if i == config[ii].o then
+			config[i].z = ii
+			config[ii].o = nil
+		end
+	end
+end
 
 return config

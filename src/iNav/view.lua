@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcTrig, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local RIGHT_POS = SMLCD and 129 or 195
 	local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -14,7 +14,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		lcd.drawLine(x1, y1, x2, y2, SOLID, FORCE)
 		lcd.drawLine(x1, y1, x3, y3, SOLID, FORCE)
 		if data.headingHold then
-			lcd.drawFilledRectangle((x2 + x3) / 2 - 1.5, (y2 + y3) / 2 - 1.5, 4, 4, SOLID)
+			lcd.drawFilledRectangle((x2 + x3) * 0.5 - 1.5, (y2 + y3) * 0.5 - 1.5, 4, 4, SOLID)
 		else
 			lcd.drawLine(x2, y2, x3, y3, SMLCD and DOTTED or SOLID, FORCE + (SMLCD and 0 or GREY_DEFAULT))
 		end
@@ -50,7 +50,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	lcd.drawText(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
 	lcd.drawText(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 	if data.crsf then
-		lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), 9, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr / 1000 .. "W", SMLSIZE + RIGHT + data.telemFlags)
+		lcd.drawText(RIGHT_POS - (data.telem and 0 or 1), 9, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr * 0.001 .. "W", SMLSIZE + RIGHT + data.telemFlags)
 	else
 		lcd.drawText(tmp, 17, math.floor(data.gpsAlt + 0.5) .. units[data.gpsAlt_unit], gpsFlags)
 	end
@@ -62,7 +62,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.showHead and data.startup == 0 then
 		if data.telem then
 			local indicatorDisplayed = false
-			if data.showDir or data.headingRef < 0 or not SMLCD then
+			if data.showDir or data.headingRef == -1 or not SMLCD then
 				lcd.drawText(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE)
 				lcd.drawText(X_CNTR_1 + 10, 21, "E", SMLSIZE)
 				lcd.drawText(X_CNTR_1 - 14, 21, "W", SMLSIZE)
@@ -72,7 +72,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				drawDirection(data.heading, 140, 7, X_CNTR_1, 23)
 				indicatorDisplayed = true
 			end
-			if not data.showDir or data.headingRef >= 0 or not SMLCD then
+			if not data.showDir or data.headingRef ~= -1 or not SMLCD then
 				if not indicatorDisplayed or not SMLCD then
 					drawDirection(data.heading - data.headingRef, 145, 8, SMLCD and 63 or 133, 19)
 				end
@@ -80,7 +80,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		if data.gpsHome ~= false and data.distanceLast >= data.distRef then
 			if not data.showDir or not SMLCD then
-				local bearing = calcTrig(data.gpsHome, data.gpsLatLon, true) - data.headingRef
+				local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - data.headingRef
 				local rad1 = math.rad(bearing)
 				local x1 = math.floor(math.sin(rad1) * 10 + 0.5) + X_CNTR_2
 				local y1 = 19 - math.floor(math.cos(rad1) * 10 + 0.5)
@@ -107,7 +107,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	drawData(data.crsf and "LQ" or "RSSI", 57, 2, data.rssiLast, data.rssiMin, 200, data.crsf and "%" or "dB", 0, (not data.telem or data.rssi < data.rssiLow) and FLASH or 0)
 	if data.showCurr then
 		drawData("Curr", 33, 1, data.current, data.currentMax, 100, "A", "%.1f", data.telemFlags)
-		drawData(config[23].v == 0 and "Fuel" or config[23].l[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)
+		drawData(config[23].v == 0 and "Fuel" or data.fUnit[config[23].v], 41, 0, data.fuel, 0, 200, config[23].v == 0 and "%" or "", 0, tmp)
 		if config[23].v == 0 then
 			lcd.drawGauge(46, 41, GAUGE_WIDTH, 7, math.min(data.fuel, 99), 100)
 			if data.fuel == 0 then
@@ -117,10 +117,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	tmp = 100 / (4.2 - config[3].v + 0.1)
 	lcd.drawGauge(46, data.showCurr and 49 or 41, GAUGE_WIDTH, data.showCurr and 7 or 15, math.min(math.max(data.cell - config[3].v + 0.1, 0) * tmp, 98), 100)
-	tmp = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - config[3].v + 0.1, 0) * tmp, 99) / 100) + 47
+	tmp = (GAUGE_WIDTH - 2) * (math.min(math.max(data.cellMin - config[3].v + 0.1, 0) * tmp, 99) * 0.01) + 47
 	lcd.drawLine(tmp, data.showCurr and 50 or 42, tmp, 54, SOLID, ERASE)
 	lcd.drawGauge(46, 57, GAUGE_WIDTH, 7, math.max(math.min((data.rssiLast - data.rssiCrit) / (100 - data.rssiCrit) * 100, 98), 0), 100)
-	tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) / 100) + 47
+	tmp = (GAUGE_WIDTH - 2) * (math.max(math.min((data.rssiMin - data.rssiCrit) / (100 - data.rssiCrit) * 100, 99), 0) * 0.01) + 47
 	lcd.drawLine(tmp, 58, tmp, 62, SOLID, ERASE)
 	if not SMLCD then
 		local w = config[7].v % 2 == 1 and 7 or 15
@@ -134,9 +134,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Variometer
-	if config[7].v % 2 == 1 and data.startup == 0 then
-		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) / 2.4 * (data.vspeed < 0 and -1 or 1)
-		if SMLCD and data.armed and not data.showDir then
+	if config[7].v % 2 == 1 then
+		local varioSpeed = math.log(1 + math.min(math.abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * 0.416667 * (data.vspeed < 0 and -1 or 1)
+		if SMLCD and data.armed and not data.showDir and data.startup == 0 then
 			lcd.drawLine(X_CNTR_2 + 17, 21, X_CNTR_2 + 19, 21, SOLID, FORCE)
 			lcd.drawLine(X_CNTR_2 + 18, 21, X_CNTR_2 + 18, 21 - (varioSpeed * 12 - 0.5), SOLID, FORCE)
 		elseif not SMLCD then

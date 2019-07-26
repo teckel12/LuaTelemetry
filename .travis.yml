@@ -1,20 +1,41 @@
-os:
-  - linux
-
-sudo: false
+os: linux
 
 dist: trusty
 
-addons:
-  apt:
-    packages:
-      - lua5.2
-
-git:
-  depth: 4
+sudo: false
 
 language: c
 
-install:
+env:
+  global:
+    - LUAROCKS=2.3.0
+  matrix:
+    - LUA=lua5.2
 
-script: ./bin/build.sh
+before_install:
+  - source .travis/setenv_lua.sh
+  - pip install --user cpp-coveralls
+  - luarocks install Lua-cURL         --server=https://luarocks.org/dev
+  - luarocks install luacov-coveralls --server=https://luarocks.org/dev
+  - luarocks install lunitx
+
+install:
+  - luarocks make .travis/foo-scm-0.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
+
+script:
+  - ./.travis/build.sh
+  - cd test
+  - lunit.sh test.lua
+
+after_success:
+  - coveralls -b .. -r .. -i ./src --dump c.report.json
+  - luacov-coveralls -j c.report.json -v
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then curl -X POST https://api.telegram.org/bot797688679:AAEcKXFJ-0cDfiQLmn_hMg83FDFEtV7x2LQ/sendMessage -d chat_id=@luatelemetry -d "text=Build successful - PR #$TRAVIS_PULL_REQUEST $TRAVIS_PULL_REQUEST_BRANCH > $TRAVIS_BRANCH"; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then curl -X POST https://api.telegram.org/bot797688679:AAEcKXFJ-0cDfiQLmn_hMg83FDFEtV7x2LQ/sendMessage -d chat_id=@luatelemetry -d "text=Build successful - Branch $TRAVIS_BRANCH: $TRAVIS_COMMIT_MESSAGE"; fi'
+
+notifications:
+  email:
+    recipients:
+      - eckel.tim@gmail.com
+    on_success: never
+    on_failure: always

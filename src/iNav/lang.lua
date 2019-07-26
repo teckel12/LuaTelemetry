@@ -1,11 +1,12 @@
-local modes, config, labels, data, FILE_PATH = ...
+local modes, labels, data, FILE_PATH, env = ...
+local lang
 
 if data.lang ~= "en" then
 	local tmp = FILE_PATH .. "lang_" .. data.lang .. ".luac"
 	local fh = io.open(tmp)
 	if fh ~= nil then
 		io.close(fh)
-		loadfile(tmp)(modes, config, labels)
+		lang = loadScript(tmp, env)(modes, labels)
 		collectgarbage()
 	end
 end
@@ -19,4 +20,4 @@ if data.voice ~= "en" then
 	end
 end
 
-return 0
+return lang

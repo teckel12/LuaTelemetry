@@ -10,23 +10,18 @@ local function getTelemetryUnit(n)
 	return (field and field.unit <= 10) and field.unit or 0
 end
 
-local rssi, low, crit = getRSSI()
 local tx = string.sub(r, 0, 2)
-if string.sub(r, 0, 3) == "x9e" or HORUS then
+if HORUS or string.sub(r, 0, 3) == "x9e" or string.sub(r, 0, 6) == "x9lite" then
 	tx = "x7"
 end
 local tmp = tx == "x9" and EVT_PLUS_FIRST or (tx == "xl" and EVT_UP_FIRST)
 local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
-local INCR = tx == "x7" and EVT_ROT_RIGHT or tmp
 tmp = tx == "x9" and EVT_MINUS_FIRST or (tx == "xl" and EVT_DOWN_FIRST)
 local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
-local DECR = tx == "x7" and EVT_ROT_LEFT or tmp
 local MENU = tx == "xl" and EVT_SHIFT_BREAK or (HORUS and EVT_SYS_FIRST or EVT_MENU_BREAK)
 local general = getGeneralSettings()
 local distSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
-	rssiLow = low,
-	rssiCrit = crit,
 	txBattMin = general.battMin,
 	txBattMax = general.battMax,
 	lang = string.lower(general.language),
@@ -48,8 +43,6 @@ local data = {
 	a4_id = getTelemetryId("A4"),
 	a4Min_id = getTelemetryId("A4-"),
 	fuel_id = getTelemetryId("Fuel"),
-	rssi_id = getTelemetryId("RSSI"),
-	rssiMin_id = getTelemetryId("RSSI-"),
 	vspeed_id = getTelemetryId("VSpd"),
 	txBatt_id = getTelemetryId("tx-voltage"),
 	gpsAlt_unit = getTelemetryUnit("GAlt"),
@@ -63,32 +56,24 @@ local data = {
 	gpsAlt = 0,
 	heading = 0,
 	altitude = 0,
-	altitudeMax = 0,
 	distance = 0,
-	distanceMax = 0,
-	distMaxCalc = 0,
 	speed = 0,
-	speedMax = 0,
 	current = 0,
-	currentMax = 0,
 	fuel = 0,
 	batt = 0,
-	battMin = 0,
 	cell = 0,
-	cellMin = 0,
 	rxBatt = 0,
 	txBatt = 0,
 	rssiLast = 0,
-	rssiMin = 0,
 	vspeed = 0,
 	hdop = 0,
+	throttle = 0,
 	homeResetPrev = false,
 	gpsFixPrev = false,
 	altNextPlay = 0,
 	altLastAlt = 0,
 	battNextPlay = 0,
 	battPercentPlayed = 100,
-	armed = false,
 	headFree = false,
 	headingHold = false,
 	altHold = false,
@@ -98,9 +83,12 @@ local data = {
 	configTop = 1,
 	configSelect = 0,
 	crsf = false,
+	alt = {},
 	v = -1,
-	simu = string.sub(r, -4) == "simu" and true or false,
-	msg = m + i / 10 < 2.2 and "OpenTX v2.2+ Required" or false,
+	simu = string.sub(r, -4) == "simu",
+	--msg = m + i * 0.1 < 2.2 and "OpenTX v2.2+ Required" or false,
+	lastLock = { lat = 0, lon = 0 },
+	fUnit = {"mAh", "mWh"},
 }
 
-return data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU
+return data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU
