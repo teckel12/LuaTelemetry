@@ -248,6 +248,17 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
+	-- Speed & altitude tics
+	tics(data.speed, 1)
+	tics(data.altitude, RIGHT_POS - 4)
+	if config[28].v == 0 and config[33].v == 0 then
+		text(42, TOP - 1, units[data.speed_unit], SMLSIZE)
+		text(RIGHT_POS - 45, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+	elseif config[28].v > 0 then
+		text(39, Y_CNTR - 25, units[data.speed_unit], SMLSIZE + RIGHT)
+		text(RIGHT_POS - 6, Y_CNTR - 25, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+	end
+
 	-- Compass
 	if data.showHead then
 		for i = 0, 348.75, 11.25 do
@@ -264,15 +275,58 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
-	-- Speed & altitude tics
-	tics(data.speed, 1)
-	tics(data.altitude, RIGHT_POS - 4)
-	if config[28].v == 0 and config[33].v == 0 then
-		text(42, TOP - 1, units[data.speed_unit], SMLSIZE)
-		text(RIGHT_POS - 45, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
-	elseif config[28].v > 0 then
-		text(39, Y_CNTR - 25, units[data.speed_unit], SMLSIZE + RIGHT)
-		text(RIGHT_POS - 6, Y_CNTR - 25, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+	-- Home direction
+	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 then
+		if data.distanceLast >= data.distRef then
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
+			-- New '3D' method
+			--tmp = (bearing - data.heading + 360) % 360
+			--if tmp >= 272 or tmp <= 91 then
+				--local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
+				local dist = 1 - data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)
+				local w = HEADING_DEG / (dist + 1)
+				local home = floor(((bearing - data.heading + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
+				local r = home - X_CNTR
+				local adj = dist * -15
+				local p = sin(rad(adj)) * 170
+				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
+				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 9
+				if  x >= 0 and y > TOP and x < RIGHT_POS - 17 and y < BOTTOM - 17 then
+					bmap(dist < 0.33 and icons.homes or (dist < 0.66 and icons.homem or icons.homel), x, y)
+					--[[
+					if dist < 0.33 then
+						bmap(icons.homes, x, y)
+					elseif dist < 0.66 then
+						bmap(icons.homem, x, y)
+					else
+						bmap(icons.homel, x, y)
+					end
+					]]
+				end
+			--end
+			--[[ Old 'flat' method
+			local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
+			if home >= 3 and home <= RIGHT_POS - 6 then
+				bmap(icons.homem, home - 7, BOTTOM - 31)
+				--bmap(icons.home, home - 3, BOTTOM - 26)
+			end
+			]]
+		end
+		-- Flight path vector
+		if data.crsf and data.fpv_id > -1 and config[15].v == 1 and data.speed >= 8 then
+			tmp = (data.fpv - data.heading + 360) % 360
+			if tmp >= 302 or tmp <= 57 then
+				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
+				local r = fpv - X_CNTR -- Adjust from center
+				local adj = pitch - 90 -- Pitch degrees, change to climb/descend vector
+				local p = sin(rad(adj)) * 170
+				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
+				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 6
+				if y > top2 and y < bot2 and x >= 0 then
+					bmap(icons.fpv, x, y)
+				end
+			end
+		end
 	end
 
 	-- View overlay
@@ -301,32 +355,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			line(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
 			line(x1, y1, x3, y3, SOLID, CUSTOM_COLOR)
 			line(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
-		end
-	end
-
-	-- Home direction
-	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 then
-		if data.distanceLast >= data.distRef then
-			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
-			local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
-			if home >= 3 and home <= RIGHT_POS - 6 then
-				bmap(icons.home, home - 3, BOTTOM - 26)
-			end
-		end
-		-- Flight path vector
-		if data.crsf and data.fpv_id > -1 and config[15].v == 1 and data.speed >= 8 then
-			tmp = (data.fpv - data.heading + 360) % 360
-			if tmp >= 302 or tmp <= 57 then
-				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
-				local r = fpv - X_CNTR -- Adjust from center
-				local adj = pitch - 90 -- Pitch degrees, change to climb/descend vector
-				local p = sin(rad(adj)) * 170
-				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
-				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 6
-				if y > top2 and y < bot2 and x >= 0 then
-					bmap(icons.fpv, x, y)
-				end
-			end
 		end
 	end
 
@@ -415,7 +443,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				hy = hy + (d > 9 and cy * 0.5 or 0)
 			end
 			if d >= 12 then
-				bmap(icons.home, hx - 4, hy - 5)
+				--bmap(icons.home, hx - 4, hy - 5)
+				bmap(icons.homem, hx - 8, hy - 10)
 			elseif d > 1 then
 				fill(hx - 1, hy - 1, 3, 3, SOLID)
 			end

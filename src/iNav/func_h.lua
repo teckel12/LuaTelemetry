@@ -87,7 +87,10 @@ end
 
 local icons = {}
 icons.lock = Bitmap.open(FILE_PATH .. "pics/lock.png")
-icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
+--icons.home = Bitmap.open(FILE_PATH .. "pics/home.png")
+icons.homel = Bitmap.open(FILE_PATH .. "pics/homel.png")
+icons.homem = Bitmap.open(FILE_PATH .. "pics/homem.png")
+icons.homes = Bitmap.open(FILE_PATH .. "pics/homes.png")
 icons.fpv = Bitmap.open(FILE_PATH .. "pics/fpv.png")
 icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
 icons.roll = Bitmap.open(FILE_PATH .. "pics/roll.png")

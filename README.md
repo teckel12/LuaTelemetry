@@ -8,10 +8,9 @@
 
 #### [Video of Lua Telemetry](https://youtu.be/YaUgywuT1YM)
 
-#### Classic view
+#### Horus/Jumper T16 view
 
-![sample](assets/iNavQX7.png "Classic view on Q X7 and X-Lite")&nbsp;&nbsp;
-![sample](assets/iNavX9D.png "Classic view on Taranis X9D, X9D+ and X9E")
+![sample](assets/iNavHorus.png "View on Horus transmitters")
 
 #### Pilot (glass cockpit) view for fixed wing pilots
 
@@ -28,9 +27,10 @@
 ![sample](assets/iNavQX7alt.png "Altitude graph view on Q X7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dalt.png "Altitude graph view on Taranis X9D, X9D+ and X9E")
 
-#### Horus/Jumper T16 view
+#### Classic view
 
-![sample](assets/iNavHorus.png "View on Horus transmitters")
+![sample](assets/iNavQX7.png "Classic view on Q X7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavX9D.png "Classic view on Taranis X9D, X9D+ and X9E")
 
 ## Features
 
