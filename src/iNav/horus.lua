@@ -280,34 +280,23 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		if data.distanceLast >= data.distRef then
 			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
 			-- New '3D' method
-			--tmp = (bearing - data.heading + 360) % 360
-			--if tmp >= 272 or tmp <= 91 then
-				--local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
-				local dist = 1 - data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)
-				local w = HEADING_DEG / (dist + 1)
-				local home = floor(((bearing - data.heading + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
-				local r = home - X_CNTR
-				local adj = dist * -15
-				local p = sin(rad(adj)) * 170
-				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
-				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 9
-				if  x >= 0 and y > TOP and x < RIGHT_POS - 17 and y < BOTTOM - 17 then
-					bmap(dist < 0.33 and icons.homes or (dist < 0.66 and icons.homem or icons.homel), x, y)
-					--[[
-					if dist < 0.33 then
-						bmap(icons.homes, x, y)
-					elseif dist < 0.66 then
-						bmap(icons.homem, x, y)
-					else
-						bmap(icons.homel, x, y)
-					end
-					]]
-				end
-			--end
+			--local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
+			local dist = 1 - data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)
+			local w = HEADING_DEG / (dist + 1)
+			local home = floor(((bearing - data.heading + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
+			local r = home - X_CNTR
+			--local adj = dist * -15
+			local adj = dist * min(-15 + (pitch - 90) * 0.5, 0)
+			local p = sin(rad(adj)) * 170
+			local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
+			local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 9
+			if x >= 0 and y > 0 and x < RIGHT_POS - 17 and y < BOTTOM - 17 then
+				bmap(icons.home[floor(dist * 2 + 0.5)], x, y)
+			end
 			--[[ Old 'flat' method
 			local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
 			if home >= 3 and home <= RIGHT_POS - 6 then
-				bmap(icons.homem, home - 7, BOTTOM - 31)
+				bmap(icons.home[1], home - 7, BOTTOM - 31)
 				--bmap(icons.home, home - 3, BOTTOM - 26)
 			end
 			]]
@@ -444,7 +433,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 			if d >= 12 then
 				--bmap(icons.home, hx - 4, hy - 5)
-				bmap(icons.homem, hx - 8, hy - 10)
+				bmap(icons.home[1], hx - 8, hy - 10)
 			elseif d > 1 then
 				fill(hx - 1, hy - 1, 3, 3, SOLID)
 			end

@@ -44,6 +44,7 @@ loadScript(FILE_PATH .. "menu", env)()
 loadScript(FILE_PATH .. "log", env)()
 loadScript(FILE_PATH .. "log_c", env)()
 loadScript(FILE_PATH .. "log_s", env)()
+loadScript(FILE_PATH .. "save", env)(config, data, FILE_PATH)
 
 if buildMode == nil then
 	loadScript("/WIDGETS/iNav/main", env)(true)

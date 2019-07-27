@@ -23,9 +23,9 @@ for days = 1, 15 do
 		io.close(fh)
 		config[34].x = config[34].x + 1
 		config[34].l[config[34].x] = logDate
+		collectgarbage()
 		if config[34].x == 5 then break end
 	end
-	collectgarbage()
 	log.day = log.day - 1
 	if log.day == 0 then
 		log.day = 31

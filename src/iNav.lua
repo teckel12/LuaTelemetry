@@ -488,6 +488,12 @@ local function run(event)
 		if HORUS then
 			icons.menu(config, data, icons, tmp)
 		end
+		-- Exit menu or select log for playback, save config settings
+		if data.configSelect == 0 and (event == EVT_EXIT_BREAK or (event == EVT_ENTER_BREAK and data.configStatus == 34 and config[34].x > -1 and not data.armed)) then
+			view = nil
+			collectgarbage()
+			loadScript(FILE_PATH .. "save" .. ext, env)(config, data, FILE_PATH)
+		end
 	else
 		-- User input
 		if not data.armed and (event == PREV or event == NEXT) then

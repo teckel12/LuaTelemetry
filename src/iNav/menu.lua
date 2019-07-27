@@ -49,37 +49,12 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Center Map Home",  l = 1 }, -- 31
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} }, -- 32
 		{ t = "Roll Scale",       l = 1 }, -- 33
-		{ t = "Review Log" }, -- 34
+		{ t = "Review Log",       l = config[34].l }, -- 34
 	}
 
 	-- Import language changes
 	if lang ~= nil then
 		offOn = lang(config2)
-	end
-
-	-- Get log dates
-	config2[34].l = config[34].l
-
-	local function saveConfig()
-		local fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
-		--[[
-		if fh == nil then
-			data.msg = "Folder iNav/cfg missing"
-			data.startup = 1
-		else
-		]]
-		if fh ~= nil then
-			for line = 1, #config do
-				if config[line].d == nil then
-					io.write(fh, format("%0" .. config[line].c .. "d", config[line].v))
-				else 
-					io.write(fh, floor(config[line].v * 10))
-				end
-			end
-			io.close(fh)
-		end
-		data.configLast = data.configStatus
-		data.configStatus = 0
 	end
 
 	if HORUS then
@@ -152,17 +127,13 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	-- Select config option
 	if data.configSelect == 0 then
-		if event == EVT_EXIT_BREAK then
-			saveConfig()
-		elseif event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
+		if event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
 			data.configStatus = data.configStatus == #config and 1 or data.configStatus + 1
 			data.configTop = data.configStatus > min(#config, data.configTop + ROWS) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
 		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
 			data.configStatus = data.configStatus == 1 and #config or data.configStatus - 1
 			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == #config and #config - ROWS or data.configTop)
-		elseif event == EVT_ENTER_BREAK and data.configStatus == 34 and config2[34].p == nil then
-			-- Log file selected
-			saveConfig()
+		elseif event == EVT_ENTER_BREAK and data.configStatus == 34 and config2[34].p == nil then -- Log file selected
 			data.doLogs = true
 		end
 	end
