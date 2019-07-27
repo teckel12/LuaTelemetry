@@ -307,8 +307,14 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			if tmp >= 302 or tmp <= 57 then
 				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
 				local r = fpv - X_CNTR -- Adjust from center
-				--local adj = pitch - 90 -- Pitch degrees, change to climb/descend vector
-				local adj = math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -5 or 5) -- Climb/descend vector
+				local adj
+				if data.vspeed_id == -1 then
+					-- No vertical speed so use pitch to simulate
+					adj = pitch - 90
+				else
+					-- Climb/descend vector
+					adj = math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -5 or 5)
+				end
 				local p = sin(rad(adj)) * 170
 				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
 				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 6
