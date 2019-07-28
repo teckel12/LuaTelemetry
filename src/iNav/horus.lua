@@ -284,12 +284,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			local dist = 1 - data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)
 			local w = HEADING_DEG / (dist + 1)
 			local home = floor(((bearing - data.heading + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
-			local r = home - X_CNTR
-			--local adj = dist * -15
-			local adj = dist * min(-15 + (pitch - 90) * 0.5, 0)
-			local p = sin(rad(adj)) * 170
-			local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
-			local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 9
+			local p = sin(rad(dist * min(-15 + (pitch - 90) * 0.5, 0))) * 170
+			local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * (home - X_CNTR)) - 9
+			local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * (home - X_CNTR)) - 9
 			if x >= 0 and y > 0 and x < RIGHT_POS - 17 and y < BOTTOM - 17 then
 				bmap(icons.home[floor(dist * 2 + 0.5)], x, y)
 			end
@@ -306,18 +303,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			tmp = (data.fpv - data.heading + 360) % 360
 			if tmp >= 302 or tmp <= 57 then
 				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
-				local r = fpv - X_CNTR -- Adjust from center
-				local adj
-				if data.vspeed_id == -1 then
-					-- No vertical speed so use pitch to simulate
-					adj = pitch - 90
-				else
-					-- Climb/descend vector
-					adj = math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -5 or 5)
-				end
-				local p = sin(rad(adj)) * 170
-				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
-				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 6
+				local p = sin(rad(data.vspeed_id == -1 and pitch - 90 or math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -5 or 5))) * 170
+				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * (fpv - X_CNTR)) - 9
+				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * (fpv - X_CNTR)) - 6
 				if y > TOP and y < bot2 and x >= 0 then
 					bmap(icons.fpv, x, y)
 				end

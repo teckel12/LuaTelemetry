@@ -403,6 +403,7 @@ local function background()
 		-- Initalize variables on flight reset (uses timer3)
 		tmp = model.getTimer(2)
 		if tmp.value == 0 then
+			loadScript(FILE_PATH .. "load" .. ext, env)(config, data, FILE_PATH)
 			loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 			tmp.value = 3600
 			model.setTimer(2, tmp)
