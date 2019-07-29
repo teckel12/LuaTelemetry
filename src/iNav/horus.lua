@@ -8,7 +8,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	--local DKMAP = 544 --rgb(0, 70, 0)
 	local LIGHTMAP = 1184 --rgb(0, 150, 0)
 	--local DATA = 264 --rgb(0, 32, 65)
-	local DKGREY = 12678 --rgb(48, 48, 48)
+	local DKGREY = 12744 --rgb(48, 56, 65) (was 12678 rgb(48, 48, 48))
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
 	local HEADING_DEG = 190
@@ -574,13 +574,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	text(RIGHT_POS + 1, TOP + 98, tmp >= 99.5 and floor(tmp + 0.5) .. units[data.speed_unit] or fmt("%.1f", tmp) .. units[data.speed_unit], MIDSIZE + RIGHT + data.telemFlags)
 
 	-- Dividers
-	color(CUSTOM_COLOR, GREY)
-	line(X1 + 3, TOP, X1 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	line(X2 + 3, TOP, X2 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	line(X3 + 3, TOP, X3 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	line(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, DOTTED, CUSTOM_COLOR)
+	color(CUSTOM_COLOR, DKGREY)
+	line(X1 + 3, TOP, X1 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
+	line(X2 + 3, TOP, X2 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
+	line(X3 + 3, TOP, X3 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
+	line(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, SOLID, CUSTOM_COLOR)
 	if data.crsf then
-		line(X3 + 3, TOP + 28, RIGHT_POS, TOP + 28, DOTTED, CUSTOM_COLOR)
+		line(X3 + 3, TOP + 28, RIGHT_POS, TOP + 28, SOLID, CUSTOM_COLOR)
 	end
 	color(CUSTOM_COLOR, LIGHTGREY)
 	line(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
