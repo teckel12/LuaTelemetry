@@ -26,6 +26,7 @@ local function crsf(data)
 	data.pitch = math.deg(getValue(data.pitch_id)) * 10
 	data.roll = math.deg(getValue(data.roll_id)) * 10
 	-- The following shenanigans are requred due to int rollover bugs in the Crossfire protocol for yaw and hdg
+	--[[
 	local tmp = getValue(data.hdg_id)
 	if tmp < -0.26 then
 		tmp = tmp + 0.27
@@ -34,6 +35,13 @@ local function crsf(data)
 	-- Flight path vector
 	if data.fpv_id > -1 then
 		data.fpv = ((getValue(data.fpv_id) < 0 and getValue(data.fpv_id) + 65.54 or getValue(data.fpv_id)) * 10 + 360) % 360
+	end
+	]]
+	-- Without the Crossfire rollover shenanigans
+	data.heading = (math.deg(getValue(data.hdg_id)) + 360) % 360
+	-- Flight path vector
+	if data.fpv_id > -1 then
+		data.fpv = getValue(data.fpv_id) * 100
 	end
 	data.fuelRaw = data.fuel
 	if data.showFuel and config[23].v == 0 then
