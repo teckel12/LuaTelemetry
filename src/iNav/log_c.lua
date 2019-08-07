@@ -8,7 +8,8 @@ local function fake(data, config, record, label, toNum)
 	data.pitch = math.deg(toNum(record[label.ptch])) * 10
 	data.roll = math.deg(toNum(record[label.roll])) * 10
 	data.batt = toNum(record[label.rxbt])
-	-- The following shenanigans are requred due to int rollover bugs in the Crossfire protocol for yaw and hdg
+	if data.lang == "fr" and data.batt == 0 then data.batt = toNum(record[label.btrx]) end
+	-- The following shenanigans are requred due to int overflow bugs in the Crossfire protocol in OpenTX for yaw and hdg
 	local tmp = toNum(record[label.yaw])
 	if tmp < -0.26 then
 		tmp = tmp + 0.27

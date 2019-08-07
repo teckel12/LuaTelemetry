@@ -16,6 +16,7 @@ local function fake(data, config, record, label, toNum)
 	end
 	data.mode = toNum(record[label.tmp1])
 	data.rxBatt = toNum(record[label.rxbt])
+	if data.lang == "fr" and data.rxBatt == 0 then data.rxBatt = toNum(record[label.btrx]) end
 	data.gpsAlt = data.satellites > 1000 and toNum(record[label.galt]) or 0
 	data.distance = toNum(record[label.dist])
 	data.batt = toNum(record[label.vfas])

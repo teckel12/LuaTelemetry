@@ -4,8 +4,8 @@ data.crsf = true
 data.rfmd_id = getTelemetryId("RFMD")
 data.sat_id = getTelemetryId("Sats")
 data.fuel_id = getTelemetryId("Capa")
-data.batt_id = getTelemetryId("RxBt")
-data.battMin_id = getTelemetryId("RxBt-")
+data.batt_id = getTelemetryId("RxBt") > -1 and getTelemetryId("RxBt") or getTelemetryId("BtRx")
+data.battMin_id = getTelemetryId("RxBt-") > -1 and getTelemetryId("RxBt-") or getTelemetryId("BtRx-")
 data.tpwr_id = getTelemetryId("TPWR")
 data.hdg_id = getTelemetryId("Yaw")
 data.fpv_id = getTelemetryId("Hdg")
@@ -25,7 +25,7 @@ local function crsf(data)
 	data.rfmd = getValue(data.rfmd_id)
 	data.pitch = math.deg(getValue(data.pitch_id)) * 10
 	data.roll = math.deg(getValue(data.roll_id)) * 10
-	-- The following shenanigans are requred due to int rollover bugs in the Crossfire protocol for yaw and hdg
+	-- The following shenanigans are requred due to int overflow bugs in the Crossfire protocol in OpenTX for yaw and hdg
 	local tmp = getValue(data.hdg_id)
 	if tmp < -0.26 then
 		tmp = tmp + 0.27
