@@ -57,6 +57,7 @@ local function lang(config2)
 	config2[31].t = "Carte du Centre"	-- Center Map Home
 	--config2[32].t = "Orientation"		-- Orientation
 	config2[33].t = "Echelle Rouleau"	-- Roll Scale
+	--config2[34].t = "Playback Log"	-- Playback Log
 
 	-- Max 8 characters
 	config2[1].l =  {[0] = "Cellule", "Total"}			-- "Cell", "Total"

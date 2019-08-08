@@ -49,7 +49,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Center Map Home",  l = 1 }, -- 31
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} }, -- 32
 		{ t = "Roll Scale",       l = 1 }, -- 33
-		{ t = "Review Log",       l = config[34].l }, -- 34
+		{ t = "Playback Log",     l = config[34].l }, -- 34
 	}
 
 	-- Import language changes

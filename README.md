@@ -46,6 +46,7 @@
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS info: Satellites locked, GPS accuracy (HDOP), GPS altitude, GPS coordinates. Also logs the last GPS location (reviewed from the config menu)
+* Playback previous flights via telemetry log files, including fast forward, rewind, and pause features
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
@@ -98,7 +99,7 @@
 * [Screen Description](https://github.com/iNavFlight/LuaTelemetry/wiki/Screen-Description)
 * [Configuration Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Configuration-Settings)
 * [Suggested Battery Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Suggested-Battery-Settings)
-* [Change Log - Release History](https://github.com/iNavFlight/LuaTelemetry/wiki/Change-Log)
+* [Playback Telemetry Logs](https://github.com/iNavFlight/LuaTelemetry/wiki/Playback-Telemetry-Log-Files)
 
 ## Support
 
@@ -109,5 +110,6 @@
 ## Other
 
 * [Upgrade to Development Build](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade-to-Development-Build)
+* [Release History](https://github.com/iNavFlight/LuaTelemetry/wiki/Change-Log)
 * [Multilingual Support](https://github.com/iNavFlight/LuaTelemetry/wiki/Multilingual-Support)
 * [License](https://github.com/iNavFlight/LuaTelemetry/blob/master/LICENSE)
