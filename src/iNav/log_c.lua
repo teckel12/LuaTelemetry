@@ -11,14 +11,11 @@ local function fake(data, config, record, label, toNum)
 	if data.lang == "fr" and data.batt == 0 then data.batt = toNum(record[label.btrx]) end
 	-- The following shenanigans are requred due to int overflow bugs in the Crossfire protocol in OpenTX for yaw and hdg
 	local tmp = toNum(record[label.yaw])
-	if tmp < -0.26 then
-		tmp = tmp + 0.27
-	end
-	data.heading = (math.deg(tmp) + 360) % 360
+	data.heading = math.deg(tmp < 0 and tmp + 6.55 or tmp)
 	-- Flight path vector
 	if data.fpv_id > -1 then
 		tmp = toNum(record[label.hdg])
-		data.fpv = ((tmp < 0 and tmp + 65.54 or tmp) * 10 + 360) % 360
+		data.fpv = (tmp < 0 and tmp + 65.54 or tmp) * 10
 	end
 	data.fuel = toNum(record[label.capa])
 	data.fuelRaw = data.fuel
