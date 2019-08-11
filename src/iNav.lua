@@ -100,6 +100,7 @@ local function background()
 			crsf(data)
 		else
 			data.heading = getValue(data.hdg_id)
+			if data.fpv_id > -1 then data.fpv = getValue(data.fpv_id) * 0.1 end
 			if data.pitchRoll then
 				data.pitch = getValue(data.pitch_id)
 				data.roll = getValue(data.roll_id)

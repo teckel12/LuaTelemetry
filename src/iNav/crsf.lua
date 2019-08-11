@@ -11,7 +11,6 @@ data.hdg_id = getTelemetryId("Yaw")
 data.fpv_id = getTelemetryId("Hdg")
 data.tpwr = 0
 data.rfmd = "--"
-data.fpv = 0
 data.fuelRaw = 0
 config[9].v = 0
 config[14].v = 0

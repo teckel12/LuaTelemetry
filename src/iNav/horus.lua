@@ -276,12 +276,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Home direction
+	local relitiveDist = data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)
 	if data.showHead and data.armed and data.telem and data.gpsHome ~= false then
 		if data.distanceLast >= data.distRef then
 			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
 			-- New '3D' method
 			--local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
-			local dist = 1 - data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)
+			local dist = 1 - relitiveDist
 			local w = HEADING_DEG / (dist + 1)
 			local home = floor(((bearing - data.heading + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
 			local p = sin(rad(dist * min(-15 + (pitch - 90) * 0.5, 0))) * 170
@@ -299,7 +300,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			]]
 		end
 		-- Flight path vector
-		if data.crsf and data.fpv_id > -1 and config[15].v == 1 and data.speed >= 8 then
+		if data.fpv_id > -1 and config[15].v == 1 and data.speed >= 8 then
 			tmp = (data.fpv - data.heading + 360) % 360
 			if tmp >= 302 or tmp <= 57 then
 				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
@@ -415,7 +416,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		if data.gpsHome ~= false then
 			-- Craft location
 			tmp2 = config[31].v == 1 and 50 or 100
-			d = data.distanceLast >= data.distRef and min(max((data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * tmp2, 7), tmp2) or 1
+			d = data.distanceLast >= data.distRef and min(max(relitiveDist * tmp2, 7), tmp2) or 1
 			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - tmp
 			local rad1 = rad(bearing)
 			cx = floor(sin(rad1) * d + 0.5)
