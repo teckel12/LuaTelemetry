@@ -38,7 +38,7 @@ local function lang(config2)
 	config2[12].t = "Hoehen Warnung"	-- Altitude Alert
 	--config2[13].t = "Timer"		-- Timer
 	config2[14].t = "Rx Spng."		-- Rx Voltage
-	config2[15].t = "Flugpfad-Vektor"	-- Flight Path Vector
+	config2[15].t = "HUD-Startseite"	-- HUD Home Icon
 	--config2[16].t = "GPS"			-- GPS
 	config2[17].t = "Kapaz. Kritisch"	-- Fuel Critical
 	config2[18].t = "Kapaz. Niedrig"	-- Fuel Low

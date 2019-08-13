@@ -16,6 +16,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local TOP = 20
 	local BOTTOM = 146
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
+	local DEGV = 160
 	local tmp, tmp2, top2, bot2, pitch, roll, roll1, upsideDown
 	local text = lcd.drawText
 	local line = lcd.drawLine
@@ -49,12 +50,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		--[[ Caged mode
 		local x = sin(roll1) * r
 		local y = cos(roll1) * r
-		local p = cos(rad(pitch - adj)) * 170
+		local p = cos(rad(pitch - adj)) * DEGV
 		local x1, y1, x2, y2 = X_CNTR - x, Y_CNTR + y - p, X_CNTR + x, Y_CNTR - y - p
 		]]
 		-- Uncaged mode
-		local p = sin(rad(adj)) * 170
-		local y = (Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p
+		local p = sin(rad(adj)) * DEGV
+		local y = (Y_CNTR - cos(rad(pitch)) * DEGV) - sin(roll1) * p
 		if y > top2 and y < bot2 then
 			local x = X_CNTR - cos(roll1) * p
 			local xd = sin(roll1) * r
@@ -111,7 +112,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Calculate horizon (uses simple "caged" mode for less math)
 	local x = sin(roll1) * 200
 	local y = cos(roll1) * 200
-	local p = cos(rad(pitch)) * 170
+	local p = cos(rad(pitch)) * DEGV
 	local h1 = { x = X_CNTR + x, y = Y_CNTR - y - p }
 	local h2 = { x = X_CNTR - x, y = Y_CNTR + y - p }
 
@@ -275,39 +276,45 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
+	-- Calculate the maximum distance for scaling home location and map
+	local maxDist = max(min(data.distanceMax, data.distanceLast * 8), data.distRef * 10)
+
 	-- Home direction
-	local relitiveDist = data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)
 	if data.showHead and data.armed and data.telem and data.gpsHome ~= false then
 		if data.distanceLast >= data.distRef then
 			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
-			-- New '3D' method
-			--local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
-			local dist = 1 - relitiveDist
-			local w = HEADING_DEG / (dist + 1)
-			local home = floor(((bearing - data.heading + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
-			local p = sin(rad(dist * min(-15 + (pitch - 90) * 0.5, 0))) * 170
-			local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * (home - X_CNTR)) - 9
-			local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * (home - X_CNTR)) - 9
-			if x >= 0 and y > 0 and x < RIGHT_POS - 17 and y < BOTTOM - 17 then
-				bmap(icons.home[floor(dist * 2 + 0.5)], x, y)
+			if config[15].v == 1 then
+				-- 3D HUD method
+				local d = 1 - data.distanceLast / maxDist
+				local w = HEADING_DEG / (d + 1)
+				local h = floor((((upsideDown and data.heading - bearing or bearing - data.heading) + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
+				local p = sin(math.atan(data.altitude / data.distanceLast) - math.atan(data.altitude / max(maxDist, data.altitude * 2))) * (upsideDown and DEGV or -DEGV)
+				--local p = sin(rad(d * max(15 + (pitch - 90) * 0.5, 0))) * (upsideDown and DEGV or -DEGV)
+				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * (h - X_CNTR)) - 9
+				local y = ((Y_CNTR - cos(rad(pitch)) * DEGV) - sin(roll1) * p) - (cos(roll1) * (h - X_CNTR)) - 9
+				--text(40,20,deg(math.atan(data.altitude / data.distanceLast)),0)
+				--text(40,40,deg(math.atan(data.altitude / max(maxDist, data.altitude * 2))),0)
+				--text(40,60,deg(math.atan(data.altitude / data.distanceLast) - math.atan(data.altitude / max(maxDist, data.altitude * 2))),0)
+				if x >= 0 and y > 0 and x < RIGHT_POS - 17 and y < BOTTOM - 17 then
+					bmap(icons.home[floor(d * 2 + 0.5)], x, y)
+				end
+			else
+				-- Bottom-fixed method
+				local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
+				if home >= 3 and home <= RIGHT_POS - 6 then
+					bmap(icons.home[1], home - 7, BOTTOM - 31)
+				end
 			end
-			--[[ Old 'flat' method
-			local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
-			if home >= 3 and home <= RIGHT_POS - 6 then
-				bmap(icons.home[1], home - 7, BOTTOM - 31)
-				--bmap(icons.home, home - 3, BOTTOM - 26)
-			end
-			]]
 		end
 		-- Flight path vector
-		if data.fpv_id > -1 and config[15].v == 1 and data.speed >= 8 then
+		if data.fpv_id > -1 and data.speed >= 8 then
 			tmp = (data.fpv - data.heading + 360) % 360
 			if tmp >= 302 or tmp <= 57 then
 				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
-				--local p = sin(rad(data.vspeed_id == -1 and pitch - 90 or math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -5 or 5))) * 170
-				local p = sin(data.vspeed_id == -1 and rad(pitch - 90) or (math.tan(data.vspeed / (data.speed * (data.speed_unit == 8 and 1.4667 or 0.2778))))) * 170
+				--local p = sin(rad(data.vspeed_id == -1 and pitch - 90 or math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -5 or 5))) * DEGV
+				local p = sin(data.vspeed_id == -1 and rad(pitch - 90) or (math.tan(data.vspeed / (data.speed * (data.speed_unit == 8 and 1.4667 or 0.2778))))) * DEGV
 				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * (fpv - X_CNTR)) - 9
-				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * (fpv - X_CNTR)) - 6
+				local y = ((Y_CNTR - cos(rad(pitch)) * DEGV) - sin(roll1) * p) - (cos(roll1) * (fpv - X_CNTR)) - 6
 				if y > TOP and y < bot2 and x >= 0 then
 					bmap(icons.fpv, x, y)
 				end
@@ -416,7 +423,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		if data.gpsHome ~= false then
 			-- Craft location
 			tmp2 = config[31].v == 1 and 50 or 100
-			d = data.distanceLast >= data.distRef and min(max(relitiveDist * tmp2, 7), tmp2) or 1
+			d = data.distanceLast >= data.distRef and min(max(data.distanceLast / maxDist * tmp2, 7), tmp2) or 1
 			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - tmp
 			local rad1 = rad(bearing)
 			cx = floor(sin(rad1) * d + 0.5)

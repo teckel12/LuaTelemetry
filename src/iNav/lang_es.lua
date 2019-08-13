@@ -38,7 +38,7 @@ local function lang(config2)
 	config2[12].t = "Altitud Alerta"	-- Altitude Alert
 	--config2[13].t = "Timer"		-- Timer
 	config2[14].t = "Rx Voltaje"		-- Rx Voltage
-	config2[15].t = "Vuelo Ruta Vector"	-- Flight Path Vector
+	config2[15].t = "Inicio de HUD"		-- HUD Home Icon
 	--config2[16].t = "GPS"			-- GPS
 	config2[17].t = "Bateria Critica"	-- Fuel Critical
 	config2[18].t = "Bateria Baja"		-- Fuel Low

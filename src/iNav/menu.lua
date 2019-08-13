@@ -30,7 +30,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "Altitude Alert",   l = 1 }, -- 12
 		{ t = "Timer",            l = {[0] = "Off", "Auto", "1", "2"} }, -- 13
 		{ t = "Rx Voltage",       l = 1 }, -- 14
-		{ t = "Flight Vector",    l = 1 }, -- 15
+		{ t = "HUD Home Icon",    l = 1 }, -- 15
 		{ t = "GPS",              l = 0 }, -- 16
 		{ t = "Fuel Critical",    m = 1, a = "%" }, -- 17
 		{ t = "Fuel Low",         m = 2, a = "%" }, -- 18
