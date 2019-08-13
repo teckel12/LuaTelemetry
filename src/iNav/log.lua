@@ -49,10 +49,10 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 			-- Pause
 			pause = true
 			start = nil
-		elseif math.abs(ele) > 1 then
+		elseif math.abs(ele) > 1 or (start ~= nil and time ~= start and (getTime() - starti) - (time - start) * 100 > 10) then
 			-- Seek forward/back
 			if not pause or ele < 0 then
-				speed = ele > 0 and math.floor(ele) or math.ceil(ele) - 1
+				speed = ele > -0.5 and math.floor(ele) or math.ceil(ele) - 2
 				seek = math.max(seek + speed, 0)
 				io.seek(logfh, seek * 400)
 				raw = ""
@@ -84,7 +84,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		end
 
 		-- Load next record
-		if not pause and (start == nil or speed ~= 0 or time - start < (getTime() - starti) * 0.01) then
+		if not pause and (start == nil or speed ~= 0 or (time - start) * 100 < getTime() - starti) then
 			while pos == nil and read ~= "" do
 				read = io.read(logfh, 400)
 				raw = raw .. read
