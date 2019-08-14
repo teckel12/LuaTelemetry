@@ -277,7 +277,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Calculate the maximum distance for scaling home location and map
-	local maxDist = max(min(data.distanceMax, data.distanceLast * 8), data.distRef * 10)
+	local maxDist = max(min(data.distanceMax, data.distanceLast * 6), data.distRef * 10)
 
 	-- Home direction
 	if data.showHead and data.armed and data.telem and data.gpsHome ~= false then
@@ -288,13 +288,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				local d = 1 - data.distanceLast / maxDist
 				local w = HEADING_DEG / (d + 1)
 				local h = floor((((upsideDown and data.heading - bearing or bearing - data.heading) + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
-				local p = sin(math.atan(data.altitude / data.distanceLast) - math.atan(data.altitude / max(maxDist, data.altitude * 2))) * (upsideDown and DEGV or -DEGV)
+				--local p = sin(math.atan(data.altitude / data.distanceLast) - math.atan(data.altitude / max(maxDist, data.altitude * 0.25))) * (upsideDown and DEGV or -DEGV)
+				local p = sin(math.atan(data.altitude / data.distanceLast * 0.5)) * (upsideDown and DEGV or -DEGV)
 				--local p = sin(rad(d * max(15 + (pitch - 90) * 0.5, 0))) * (upsideDown and DEGV or -DEGV)
 				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * (h - X_CNTR)) - 9
 				local y = ((Y_CNTR - cos(rad(pitch)) * DEGV) - sin(roll1) * p) - (cos(roll1) * (h - X_CNTR)) - 9
-				--text(40,20,deg(math.atan(data.altitude / data.distanceLast)),0)
-				--text(40,40,deg(math.atan(data.altitude / max(maxDist, data.altitude * 2))),0)
-				--text(40,60,deg(math.atan(data.altitude / data.distanceLast) - math.atan(data.altitude / max(maxDist, data.altitude * 2))),0)
 				if x >= 0 and y > 0 and x < RIGHT_POS - 17 and y < BOTTOM - 17 then
 					bmap(icons.home[floor(d * 2 + 0.5)], x, y)
 				end

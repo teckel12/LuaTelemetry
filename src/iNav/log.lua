@@ -52,7 +52,7 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 		elseif math.abs(ele) > 1 or (start ~= nil and time ~= start and (getTime() - starti) - (time - start) * 100 > 10) then
 			-- Seek forward/back
 			if not pause or ele < 0 then
-				speed = ele > -0.5 and math.floor(ele) or math.ceil(ele) - 2
+				speed = ele > 0 and math.floor(ele) or math.ceil(ele) - 2
 				seek = math.max(seek + speed, 0)
 				io.seek(logfh, seek * 400)
 				raw = ""
