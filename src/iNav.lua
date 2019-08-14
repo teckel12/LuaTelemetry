@@ -46,7 +46,7 @@ end
 loadScript(FILE_PATH .. "reset" .. ext, env)(data)
 collectgarbage()
 
-local crsf, distCalc = loadScript(FILE_PATH .. "other" .. ext, env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD)
+local crsf, distCalc = loadScript(FILE_PATH .. "other" .. ext, env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD, FLASH)
 collectgarbage()
 
 local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, FILE_PATH)

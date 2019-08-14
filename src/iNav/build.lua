@@ -33,8 +33,8 @@ for abv = 1, #langs do
 end
 
 loadScript(FILE_PATH .. "reset", env)(data)
-local crsf = loadScript(FILE_PATH .. "crsf", env)(config, data, getTelemetryId)
-crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD)
+local crsf = loadScript(FILE_PATH .. "crsf", env)(config, data, getTelemetryId, FLASH)
+crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD, FLASH)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()

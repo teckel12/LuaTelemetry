@@ -1,7 +1,8 @@
-local config, data, getTelemetryId = ...
+local config, data, getTelemetryId, FLASH = ...
 
 data.crsf = true
 data.rfmd_id = getTelemetryId("RFMD")
+data.rssi_id = getTelemetryId("1RSS")
 data.sat_id = getTelemetryId("Sats")
 data.fuel_id = getTelemetryId("Capa")
 data.batt_id = getTelemetryId("RxBt") > -1 and getTelemetryId("RxBt") or getTelemetryId("BtRx")
@@ -19,6 +20,12 @@ config[22].v = 0
 config[23].x = 1
 
 local function crsf(data)
+	if getValue(data.rssi_id) == 0 then
+		data.rssi = 0
+		data.telem = false
+		data.telemFlags = FLASH
+		return 0
+	end
 	if data.rssi == 99 then data.rssi = 100 end
 	data.tpwr = getValue(data.tpwr_id)
 	data.rfmd = getValue(data.rfmd_id)
