@@ -3,7 +3,7 @@
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
 
 local buildMode = ...
-local VERSION = "1.7.2"
+local VERSION = "1.7.3"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
