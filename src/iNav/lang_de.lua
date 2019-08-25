@@ -38,7 +38,7 @@ local function lang(config2)
 	config2[12].t = "Hoehen Warnung"	-- Altitude Alert
 	--config2[13].t = "Timer"		-- Timer
 	config2[14].t = "Rx Spng."		-- Rx Voltage
-	config2[15].t = "Flugpfad-Vektor"	-- Flight Path Vector
+	config2[15].t = "HUD-Startseite"	-- HUD Home Icon
 	--config2[16].t = "GPS"			-- GPS
 	config2[17].t = "Kapaz. Kritisch"	-- Fuel Critical
 	config2[18].t = "Kapaz. Niedrig"	-- Fuel Low
@@ -57,30 +57,33 @@ local function lang(config2)
 	config2[31].t = "Karte Zentrieren"	-- Center Map Home
 	config2[32].t = "Orientierung"		-- Orientation
 	config2[33].t = "Rollenwaage"		-- Roll Scale
+	--config2[34].t = "Playback Log"	-- Playback Log
 
 	-- Max 8 characters
 	config2[1].l =  {[0] = "Zelle", "Total"}			-- "Cell", "Total"
 	config2[4].l =  {[0] = "Aus", "Kritisch", "Alle"}		-- "Off", "Critical", "All"
 	config2[5].l =  {[0] = "Aus", "Haptisch", "Pieper", "Alle"}	-- "Off", "Haptic", "Beeper", "All"
 	config2[7].l =  {[0] = "Aus", "Graph", "Stimme", "Beides"}	-- "Off", "Graph", "Voice", "Both"
-	config2[8].l =  {[0] = "Aus", "An"}				-- "Off", "On"
-	config2[9].l =  {[0] = "Aus", "An"}				-- "Off", "On"
-	config2[10].l = {[0] = "Aus", "An"}				-- "Off", "On"
+	--config2[8].l =  {[0] = "Off", "On"}				-- "Off", "On"
+	--config2[9].l =  {[0] = "Off", "On"}				-- "Off", "On"
+	--config2[10].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[11].l = {[0] = "Aus", "Kritisch", "Alle"}		-- "Off", "Critical", "All"
-	config2[12].l = {[0] = "Aus", "An"}				-- "Off", "On"
-	config2[13].l = {[0] = "Aus", "Auto", "Timer1", "Timer2"}	-- "Off", "Auto", "Timer1", "Timer2"
-	config2[14].l = {[0] = "Aus", "An"}				-- "Off", "On"
+	--config2[12].l = {[0] = "Off", "On"}				-- "Off", "On"
+	config2[13].l = {[0] = "Aus", "Auto", "1", "2"}			-- "Off", "Auto", "1", "2"
+	--config2[14].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[16].l = {[0] = "Dezimal", "Grad"}			-- "Decimal", "Deg/Min"
 	config2[19].l = {[0] = "Nummer", "Graph", "Beide"}		-- "Number", "Graph", "Both"
 	--config2[20].l = {[0] = "GPS", "Pitot"}			-- "GPS", "Pitot"
 	config2[22].l = {[0] = "Graph", "Dezimal"}			-- "Graph", "Decimal"
 	--config2[23].l = {[0] = "Percent", "mAh", "mWh"}		-- "Percent", "mAh", "mWh"
 	config2[25].l = {[0] = "Original", "Pilot", "Radar", "Hoehe"}	-- "Classic", "Pilot", "Radar", "Altitude"
-	config2[26].l = {[0] = "Aus", "An"}				-- "Off", "On"
+	--config2[26].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[28].l[0] = "Aus"					-- "Off"
-	config2[31].l = {[0] = "Aus", "An"}				-- "Off", "On"
+	--config2[31].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[32].l = {[0] = "Starten", "Kompass"}			-- "Launch", "Compass"
-	config2[33].l = {[0] = "Aus", "An"}				-- "Off", "On"
+	--config2[33].l = {[0] = "Off", "On"}				-- "Off", "On"
+
+	return {[0] = "Aus", "An"}	-- "Off", "On"
 end
 
 return lang

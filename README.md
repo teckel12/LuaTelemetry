@@ -1,4 +1,4 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper T16 - v1.7.1
+## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper T16 - v1.7.2
 
 ### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis, Horus & Jumper T16 transmitters
 
@@ -8,10 +8,9 @@
 
 #### [Video of Lua Telemetry](https://youtu.be/YaUgywuT1YM)
 
-#### Classic view
+#### Horus/Jumper T16 view
 
-![sample](assets/iNavQX7.png "Classic view on Q X7 and X-Lite")&nbsp;&nbsp;
-![sample](assets/iNavX9D.png "Classic view on Taranis X9D, X9D+ and X9E")
+![sample](assets/iNavHorus.png "View on Horus transmitters")
 
 #### Pilot (glass cockpit) view for fixed wing pilots
 
@@ -28,9 +27,10 @@
 ![sample](assets/iNavQX7alt.png "Altitude graph view on Q X7 and X-Lite")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dalt.png "Altitude graph view on Taranis X9D, X9D+ and X9E")
 
-#### Horus/Jumper T16 view
+#### Classic view
 
-![sample](assets/iNavHorus.png "View on Horus transmitters")
+![sample](assets/iNavQX7.png "Classic view on Q X7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavX9D.png "Classic view on Taranis X9D, X9D+ and X9E")
 
 ## Features
 
@@ -46,6 +46,7 @@
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
 * GPS info: Satellites locked, GPS accuracy (HDOP), GPS altitude, GPS coordinates. Also logs the last GPS location (reviewed from the config menu)
+* Playback previous flights via telemetry log files, including fast forward, rewind, and pause features
 * Display of current/maximum: Altitude, Distance, Speed and Current
 * Display of current/minimum: Battery voltage, RSSI strength
 * Title display of model name, flight timer, transmitter voltage and receiver voltage
@@ -57,6 +58,7 @@
 
 * [OpenTX v2.2.2+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X9 Lite, X-Lite/X-Lite Pro, Horus X10/X10S or X12S (OpenTX v2.2.3+ is suggested)
 * Jumper T16 requires [JumperTX 2.2.3+](https://www.jumper.xyz/jumpertx-t16) (May 23, 2019 or after release)
+* The OpenTX/JumperTX firmware on your transmitter needs to [includes the `luac` build option](https://youtu.be/nYeB0IXT-10?t=283)
 * FrSky X, R9 or D series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1.0+ is suggested for full functionality) - Also compatible with Betaflight (with reduced functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
@@ -97,7 +99,7 @@
 * [Screen Description](https://github.com/iNavFlight/LuaTelemetry/wiki/Screen-Description)
 * [Configuration Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Configuration-Settings)
 * [Suggested Battery Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Suggested-Battery-Settings)
-* [Change Log - Release History](https://github.com/iNavFlight/LuaTelemetry/wiki/Change-Log)
+* [Playback Telemetry Logs](https://github.com/iNavFlight/LuaTelemetry/wiki/Playback-Telemetry-Log-Files)
 
 ## Support
 
@@ -108,5 +110,6 @@
 ## Other
 
 * [Upgrade to Development Build](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade-to-Development-Build)
+* [Release History](https://github.com/iNavFlight/LuaTelemetry/wiki/Change-Log)
 * [Multilingual Support](https://github.com/iNavFlight/LuaTelemetry/wiki/Multilingual-Support)
 * [License](https://github.com/iNavFlight/LuaTelemetry/blob/master/LICENSE)

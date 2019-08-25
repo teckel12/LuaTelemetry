@@ -38,7 +38,7 @@ local function lang(config2)
 	config2[12].t = "Altitud Alerta"	-- Altitude Alert
 	--config2[13].t = "Timer"		-- Timer
 	config2[14].t = "Rx Voltaje"		-- Rx Voltage
-	config2[15].t = "Vuelo Ruta Vector"	-- Flight Path Vector
+	config2[15].t = "Inicio de HUD"		-- HUD Home Icon
 	--config2[16].t = "GPS"			-- GPS
 	config2[17].t = "Bateria Critica"	-- Fuel Critical
 	config2[18].t = "Bateria Baja"		-- Fuel Low
@@ -57,6 +57,7 @@ local function lang(config2)
 	config2[31].t = "Mapa del Centro"	-- Center Map Home
 	config2[32].t = "Orientacion"		-- Orientation
 	--config2[33].t = "Roll Scale"		-- Roll Scale
+	--config2[34].t = "Playback Log"	-- Playback Log
 
 	-- Max 8 characters
 	--config2[1].l =  {[0] = "Cell", "Total"}			-- "Cell", "Total"
@@ -68,7 +69,7 @@ local function lang(config2)
 	--config2[10].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[11].l = {[0] = "Off", "Critico", "Todo"}		-- "Off", "Critical", "All"
 	--config2[12].l = {[0] = "Off", "On"}				-- "Off", "On"
-	--config2[13].l = {[0] = "Off", "Auto", "Timer1", "Timer2"}	-- "Off", "Auto", "Timer1", "Timer2"
+	--config2[13].l = {[0] = "Off", "Auto", "1", "2"}		-- "Off", "Auto", "1", "2"
 	--config2[14].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[16].l = {[0] = "Decimal", "Grados"}			-- "Decimal", "Deg/Min"
 	config2[19].l = {[0] = "Numero", "Grafico", "Ambos"}		-- "Number", "Graph", "Both"
@@ -81,6 +82,8 @@ local function lang(config2)
 	--config2[31].l = {[0] = "Off", "On"}				-- "Off", "On"
 	config2[32].l = {[0] = "Brazo", "Brujula"}			-- "Launch", "Compass"
 	--config2[33].l = {[0] = "Off", "On"}				-- "Off", "On"
+
+	return {[0] = "Off", "On"}	-- "Off", "On"
 end
 
 return lang

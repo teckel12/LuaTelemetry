@@ -8,7 +8,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	--local DKMAP = 544 --rgb(0, 70, 0)
 	local LIGHTMAP = 1184 --rgb(0, 150, 0)
 	--local DATA = 264 --rgb(0, 32, 65)
-	local DKGREY = 12678 --rgb(48, 48, 48)
+	local DKGREY = 12744 --rgb(48, 56, 65) (was 12678 rgb(48, 48, 48))
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
 	local HEADING_DEG = 190
@@ -16,6 +16,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local TOP = 20
 	local BOTTOM = 146
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
+	local DEGV = 160
 	local tmp, tmp2, top2, bot2, pitch, roll, roll1, upsideDown
 	local text = lcd.drawText
 	local line = lcd.drawLine
@@ -49,12 +50,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		--[[ Caged mode
 		local x = sin(roll1) * r
 		local y = cos(roll1) * r
-		local p = cos(rad(pitch - adj)) * 170
+		local p = cos(rad(pitch - adj)) * DEGV
 		local x1, y1, x2, y2 = X_CNTR - x, Y_CNTR + y - p, X_CNTR + x, Y_CNTR - y - p
 		]]
 		-- Uncaged mode
-		local p = sin(rad(adj)) * 170
-		local y = (Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p
+		local p = sin(rad(adj)) * DEGV
+		local y = (Y_CNTR - cos(rad(pitch)) * DEGV) - sin(roll1) * p
 		if y > top2 and y < bot2 then
 			local x = X_CNTR - cos(roll1) * p
 			local xd = sin(roll1) * r
@@ -71,7 +72,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	local function tics(v, p)
-		tmp = floor((v + 25) / 10) * 10
+		tmp = floor((v + 25) * 0.1) * 10
 		for i = tmp - 40, tmp, 5 do
 			local tmp2 = Y_CNTR + ((v - i) * 3) - 9
 			if tmp2 > 10 and tmp2 < BOTTOM - 8 then
@@ -90,8 +91,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Calculate orientation
 	if data.pitchRoll then
-		pitch = (abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch / 10) % 180
-		roll = (270 - data.roll / 10) % 180
+		pitch = (abs(data.roll) > 900 and -1 or 1) * (270 - data.pitch * 0.1) % 180
+		roll = (270 - data.roll * 0.1) % 180
 		upsideDown = abs(data.roll) > 900
 	else
 		pitch = 90 - deg(math.atan2(data.accx * (data.accz >= 0 and -1 or 1), math.sqrt(data.accy * data.accy + data.accz * data.accz)))
@@ -111,7 +112,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Calculate horizon (uses simple "caged" mode for less math)
 	local x = sin(roll1) * 200
 	local y = cos(roll1) * 200
-	local p = cos(rad(pitch)) * 170
+	local p = cos(rad(pitch)) * DEGV
 	local h1 = { x = X_CNTR + x, y = Y_CNTR - y - p }
 	local h2 = { x = X_CNTR - x, y = Y_CNTR + y - p }
 
@@ -237,7 +238,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Pitch ladder
 	if data.telem then
 		tmp = pitch - 90
-		local tmp2 = max(min((tmp >= 0 and floor(tmp / 5) or math.ceil(tmp / 5)) * 5, 30), -30)
+		local tmp2 = max(min((tmp >= 0 and floor(tmp * 0.2) or math.ceil(tmp * 0.2)) * 5, 30), -30)
 		for x = tmp2 - 20, tmp2 + 20, 5 do
 			if x ~= 0 and (x % 10 == 0 or (x > -30 and x < 30)) then
 				pitchLadder(x % 10 == 0 and 20 or 15, x)
@@ -245,22 +246,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		if not data.showMax then
 			text(X_CNTR - 65, Y_CNTR - 9, fmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
-		end
-	end
-
-	-- Compass
-	if data.showHead then
-		for i = 0, 348.75, 11.25 do
-			tmp = floor(((i - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
-			if tmp >= 9 and tmp <= RIGHT_POS - 12 then
-				if i % 90 == 0 then
-					text(tmp - (i < 270 and 3 or 5), bot2, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
-				elseif i % 45 == 0 then
-					text(tmp - (i < 225 and 7 or 9), bot2, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
-				else
-					line(tmp, BOTTOM - 4, tmp, BOTTOM - 1, SOLID, 0)
-				end
-			end
 		end
 	end
 
@@ -273,6 +258,72 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	elseif config[28].v > 0 then
 		text(39, Y_CNTR - 25, units[data.speed_unit], SMLSIZE + RIGHT)
 		text(RIGHT_POS - 6, Y_CNTR - 25, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+	end
+
+	-- Compass
+	if data.showHead then
+		for i = 0, 348.75, 11.25 do
+			tmp = floor(((i - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
+			if tmp >= 9 and tmp <= RIGHT_POS - 12 then
+				if i % 90 == 0 then
+					text(tmp - (i < 270 and 3 or 5), bot2, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
+				elseif i % 45 == 0 then
+					text(tmp - (i < 225 and 7 or 9), bot2, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
+				else
+					line(tmp, BOTTOM - 4, tmp, BOTTOM - 1, SOLID, 0)
+				end
+			end
+		end
+	end
+
+	-- Calculate the maximum distance for scaling home location and map
+	local maxDist = max(min(data.distanceMax, data.distanceLast * 6), data.distRef * 10)
+
+	-- Home direction
+	if data.showHead and data.armed and data.telem and data.gpsHome ~= false then
+		if data.distanceLast >= data.distRef then
+			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
+			if config[15].v == 1 then
+				-- HUD method
+				local d = 1 - data.distanceLast / maxDist
+				local w = HEADING_DEG / (d + 1)
+				local h = floor((((upsideDown and data.heading - bearing or bearing - data.heading) + (361 + w * 0.5)) % 360) * (RIGHT_POS / w) - 0.5)
+				--local p = sin(math.atan(data.altitude / data.distanceLast) - math.atan(data.altitude / max(maxDist, data.altitude * 0.25))) * (upsideDown and DEGV or -DEGV)
+				--local p = sin(rad(d * max(15 + (pitch - 90) * 0.5, 0))) * (upsideDown and DEGV or -DEGV)
+				local p = sin(math.atan(data.altitude / data.distanceLast * 0.5)) * (upsideDown and DEGV or -DEGV)
+				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * (h - X_CNTR)) - 9
+				local y = ((Y_CNTR - cos(rad(pitch)) * DEGV) - sin(roll1) * p) - (cos(roll1) * (h - X_CNTR)) - 9
+				if x >= 0 and x < RIGHT_POS - 17 then
+					local s = floor(d * 2 + 0.5)
+					bmap(icons.home[s], x, min(max(y, s == 2 and TOP or 15), BOTTOM - (s == 2 and 35 or 30)))
+				end
+				--[[
+				if x >= 0 and y >= TOP and x < RIGHT_POS - 17 and y < BOTTOM - 17 then
+					bmap(icons.home[floor(d * 2 + 0.5)], x, y)
+				end
+				]]
+			else
+				-- Bottom-fixed method
+				local home = floor(((bearing - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
+				if home >= 3 and home <= RIGHT_POS - 6 then
+					bmap(icons.home[1], home - 7, BOTTOM - 31)
+				end
+			end
+		end
+		-- Flight path vector
+		if data.fpv_id > -1 and data.speed >= 8 then
+			tmp = (data.fpv - data.heading + 360) % 360
+			if tmp >= 302 or tmp <= 57 then
+				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 0.5)
+				--local p = sin(rad(data.vspeed_id == -1 and pitch - 90 or math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -5 or 5))) * DEGV
+				local p = sin(data.vspeed_id == -1 and rad(pitch - 90) or (math.tan(data.vspeed / (data.speed * (data.speed_unit == 8 and 1.4667 or 0.2778))))) * DEGV
+				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * (fpv - X_CNTR)) - 9
+				local y = ((Y_CNTR - cos(rad(pitch)) * DEGV) - sin(roll1) * p) - (cos(roll1) * (fpv - X_CNTR)) - 6
+				if y > TOP and y < bot2 and x >= 0 then
+					bmap(icons.fpv, x, y)
+				end
+			end
+		end
 	end
 
 	-- View overlay
@@ -304,32 +355,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
-	-- Home direction
-	if data.showHead and data.armed and data.telem and data.gpsHome ~= false and data.startup == 0 then
-		if data.distanceLast >= data.distRef then
-			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) + 540 % 360
-			local home = floor(((bearing - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 2.5)
-			if home >= 3 and home <= RIGHT_POS - 6 then
-				bmap(icons.home, home - 3, BOTTOM - 26)
-			end
-		end
-		-- Flight path vector
-		if data.crsf and data.fpv_id > -1 and config[15].v == 1 and data.speed >= 8 then
-			tmp = (data.fpv - data.heading + 360) % 360
-			if tmp >= 302 or tmp <= 57 then
-				local fpv = floor(((data.fpv - data.heading + (361 + HEADING_DEG / 2)) % 360) * PIXEL_DEG - 0.5)
-				local r = fpv - X_CNTR -- Adjust from center
-				local adj = pitch - 90 -- Pitch degrees, change to climb/descend vector
-				local p = sin(rad(adj)) * 170
-				local x = (X_CNTR - cos(roll1) * p) + (sin(roll1) * r) - 9
-				local y = ((Y_CNTR - cos(rad(pitch)) * 170) - sin(roll1) * p) - (cos(roll1) * r) - 6
-				if y > top2 and y < bot2 and x >= 0 then
-					bmap(icons.fpv, x, y)
-				end
-			end
-		end
-	end
-
 	-- Variometer
 	if config[7].v % 2 == 1 then
 		color(CUSTOM_COLOR, DKGREY)
@@ -340,9 +365,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		line(RIGHT_POS, Y_CNTR - 1, RIGHT_POS + 9, Y_CNTR - 1, SOLID, CUSTOM_COLOR)
 		if data.telem then
 			color(CUSTOM_COLOR, YELLOW)
-			tmp = math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed / 3.28084 or data.vspeed)), 10)) * (data.vspeed < 0 and -1 or 1)
-			local y1 = Y_CNTR - (tmp / 2.4 * (Y_CNTR - 21))
-			local y2 = Y_CNTR - (tmp / 2.6 * (Y_CNTR - 21))
+			tmp = math.log(1 + min(abs(0.6 * (data.vspeed_unit == 6 and data.vspeed * 0.3048 or data.vspeed)), 10)) * (data.vspeed < 0 and -1 or 1)
+			local y1 = Y_CNTR - (tmp * 0.416667 * (Y_CNTR - 21))
+			local y2 = Y_CNTR - (tmp * 0.384615 * (Y_CNTR - 21))
 			line(RIGHT_POS, y1 - 1, RIGHT_POS + 9, y2 - 1, SOLID, CUSTOM_COLOR)
 			line(RIGHT_POS, y1, RIGHT_POS + 9, y2, SOLID, CUSTOM_COLOR)
 		end
@@ -363,7 +388,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Radar
 	local LEFT_POS = RIGHT_POS + (config[7].v % 2 == 1 and 11 or 0)
 	RIGHT_POS = 479
-	X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
+	X_CNTR = (RIGHT_POS + LEFT_POS) * 0.5 - 1
 	if data.startup == 0 then
 		-- Launch/north-based orientation
 		if data.showDir or data.headingRef == -1 then
@@ -402,7 +427,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		if data.gpsHome ~= false then
 			-- Craft location
 			tmp2 = config[31].v == 1 and 50 or 100
-			d = data.distanceLast >= data.distRef and min(max((data.distanceLast / max(min(data.distanceMax, data.distanceLast * 4), data.distRef * 10)) * tmp2, 7), tmp2) or 1
+			d = data.distanceLast >= data.distRef and min(max(data.distanceLast / maxDist * tmp2, 7), tmp2) or 1
 			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - tmp
 			local rad1 = rad(bearing)
 			cx = floor(sin(rad1) * d + 0.5)
@@ -411,11 +436,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			local hx = X_CNTR + 2
 			local hy = Y_CNTR
 			if config[31].v ~= 1 then
-				hx = hx - (d > 9 and cx / 2 or 0)
-				hy = hy + (d > 9 and cy / 2 or 0)
+				hx = hx - (d > 9 and cx * 0.5 or 0)
+				hy = hy + (d > 9 and cy * 0.5 or 0)
 			end
 			if d >= 12 then
-				bmap(icons.home, hx - 4, hy - 5)
+				--bmap(icons.home, hx - 4, hy - 5)
+				bmap(icons.home[1], hx - 8, hy - 10)
 			elseif d > 1 then
 				fill(hx - 1, hy - 1, 3, 3, SOLID)
 			end
@@ -472,7 +498,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		text(0, TOP + ((config[23].v > 0 or (data.crsf and data.showMax)) and 23 or 9), labels[1], SMLSIZE)
 	end
 
-	local val = math.floor((data.showMax and data.cellMin or data.cell) * 100 + 0.5) / 100
+	local val = math.floor((data.showMax and data.cellMin or data.cell) * 100 + 0.5) * 0.01
 	text(X1 - 3, TOP + 42, fmt(config[1].v == 0 and "%.2fV" or "%.1fV", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
 	text(0, TOP + 51, labels[2], SMLSIZE)
 	if data.bl ~= val then
@@ -522,14 +548,14 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	if data.showHead then
 		if data.showDir or data.headingRef == -1 then
-			text((X2 + X3) / 2, TOP + 18, "N", SMLSIZE)
+			text((X2 + X3) * 0.5, TOP + 18, "N", SMLSIZE)
 			text(X3 - 4, 211, "E", SMLSIZE + RIGHT)
 			text(X2 + 10, 211, "W", SMLSIZE)
 			text(X2 + 78, BOTTOM - 15, floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 		end
-		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) / 2 + 4, 219, 25)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) * 0.5 + 4, 219, 25)
 		if data.headingHold then
-			fill((x2 + x3) / 2 - 2, (y2 + y3) / 2 - 2, 5, 5, SOLID)
+			fill((x2 + x3) * 0.5 - 2, (y2 + y3) * 0.5 - 2, 5, 5, SOLID)
 		else
 			color(CUSTOM_COLOR, GREY)
 			line(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
@@ -546,7 +572,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		text(RIGHT_POS + 1, TOP + 28, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
 	else
 		tmp = ((data.armed or data.modeId == 6) and data.hdop < 11 - config[21].v * 2) or not data.telem
-		text(X3 + 48, TOP, (data.hdop == 0 and not data.gpsFix) and "-- --" or (9 - data.hdop) / 2 + 0.8, MIDSIZE + RIGHT + (tmp and FLASH or 0))
+		text(X3 + 48, TOP, (data.hdop == 0 and not data.gpsFix) and "-- --" or (9 - data.hdop) * 0.5 + 0.8, MIDSIZE + RIGHT + (tmp and FLASH or 0))
 		text(X3 + 11, TOP + 24, "HDOP", SMLSIZE)
 		text(RIGHT_POS + 1, TOP, data.satellites % 100, MIDSIZE + RIGHT + data.telemFlags)
 	end
@@ -561,13 +587,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	text(RIGHT_POS + 1, TOP + 98, tmp >= 99.5 and floor(tmp + 0.5) .. units[data.speed_unit] or fmt("%.1f", tmp) .. units[data.speed_unit], MIDSIZE + RIGHT + data.telemFlags)
 
 	-- Dividers
-	color(CUSTOM_COLOR, GREY)
-	line(X1 + 3, TOP, X1 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	line(X2 + 3, TOP, X2 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	line(X3 + 3, TOP, X3 + 3, BOTTOM, DOTTED, CUSTOM_COLOR)
-	line(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, DOTTED, CUSTOM_COLOR)
+	color(CUSTOM_COLOR, DKGREY)
+	line(X1 + 3, TOP, X1 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
+	line(X2 + 3, TOP, X2 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
+	line(X3 + 3, TOP, X3 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
+	line(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, SOLID, CUSTOM_COLOR)
 	if data.crsf then
-		line(X3 + 3, TOP + 28, RIGHT_POS, TOP + 28, DOTTED, CUSTOM_COLOR)
+		line(X3 + 3, TOP + 28, RIGHT_POS, TOP + 28, SOLID, CUSTOM_COLOR)
 	end
 	color(CUSTOM_COLOR, LIGHTGREY)
 	line(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
@@ -576,7 +602,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		color(CUSTOM_COLOR, YELLOW)
 		fill(190, TOP - 20, 80, 20, CUSTOM_COLOR)
 		color(CUSTOM_COLOR, BLACK)
-		text(195, TOP - 20, "Min/Max", CUSTOM_COLOR)
+		text(265, TOP - 20, "Min/Max", CUSTOM_COLOR + RIGHT)
 	end
 end
 

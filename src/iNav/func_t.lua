@@ -1,10 +1,12 @@
-local config, data, 
-FILE_PATH = ...
+local config, data, FILE_PATH = ...
 
 local function title(data, config, SMLCD)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
 	lcd.drawText(0, 0, model.getInfo().name, INVERS)
-	if config[13].v > 0 then
+	if data.doLogs and data.time ~= nil then
+		lcd.drawText(SMLCD and 50 or 145, 1, data.time, SMLSIZE + 3)
+		lcd.drawLine(SMLCD and 50 or 145, 7, SMLCD and 83 or 178, 7, SOLID, FORCE)
+	elseif config[13].v > 0 then
 		lcd.drawTimer(SMLCD and 60 or 150, 1, data.timer, SMLSIZE + INVERS)
 	end
 	if config[19].v > 0 then
@@ -16,12 +18,12 @@ local function title(data, config, SMLCD)
 		end
 	end
 	if config[19].v ~= 1 then
-		lcd.drawText(SMLCD and (config[14].v == 1 and 105 or LCD_W) or 128, 1, string.format("%.1fV", data.txBatt), SMLSIZE + RIGHT + INVERS)
+		lcd.drawText(SMLCD and ((config[14].v == 1 or data.crsf) and 105 or LCD_W) or 128, 1, string.format("%.1fV", data.txBatt), SMLSIZE + RIGHT + INVERS)
 	end
 	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
 		lcd.drawText(LCD_W, 1, string.format("%.1fV", data.rxBatt), SMLSIZE + RIGHT + INVERS)
 	elseif data.crsf then
-		lcd.drawText(LCD_W, 1, (getValue(data.rfmd_id) == 2 and 150 or (data.telem and 50 or "--")) .. (SMLCD and "" or "Hz"), SMLSIZE + RIGHT + INVERS)
+		lcd.drawText(LCD_W, 1, (data.rfmd == 2 and 150 or (data.telem and 50 or "--")) .. (SMLCD and "" or "Hz"), SMLSIZE + RIGHT + INVERS)
 	end
 
 	--[[ Show FPS
@@ -45,7 +47,7 @@ local function hdopGraph(x, y, s, SMLCD)
 			lcd.drawLine(x - 8 + (i * 2), (data.hdop >= i or not SMLCD) and y + 8 - i or y + 5, x - 8 + (i * 2), y + 5, SOLID, (data.hdop >= i or SMLCD) and 0 or GREY_DEFAULT)
 		end
 	else
-		lcd.drawText(x + 12, s == SMLSIZE and y or y - 2, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) / 2 + 0.8, s + RIGHT + (tmp and 3 or 0))
+		lcd.drawText(x + 12, s == SMLSIZE and y or y - 2, (data.hdop == 0 and not data.gpsFix) and "--" or (9 - data.hdop) * 0.5 + 0.8, s + RIGHT + (tmp and 3 or 0))
 	end
 end
 
@@ -76,4 +78,4 @@ function icons.home(x, y)
 	lcd.drawPoint(x + 3, y + 4)
 end
 
-return title, gpsDegMin, hdopGraph, icons, nil
+return title, gpsDegMin, hdopGraph, icons

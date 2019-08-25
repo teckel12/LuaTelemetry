@@ -20,12 +20,16 @@ luac52 -s -o obj/lang_de.luac src/iNav/lang_de.lua
 luac52 -s -o obj/lang_es.luac src/iNav/lang_es.lua
 luac52 -s -o obj/lang_fr.luac src/iNav/lang_fr.lua
 luac52 -s -o obj/load.luac src/iNav/load.lua
+luac52 -s -o obj/log_c.luac src/iNav/log_c.lua
+luac52 -s -o obj/log_s.luac src/iNav/log_s.lua
+luac52 -s -o obj/log.luac src/iNav/log.lua
 luac52 -s -o obj/menu.luac src/iNav/menu.lua
 luac52 -s -o obj/modes.luac src/iNav/modes.lua
 luac52 -s -o obj/other.luac src/iNav/other.lua
 luac52 -s -o obj/pilot.luac src/iNav/pilot.lua
 luac52 -s -o obj/radar.luac src/iNav/radar.lua
 luac52 -s -o obj/reset.luac src/iNav/reset.lua
+luac52 -s -o obj/save.luac src/iNav/save.lua
 luac52 -s -o obj/view.luac src/iNav/view.lua
 
 rm -fR obj/

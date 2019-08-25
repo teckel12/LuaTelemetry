@@ -16,7 +16,7 @@ local config = {
 	{ o = 10, c = 1, v = 1 }, -- Altitude Alert - 12
 	{ o = 12, c = 1, v = 1, x = 3 }, -- Timer - 13
 	{ o = 14, c = 1, v = 1 }, -- Rx Voltage - 14
-	{ o = 28, c = 1, v = 0 }, -- Flight Path Vector - 15
+	{ o = 28, c = 1, v = 0 }, -- HUD Home Icon - 15
 	{ o = 33, c = 1, v = 0 }, -- GPS - 16
 	{ o = 9,  c = 2, v = 20, x = 40 }, -- Fuel Critical - 17
 	{ o = 8,  c = 2, v = 30, x = 50 }, -- Fuel Low - 18
@@ -35,6 +35,7 @@ local config = {
 	{ o = 29, c = 1, v = 0 }, -- Center Map Home - 31
 	{ o = 30, c = 1, v = 0 }, -- Orientation - 32
 	{ o = 26, c = 1, v = 0 }, -- Roll Scale - 33
+	{ o = 34, c = 1, v = 0, l = {[0] = "?"} }, -- Review Log Date - 34
 }
 
 for i = 1, #config do

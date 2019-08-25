@@ -6,14 +6,18 @@ local HORUS = LCD_W >= 480
 local v, r, m, i, e = getVersion()
 local env = "tc"
 
+print("")
+print("--------------------- COMPILE SCRIPTS ---------------------")
+print("")
+
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units, labels = loadScript(FILE_PATH .. "modes", env)()
-local data, getTelemetryId, getTelemetryUnit, PREV, INCR, NEXT, DECR, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
+local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 if HORUS then
-	local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
+	local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
 end
-local title, gpsDegMin, hdopGraph, icons, widgetEvt = loadScript(FILE_PATH .. "func_t", env)(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_t", env)(config, data, FILE_PATH)
 
 data.lang = "en"
 data.voice = "en"
@@ -29,17 +33,25 @@ for abv = 1, #langs do
 end
 
 loadScript(FILE_PATH .. "reset", env)(data)
-local crsf = loadScript(FILE_PATH .. "crsf", env)(config, data, getTelemetryId)
-crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env)
+local crsf = loadScript(FILE_PATH .. "crsf", env)(config, data, getTelemetryId, FLASH)
+crsf, distCalc = loadScript(FILE_PATH .. "other", env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD, FLASH)
 loadScript(FILE_PATH .. "view", env)()
 loadScript(FILE_PATH .. "pilot", env)()
 loadScript(FILE_PATH .. "radar", env)()
 loadScript(FILE_PATH .. "alt", env)()
 loadScript(FILE_PATH .. "horus", env)()
 loadScript(FILE_PATH .. "menu", env)()
+loadScript(FILE_PATH .. "log", env)()
+loadScript(FILE_PATH .. "log_c", env)()
+loadScript(FILE_PATH .. "log_s", env)()
+loadScript(FILE_PATH .. "save", env)(config, data, FILE_PATH)
 
 if buildMode == nil then
 	loadScript("/WIDGETS/iNav/main", env)(true)
 end
+
+print("")
+print("--------------------- COMPILE COMPLETE ---------------------")
+print("")
 
 return 0
