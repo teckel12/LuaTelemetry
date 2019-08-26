@@ -1,4 +1,5 @@
 local config, data, FILE_PATH = ...
+data.nv = LCD_W == 320
 
 local function title(data, config, SMLCD)
 	local text = lcd.drawText
@@ -15,23 +16,26 @@ local function title(data, config, SMLCD)
 	color(CUSTOM_COLOR, BLACK)
 	fill(0, 0, LCD_W, 20, CUSTOM_COLOR)
 	text(0, 0, model.getInfo().name)
-	if config[13].v > 0 then
-		if data.doLogs and data.time ~= nil then
-			text(340, 0, data.time, WARNING_COLOR)
-		else
-			lcd.drawTimer(340, 0, data.timer)
-		end
-	end
+
+	local bat = data.nv and 110 or 197
 	if config[19].v > 0 then
-		fill(197, 3, 43, 14, TEXT_COLOR)
-		fill(240, 6, 2, 8, TEXT_COLOR)
-		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + 197
-		for i = 200, tmp, 4 do
+		fill(bat, 3, 43, 14, TEXT_COLOR)
+		fill(bat + 43, 6, 2, 8, TEXT_COLOR)
+		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + bat
+		for i = bat + 3, tmp, 4 do
 			fill(i, 5, 2, 10, CUSTOM_COLOR)
 		end
 	end
-	if config[19].v ~= 1 then
-		text(290, 0, fmt("%.1fV", data.txBatt), RIGHT)
+	if config[19].v ~= 1 and not data.nv then
+		text(bat + 93, 0, fmt("%.1fV", data.txBatt), RIGHT)
+	end
+
+	if config[13].v > 0 then
+		if data.doLogs and data.time ~= nil then
+			text(data.nv and 190 or 340, 0, data.time, WARNING_COLOR)
+		else
+			lcd.drawTimer(data.nv and 190 or 340, 0, data.timer)
+		end
 	end
 
 	if data.rxBatt > 0 and config[14].v == 1 then
@@ -93,20 +97,20 @@ icons.home = {
 	[2] = Bitmap.open(FILE_PATH .. "pics/homel.png"),
 }
 icons.fpv = Bitmap.open(FILE_PATH .. "pics/fpv.png")
-icons.bg = Bitmap.open(FILE_PATH .. "pics/bg.png")
+icons.bg = Bitmap.open(FILE_PATH .. (data.nv and "pics/bgnv.png" or "pics/bg.png"))
 icons.roll = Bitmap.open(FILE_PATH .. "pics/roll.png")
 icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 
 data.hcurx_id = getFieldInfo("ail").id
 data.hcury_id = getFieldInfo("ele").id
 data.hctrl_id = getFieldInfo("rud").id
-data.t6_id = getFieldInfo("trim-t6").id
+data.t6_id = not data.nv and getFieldInfo("trim-t6").id or nil
 data.lastevt = 0
 data.lastt6 = nil
 
 if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
 	data.widget = true
-	if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
+	if (data.nv and (iNavZone.zone.w < 280 or iNavZone.zone.h < 450)) or (not data.nv and (iNavZone.zone.w < 450 or iNavZone.zone.h < 250)) then
 		data.startupTime = math.huge
 		function icons.nfs()
 			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, "Full screen required", SMLSIZE + WARNING_COLOR)
@@ -150,7 +154,7 @@ function icons.clear(event, data)
 		if event == 0 and data.doLogs and getValue(data.hcurx_id) < -940 then
 			event = EVT_EXIT_BREAK -- Left (exit)
 		end
-		data.lastt6 = getValue(data.t6_id)
+		data.lastt6 = not data.nv and getValue(data.t6_id) or nil
 		if data.lastt6 == 0 then
 			data.lastt6 = nil
 		end

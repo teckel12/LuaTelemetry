@@ -1,15 +1,15 @@
 local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local rgb = lcd.RGB
-	local SKY = 982 --rgb(0, 121, 180)
-	local GROUND = 25121 --rgb(98, 68, 8)
+	local SKY = rgb(50, 171, 230)
+	local GROUND = rgb(148, 118, 58)
 	--local SKY2 = 8943 --rgb(32, 92, 122)
 	--local GROUND2 = 20996 --rgb(81, 65, 36)
-	--local MAP = 800 --rgb(0, 100, 0)
+	local MAP = rgb(50, 150, 50)
 	--local DKMAP = 544 --rgb(0, 70, 0)
-	local LIGHTMAP = 1184 --rgb(0, 150, 0)
-	--local DATA = 264 --rgb(0, 32, 65)
-	local DKGREY = 12744 --rgb(48, 56, 65) (was 12678 rgb(48, 48, 48))
+	local LIGHTMAP = rgb(50, 200, 50)
+	--local DATA = rgb(50, 82, 115)
+	local DKGREY = rgb(98, 106, 115)
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
 	local HEADING_DEG = 190
@@ -65,7 +65,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				color(CUSTOM_COLOR, r == 20 and WHITE or LIGHTGREY)
 				line(x1, y1, x2, y2, SOLID, CUSTOM_COLOR)
 				if r == 20 and y1 > top2 and y1 < bot2 then
-					text(x1 - 1, y1 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
+					text(x1, y1 - 8, upsideDown and -adj or adj, SMLSIZE + RIGHT)
 				end
 			end
 		end
@@ -87,7 +87,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Setup
 	bmap(icons.bg, 0, TOP)
 	color(TEXT_COLOR, WHITE)
-	color(WARNING_COLOR, data.telem and YELLOW or RED)
+	--color(WARNING_COLOR, data.telem and YELLOW or RED)
+	color(WARNING_COLOR, data.telem and rgb(255, 255, 100) or rgb(255, 100, 100))
 
 	-- Calculate orientation
 	if data.pitchRoll then
@@ -101,7 +102,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	roll1 = rad(roll)
 	top2 = config[33].v == 0 and TOP or TOP + 20
-	bot2 = BOTTOM - 15
+	bot2 = BOTTOM - 16
 	local i = { {}, {} }
 	local tl = { x = 1, y = TOP }
 	local tr = { x = RIGHT_POS - 2, y = TOP }
@@ -245,7 +246,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		if not data.showMax then
-			text(X_CNTR - 65, Y_CNTR - 9, fmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
+			text(X_CNTR - 64, Y_CNTR - 9, fmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
 		end
 	end
 
@@ -254,10 +255,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	tics(data.altitude, RIGHT_POS - 4)
 	if config[28].v == 0 and config[33].v == 0 then
 		text(42, TOP - 1, units[data.speed_unit], SMLSIZE)
-		text(RIGHT_POS - 45, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+		text(RIGHT_POS - 43, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
 	elseif config[28].v > 0 then
-		text(39, Y_CNTR - 25, units[data.speed_unit], SMLSIZE + RIGHT)
-		text(RIGHT_POS - 6, Y_CNTR - 25, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
+		text(42, Y_CNTR - 25, units[data.speed_unit], SMLSIZE + RIGHT)
+		text(RIGHT_POS - 4, Y_CNTR - 25, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
 	end
 
 	-- Compass
@@ -268,7 +269,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				if i % 90 == 0 then
 					text(tmp - (i < 270 and 3 or 5), bot2, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
 				elseif i % 45 == 0 then
-					text(tmp - (i < 225 and 7 or 9), bot2, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
+					text(tmp - (i < 225 and 9 or 11), bot2, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
 				else
 					line(tmp, BOTTOM - 4, tmp, BOTTOM - 1, SOLID, 0)
 				end
@@ -328,19 +329,21 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- View overlay
 	bmap(icons.fg, 1, 20)
+	color(CUSTOM_COLOR, MAP)
+	line(1, BOTTOM + 1, RIGHT_POS, BOTTOM + 1, SOLID, CUSTOM_COLOR)
 
 	-- Speed & altitude
 	tmp = data.showMax and data.speedMax or data.speed
-	text(39, Y_CNTR - 9, tmp >= 99.5 and floor(tmp + 0.5) or fmt("%.1f", tmp), SMLSIZE + RIGHT + data.telemFlags)
+	text(41, Y_CNTR - 9, tmp >= 99.5 and floor(tmp + 0.5) or fmt("%.1f", tmp), SMLSIZE + RIGHT + data.telemFlags)
 	tmp = data.showMax and data.altitudeMax or data.altitude
-	text(RIGHT_POS - 2, Y_CNTR - 9, floor(tmp + 0.5), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
+	text(RIGHT_POS, Y_CNTR - 9, floor(tmp + 0.5), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	if data.altHold then
 		bmap(icons.lock, RIGHT_POS - 55, Y_CNTR - 5)
 	end
 
 	-- Heading
 	if data.showHead then
-		text(X_CNTR + 18, bot2, floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+		text(X_CNTR + 20, bot2, floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 	end
 
 	-- Roll scale
@@ -355,6 +358,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
+--[[
 	-- Variometer
 	if config[7].v % 2 == 1 then
 		color(CUSTOM_COLOR, DKGREY)
@@ -375,6 +379,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			text(RIGHT_POS + 13, TOP - 1, fmt(abs(data.vspeed) >= 9.95 and "%.0f" or "%.1f", data.vspeed) .. units[data.vspeed_unit], SMLSIZE + data.telemFlags)
 		end
 	end
+]]
 
 	-- Calc orientation
 	tmp = data.headingRef
@@ -384,7 +389,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local r1 = rad(data.heading - tmp)
 	local r2 = rad(data.heading - tmp + 145)
 	local r3 = rad(data.heading - tmp - 145)
-
+--[[
 	-- Radar
 	local LEFT_POS = RIGHT_POS + (config[7].v % 2 == 1 and 11 or 0)
 	RIGHT_POS = 479
@@ -604,6 +609,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		color(CUSTOM_COLOR, BLACK)
 		text(265, TOP - 20, "Min/Max", CUSTOM_COLOR + RIGHT)
 	end
+	]]
 end
 
 return view

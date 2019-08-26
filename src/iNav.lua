@@ -24,35 +24,7 @@ end
 local config = loadScript(FILE_PATH .. "config" .. ext, env)(SMLCD)
 collectgarbage()
 
-
-local function background()
-end
-
-local function run(event)
-	lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
-	lcd.clear(CUSTOM_COLOR)
-
-	if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
-		lcd.setColor(WARNING_COLOR, YELLOW)
-		--if iNavZone.zone.w < 450 or iNavZone.zone.h < 250 then
-		if iNavZone.zone.w < 280 or iNavZone.zone.h < 450 then
-			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, "Full screen required", SMLSIZE + WARNING_COLOR)
-			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 36, iNavZone.zone.x .. "x" .. iNavZone.zone.y, SMLSIZE + WARNING_COLOR)
-			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 56, iNavZone.zone.w .. "x" .. iNavZone.zone.h, SMLSIZE + WARNING_COLOR)
-		else
-			lcd.drawText(40, 40, "Nirvana NV-14 - Widget Detected", SMLSIZE + WARNING_COLOR)
-		end
-	else
-		lcd.drawText(40, 40, "Nirvana NV-14", WARNING_COLOR)
-	end
-
-	return 0
-end
-
-return { run = run, background = background }
-
---[[
-local modes, units, labels = loadScript(FILE_PATH .. "modes" .. ext, env)()
+local modes, units, labels = loadScript(FILE_PATH .. "modes" .. ext, env)(HORUS)
 collectgarbage()
 
 local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU = loadScript(FILE_PATH .. "data" .. ext, env)(r, m, i, HORUS)
@@ -65,7 +37,6 @@ collectgarbage()
 data.lang = "es"
 data.voice = "es"
 ]]
---[[
 
 if data.lang ~= "en" or data.voice ~= "en" then
 	lang = loadScript(FILE_PATH .. "lang" .. ext, env)(modes, labels, data, FILE_PATH, env)
@@ -93,7 +64,6 @@ local function calcBearing(gps1, gps2)
 	local y = math.sin(a2 - a1) * math.cos(o2)
 	return math.deg(math.atan2(y, x))
 	]]
-	--[[
 	-- Flat-Earth math
 	local x = (gps2.lon - gps1.lon) * math.cos(math.rad(gps1.lat))
 	return math.deg(1.5708 - math.atan2(gps2.lat - gps1.lat, x))
@@ -470,7 +440,6 @@ local function run(event)
 	--[[ Show FPS
 	data.start = getTime()
 	]]
-	--[[
 
 	-- Insure background() has run before rendering screen
 	if not data.bkgd then
@@ -496,6 +465,9 @@ local function run(event)
 		end
 		-- On Horus use sticks to control the menu
 		event = icons.clear(event, data)
+		if data.nv then
+			event = 0
+		end
 	else
 		lcd.clear()
 	end
@@ -507,7 +479,6 @@ local function run(event)
 		return 0
 	end
 	]]
-	--[[
 
 	-- Config menu or views
 	if data.configStatus > 0 then
@@ -552,7 +523,7 @@ local function run(event)
 		if data.v ~= config[25].v then
 			view = nil
 			collectgarbage()
-			view = loadScript(FILE_PATH .. (HORUS and "horus" or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))) .. ext, env)()
+			view = loadScript(FILE_PATH .. (HORUS and (data.nv and "nirvana" or "horus") or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))) .. ext, env)()
 			data.v = config[25].v
 		end
 		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
@@ -566,4 +537,3 @@ local function run(event)
 end
 
 return { run = run, background = background }
-]]
