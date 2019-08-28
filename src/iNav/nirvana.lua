@@ -9,6 +9,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	--local DKMAP = 544 --rgb(0, 70, 0)
 	local LIGHTMAP = rgb(50, 200, 50)
 	--local DATA = rgb(50, 82, 115)
+	--local GREY = rgb(180, 182, 180)
 	local DKGREY = rgb(98, 106, 115)
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
@@ -87,8 +88,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Setup
 	bmap(icons.bg, 0, TOP)
 	color(TEXT_COLOR, WHITE)
-	--color(WARNING_COLOR, data.telem and YELLOW or RED)
-	color(WARNING_COLOR, data.telem and rgb(255, 255, 100) or rgb(255, 100, 100))
+	color(WARNING_COLOR, data.telem and 65516 --[[rgb(255, 255, 100)]] or 64300 --[[rgb(255, 100, 100)]])
 
 	-- Calculate orientation
 	if data.pitchRoll then
@@ -329,8 +329,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- View overlay
 	bmap(icons.fg, 1, 20)
+	--line(0, BOTTOM, RIGHT_POS, BOTTOM, SOLID, DKGREY)
 	color(CUSTOM_COLOR, MAP)
-	line(1, BOTTOM + 1, RIGHT_POS, BOTTOM + 1, SOLID, CUSTOM_COLOR)
+	line(0, BOTTOM + 1, RIGHT_POS, BOTTOM + 1, SOLID, CUSTOM_COLOR)
 
 	-- Speed & altitude
 	tmp = data.showMax and data.speedMax or data.speed

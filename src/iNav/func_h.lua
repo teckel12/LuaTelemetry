@@ -1,5 +1,4 @@
 local config, data, FILE_PATH = ...
-data.nv = LCD_W == 320
 
 local function title(data, config, SMLCD)
 	local text = lcd.drawText
@@ -9,7 +8,6 @@ local function title(data, config, SMLCD)
 	local tmp = 0
 
 	if not data.telem then
-		color(WARNING_COLOR, RED)
 		tmp = WARNING_COLOR
 	end
 
@@ -17,12 +15,12 @@ local function title(data, config, SMLCD)
 	fill(0, 0, LCD_W, 20, CUSTOM_COLOR)
 	text(0, 0, model.getInfo().name)
 
-	local bat = data.nv and 110 or 197
+	local bat = data.nv and 115 or 197
 	if config[19].v > 0 then
 		fill(bat, 3, 43, 14, TEXT_COLOR)
 		fill(bat + 43, 6, 2, 8, TEXT_COLOR)
-		local tmp = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + bat
-		for i = bat + 3, tmp, 4 do
+		local lev = math.max(math.min((data.txBatt - data.txBattMin) / (data.txBattMax - data.txBattMin) * 42, 42), 0) + bat
+		for i = bat + 3, lev, 4 do
 			fill(i, 5, 2, 10, CUSTOM_COLOR)
 		end
 	end
@@ -32,9 +30,9 @@ local function title(data, config, SMLCD)
 
 	if config[13].v > 0 then
 		if data.doLogs and data.time ~= nil then
-			text(data.nv and 190 or 340, 0, data.time, WARNING_COLOR)
+			text(data.nv and 195 or 340, 0, data.time, WARNING_COLOR)
 		else
-			lcd.drawTimer(data.nv and 190 or 340, 0, data.timer)
+			lcd.drawTimer(data.nv and 195 or 340, 0, data.timer)
 		end
 	end
 
@@ -56,11 +54,11 @@ local function title(data, config, SMLCD)
 		end
 	end
 
-	--[[ Show FPS
+	--[[ Show FPS ]]
 	data.frames = data.frames + 1
-	text(180, 0, fmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-	--text(130, 0, fmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
-	]]
+	text(data.nv and 115 or 180, 0, fmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
+	text(data.nv and 75 or 130, 0, fmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
+	
 
 	-- Reset colors
 	color(WARNING_COLOR, YELLOW)
@@ -70,6 +68,9 @@ local function title(data, config, SMLCD)
 			color(WARNING_COLOR, iNavZone.options.Warning)
 		end
 	end
+
+	--text(40,20,lcd.RGB(255, 100, 100),0)
+	--text(40,40,lcd.RGB(255, 255, 100),0)
 end
 
 local function gpsDegMin(c, lat)
@@ -110,7 +111,7 @@ data.lastt6 = nil
 
 if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
 	data.widget = true
-	if (data.nv and (iNavZone.zone.w < 280 or iNavZone.zone.h < 450)) or (not data.nv and (iNavZone.zone.w < 450 or iNavZone.zone.h < 250)) then
+	if iNavZone.zone.w < data.nv and 280 or 450 or iNavZone.zone.h < data.nv and 450 or 250 then
 		data.startupTime = math.huge
 		function icons.nfs()
 			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, "Full screen required", SMLSIZE + WARNING_COLOR)

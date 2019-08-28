@@ -88,6 +88,7 @@ local data = {
 	alt = {},
 	v = -1,
 	simu = string.sub(r, -4) == "simu",
+	nv = r == "NV14",
 	--msg = m + i * 0.1 < 2.2 and "OpenTX v2.2+ Required" or false,
 	lastLock = { lat = 0, lon = 0 },
 	fUnit = {"mAh", "mWh"},
