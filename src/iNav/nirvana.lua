@@ -359,8 +359,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
---[[
-	-- Variometer
+	--[[ Variometer - Currently not supported in the Nirvana OpenTX firmware
 	if config[7].v % 2 == 1 then
 		color(CUSTOM_COLOR, DKGREY)
 		fill(RIGHT_POS, TOP, 10, BOTTOM - 20, CUSTOM_COLOR)
@@ -380,7 +379,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			text(RIGHT_POS + 13, TOP - 1, fmt(abs(data.vspeed) >= 9.95 and "%.0f" or "%.1f", data.vspeed) .. units[data.vspeed_unit], SMLSIZE + data.telemFlags)
 		end
 	end
-]]
+	]]
 
 	-- Calc orientation
 	tmp = data.headingRef
@@ -390,11 +389,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local r1 = rad(data.heading - tmp)
 	local r2 = rad(data.heading - tmp + 145)
 	local r3 = rad(data.heading - tmp - 145)
---[[
+
 	-- Radar
-	local LEFT_POS = RIGHT_POS + (config[7].v % 2 == 1 and 11 or 0)
-	RIGHT_POS = 479
-	X_CNTR = (RIGHT_POS + LEFT_POS) * 0.5 - 1
+	local LEFT_POS = 0
+	RIGHT_POS = 319
+	X_CNTR = 159 --(RIGHT_POS + LEFT_POS) * 0.5 - 1
+	BOTTOM = 297 --BOTTOM + 150
+	Y_CNTR = 222 --BOTTOM - 75
 	if data.startup == 0 then
 		-- Launch/north-based orientation
 		if data.showDir or data.headingRef == -1 then
@@ -472,12 +473,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Startup message
 	if data.startup == 2 then
 		color(CUSTOM_COLOR, BLACK)
-		text(X_CNTR - 78, 55, "Lua Telemetry", MIDSIZE + CUSTOM_COLOR)
-		text(X_CNTR - 38, 85, "v" .. VERSION, MIDSIZE + CUSTOM_COLOR)
-		text(X_CNTR - 79, 54, "Lua Telemetry", MIDSIZE)
-		text(X_CNTR - 39, 84, "v" .. VERSION, MIDSIZE)
+		text(X_CNTR - 78, 182, "Lua Telemetry", MIDSIZE + CUSTOM_COLOR)
+		text(X_CNTR - 38, 212, "v" .. VERSION, MIDSIZE + CUSTOM_COLOR)
+		text(X_CNTR - 79, 181, "Lua Telemetry", MIDSIZE)
+		text(X_CNTR - 39, 211, "v" .. VERSION, MIDSIZE)
 	end
-
+--[[
 	-- Data
 	local X1 = 140
 	local X2 = 234
@@ -610,7 +611,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		color(CUSTOM_COLOR, BLACK)
 		text(265, TOP - 20, "Min/Max", CUSTOM_COLOR + RIGHT)
 	end
-	]]
+]]
 end
 
 return view

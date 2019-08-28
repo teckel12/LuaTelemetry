@@ -111,7 +111,7 @@ data.lastt6 = nil
 
 if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
 	data.widget = true
-	if iNavZone.zone.w < data.nv and 280 or 450 or iNavZone.zone.h < data.nv and 450 or 250 then
+	if iNavZone.zone.w < (data.nv and 280 or 450) or iNavZone.zone.h < (data.nv and 450 or 250) then
 		data.startupTime = math.huge
 		function icons.nfs()
 			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, "Full screen required", SMLSIZE + WARNING_COLOR)
