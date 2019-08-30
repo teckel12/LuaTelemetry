@@ -170,19 +170,19 @@ function icons.menu(config, data, icons, prev)
 	-- Aircraft symbol preview
 	if data.configStatus == 27 and data.configSelect ~= 0 then
 		lcd.setColor(CUSTOM_COLOR, 982) -- Sky
-		lcd.drawFilledRectangle(356, 111, 123, 31, CUSTOM_COLOR)
+		lcd.drawFilledRectangle(LCD_W - 124, (data.nv and 28 or 111), 123, 31, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, 25121) -- Ground
-		lcd.drawFilledRectangle(356, 142, 123, 31, CUSTOM_COLOR)
-		lcd.drawBitmap(icons.fg, 355, 110, 50)
-		lcd.drawRectangle(355, 110, 125, 64, TEXT_COLOR)	
+		lcd.drawFilledRectangle(LCD_W - 124, (data.nv and 59 or 142), 123, 31, CUSTOM_COLOR)
+		lcd.drawBitmap(icons.fg, LCD_W - 125, (data.nv and 27 or 110), 50)
+		lcd.drawRectangle(LCD_W - 125, (data.nv and 27 or 110), 125, 64, TEXT_COLOR)
 	end
 	-- Return throttle stick to bottom center
 	if data.stickMsg ~= nil and not data.armed then
 		lcd.setColor(CUSTOM_COLOR, BLACK)
-		lcd.drawFilledRectangle(20, 128, 439, 30, CUSTOM_COLOR)
+		lcd.drawFilledRectangle(data.nv and 6 or 20, 128, data.nv and 308 or 439, 30, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, YELLOW)
-		lcd.drawRectangle(19, 127, 441, 32, CUSTOM_COLOR)
-		lcd.drawText(28, 128, data.stickMsg, MIDSIZE + CUSTOM_COLOR)	
+		lcd.drawRectangle(data.nv and 5 or 19, 127, data.nv and 310 or 441, 32, CUSTOM_COLOR)
+		lcd.drawText(data.nv and 14 or 28, data.nv and 133 or 128, data.stickMsg, (not data.nv and MIDSIZE or 0) + CUSTOM_COLOR)
 	end
 end
 

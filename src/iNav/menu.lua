@@ -1,11 +1,11 @@
 local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
 
-	local CONFIG_X = HORUS and 90 or (SMLCD and 0 or 46)
-	local TOP = HORUS and 37 or 11
+	local CONFIG_X = HORUS and (data.nv and 10 or 90) or (SMLCD and 0 or 46)
+	local TOP = HORUS and (data.nv and 107 or 37) or 11
 	local LINE = HORUS and 22 or 9
 	local RSIDE = HORUS and 200 or 83
 	local GPS = HORUS and 45 or 21
-	local ROWS = HORUS and 9 or 5
+	local ROWS = HORUS and (data.nv and 12 or 9) or 5
 	local FONT = HORUS and 0 or SMLSIZE
 	local text = lcd.drawText
 	local min = math.min

@@ -465,9 +465,6 @@ local function run(event)
 		end
 		-- On Horus use sticks to control the menu
 		event = icons.clear(event, data)
-		if data.nv then
-			event = 0
-		end
 	else
 		lcd.clear()
 	end
