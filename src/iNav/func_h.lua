@@ -30,9 +30,9 @@ local function title(data, config, icons, SMLCD)
 
 	if config[13].v > 0 then
 		if data.doLogs and data.time ~= nil then
-			text(data.nv and 205 or 340, 0, data.time, WARNING_COLOR)
+			text(data.nv and 202 or 340, 0, data.time, WARNING_COLOR)
 		else
-			lcd.drawTimer(data.nv and 205 or 340, 0, data.timer)
+			lcd.drawTimer(data.nv and 202 or 340, 0, data.timer)
 		end
 	end
 
