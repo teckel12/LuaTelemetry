@@ -10,7 +10,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local LIGHTMAP = rgb(50, 200, 50)
 	--local DATA = 12942 --rgb(50, 82, 115)
 	--local GREY = rgb(180, 182, 180)
-	local DKGREY = 25422 --rgb(98, 106, 115)
+	local DKGREY = 33874 --rgb(98, 106, 115)
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
 	local HEADING_DEG = 190
@@ -78,9 +78,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			local tmp2 = Y_CNTR + ((v - i) * 3) - 9
 			if tmp2 > 10 and tmp2 < BOTTOM - 8 then
 				line(p, tmp2 + 8, p + 2, tmp2 + 8, SOLID, TEXT_COLOR)
+				--[[ Currently disabled due to preformance
 				if config[28].v == 0 and i % 10 == 0 and (i >= 0 or p > X_CNTR) and tmp2 < BOTTOM - 23 then
 					text(p + (p > X_CNTR and -1 or 4), tmp2, i, SMLSIZE + (p > X_CNTR and RIGHT or 0) + TEXT_COLOR)
 				end
+				]]
 			end
 		end
 	end
@@ -244,7 +246,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		if not data.showMax then
-			text(X_CNTR - 64, Y_CNTR - 9, fmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
+			text(X_CNTR - 60, Y_CNTR - 10, fmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
 		end
 	end
 
@@ -379,6 +381,21 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	]]
 
+	--[[ RSSI
+	tmp = (not data.telem or data.rssi < data.rssiLow) and FLASH or 0
+	val = data.showMax and data.rssiMin or data.rssiLast
+	text(X1 - 3, TOP + 84, val .. (data.crsf and "%" or "dB"), MIDSIZE + RIGHT + tmp)
+	text(0, TOP + 93, data.crsf and "LQ" or "RSSI", SMLSIZE)
+	if data.rl ~= val then
+		local red = val >= data.rssiLow and max(floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
+		local green = val < data.rssiLow and max(floor((val - data.rssiCrit) / (data.rssiLow - data.rssiCrit) * 255), 0) or 255
+		data.rc = rgb(red, green, 60)
+		data.rl = val
+	end
+	color(CUSTOM_COLOR, data.rc)
+	lcd.drawGauge(0, TOP + 110, X1 - 3, 15, min(val, 99), 100, CUSTOM_COLOR)
+	]]
+
 	-- Calc orientation
 	tmp = data.headingRef
 	if data.showDir or data.headingRef == -1 then
@@ -402,7 +419,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		local cx, cy, d
 
-		-- Altitude graph
+		--[[ Altitude graph - Currently disabled due to preformance
 		if config[28].v > 0 then
 			local factor = 30 / (data.altMax - data.altMin)
 			color(CUSTOM_COLOR, LIGHTMAP)
@@ -413,7 +430,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 					line(cx, cy, cx, BOTTOM - 1, SOLID, CUSTOM_COLOR)
 				end
 				if (i - 1) % (60 / config[28].v) == 0 then
-					color(CUSTOM_COLOR, DKGREY)
+					color(CUSTOM_COLOR, BLACK)
 					line(cx, BOTTOM - 30, cx, BOTTOM - 1, DOTTED, CUSTOM_COLOR)
 					color(CUSTOM_COLOR, LIGHTMAP)
 				end
@@ -428,6 +445,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 			text(RIGHT_POS + 2, BOTTOM - 46, floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
 		end
+		]]
 
 		if data.gpsHome ~= false then
 			-- Craft location
@@ -476,21 +494,25 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		text(X_CNTR - 79, 191, "Lua Telemetry", MIDSIZE)
 		text(X_CNTR - 39, 221, "v" .. VERSION, MIDSIZE)
 	end
---[[
-	-- Data
-	local X1 = 140
-	local X2 = 234
-	local X3 = 346
-	TOP = BOTTOM + 1
-	BOTTOM = 271
 
-	-- Box 1 (fuel, battery, rssi)
+	-- Data
+	local X1 = 140 - 149
+	local X2 = 234 - 144
+	local X3 = 346 - 149
+	TOP = BOTTOM + 60
+	BOTTOM = 479
+
+	-- Box 1 (fuel, battery)
 	tmp = (not data.telem or data.cell < config[3].v or (data.showFuel and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
+	local btop = TOP - 54
+	local bleft = 0
+	local bwidth = 150
+	local bright = 150
 	if data.showFuel then
 		if config[23].v > 0 or (data.crsf and data.showMax) then
-			text(X1, TOP + 1, (data.crsf and data.fuelRaw or data.fuel) .. data.fUnit[data.crsf and 1 or config[23].v], MIDSIZE + RIGHT + tmp)
+			text(bright, btop, (data.crsf and data.fuelRaw or data.fuel) .. data.fUnit[data.crsf and 1 or config[23].v], MIDSIZE + RIGHT + tmp)
 		else
-			text(X1 - 3, TOP, data.fuel .. "%", MIDSIZE + RIGHT + tmp)
+			text(bright, btop, data.fuel .. "%", MIDSIZE + RIGHT + tmp)
 			if data.fl ~= data.fuel then
 				local red = data.fuel >= config[18].v and max(floor((100 - data.fuel) / (100 - config[18].v) * 255), 0) or 255
 				local green = data.fuel < config[18].v and max(floor((data.fuel - config[17].v) / (config[18].v - config[17].v) * 255), 0) or 255
@@ -498,14 +520,19 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				data.fl = data.fuel
 			end
 			color(CUSTOM_COLOR, data.fc)
-			lcd.drawGauge(0, TOP + 26, X1 - 3, 15, min(data.fuel, 99), 100, CUSTOM_COLOR)
+			--lcd.drawGauge(bleft, btop + 26, bwidth, 15, min(data.fuel, 99), 100, CUSTOM_COLOR)
+			icons.rectangle(bleft, btop + 27, bwidth, 15, CUSTOM_COLOR)
+			local w = max(1, (min(data.fuel, 100) * 0.01) * (bwidth - 2))
+			fill(1, btop + 28, w, 13, CUSTOM_COLOR)
 		end
-		text(0, TOP + ((config[23].v > 0 or (data.crsf and data.showMax)) and 23 or 9), labels[1], SMLSIZE)
+		text(bleft, btop + ((config[23].v > 0 or (data.crsf and data.showMax)) and 23 or 9), labels[1], SMLSIZE)
 	end
 
+	bleft = 170
+	bright = LCD_W - 1
 	local val = math.floor((data.showMax and data.cellMin or data.cell) * 100 + 0.5) * 0.01
-	text(X1 - 3, TOP + 42, fmt(config[1].v == 0 and "%.2fV" or "%.1fV", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
-	text(0, TOP + 51, labels[2], SMLSIZE)
+	text(bright, btop, fmt(config[1].v == 0 and "%.2fV" or "%.1fV", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
+	text(bleft, btop + 9, labels[2], SMLSIZE)
 	if data.bl ~= val then
 		local red = val >= config[2].v and max(floor((4.2 - val) / (4.2 - config[2].v) * 255), 0) or 255
 		local green = val < config[2].v and max(floor((val - config[3].v) / (config[2].v - config[3].v) * 255), 0) or 255
@@ -513,20 +540,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		data.bl = val
 	end
 	color(CUSTOM_COLOR, data.bc)
-	lcd.drawGauge(0, TOP + 68, X1 - 3, 15, min(max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 99), 100, CUSTOM_COLOR)
-
-	tmp = (not data.telem or data.rssi < data.rssiLow) and FLASH or 0
-	val = data.showMax and data.rssiMin or data.rssiLast
-	text(X1 - 3, TOP + 84, val .. (data.crsf and "%" or "dB"), MIDSIZE + RIGHT + tmp)
-	text(0, TOP + 93, data.crsf and "LQ" or "RSSI", SMLSIZE)
-	if data.rl ~= val then
-		local red = val >= data.rssiLow and max(floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
-		local green = val < data.rssiLow and max(floor((val - data.rssiCrit) / (data.rssiLow - data.rssiCrit) * 255), 0) or 255
-		data.rc = rgb(red, green, 60)
-		data.rl = val
-	end
-	color(CUSTOM_COLOR, data.rc)
-	lcd.drawGauge(0, TOP + 110, X1 - 3, 15, min(val, 99), 100, CUSTOM_COLOR)
+	--lcd.drawGauge(bleft,  btop + 27, bwidth, 15, min(max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 99), 100, CUSTOM_COLOR)
+	icons.rectangle(bleft, btop + 27, bwidth, 15, CUSTOM_COLOR)
+	local w = max(1, (min(max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 100) * 0.01) * (bwidth - 2))
+	fill(bleft + 1, btop + 28, w, 13, CUSTOM_COLOR)
 
 	-- Box 2 (altitude, distance, current)
 	tmp = data.showMax and data.altitudeMax or data.altitude
@@ -554,15 +571,15 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.showHead then
 		if data.showDir or data.headingRef == -1 then
 			text((X2 + X3) * 0.5, TOP + 18, "N", SMLSIZE)
-			text(X3 - 4, 211, "E", SMLSIZE + RIGHT)
-			text(X2 + 10, 211, "W", SMLSIZE)
+			text(X3 - 4, 421, "E", SMLSIZE + RIGHT)
+			text(X2 + 10, 421, "W", SMLSIZE)
 			text(X2 + 78, BOTTOM - 15, floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 		end
-		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) * 0.5 + 4, 219, 25)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) * 0.5 + 4, 429, 25)
 		if data.headingHold then
 			fill((x2 + x3) * 0.5 - 2, (y2 + y3) * 0.5 - 2, 5, 5, SOLID)
 		else
-			color(CUSTOM_COLOR, GREY)
+			color(CUSTOM_COLOR, DKGREY)
 			line(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		end
 		line(x1, y1, x2, y2, SOLID, TEXT_COLOR)
@@ -586,30 +603,28 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if not data.crsf then
 		text(RIGHT_POS, TOP + 28, floor(data.gpsAlt + 0.5) .. (data.gpsAlt_unit == 10 and "'" or units[data.gpsAlt_unit]), MIDSIZE + tmp)
 	end
-	text(RIGHT_POS, TOP + 54, config[16].v == 0 and fmt("%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), tmp)
-	text(RIGHT_POS, TOP + 74, config[16].v == 0 and fmt("%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), tmp)
+	text(RIGHT_POS, TOP + 54, config[16].v == 0 and fmt("%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), SMLSIZE + tmp)
+	text(RIGHT_POS, TOP + 74, config[16].v == 0 and fmt("%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), SMLSIZE + tmp)
 	tmp = data.showMax and data.speedMax or data.speed
 	text(RIGHT_POS + 1, TOP + 98, tmp >= 99.5 and floor(tmp + 0.5) .. units[data.speed_unit] or fmt("%.1f", tmp) .. units[data.speed_unit], MIDSIZE + RIGHT + data.telemFlags)
 
 	-- Dividers
 	color(CUSTOM_COLOR, DKGREY)
-	line(X1 + 3, TOP, X1 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
 	line(X2 + 3, TOP, X2 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
 	line(X3 + 3, TOP, X3 + 3, BOTTOM, SOLID, CUSTOM_COLOR)
 	line(X3 + 3, TOP + 95, RIGHT_POS, TOP + 95, SOLID, CUSTOM_COLOR)
 	if data.crsf then
 		line(X3 + 3, TOP + 28, RIGHT_POS, TOP + 28, SOLID, CUSTOM_COLOR)
 	end
-	color(CUSTOM_COLOR, LIGHTGREY)
 	line(0, TOP - 1, LCD_W - 1, TOP - 1, SOLID, CUSTOM_COLOR)
 
 	if data.showMax then
 		color(CUSTOM_COLOR, YELLOW)
-		fill(190, TOP - 20, 80, 20, CUSTOM_COLOR)
+		fill(240, TOP - 211, 80, 20, CUSTOM_COLOR)
 		color(CUSTOM_COLOR, BLACK)
-		text(265, TOP - 20, "Min/Max", CUSTOM_COLOR + RIGHT)
+		text(319, TOP - 211, "Min/Max", CUSTOM_COLOR + RIGHT)
 	end
-]]
+
 end
 
 return view

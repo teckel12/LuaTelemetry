@@ -15,7 +15,7 @@ local function title(data, config, icons, SMLCD)
 	fill(0, 0, LCD_W, 20, CUSTOM_COLOR)
 	text(0, 0, model.getInfo().name)
 
-	local bat = data.nv and 115 or 197
+	local bat = data.nv and 135 or 197
 	if config[19].v > 0 then
 		fill(bat, 3, 43, 14, TEXT_COLOR)
 		fill(bat + 43, 6, 2, 8, TEXT_COLOR)
@@ -30,9 +30,9 @@ local function title(data, config, icons, SMLCD)
 
 	if config[13].v > 0 then
 		if data.doLogs and data.time ~= nil then
-			text(data.nv and 195 or 340, 0, data.time, WARNING_COLOR)
+			text(data.nv and 205 or 340, 0, data.time, WARNING_COLOR)
 		else
-			lcd.drawTimer(data.nv and 195 or 340, 0, data.timer)
+			lcd.drawTimer(data.nv and 205 or 340, 0, data.timer)
 		end
 	end
 
@@ -76,7 +76,7 @@ end
 local function gpsDegMin(c, lat)
 	local gpsD = math.floor(math.abs(c))
 	local gpsM = math.floor((math.abs(c) - gpsD) * 60)
-	return string.format("%d\64%d'%05.2f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+	return string.format("%d\64%d'%04.1f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
 end
 
 local function hdopGraph(x, y)
@@ -84,7 +84,7 @@ local function hdopGraph(x, y)
 	lcd.setColor(CUSTOM_COLOR, data.hdop < 11 - config[21].v * 2 and YELLOW or WHITE)
 	for i = 4, 9 do
 		if i > data.hdop then
-			lcd.setColor(CUSTOM_COLOR, GREY)
+			lcd.setColor(CUSTOM_COLOR, 33874)
 		end
 		fill(i * 4 + x - 16, y - (i * 3 - 10), 2, i * 3 - 10, CUSTOM_COLOR)
 	end
