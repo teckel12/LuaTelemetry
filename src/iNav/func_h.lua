@@ -59,6 +59,8 @@ local function title(data, config, icons, SMLCD)
 	text(data.nv and 115 or 180, 0, fmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
 	text(data.nv and 75 or 130, 0, fmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
 	
+	--text(40,20,lcd.RGB(255, 100, 100),0)
+	--text(40,40,lcd.RGB(255, 255, 100),0)
 
 	-- Reset colors
 	color(WARNING_COLOR, YELLOW)
@@ -69,8 +71,6 @@ local function title(data, config, icons, SMLCD)
 		end
 	end
 
-	--text(40,20,lcd.RGB(255, 100, 100),0)
-	--text(40,40,lcd.RGB(255, 255, 100),0)
 end
 
 local function gpsDegMin(c, lat)
@@ -120,20 +120,13 @@ if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
 end
 
 function icons.clear(event, data)
-	lcd.setColor(CUSTOM_COLOR, data.nv and (data.configStatus > 0 and lcd.RGB(98, 106, 115) or 12942) or 264) --lcd.RGB(50, 82, 115) & lcd.RGB(0, 32, 65)
+	lcd.setColor(CUSTOM_COLOR, data.nv and (data.configStatus > 0 and 25422 or 12942) or 264) --lcd.RGB(98, 106, 115) / lcd.RGB(50, 82, 115) / lcd.RGB(0, 32, 65)
 	lcd.clear(CUSTOM_COLOR)
 	lcd.setColor(TEXT_COLOR, WHITE)
-	lcd.setColor(WARNING_COLOR, data.telem and (data.nv and 65516 or YELLOW) or (data.nv and 64300 or RED)) --lcd.RGB(255, 255, 100) & lcd.RGB(255, 100, 100)
+	lcd.setColor(WARNING_COLOR, data.telem and (data.nv and 65516 or YELLOW) or (data.nv and 64300 or RED)) --lcd.RGB(255, 255, 100) / lcd.RGB(255, 100, 100)
 
 	if event == 0 or event == nil then
 		event = 0
-		if data.nv then
-			EVT_SYS_FIRST = 1542
-			EVT_ROT_LEFT = 57088
-			EVT_ROT_RIGHT = 56832
-			EVT_ENTER_BREAK = 514
-			EVT_EXIT_BREAK = 516
-		end
 		if not data.armed then
 			data.stickMsg = (data.throttle >= -940 or math.abs(getValue(data.hctrl_id)) >= 50) and "Return throttle stick to bottom center" or nil
 			if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 50 and math.abs(getValue(data.hcury_id)) < 50 then
@@ -169,13 +162,6 @@ function icons.clear(event, data)
 		if data.lastt6 == 0 then
 			data.lastt6 = nil
 		end
-		--[[
-		lcd.setColor(CUSTOM_COLOR, WHITE)
-		lcd.drawText(0,400,"t " .. data.throttle,CUSTOM_COLOR)
-		lcd.drawText(0,420,"l " .. getValue(data.hctrl_id),CUSTOM_COLOR)
-		lcd.drawText(0,440,"x " .. getValue(data.hcurx_id),CUSTOM_COLOR)
-		lcd.drawText(0,460,"y " .. getValue(data.hcury_id),CUSTOM_COLOR)
-		]]
 	end
 	return event
 end

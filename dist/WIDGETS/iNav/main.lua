@@ -1,7 +1,7 @@
 local buildMode = ...
 local iNav = nil
 local options = {
-	{ "Restore", BOOL, 0},
+	{ "Restore", BOOL, 1},
 	{ "Text", COLOR, BLACK},
 	{ "Warning", COLOR, YELLOW}
 }
@@ -11,6 +11,15 @@ local TELE_PATH = "/SCRIPTS/TELEMETRY/"
 local v, r, m, i, e = getVersion()
 if string.sub(r, -4) == "simu" and buildMode ~= true then
 	loadScript(TELE_PATH .. "iNav", "tc")(true)
+end
+
+-- Nirvana NV14 doesn't have have these global constants, so we set them
+if r == "NV14" then
+	EVT_SYS_FIRST = 1 --1542
+	EVT_ROT_LEFT = 2 --57088
+	EVT_ROT_RIGHT = 3 --56832
+	EVT_ENTER_BREAK = 4 --514
+	EVT_EXIT_BREAK = 5 --516
 end
 
 -- Run once at the creation of the widget
