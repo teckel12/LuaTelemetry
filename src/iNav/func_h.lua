@@ -1,6 +1,6 @@
 local config, data, FILE_PATH = ...
 
-local function title(data, config, SMLCD)
+local function title(data, config, icons, SMLCD)
 	local text = lcd.drawText
 	local fill = lcd.drawFilledRectangle
 	local color = lcd.setColor
@@ -45,7 +45,7 @@ local function title(data, config, SMLCD)
 	if data.configStatus > 0 then
 		color(CUSTOM_COLOR, 12678) -- Dark grey
 		fill(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
-		lcd.drawRectangle(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
+		icons.rectangle(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
 		text(4, 37, "Sats:", 0)
 		text(72, 37, data.satellites % 100, RIGHT + tmp)
 		if not data.crsf then
@@ -120,10 +120,20 @@ if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
 end
 
 function icons.clear(event, data)
-	lcd.setColor(CUSTOM_COLOR, 264) --lcd.RGB(0, 32, 65)
+	lcd.setColor(CUSTOM_COLOR, data.nv and (data.configStatus > 0 and lcd.RGB(98, 106, 115) or 12942) or 264) --lcd.RGB(50, 82, 115) & lcd.RGB(0, 32, 65)
 	lcd.clear(CUSTOM_COLOR)
+	lcd.setColor(TEXT_COLOR, WHITE)
+	lcd.setColor(WARNING_COLOR, data.telem and (data.nv and 65516 or YELLOW) or (data.nv and 64300 or RED)) --lcd.RGB(255, 255, 100) & lcd.RGB(255, 100, 100)
+
 	if event == 0 or event == nil then
 		event = 0
+		if data.nv then
+			EVT_SYS_FIRST = 1542
+			EVT_ROT_LEFT = 57088
+			EVT_ROT_RIGHT = 56832
+			EVT_ENTER_BREAK = 514
+			EVT_EXIT_BREAK = 516
+		end
 		if not data.armed then
 			data.stickMsg = (data.throttle >= -940 or math.abs(getValue(data.hctrl_id)) >= 50) and "Return throttle stick to bottom center" or nil
 			if data.throttle > 940 and getValue(data.hctrl_id) > 940 and math.abs(getValue(data.hcurx_id)) < 50 and math.abs(getValue(data.hcury_id)) < 50 then
@@ -159,6 +169,13 @@ function icons.clear(event, data)
 		if data.lastt6 == 0 then
 			data.lastt6 = nil
 		end
+		--[[
+		lcd.setColor(CUSTOM_COLOR, WHITE)
+		lcd.drawText(0,400,"t " .. data.throttle,CUSTOM_COLOR)
+		lcd.drawText(0,420,"l " .. getValue(data.hctrl_id),CUSTOM_COLOR)
+		lcd.drawText(0,440,"x " .. getValue(data.hcurx_id),CUSTOM_COLOR)
+		lcd.drawText(0,460,"y " .. getValue(data.hcury_id),CUSTOM_COLOR)
+		]]
 	end
 	return event
 end
@@ -167,22 +184,36 @@ function icons.menu(config, data, icons, prev)
 	if config[30].v ~= prev then
 		icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 	end
+
 	-- Aircraft symbol preview
 	if data.configStatus == 27 and data.configSelect ~= 0 then
-		lcd.setColor(CUSTOM_COLOR, 982) -- Sky
+		lcd.setColor(CUSTOM_COLOR, data.nv and 13660 or 982) -- Sky
 		lcd.drawFilledRectangle(LCD_W - 124, (data.nv and 28 or 111), 123, 31, CUSTOM_COLOR)
-		lcd.setColor(CUSTOM_COLOR, 25121) -- Ground
+		lcd.setColor(CUSTOM_COLOR, data.nv and 37799 or 25121) -- Ground
 		lcd.drawFilledRectangle(LCD_W - 124, (data.nv and 59 or 142), 123, 31, CUSTOM_COLOR)
 		lcd.drawBitmap(icons.fg, LCD_W - 125, (data.nv and 27 or 110), 50)
-		lcd.drawRectangle(LCD_W - 125, (data.nv and 27 or 110), 125, 64, TEXT_COLOR)
+		icons.rectangle(LCD_W - 125, (data.nv and 27 or 110), 125, 64, TEXT_COLOR)
 	end
 	-- Return throttle stick to bottom center
 	if data.stickMsg ~= nil and not data.armed then
 		lcd.setColor(CUSTOM_COLOR, BLACK)
-		lcd.drawFilledRectangle(data.nv and 6 or 20, 128, data.nv and 308 or 439, 30, CUSTOM_COLOR)
+		lcd.drawFilledRectangle(data.nv and 6 or 20, data.nv and 270 or 128, data.nv and 308 or 439, 30, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, YELLOW)
-		lcd.drawRectangle(data.nv and 5 or 19, 127, data.nv and 310 or 441, 32, CUSTOM_COLOR)
-		lcd.drawText(data.nv and 14 or 28, data.nv and 133 or 128, data.stickMsg, (not data.nv and MIDSIZE or 0) + CUSTOM_COLOR)
+		icons.rectangle(data.nv and 5 or 19, data.nv and 269 or 127, data.nv and 310 or 441, 32, CUSTOM_COLOR)
+		lcd.drawText(data.nv and 14 or 28, data.nv and 275 or 128, data.stickMsg, (data.nv and SMLSIZE or MIDSIZE) + CUSTOM_COLOR)
+	end
+end
+
+function icons.rectangle(x, y, w, h, color)
+	if data.nv then
+		w = w - 1
+		h = h - 1
+		lcd.drawLine(x, y, x + w, y, SOLID, color)
+		lcd.drawLine(x + w, y, x + w, y + h, SOLID, color)
+		lcd.drawLine(x + w, y + h, x, y + h, SOLID, color)
+		lcd.drawLine(x, y + h, x, y, SOLID, color)
+	else
+		lcd.drawRectangle(x, y, w, h, color)
 	end
 end
 

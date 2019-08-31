@@ -486,7 +486,7 @@ local function run(event)
 			data.v = 9
 		end
 		tmp = config[30].v
-		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
+		view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, icons, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
 		if HORUS then
 			icons.menu(config, data, icons, tmp)
 		end
@@ -528,7 +528,7 @@ local function run(event)
 	collectgarbage()
 
 	-- Paint title
-	title(data, config, SMLCD)
+	title(data, config, icons, SMLCD)
 
 	return 0
 end

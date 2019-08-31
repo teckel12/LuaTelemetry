@@ -1,14 +1,14 @@
 local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
 
 	local rgb = lcd.RGB
-	local SKY = rgb(50, 171, 230)
-	local GROUND = rgb(148, 118, 58)
+	local SKY = 13660 --rgb(50, 171, 230)
+	local GROUND = 37799 --rgb(148, 118, 58)
 	--local SKY2 = 8943 --rgb(32, 92, 122)
 	--local GROUND2 = 20996 --rgb(81, 65, 36)
 	local MAP = rgb(50, 150, 50)
 	--local DKMAP = 544 --rgb(0, 70, 0)
 	local LIGHTMAP = rgb(50, 200, 50)
-	--local DATA = rgb(50, 82, 115)
+	--local DATA = 12942 --rgb(50, 82, 115)
 	--local GREY = rgb(180, 182, 180)
 	local DKGREY = rgb(98, 106, 115)
 	local RIGHT_POS = 270
@@ -87,8 +87,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Setup
 	bmap(icons.bg, 0, TOP)
-	color(TEXT_COLOR, WHITE)
-	color(WARNING_COLOR, data.telem and 65516 --[[rgb(255, 255, 100)]] or 64300 --[[rgb(255, 100, 100)]])
 
 	-- Calculate orientation
 	if data.pitchRoll then
@@ -422,7 +420,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 			if data.altMin < -1 then
 				cy = BOTTOM - (-data.altMin * factor)
-				color(CUSTOM_COLOR, LIGHTGREY)
+				color(CUSTOM_COLOR, BLACK)
 				line(RIGHT_POS - 58, cy, RIGHT_POS - 1, cy, DOTTED, CUSTOM_COLOR)
 				if cy < 142 then
 					text(RIGHT_POS - 59, cy - 8, "0", SMLSIZE + RIGHT)
@@ -473,10 +471,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- Startup message
 	if data.startup == 2 then
 		color(CUSTOM_COLOR, BLACK)
-		text(X_CNTR - 78, 182, "Lua Telemetry", MIDSIZE + CUSTOM_COLOR)
-		text(X_CNTR - 38, 212, "v" .. VERSION, MIDSIZE + CUSTOM_COLOR)
-		text(X_CNTR - 79, 181, "Lua Telemetry", MIDSIZE)
-		text(X_CNTR - 39, 211, "v" .. VERSION, MIDSIZE)
+		text(X_CNTR - 78, 192, "Lua Telemetry", MIDSIZE + CUSTOM_COLOR)
+		text(X_CNTR - 38, 222, "v" .. VERSION, MIDSIZE + CUSTOM_COLOR)
+		text(X_CNTR - 79, 191, "Lua Telemetry", MIDSIZE)
+		text(X_CNTR - 39, 221, "v" .. VERSION, MIDSIZE)
 	end
 --[[
 	-- Data

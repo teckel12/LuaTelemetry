@@ -86,8 +86,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Setup
 	bmap(icons.bg, 0, TOP)
-	color(TEXT_COLOR, WHITE)
-	color(WARNING_COLOR, data.telem and YELLOW or RED)
 
 	-- Calculate orientation
 	if data.pitchRoll then

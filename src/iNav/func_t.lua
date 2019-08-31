@@ -1,6 +1,6 @@
 local config, data, FILE_PATH = ...
 
-local function title(data, config, SMLCD)
+local function title(data, config, icons, SMLCD)
 	lcd.drawFilledRectangle(0, 0, LCD_W, 8, FORCE)
 	lcd.drawText(0, 0, model.getInfo().name, INVERS)
 	if data.doLogs and data.time ~= nil then

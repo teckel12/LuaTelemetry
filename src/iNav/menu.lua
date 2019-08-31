@@ -1,8 +1,8 @@
-local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
+local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, icons, FILE_PATH, SMLCD, FLASH, PREV, NEXT, HORUS, env)
 
 	local CONFIG_X = HORUS and (data.nv and 10 or 90) or (SMLCD and 0 or 46)
 	local TOP = HORUS and (data.nv and 107 or 37) or 11
-	local LINE = HORUS and 22 or 9
+	local LINE = HORUS and (data.nv and 28 or 22) or 9
 	local RSIDE = HORUS and 200 or 83
 	local GPS = HORUS and 45 or 21
 	local ROWS = HORUS and (data.nv and 12 or 9) or 5
@@ -58,12 +58,14 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	end
 
 	if HORUS then
-		lcd.setColor(CUSTOM_COLOR, GREY)
-		lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, CUSTOM_COLOR)
-		lcd.setColor(CUSTOM_COLOR, 12678) -- Dark grey
-	end
-	if not SMLCD then
-		lcd.drawRectangle(CONFIG_X - (HORUS and 10 or 5), TOP - (HORUS and 7 or 2), LCD_W - CONFIG_X * 2 + (HORUS and 20 or 10), LINE * (ROWS + 1) + (HORUS and 12 or 1), SOLID)
+		if not data.nv then
+			lcd.setColor(CUSTOM_COLOR, GREY)
+			lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, CUSTOM_COLOR)
+		end
+		icons.rectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, LINE * (ROWS + 1) + 12, SOLID, TEXT_COLOR)
+		lcd.setColor(CUSTOM_COLOR, data.nv and LIGHTGREY or 12678) -- Dark grey
+	elseif not SMLCD then
+		lcd.drawRectangle(CONFIG_X - 5, TOP - 2, LCD_W - CONFIG_X * 2 + 10, LINE * (ROWS + 1) + 1, SOLID)
 	end
 
 	-- Special limit cases
