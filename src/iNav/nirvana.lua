@@ -441,7 +441,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 		if data.gpsHome ~= false then
 			-- Craft location
-			tmp2 = config[31].v == 1 and 50 or 100
+			tmp2 = config[31].v == 1 and 65 or 130
 			d = data.distanceLast >= data.distRef and min(max(data.distanceLast / maxDist * tmp2, 7), tmp2) or 1
 			local bearing = calcBearing(data.gpsHome, data.gpsLatLon) - tmp
 			local rad1 = rad(bearing)
