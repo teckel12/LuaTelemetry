@@ -77,7 +77,7 @@ end
 local function gpsDegMin(c, lat)
 	local gpsD = math.floor(math.abs(c))
 	local gpsM = math.floor((math.abs(c) - gpsD) * 60)
-	return frmt("%d\64%d'%04.1f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+	return frmt(data.nv and "%d\64%d'%04.1f\"" or "%d\64%d'%05.2f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
 end
 
 local function hdopGraph(x, y)
