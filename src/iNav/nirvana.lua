@@ -351,7 +351,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
-	--[[ Variometer - Test with multi-protocol TX module and SBUS RX
+	--[[ Variometer
 	if config[7].v % 2 == 1 then
 		color(CUSTOM_COLOR, DKGREY)
 		fill(RIGHT_POS, TOP, 10, BOTTOM - 20, CUSTOM_COLOR)
@@ -373,11 +373,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	]]
 
-	--[[ RSSI
+	-- RSSI/LQ
 	tmp = (not data.telem or data.rssi < data.rssiLow) and FLASH or 0
-	val = data.showMax and data.rssiMin or data.rssiLast
-	text(X1 - 3, TOP + 84, val .. (data.crsf and "%" or "dB"), MIDSIZE + RIGHT + tmp)
-	text(0, TOP + 93, data.crsf and "LQ" or "RSSI", SMLSIZE)
+	local val = data.showMax and data.rssiMin or data.rssiLast
+	text(LCD_W + 1, BOTTOM - 19, val .. (data.crsf and "%" or "dB"), RIGHT + tmp)
+	text(LCD_W - 43, TOP, data.crsf and "  LQ" or "RSSI", SMLSIZE)
 	if data.rl ~= val then
 		local red = val >= data.rssiLow and max(floor((100 - val) / (100 - data.rssiLow) * 255), 0) or 255
 		local green = val < data.rssiLow and max(floor((val - data.rssiCrit) / (data.rssiLow - data.rssiCrit) * 255), 0) or 255
@@ -385,8 +385,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		data.rl = val
 	end
 	color(CUSTOM_COLOR, data.rc)
-	lcd.drawGauge(0, TOP + 110, X1 - 3, 15, min(val, 99), 100, CUSTOM_COLOR)
-	]]
+	rect(LCD_W - 32, TOP + 20, 15, 88, CUSTOM_COLOR)
+	local h = math.floor(max(1, (min(val, 100) * 0.01) * 86))
+	fill(LCD_W - 31, TOP + 107 - h, 13, h, CUSTOM_COLOR)
 
 	-- Calc orientation
 	tmp = data.headingRef
@@ -521,7 +522,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	bleft = 170
 	bright = LCD_W - 1
-	local val = math.floor((data.showMax and data.cellMin or data.cell) * 100 + 0.5) * 0.01
+	val = math.floor((data.showMax and data.cellMin or data.cell) * 100 + 0.5) * 0.01
 	text(bright, btop, frmt(config[1].v == 0 and "%.2fV" or "%.1fV", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
 	text(bleft, btop + 9, labels[2], SMLSIZE)
 	if data.bl ~= val then
