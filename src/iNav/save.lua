@@ -1,4 +1,4 @@
-local config, data, FILE_PATH = ...
+local config, data, frmt, FILE_PATH = ...
 
 local fh = io.open(FILE_PATH .. "cfg/" .. model.getInfo().name .. ".dat", "w")
 --[[
@@ -9,12 +9,11 @@ else
 ]]
 if fh ~= nil then
 	local floor = math.floor
-	local format = string.format
-	for line = 1, #config do
-		if config[line].d == nil then
-			io.write(fh, string.format("%0" .. config[line].c .. "d", config[line].v))
+	for i = 1, #config do
+		if config[i].d == nil then
+			io.write(fh, frmt("%0" .. config[i].c .. "d", config[i].v))
 		else 
-			io.write(fh, floor(config[line].v * 10))
+			io.write(fh, floor(config[i].v * 10))
 		end
 	end
 	io.close(fh)

@@ -37,9 +37,9 @@ for i = 1, 60 do
 	data.alt[i] = 0
 end
 
---[[ FPS stuff
+--[[ Show FPS ]]
 data.fpsStart = getTime()
 data.frames = 0
-]]
+
 
 return 0
