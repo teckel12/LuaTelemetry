@@ -11,10 +11,14 @@ local function title(data, config, icons, SMLCD)
 		tmp = WARNING_COLOR
 	end
 
+	-- Title
 	color(CUSTOM_COLOR, BLACK)
 	fill(0, 0, LCD_W, 20, CUSTOM_COLOR)
+
+	-- Model
 	text(0, 0, model.getInfo().name)
 
+	-- TX battery
 	local bat = data.nv and 135 or 197
 	if config[19].v > 0 then
 		fill(bat, 3, 43, 14, TEXT_COLOR)
@@ -24,24 +28,27 @@ local function title(data, config, icons, SMLCD)
 			fill(i, 5, 2, 10, CUSTOM_COLOR)
 		end
 	end
-	if config[19].v ~= 1 and not data.nv then
-		text(bat + 93, 0, fmt("%.1fV", data.txBatt), RIGHT)
+	if config[19].v ~= 1 then
+		text(data.nv and 180 or bat + 93, 0, fmt("%.1fV", data.txBatt), RIGHT)
 	end
 
+	-- Timer
 	if config[13].v > 0 then
 		if data.doLogs and data.time ~= nil then
-			text(data.nv and 202 or 340, 0, data.time, WARNING_COLOR)
+			text(data.nv and 187 or 340, 0, data.time, WARNING_COLOR)
 		else
 			lcd.drawTimer(data.nv and 202 or 340, 0, data.timer)
 		end
 	end
 
+	-- Receiver voltage or Crossfire speed
 	if data.rxBatt > 0 and config[14].v == 1 then
 		text(LCD_W, 0, fmt("%.1fV", data.rxBatt), RIGHT + tmp)
 	elseif data.crsf then
 		text(LCD_W, 0, (data.rfmd == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + tmp)
 	end
 
+	-- Data on config menu
 	if data.configStatus > 0 then
 		color(CUSTOM_COLOR, 12678) -- Dark grey
 		fill(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
@@ -59,9 +66,6 @@ local function title(data, config, icons, SMLCD)
 	text(data.nv and 115 or 180, 0, fmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
 	text(data.nv and 75 or 130, 0, fmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
 	
-	--text(40,20,lcd.RGB(255, 100, 100),0)
-	--text(40,40,lcd.RGB(255, 255, 100),0)
-
 	-- Reset colors
 	color(WARNING_COLOR, YELLOW)
 	if data.widget then

@@ -419,7 +419,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		local cx, cy, d
 
-		--[[ Altitude graph - Currently disabled due to preformance
+		-- Altitude graph
 		if config[28].v > 0 then
 			local factor = 30 / (data.altMax - data.altMin)
 			color(CUSTOM_COLOR, LIGHTMAP)
@@ -445,7 +445,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 			text(RIGHT_POS + 2, BOTTOM - 46, floor(data.altMax + 0.5) .. units[data.alt_unit], SMLSIZE + RIGHT)
 		end
-		]]
 
 		if data.gpsHome ~= false then
 			-- Craft location
