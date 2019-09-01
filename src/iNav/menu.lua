@@ -1,4 +1,4 @@
-local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, SMLCD, FLASH, PREV, NEXT, HORUS, text, rect, fill, env)
+local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, SMLCD, FLASH, PREV, NEXT, HORUS, text, rect, fill, frmt, env)
 
 	local CONFIG_X = HORUS and (data.nv and 10 or 90) or (SMLCD and 0 or 46)
 	local TOP = HORUS and (data.nv and 107 or 37) or 11
@@ -192,11 +192,11 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		text(CONFIG_X, y, config2[z].t, FONT + ((config2[z].p == 1 and HORUS) and CUSTOM_COLOR or 0))
 		if config2[z].p == nil then
 			if config2[z].l == nil then
-				text(CONFIG_X + RSIDE, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
+				text(CONFIG_X + RSIDE, y, (config[z].d ~= nil and frmt("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
 			else
 				if config2[z].l == 0 then
 					if config[z].v == 0 then
-						config2[z].l = { [0] = string.format("%10.6f %11.6f", data.lastLock.lat, data.lastLock.lon) }
+						config2[z].l = { [0] = frmt("%10.6f %11.6f", data.lastLock.lat, data.lastLock.lon) }
 					else
 						config2[z].l = { gpsDegMin(data.lastLock.lat, true) .. "  " .. gpsDegMin(data.lastLock.lon, false) }
 					end

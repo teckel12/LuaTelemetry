@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 
 	local LEFT_POS = SMLCD and 0 or 36
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
@@ -153,7 +153,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if SMLCD then
 		icons.home(LEFT_POS + 4, 42)
 		tmp = data.showMax and data.distanceMax or data.distanceLast
-		text(LEFT_POS + 12, 42, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
+		text(LEFT_POS + 12, 42, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (frmt("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + data.telemFlags)
 		tmp = (not data.telem or data.cell < config[3].v or (data.showCurr and config[23].v == 0 and data.fuel <= config[17].v)) and FLASH or 0
 		if data.showFuel then
 			if config[23].v > 0 or (data.crsf and data.showMax) then
@@ -163,13 +163,13 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				text(RIGHT_POS - 2, 13, "%", SMLSIZE + RIGHT + tmp)
 			end
 		end
-		text(RIGHT_POS - 7, 19, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
+		text(RIGHT_POS - 7, 19, frmt(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
 		text(RIGHT_POS - 2, 24, "V", SMLSIZE + RIGHT + tmp)
 		if data.showDir then
-			text(RIGHT_POS - 2, 42, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
-			text(RIGHT_POS - 2, 49, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
+			text(RIGHT_POS - 2, 42, config[16].v == 0 and frmt("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+			text(RIGHT_POS - 2, 49, config[16].v == 0 and frmt("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 		elseif data.showCurr then
-			text(RIGHT_POS - 2, 42, string.format("%.1fA", data.showMax and data.currentMax or data.current), SMLSIZE + RIGHT + data.telemFlags)
+			text(RIGHT_POS - 2, 42, frmt("%.1fA", data.showMax and data.currentMax or data.current), SMLSIZE + RIGHT + data.telemFlags)
 		end
 	elseif not data.armed and data.startup == 0 then
 		text(LEFT_POS + 19, 24, "Spd", SMLSIZE + RIGHT)
@@ -238,7 +238,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	line(LEFT_POS + 1, 32, LEFT_POS + 18, 32, SOLID, ERASE)
 	text(LEFT_POS + 1, 33, "      ", SMLSIZE + data.telemFlags)
 	tmp = data.showMax and data.speedMax or data.speed
-	text(LEFT_POS + 19, 33, data.startup == 0 and (tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
+	text(LEFT_POS + 19, 33, data.startup == 0 and (tmp >= 99.5 and math.floor(tmp + 0.5) or frmt("%.1f", tmp)) or "Spd", SMLSIZE + RIGHT + data.telemFlags)
 	lcd.drawRectangle(LEFT_POS, 31, 20, 10, FORCE)
 
 	-- Altitude
@@ -283,8 +283,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		if data.crsf == false then
 			text(LCD_W - (config[22].v == 0 and 24 or 25), config[22].v == 0 and 18 or 20, "HDOP", RIGHT + SMLSIZE)
 		end
-		text(LCD_W + 1, 33, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
-		text(LCD_W + 1, 42, config[16].v == 0 and string.format("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
+		text(LCD_W + 1, 33, config[16].v == 0 and frmt("%.5f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+		text(LCD_W + 1, 42, config[16].v == 0 and frmt("%.5f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 		text(RIGHT_POS + 8, 57, data.crsf and "LQ" or "RSSI", SMLSIZE)
 	end
 	line(RIGHT_POS + (config[7].v % 2 == 1 and (SMLCD and 5 or 7) or 0), 50, LCD_W, 50, SOLID, FORCE)
@@ -305,17 +305,17 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 				text(LEFT_POS, data.showCurr and 17 or 21, "%", SMLSIZE + RIGHT + tmp)
 			end
 		end
-		text(LEFT_POS - 5, data.showCurr and 25 or 32, string.format(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), DBLSIZE + RIGHT + tmp)
+		text(LEFT_POS - 5, data.showCurr and 25 or 32, frmt(config[1].v == 0 and "%.2f" or "%.1f", config[1].v == 0 and (data.showMax and data.cellMin or data.cell) or (data.showMax and data.battMin or data.batt)), DBLSIZE + RIGHT + tmp)
 		text(LEFT_POS, data.showCurr and 34 or 41, "V", SMLSIZE + RIGHT + tmp)
 		if data.showCurr then
 			tmp = data.showMax and data.currentMax or data.current
-			text(LEFT_POS - 5, 42, tmp >= 99.5 and math.floor(tmp + 0.5) or string.format("%.1f", tmp), MIDSIZE + RIGHT + data.telemFlags)
+			text(LEFT_POS - 5, 42, tmp >= 99.5 and math.floor(tmp + 0.5) or frmt("%.1f", tmp), MIDSIZE + RIGHT + data.telemFlags)
 			text(LEFT_POS, 47, "A", SMLSIZE + RIGHT + data.telemFlags)
 		end
 		line(0, data.showCurr and 54 or 53, LEFT_POS, data.showCurr and 54 or 53, SOLID, FORCE)
 		icons.home(0, 57)
 		tmp = data.showMax and data.distanceMax or data.distanceLast
-		text(LEFT_POS, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (string.format("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
+		text(LEFT_POS, 57, tmp < 1000 and math.floor(tmp + 0.5) .. units[data.dist_unit] or (frmt("%.1f", tmp / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi")), SMLSIZE + RIGHT + data.telemFlags)
 	end
 
 end

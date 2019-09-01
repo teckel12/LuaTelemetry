@@ -1,8 +1,7 @@
-local config, data, SMLCD, FILE_PATH, text, line, rect, fill = ...
+local config, data, SMLCD, FILE_PATH, text, line, rect, fill, frmt = ...
 
 local function title()
 	local color = lcd.setColor
-	local fmt = string.format
 	local tmp = 0
 
 	if not data.telem then
@@ -27,7 +26,7 @@ local function title()
 		end
 	end
 	if config[19].v ~= 1 then
-		text(data.nv and 180 or bat + 93, 0, fmt("%.1fV", data.txBatt), RIGHT)
+		text(data.nv and 180 or bat + 93, 0, frmt("%.1fV", data.txBatt), RIGHT)
 	end
 
 	-- Timer
@@ -41,7 +40,7 @@ local function title()
 
 	-- Receiver voltage or Crossfire speed
 	if data.rxBatt > 0 and config[14].v == 1 then
-		text(LCD_W, 0, fmt("%.1fV", data.rxBatt), RIGHT + tmp)
+		text(LCD_W, 0, frmt("%.1fV", data.rxBatt), RIGHT + tmp)
 	elseif data.crsf then
 		text(LCD_W, 0, (data.rfmd == 2 and 150 or (data.telem and 50 or "--")) .. "Hz", RIGHT + tmp)
 	end
@@ -61,8 +60,8 @@ local function title()
 
 	--[[ Show FPS ]]
 	data.frames = data.frames + 1
-	text(data.nv and 115 or 180, 0, fmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-	text(data.nv and 75 or 130, 0, fmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
+	text(data.nv and 115 or 180, 0, frmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
+	text(data.nv and 75 or 130, 0, frmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
 	
 	-- Reset colors
 	color(WARNING_COLOR, YELLOW)
@@ -78,7 +77,7 @@ end
 local function gpsDegMin(c, lat)
 	local gpsD = math.floor(math.abs(c))
 	local gpsM = math.floor((math.abs(c) - gpsD) * 60)
-	return string.format("%d\64%d'%04.1f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+	return frmt("%d\64%d'%04.1f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
 end
 
 local function hdopGraph(x, y)

@@ -1,4 +1,4 @@
-local config, data, SMLCD, FILE_PATH, text, line, rect, fill = ...
+local config, data, SMLCD, FILE_PATH, text, line, rect, fill, frmt = ...
 
 local function title()
 	fill(0, 0, LCD_W, 8, FORCE)
@@ -18,23 +18,23 @@ local function title()
 		end
 	end
 	if config[19].v ~= 1 then
-		text(SMLCD and ((config[14].v == 1 or data.crsf) and 105 or LCD_W) or 128, 1, string.format("%.1fV", data.txBatt), SMLSIZE + RIGHT + INVERS)
+		text(SMLCD and ((config[14].v == 1 or data.crsf) and 105 or LCD_W) or 128, 1, frmt("%.1fV", data.txBatt), SMLSIZE + RIGHT + INVERS)
 	end
 	if data.rxBatt > 0 and data.telem and config[14].v == 1 then
-		text(LCD_W, 1, string.format("%.1fV", data.rxBatt), SMLSIZE + RIGHT + INVERS)
+		text(LCD_W, 1, frmt("%.1fV", data.rxBatt), SMLSIZE + RIGHT + INVERS)
 	elseif data.crsf then
 		text(LCD_W, 1, (data.rfmd == 2 and 150 or (data.telem and 50 or "--")) .. (SMLCD and "" or "Hz"), SMLSIZE + RIGHT + INVERS)
 	end
 
 	--[[ Show FPS - Should always be 20fps on Taranis
 	data.frames = data.frames + 1
-	text(SMLCD and 57 or 80, 1, string.format("%.1f", data.frames / (getTime() - data.fpsStart) * 100), SMLSIZE + RIGHT + INVERS)
+	text(SMLCD and 57 or 80, 1, frmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), SMLSIZE + RIGHT + INVERS)
 	]]
 end
 
 local function gpsDegMin(c, lat)
 	local gpsD = math.floor(math.abs(c))
-	return gpsD .. string.format("\64%05.2f", (math.abs(c) - gpsD) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+	return gpsD .. frmt("\64%05.2f", (math.abs(c) - gpsD) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
 end
 
 local function hdopGraph(x, y, s, SMLCD)

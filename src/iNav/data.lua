@@ -94,4 +94,4 @@ local data = {
 	fUnit = {"mAh", "mWh"},
 }
 
-return data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, lcd.drawText, lcd.drawLine, lcd.drawRectangle, lcd.drawFilledRectangle
+return data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, lcd.drawText, lcd.drawLine, lcd.drawRectangle, lcd.drawFilledRectangle, string.format

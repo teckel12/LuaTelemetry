@@ -13,7 +13,7 @@ print("")
 
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units, labels = loadScript(FILE_PATH .. "modes", env)(HORUS)
-local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, text, line, rect, fill = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
+local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, text, line, rect, fill, frmt = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 if HORUS then
 	local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_h", env)(config, data, SMLCD, FILE_PATH, text, line, rect, fill)
@@ -46,7 +46,7 @@ loadScript(FILE_PATH .. "menu", env)()
 loadScript(FILE_PATH .. "log", env)()
 loadScript(FILE_PATH .. "log_c", env)()
 loadScript(FILE_PATH .. "log_s", env)()
-loadScript(FILE_PATH .. "save", env)(config, data, FILE_PATH)
+loadScript(FILE_PATH .. "save", env)(config, data, frmt, FILE_PATH)
 
 if buildMode == nil then
 	loadScript("/WIDGETS/iNav/main", env)(true)

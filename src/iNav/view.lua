@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 
 	local RIGHT_POS = SMLCD and 129 or 195
 	local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -30,7 +30,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 		local tmp = (frac ~= 0 or vc < max) and ext or ""
 		if frac ~= 0 and vc + 0.5 < max then
-			text(21, y, string.format(frac, vc) .. tmp, SMLSIZE + flags)
+			text(21, y, frmt(frac, vc) .. tmp, SMLSIZE + flags)
 		else
 			text(21, y, math.floor(vc + 0.5) .. tmp, SMLSIZE + flags)
 		end
@@ -47,8 +47,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	-- GPS
 	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
 	tmp = RIGHT_POS - (gpsFlags == SMLSIZE + RIGHT and 0 or 1)
-	text(tmp, 25, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
-	text(tmp, 33, config[16].v == 0 and string.format(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
+	text(tmp, 25, config[16].v == 0 and frmt(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), gpsFlags)
+	text(tmp, 33, config[16].v == 0 and frmt(SMLCD and "%.5f" or "%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), gpsFlags)
 	if data.crsf then
 		text(RIGHT_POS - (data.telem and 0 or 1), 9, data.tpwr < 1000 and data.tpwr .. "mW" or data.tpwr * 0.001 .. "W", SMLSIZE + RIGHT + data.telemFlags)
 	else
