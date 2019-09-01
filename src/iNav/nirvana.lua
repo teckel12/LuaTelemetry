@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill)
 
 	local rgb = lcd.RGB
 	local SKY = 13660 --rgb(50, 171, 230)
@@ -9,7 +9,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	--local DKMAP = 544 --rgb(0, 70, 0)
 	local LIGHTMAP = rgb(50, 200, 50)
 	--local DATA = 12942 --rgb(50, 82, 115)
-	--local GREY = rgb(180, 182, 180)
 	local DKGREY = 33874 --rgb(98, 106, 115)
 	local RIGHT_POS = 270
 	local X_CNTR = 134 --(RIGHT_POS + LEFT_POS [0]) / 2 - 1
@@ -20,14 +19,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
 	local DEGV = 160
 	local tmp, tmp2, top2, bot2, pitch, roll, roll1, upsideDown
-	local text = lcd.drawText
-	local line = lcd.drawLine
-	local fill = lcd.drawFilledRectangle
 	local bmap = lcd.drawBitmap
 	local color = lcd.setColor
-	local max = math.max
-	local min = math.min
 	local floor = math.floor
+	local min = math.min
+	local max = math.max
 	local abs = math.abs
 	local rad = math.rad
 	local deg = math.deg
@@ -251,12 +247,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Speed & altitude tics
-	tics(data.speed, 1)
-	tics(data.altitude, RIGHT_POS - 4)
-	if config[28].v == 0 and config[33].v == 0 then
-		text(42, TOP - 1, units[data.speed_unit], SMLSIZE)
-		text(RIGHT_POS - 43, TOP - 1, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
-	elseif config[28].v > 0 then
+	if config[28].v == 0 then
+		tics(data.speed, 1)
+		tics(data.altitude, RIGHT_POS - 4)
 		text(42, Y_CNTR - 25, units[data.speed_unit], SMLSIZE + RIGHT)
 		text(RIGHT_POS - 4, Y_CNTR - 25, "Alt " .. units[data.alt_unit], SMLSIZE + RIGHT)
 	end
@@ -520,7 +513,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 			color(CUSTOM_COLOR, data.fc)
 			--lcd.drawGauge(bleft, btop + 26, bwidth, 15, min(data.fuel, 99), 100, CUSTOM_COLOR)
-			icons.rectangle(bleft, btop + 27, bwidth, 15, CUSTOM_COLOR)
+			rect(bleft, btop + 27, bwidth, 15, CUSTOM_COLOR)
 			local w = max(1, (min(data.fuel, 100) * 0.01) * (bwidth - 2))
 			fill(1, btop + 28, w, 13, CUSTOM_COLOR)
 		end
@@ -540,7 +533,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 	color(CUSTOM_COLOR, data.bc)
 	--lcd.drawGauge(bleft,  btop + 27, bwidth, 15, min(max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 99), 100, CUSTOM_COLOR)
-	icons.rectangle(bleft, btop + 27, bwidth, 15, CUSTOM_COLOR)
+	rect(bleft, btop + 27, bwidth, 15, CUSTOM_COLOR)
 	local w = max(1, (min(max(val - config[3].v + 0.1, 0) * (100 / (4.2 - config[3].v + 0.1)), 100) * 0.01) * (bwidth - 2))
 	fill(bleft + 1, btop + 28, w, 13, CUSTOM_COLOR)
 

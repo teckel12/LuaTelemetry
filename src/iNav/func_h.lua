@@ -1,8 +1,6 @@
-local config, data, FILE_PATH = ...
+local config, data, SMLCD, FILE_PATH, text, line, rect, fill = ...
 
-local function title(data, config, icons, SMLCD)
-	local text = lcd.drawText
-	local fill = lcd.drawFilledRectangle
+local function title()
 	local color = lcd.setColor
 	local fmt = string.format
 	local tmp = 0
@@ -52,7 +50,7 @@ local function title(data, config, icons, SMLCD)
 	if data.configStatus > 0 then
 		color(CUSTOM_COLOR, 12678) -- Dark grey
 		fill(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, CUSTOM_COLOR)
-		icons.rectangle(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
+		rect(0, 30, 75, (22 * (data.crsf and 1 or 2)) + 14, TEXT_COLOR)
 		text(4, 37, "Sats:", 0)
 		text(72, 37, data.satellites % 100, RIGHT + tmp)
 		if not data.crsf then
@@ -84,7 +82,6 @@ local function gpsDegMin(c, lat)
 end
 
 local function hdopGraph(x, y)
-	local fill = lcd.drawFilledRectangle
 	lcd.setColor(CUSTOM_COLOR, data.hdop < 11 - config[21].v * 2 and YELLOW or WHITE)
 	for i = 4, 9 do
 		if i > data.hdop then
@@ -117,13 +114,25 @@ if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
 	data.widget = true
 	if iNavZone.zone.w < (data.nv and 280 or 450) or iNavZone.zone.h < (data.nv and 450 or 250) then
 		data.startupTime = math.huge
-		function icons.nfs()
-			lcd.drawText(iNavZone.zone.x + 14, iNavZone.zone.y + 16, "Full screen required", SMLSIZE + WARNING_COLOR)
+		function data.nfs()
+			text(iNavZone.zone.x + 14, iNavZone.zone.y + 16, "Full screen required", SMLSIZE + WARNING_COLOR)
 		end
 	end
 end
 
-function icons.clear(event, data)
+-- Nirvana's drawRectangle function is broken, replace it
+if data.nv then
+	function rect(x, y, w, h, color)
+		w = w - 1
+		h = h - 1
+		line(x, y, x + w, y, SOLID, color)
+		line(x + w, y, x + w, y + h, SOLID, color)
+		line(x + w, y + h, x, y + h, SOLID, color)
+		line(x, y + h, x, y, SOLID, color)
+	end
+end
+
+function data.clear(event)
 	lcd.setColor(CUSTOM_COLOR, data.nv and (data.configStatus > 0 and 25422 or 12942) or 264) --lcd.RGB(98, 106, 115) / lcd.RGB(50, 82, 115) / lcd.RGB(0, 32, 65)
 	lcd.clear(CUSTOM_COLOR)
 	lcd.setColor(TEXT_COLOR, WHITE)
@@ -170,7 +179,7 @@ function icons.clear(event, data)
 	return event
 end
 
-function icons.menu(config, data, icons, prev)
+function data.menu(prev)
 	if config[30].v ~= prev then
 		icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 	end
@@ -178,33 +187,20 @@ function icons.menu(config, data, icons, prev)
 	-- Aircraft symbol preview
 	if data.configStatus == 27 and data.configSelect ~= 0 then
 		lcd.setColor(CUSTOM_COLOR, data.nv and 13660 or 982) -- Sky
-		lcd.drawFilledRectangle(LCD_W - 124, (data.nv and 28 or 111), 123, 31, CUSTOM_COLOR)
+		fill(LCD_W - 124, (data.nv and 28 or 111), 123, 31, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, data.nv and 37799 or 25121) -- Ground
-		lcd.drawFilledRectangle(LCD_W - 124, (data.nv and 59 or 142), 123, 31, CUSTOM_COLOR)
+		fill(LCD_W - 124, (data.nv and 59 or 142), 123, 31, CUSTOM_COLOR)
 		lcd.drawBitmap(icons.fg, LCD_W - 125, (data.nv and 27 or 110), 50)
-		icons.rectangle(LCD_W - 125, (data.nv and 27 or 110), 125, 64, TEXT_COLOR)
+		rect(LCD_W - 125, (data.nv and 27 or 110), 125, 64, TEXT_COLOR)
 	end
 	-- Return throttle stick to bottom center
 	if data.stickMsg ~= nil and not data.armed then
 		lcd.setColor(CUSTOM_COLOR, BLACK)
-		lcd.drawFilledRectangle(data.nv and 6 or 20, data.nv and 270 or 128, data.nv and 308 or 439, 30, CUSTOM_COLOR)
+		fill(data.nv and 6 or 20, data.nv and 270 or 128, data.nv and 308 or 439, 30, CUSTOM_COLOR)
 		lcd.setColor(CUSTOM_COLOR, YELLOW)
-		icons.rectangle(data.nv and 5 or 19, data.nv and 269 or 127, data.nv and 310 or 441, 32, CUSTOM_COLOR)
-		lcd.drawText(data.nv and 14 or 28, data.nv and 275 or 128, data.stickMsg, (data.nv and SMLSIZE or MIDSIZE) + CUSTOM_COLOR)
+		rect(data.nv and 5 or 19, data.nv and 269 or 127, data.nv and 310 or 441, 32, CUSTOM_COLOR)
+		text(data.nv and 14 or 28, data.nv and 275 or 128, data.stickMsg, (data.nv and SMLSIZE or MIDSIZE) + CUSTOM_COLOR)
 	end
 end
 
-function icons.rectangle(x, y, w, h, color)
-	if data.nv then
-		w = w - 1
-		h = h - 1
-		lcd.drawLine(x, y, x + w, y, SOLID, color)
-		lcd.drawLine(x + w, y, x + w, y + h, SOLID, color)
-		lcd.drawLine(x + w, y + h, x, y + h, SOLID, color)
-		lcd.drawLine(x, y + h, x, y, SOLID, color)
-	else
-		lcd.drawRectangle(x, y, w, h, color)
-	end
-end
-
-return title, gpsDegMin, hdopGraph, icons
+return title, gpsDegMin, hdopGraph, icons, rect

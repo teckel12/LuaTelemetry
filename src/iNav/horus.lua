@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill)
 
 	local rgb = lcd.RGB
 	local SKY = 982 --rgb(0, 121, 180)
@@ -19,14 +19,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
 	local DEGV = 160
 	local tmp, tmp2, top2, bot2, pitch, roll, roll1, upsideDown
-	local text = lcd.drawText
-	local line = lcd.drawLine
-	local fill = lcd.drawFilledRectangle
 	local bmap = lcd.drawBitmap
 	local color = lcd.setColor
-	local max = math.max
-	local min = math.min
 	local floor = math.floor
+	local min = math.min
+	local max = math.max
 	local abs = math.abs
 	local rad = math.rad
 	local deg = math.deg

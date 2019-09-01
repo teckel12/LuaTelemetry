@@ -5,6 +5,7 @@ local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
 local v, r, m, i, e = getVersion()
 local env = "tc"
+--env = "tcd" -- Uncomment to compile with extra debug info
 
 print("")
 print("--------------------- COMPILE SCRIPTS ---------------------")
@@ -12,12 +13,12 @@ print("")
 
 local config = loadScript(FILE_PATH .. "config", env)(SMLCD)
 local modes, units, labels = loadScript(FILE_PATH .. "modes", env)(HORUS)
-local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
+local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, text, line, rect, fill = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 if HORUS then
-	local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_h", env)(config, data, FILE_PATH)
+	local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_h", env)(config, data, SMLCD, FILE_PATH, text, line, rect, fill)
 end
-local title, gpsDegMin, hdopGraph, icons = loadScript(FILE_PATH .. "func_t", env)(config, data, FILE_PATH)
+local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_t", env)(config, data, SMLCD, FILE_PATH, text, line, rect, fill)
 
 data.lang = "en"
 data.voice = "en"

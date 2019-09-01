@@ -1,4 +1,4 @@
-local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, icons, SMLCD, FLASH, PREV, NEXT, HORUS, env)
+local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId, getTelemetryUnit, SMLCD, FLASH, PREV, NEXT, HORUS, text, rect, fill, env)
 
 	local CONFIG_X = HORUS and (data.nv and 10 or 90) or (SMLCD and 0 or 46)
 	local TOP = HORUS and (data.nv and 107 or 37) or 11
@@ -55,12 +55,12 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 	if HORUS then
 		if not data.nv then
 			lcd.setColor(CUSTOM_COLOR, GREY)
-			lcd.drawFilledRectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, HIGH * (ROWS + 1) + 12, CUSTOM_COLOR)
+			fill(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, HIGH * (ROWS + 1) + 12, CUSTOM_COLOR)
 		end
-		icons.rectangle(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, HIGH * (ROWS + 1) + 12, SOLID, TEXT_COLOR)
+		rect(CONFIG_X - 10, TOP - 7, LCD_W - CONFIG_X * 2 + 20, HIGH * (ROWS + 1) + 12, TEXT_COLOR)
 		lcd.setColor(CUSTOM_COLOR, data.nv and LIGHTGREY or 12678) -- Dark grey
 	elseif not SMLCD then
-		lcd.drawRectangle(CONFIG_X - 5, TOP - 2, LCD_W - CONFIG_X * 2 + 10, HIGH * (ROWS + 1) + 1, SOLID)
+		rect(CONFIG_X - 5, TOP - 2, LCD_W - CONFIG_X * 2 + 10, HIGH * (ROWS + 1) + 1, SOLID)
 	end
 
 	-- Special limit cases
@@ -189,10 +189,10 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		if config2[z].p == 1 and HORUS then
 			tmp = tmp + CUSTOM_COLOR
 		end
-		lcd.drawText(CONFIG_X, y, config2[z].t, FONT + ((config2[z].p == 1 and HORUS) and CUSTOM_COLOR or 0))
+		text(CONFIG_X, y, config2[z].t, FONT + ((config2[z].p == 1 and HORUS) and CUSTOM_COLOR or 0))
 		if config2[z].p == nil then
 			if config2[z].l == nil then
-				lcd.drawText(CONFIG_X + RSIDE, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
+				text(CONFIG_X + RSIDE, y, (config[z].d ~= nil and string.format("%.1f", config[z].v) or config[z].v) .. config2[z].a, FONT + tmp)
 			else
 				if config2[z].l == 0 then
 					if config[z].v == 0 then
@@ -204,14 +204,14 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 					config2[z].l = offOn
 				end
 				if not config2[z].l then
-					lcd.drawText(CONFIG_X + RSIDE, y, config[z].v, FONT + tmp)
+					text(CONFIG_X + RSIDE, y, config[z].v, FONT + tmp)
 				else
-					lcd.drawText(z == 16 and LCD_W - CONFIG_X or CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp + (z == 16 and RIGHT or 0))
+					text(z == 16 and LCD_W - CONFIG_X or CONFIG_X + RSIDE, y, config2[z].l[config[z].v] .. ((config2[z].a == nil or config[z].v == 0) and "" or config2[z].a), FONT + tmp + (z == 16 and RIGHT or 0))
 				end
 			end
 			config2[z] = nil
 		else
-			lcd.drawText(CONFIG_X + RSIDE, y, "--", FONT + tmp)
+			text(CONFIG_X + RSIDE, y, "--", FONT + tmp)
 		end
 	end
 
