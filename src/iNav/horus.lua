@@ -18,6 +18,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local BOTTOM = 146
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
 	local DEGV = 160
+	local CENTERED = 4
+	--local TINSIZE = 256
+	--local VERTICAL = 16384
 	local tmp, tmp2, top2, bot2, pitch, roll, roll1, upsideDown
 	local bmap = lcd.drawBitmap
 	local color = lcd.setColor
@@ -532,7 +535,9 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Box 3 (flight modes, orientation)
-	text(X2 + 20, TOP, modes[data.modeId].t, modes[data.modeId].f == 3 and WARNING_COLOR or 0)
+	--text(X2 + 20, TOP, modes[data.modeId].t, modes[data.modeId].f == 3 and WARNING_COLOR or 0)
+	tmp = (X2 + X3) * 0.5
+	text(tmp + 4, TOP, modes[data.modeId].t, CENTERED + (modes[data.modeId].f == 3 and WARNING_COLOR or 0))
 	if data.altHold then
 		bmap(icons.lock, X1 + 63, TOP + 4)
 	end
@@ -542,12 +547,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	if data.showHead then
 		if data.showDir or data.headingRef == -1 then
-			text((X2 + X3) * 0.5, TOP + 18, "N", SMLSIZE)
+			text(tmp, TOP + 18, "N", SMLSIZE)
 			text(X3 - 4, 211, "E", SMLSIZE + RIGHT)
 			text(X2 + 10, 211, "W", SMLSIZE)
 			text(X2 + 78, BOTTOM - 15, floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 		end
-		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) * 0.5 + 4, 219, 25)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, tmp + 4, 219, 25)
 		if data.headingHold then
 			fill((x2 + x3) * 0.5 - 2, (y2 + y3) * 0.5 - 2, 5, 5, SOLID)
 		else

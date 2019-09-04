@@ -16,9 +16,9 @@ local modes, units, labels = loadScript(FILE_PATH .. "modes", env)(HORUS)
 local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, text, line, rect, fill, frmt = loadScript(FILE_PATH .. "data", env)(r, m, i, HORUS)
 loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 if HORUS then
-	local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_h", env)(config, data, SMLCD, FILE_PATH, text, line, rect, fill)
+	local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_h", env)(config, data, modes, SMLCD, FILE_PATH, text, line, rect, fill)
 end
-local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_t", env)(config, data, SMLCD, FILE_PATH, text, line, rect, fill)
+local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_t", env)(config, data, modes, SMLCD, FILE_PATH, text, line, rect, fill)
 
 data.lang = "en"
 data.voice = "en"

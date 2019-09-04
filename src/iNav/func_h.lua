@@ -1,4 +1,4 @@
-local config, data, SMLCD, FILE_PATH, text, line, rect, fill, frmt = ...
+local config, data, modes, SMLCD, FILE_PATH, text, line, rect, fill, frmt = ...
 
 local function title()
 	local color = lcd.setColor
@@ -32,7 +32,7 @@ local function title()
 	-- Timer
 	if config[13].v > 0 then
 		if data.doLogs and data.time ~= nil then
-			text(data.nv and 187 or 340, 0, data.time, WARNING_COLOR)
+			text(data.nv and 184 or 340, 0, data.time, WARNING_COLOR)
 		else
 			lcd.drawTimer(data.nv and 202 or 340, 0, data.timer)
 		end
@@ -109,6 +109,16 @@ data.t6_id = not data.nv and getFieldInfo("trim-t6").id or nil
 data.lastevt = 0
 data.lastt6 = nil
 
+-- Remove spaces from front of modes to center (if center works on Taranis this can be removed)
+for i = 1, #modes do
+	if modes[i].f == 0 then
+		if string.sub(modes[i].t, 1, 1) == " " then
+			modes[i].t = string.sub(modes[i].t, 2)
+		end
+	end
+end
+
+-- Make sure widget is full screen
 if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then
 	data.widget = true
 	if iNavZone.zone.w < (data.nv and 280 or 450) or iNavZone.zone.h < (data.nv and 450 or 250) then

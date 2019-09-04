@@ -49,7 +49,7 @@ collectgarbage()
 local crsf, distCalc = loadScript(FILE_PATH .. "other" .. ext, env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD, FLASH)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, SMLCD, FILE_PATH, text, line, rect, fill, frmt)
+local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, modes, SMLCD, FILE_PATH, text, line, rect, fill, frmt)
 collectgarbage()
 
 local function playAudio(f, a)
