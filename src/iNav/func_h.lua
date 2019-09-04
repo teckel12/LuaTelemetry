@@ -109,7 +109,7 @@ data.t6_id = not data.nv and getFieldInfo("trim-t6").id or nil
 data.lastevt = 0
 data.lastt6 = nil
 
--- Remove spaces from front of modes to center (if center works on Taranis this can be removed)
+-- Remove spaces from front of modes to center
 for i = 1, #modes do
 	if modes[i].f == 0 then
 		if string.sub(modes[i].t, 1, 1) == " " then

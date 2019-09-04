@@ -2,7 +2,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	local LEFT_POS = SMLCD and 0 or 36
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
-	local X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 2
+	local X_CNTR = (RIGHT_POS + LEFT_POS) * 0.5 - 2
 	local HEADING_DEG = SMLCD and 170 or 190
 	local PIXEL_DEG = (RIGHT_POS - LEFT_POS) / HEADING_DEG
 	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)

@@ -3,7 +3,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
-	local X_CNTR = (RIGHT_POS + LEFT_POS) / 2 - 1
+	local X_CNTR = (RIGHT_POS + LEFT_POS) * 0.5 - 1
 	local gpsFlags = SMLSIZE + RIGHT + ((not data.telem or not data.gpsFix) and FLASH or 0)
 	local tmp, pitch
 
