@@ -1,12 +1,12 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper T16 - v1.7.3
+## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper T16/FLYSKY Nirvana - v1.7.3
 
-### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis, Horus & Jumper T16 transmitters
+### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis, Horus, Jumper T16 & FLYSKY Nirvana transmitters
 
 [![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
 
 ## Interface
 
-#### [Video of Lua Telemetry](https://youtu.be/YaUgywuT1YM)
+#### [Video of Lua Telemetry running on X9D+](https://youtu.be/YaUgywuT1YM)
 
 #### Horus/Jumper T16 view
 
@@ -41,7 +41,7 @@
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
 * Radar (map) view shows model in relationship to home position, can be displayed either as launch/pilot-based or compass-based orientation
 * Altitude graph view shows altitude for the last 1-6 minutes
-* Horus and Jumper T16 transmitters show all views at the same time, and include additional features like roll scale
+* Horus, Jumper T16 & FLYSKY Nirvana NV14 transmitters show all views at the same time, and include additional features like roll scale
 * Bar gauges for Fuel (% battery mAh capacity remaining), Battery voltage, RSSI strength, Transmitter battery, GPS accuracy (HDOP), Variometer (and Altitude for X9D, X9D+ and X9E transmitters)
 * Display and voice alerts for flight modes and flight mode modifiers (altitude hold, heading hold, home reset, etc.)
 * Voice notifications for % battery remaining (based on current), voltage low/critical, high altitude, lost GPS, ready to arm, armed, disarmed, etc.
@@ -58,8 +58,7 @@
 
 * [OpenTX v2.2.2+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X9 Lite, X-Lite/X-Lite Pro, Horus X10/X10S or X12S (OpenTX v2.2.3+ is suggested)
 * Jumper T16 requires [JumperTX 2.2.3+](https://www.jumper.xyz/jumpertx-t16) (May 23, 2019 or after release)
-* The OpenTX/JumperTX firmware on your transmitter needs to [includes the `luac` build option](https://youtu.be/nYeB0IXT-10?t=283)
-* FrSky X, R9 or D series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, XM, XM+, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
+* FrSky X, R9 or D series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1.0+ is suggested for full functionality) - Also compatible with Betaflight (with reduced functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
 
@@ -85,6 +84,7 @@
 * [Team Black Sheep](https://www.team-blacksheep.com/) - Sponsoring TBS Crossfire telemetry support
 * [FrSky](https://www.frsky-rc.com/) - Sponsoring Horus transmitter support
 * [Jumper](https://www.jumper.xyz/) - Sponsoring Jumper T16 transmitter support
+* [FLYSKY](https://www.flysky-cn.com/) - Sponsoring FLYSKY Nirvana NV14 transmitter support
 
 ## Setup
 
