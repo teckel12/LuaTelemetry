@@ -7,20 +7,20 @@ assignees: teckel12
 ---
 
 ### Describe the bug
-<!-- A clear and concise description of the bug and specify the transmitter model (ie: X9D, X7, Horus X10S)  -->
+<!-- A clear and concise description of the bug and specify the transmitter model (ie: X9D, X7, Horus X10S), telemetry protocol (ie: FrSky S.Port, Crossfire), receiver model and any other important hardware details. -->
 
 ### To reproduce
-<!-- Steps to reproduce the behavior, example:  -->
+<!-- Steps to reproduce the behavior, example: -->
 1. Go to '....'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
 ### Expected behavior
-<!-- A clear and concise description of what you expected to happen.  -->
+<!-- A clear and concise description of what you expected to happen. -->
 
 ### Screenshots
-<!-- If applicable, add screenshots to help explain your problem.  -->
+<!-- If applicable, add screenshots to help explain your problem. -->
 
 ### Radio and model settings
 <!-- Below are the instructions for exporting radio and model settings that are needed to simulate (and hopefully reproduce) your problem:
@@ -36,4 +36,4 @@ assignees: teckel12
 -->
 
 ### Additional context
-<!-- Add any other context about the problem here.  -->
+<!-- Add any other context about the problem here. -->
