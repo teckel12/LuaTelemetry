@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
+local function view(data, config, modes, dir, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
@@ -67,8 +67,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.startup == 0 then
 		tmp = data.headingRef
 		if data.showDir or data.headingRef == -1 then
-			text(LEFT_POS + 2, 33, "W", SMLSIZE)
-			text(RIGHT_POS, 33, "E", SMLSIZE + RIGHT)
+			text(LEFT_POS + 2, 33, dir[6], SMLSIZE)
+			text(RIGHT_POS, 33, dir[2], SMLSIZE + RIGHT)
 			tmp = 0
 		end
 		local cx, cy, d

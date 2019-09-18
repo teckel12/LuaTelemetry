@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
+local function view(data, config, modes, dir, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 
 	local RIGHT_POS = SMLCD and 129 or 195
 	local GAUGE_WIDTH = SMLCD and 82 or 149
@@ -20,11 +20,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		end
 	end
 
-	local function drawData(txt, y, dir, vc, vm, max, ext, frac, flags)
-		if data.showMax and dir > 0 then
+	local function drawData(txt, y, d, vc, vm, max, ext, frac, flags)
+		if data.showMax and d > 0 then
 			vc = vm
 			text(0, y, string.sub(txt, 1, 3), SMLSIZE)
-			text(15, y, dir == 1 and "\192" or "\193", SMLSIZE)
+			text(15, y, d == 1 and "\192" or "\193", SMLSIZE)
 		else
 			text(0, y, txt, SMLSIZE)
 		end
@@ -63,11 +63,11 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		if data.telem then
 			local indicatorDisplayed = false
 			if data.showDir or data.headingRef == -1 or not SMLCD then
-				text(X_CNTR_1 - 2, 9, "N " .. math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE)
-				text(X_CNTR_1 + 10, 21, "E", SMLSIZE)
-				text(X_CNTR_1 - 14, 21, "W", SMLSIZE)
+				text(X_CNTR_1 - 2, 9, dir[0] .. " " .. math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE)
+				text(X_CNTR_1 + 10, 21, dir[2], SMLSIZE)
+				text(X_CNTR_1 - 14, 21, dir[6], SMLSIZE)
 				if not SMLCD then
-					text(X_CNTR_1 - 2, 32, "S", SMLSIZE)
+					text(X_CNTR_1 - 2, 32, dir[4], SMLSIZE)
 				end
 				drawDirection(data.heading, 140, 7, X_CNTR_1, 23)
 				indicatorDisplayed = true

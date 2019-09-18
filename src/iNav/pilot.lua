@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
+local function view(data, config, modes, dir, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 
 	local LEFT_POS = SMLCD and 0 or 36
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
@@ -137,11 +137,18 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		for i = 0, 348.75, 11.25 do
 			tmp = math.floor(LEFT_POS + ((i - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= LEFT_POS and tmp <= RIGHT_POS then
+				--[[
 				if i % 90 == 0 then
 					text(tmp - 2, 57, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
 				elseif i % 45 == 0 then
 					text(tmp - 4, 57, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
 				elseif tmp < X_CNTR - 10 or tmp > X_CNTR + 9 then
+					line(tmp, 62, tmp, 63, SOLID, FORCE)
+				end
+				]]
+				if i % 45 == 0 then
+					text(tmp - (i % 90 and 2 or 4), 57, dir[i / 45], SMLSIZE)
+				else
 					line(tmp, 62, tmp, 63, SOLID, FORCE)
 				end
 			end

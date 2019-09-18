@@ -24,7 +24,7 @@ end
 local config = loadScript(FILE_PATH .. "config" .. ext, env)(SMLCD)
 collectgarbage()
 
-local modes, units, labels = loadScript(FILE_PATH .. "modes" .. ext, env)(HORUS)
+local modes, units, labels, dir = loadScript(FILE_PATH .. "modes" .. ext, env)(HORUS)
 collectgarbage()
 
 local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, text, line, rect, fill, frmt = loadScript(FILE_PATH .. "data" .. ext, env)(r, m, i, HORUS)
@@ -49,7 +49,7 @@ collectgarbage()
 local crsf, distCalc = loadScript(FILE_PATH .. "other" .. ext, env)(config, data, units, getTelemetryId, getTelemetryUnit, FILE_PATH, env, SMLCD, FLASH)
 collectgarbage()
 
-local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, modes, SMLCD, FILE_PATH, text, line, rect, fill, frmt)
+local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_" .. (HORUS and "h" or "t") .. ext, env)(config, data, modes, dir, SMLCD, FILE_PATH, text, line, rect, fill, frmt)
 collectgarbage()
 
 local function playAudio(f, a)
@@ -523,7 +523,7 @@ local function run(event)
 			view = loadScript(FILE_PATH .. (HORUS and (data.nv and "nirvana" or "horus") or (config[25].v == 0 and "view" or (config[25].v == 1 and "pilot" or (config[25].v == 2 and "radar" or "alt")))) .. ext, env)()
 			data.v = config[25].v
 		end
-		view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
+		view(data, config, modes, dir, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 	end
 	collectgarbage()
 

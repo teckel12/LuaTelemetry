@@ -21,4 +21,6 @@ local units = { [0] = "", "V", "A", "mA", "kts", "m/s", "f/s", "kmh", "MPH", "m"
 
 local labels = { "Fuel", "Battery", "Current", "Altitude", "Distance" }
 
-return modes, units, labels
+local dir = { [0] = "N", "NE", "E", "SE", "S", "SW", "W", "NW" }
+
+return modes, units, labels, dir

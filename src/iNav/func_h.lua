@@ -1,4 +1,4 @@
-local config, data, modes, SMLCD, FILE_PATH, text, line, rect, fill, frmt = ...
+local config, data, modes, dir, SMLCD, FILE_PATH, text, line, rect, fill, frmt = ...
 
 local function title()
 	local color = lcd.setColor
@@ -59,9 +59,11 @@ local function title()
 	end
 
 	--[[ Show FPS ]]
-	data.frames = data.frames + 1
-	text(data.nv and 115 or 180, 0, frmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-	text(data.nv and 75 or 130, 0, frmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
+	if data.nv then
+		data.frames = data.frames + 1
+		text(data.nv and 115 or 180, 0, frmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
+		text(data.nv and 75 or 130, 0, frmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
+	end
 	
 	-- Reset colors
 	color(WARNING_COLOR, YELLOW)
@@ -77,7 +79,7 @@ end
 local function gpsDegMin(c, lat)
 	local gpsD = math.floor(math.abs(c))
 	local gpsM = math.floor((math.abs(c) - gpsD) * 60)
-	return frmt(data.nv and "%d\64%d'%04.1f\"" or "%d\64%d'%05.2f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+	return frmt(data.nv and "%d\64%d'%04.1f\"" or "%d\64%d'%05.2f\"", gpsD, gpsM, ((math.abs(c) - gpsD) * 60 - gpsM) * 60) .. (lat and (c >= 0 and dir[0] or dir[4]) or (c >= 0 and dir[2] or dir[6]))
 end
 
 local function hdopGraph(x, y)
@@ -112,11 +114,12 @@ data.lastt6 = nil
 -- Remove spaces from front of modes to center
 for i = 1, #modes do
 	if modes[i].f == 0 then
-		if string.sub(modes[i].t, 1, 1) == " " then
+		while string.sub(modes[i].t, 1, 1) == " " do
 			modes[i].t = string.sub(modes[i].t, 2)
 		end
 	end
 end
+modes[4].t = "ACRO"
 
 -- Make sure widget is full screen
 if type(iNavZone) == "table" and type(iNavZone.zone) ~= "nil" then

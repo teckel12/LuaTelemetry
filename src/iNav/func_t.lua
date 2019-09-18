@@ -1,4 +1,4 @@
-local config, data, modes, SMLCD, FILE_PATH, text, line, rect, fill, frmt = ...
+local config, data, modes, dir, SMLCD, FILE_PATH, text, line, rect, fill, frmt = ...
 
 local function title()
 	fill(0, 0, LCD_W, 8, FORCE)
@@ -34,7 +34,7 @@ end
 
 local function gpsDegMin(c, lat)
 	local gpsD = math.floor(math.abs(c))
-	return gpsD .. frmt("\64%05.2f", (math.abs(c) - gpsD) * 60) .. (lat and (c >= 0 and "N" or "S") or (c >= 0 and "E" or "W"))
+	return gpsD .. frmt("\64%05.2f", (math.abs(c) - gpsD) * 60) .. (lat and (c >= 0 and dir[0] or dir[4]) or (c >= 0 and dir[2] or dir[6]))
 end
 
 local function hdopGraph(x, y, s, SMLCD)

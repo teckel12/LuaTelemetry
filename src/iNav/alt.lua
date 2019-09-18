@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
+local function view(data, config, modes, dir, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 	local LEFT_DIV = 36
 	local LEFT_POS = SMLCD and LEFT_DIV or 73
 	local RIGHT_POS = SMLCD and LCD_W - 31 or LCD_W - 53
@@ -82,7 +82,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		-- Orientation
 		if not SMLCD and data.telem then
 			if data.showDir or data.headingRef == -1 then
-				text(LEFT_POS + 12, 29, "N", SMLSIZE)
+				text(LEFT_POS + 12, 29, dir[0], SMLSIZE)
 				text(LEFT_POS + 25 - (data.heading < 100 and 3 or 0) - (data.heading < 10 and 3 or 0), 57, math.floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
 				tmp = data.heading
 			else

@@ -1,4 +1,4 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
+local function view(data, config, modes, dir, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 
 	local rgb = lcd.RGB
 	local SKY = 13660 --rgb(50, 171, 230)
@@ -261,10 +261,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		for i = 0, 348.75, 11.25 do
 			tmp = floor(((i - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= 9 and tmp <= RIGHT_POS - 12 then
-				if i % 90 == 0 then
-					text(tmp - (i < 270 and 3 or 5), bot2, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
-				elseif i % 45 == 0 then
-					text(tmp - (i < 225 and 9 or 11), bot2, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
+				if i % 45 == 0 then
+					text(tmp, bot2, dir[i / 45], CENTERED + SMLSIZE)
 				else
 					line(tmp, BOTTOM - 4, tmp, BOTTOM - 1, SOLID, 0)
 				end
@@ -410,8 +408,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.startup == 0 then
 		-- Launch/north-based orientation
 		if data.showDir or data.headingRef == -1 then
-			text(LEFT_POS + 2, Y_CNTR - 9, "W", SMLSIZE)
-			text(RIGHT_POS, Y_CNTR - 9, "E", SMLSIZE + RIGHT)
+			text(LEFT_POS + 2, Y_CNTR - 9, dir[6], SMLSIZE)
+			text(RIGHT_POS, Y_CNTR - 9, dir[2], SMLSIZE + RIGHT)
 		end
 		local cx, cy, d
 
@@ -555,9 +553,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	-- Box 3 (flight modes, orientation)
-	--text(X2 + 20, TOP, modes[data.modeId].t, modes[data.modeId].f == 3 and WARNING_COLOR or 0)
-	tmp = (X2 + X3) * 0.5
-	text(tmp + 4, TOP, modes[data.modeId].t, CENTERED + (modes[data.modeId].f == 3 and WARNING_COLOR or 0))
+	tmp = (X2 + X3) * 0.5 + 4
+	text(tmp, TOP, modes[data.modeId].t, CENTERED + (modes[data.modeId].f == 3 and WARNING_COLOR or 0))
 	if data.altHold then
 		bmap(icons.lock, X1 + 63, TOP + 4)
 	end
@@ -567,12 +564,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	if data.showHead then
 		if data.showDir or data.headingRef == -1 then
-			text(tmp, TOP + 18, "N", SMLSIZE)
-			text(X3 - 4, 421, "E", SMLSIZE + RIGHT)
-			text(X2 + 10, 421, "W", SMLSIZE)
-			text(X2 + 78, BOTTOM - 15, floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+			text(tmp, TOP + 18, dir[0], CENTERED + SMLSIZE)
+			text(X3 - 4, 421, dir[2], SMLSIZE + RIGHT)
+			text(X2 + 10, 421, dir[6], SMLSIZE)
+			text(tmp + 4, BOTTOM - 15, floor(data.heading + 0.5) % 360 .. "\64", CENTERED + SMLSIZE + data.telemFlags)
 		end
-		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, tmp + 4, 429, 25)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, tmp, 429, 25)
 		if data.headingHold then
 			fill((x2 + x3) * 0.5 - 2, (y2 + y3) * 0.5 - 2, 5, 5, SOLID)
 		else
