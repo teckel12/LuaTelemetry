@@ -137,17 +137,8 @@ local function view(data, config, modes, dir, units, labels, gpsDegMin, hdopGrap
 		for i = 0, 348.75, 11.25 do
 			tmp = math.floor(LEFT_POS + ((i - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= LEFT_POS and tmp <= RIGHT_POS then
-				--[[
-				if i % 90 == 0 then
-					text(tmp - 2, 57, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
-				elseif i % 45 == 0 then
-					text(tmp - 4, 57, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
-				elseif tmp < X_CNTR - 10 or tmp > X_CNTR + 9 then
-					line(tmp, 62, tmp, 63, SOLID, FORCE)
-				end
-				]]
 				if i % 45 == 0 then
-					text(tmp - (i % 90 and 2 or 4), 57, dir[i / 45], SMLSIZE)
+					text(tmp - (i % 90 == 0 and 2 or 4), 57, dir[i / 45], SMLSIZE)
 				else
 					line(tmp, 62, tmp, 63, SOLID, FORCE)
 				end
