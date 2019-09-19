@@ -1,6 +1,6 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper T16/FLYSKY Nirvana - v1.7.3
+## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper/Nirvana - v1.7.3
 
-### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis, Horus, Jumper T16 & FLYSKY Nirvana transmitters
+### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis, Horus, Jumper & Nirvana transmitters
 
 [![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
 
@@ -14,27 +14,27 @@
 
 #### Pilot (glass cockpit) view for fixed wing pilots
 
-![sample](assets/iNavQX7pilot.png "Pilot view on Q X7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavQX7pilot.png "Pilot view on Q X7, X-Lite & Jumper T12")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dpilot.png "Pilot view on Taranis X9D, X9D+ and X9E")
 
 #### Radar (map) view
 
-![sample](assets/iNavQX7radar.png "Radar view on Q X7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavQX7radar.png "Radar view on Q X7, X-Lite & Jumper T12")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dradar.png "Radar view on Taranis X9D, X9D+ and X9E")
 
 #### Altitude graph view
 
-![sample](assets/iNavQX7alt.png "Altitude graph view on Q X7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavQX7alt.png "Altitude graph view on Q X7, X-Lite & Jumper T12")&nbsp;&nbsp;
 ![sample](assets/iNavX9Dalt.png "Altitude graph view on Taranis X9D, X9D+ and X9E")
 
 #### Classic view
 
-![sample](assets/iNavQX7.png "Classic view on Q X7 and X-Lite")&nbsp;&nbsp;
+![sample](assets/iNavQX7.png "Classic view on Q X7, X-Lite & Jumper T12")&nbsp;&nbsp;
 ![sample](assets/iNavX9D.png "Classic view on Taranis X9D, X9D+ and X9E")
 
 ## Features
 
-* Works with all FrSky telemetry receivers (X, R9 and D series), all TBS Crossfire receivers, all FrSky Taranis and Horus transmitters, and the Jumper T16 transmitter
+* Works with all FrSky telemetry receivers (X, R9 and D series), all TBS Crossfire receivers, all FrSky Taranis and Horus transmitters, and the Jumper T12/T16 transmitter
 * Compatible with Betaflight using FrSky X or R9 series receivers (with reduced functionality) and TBS Crossfire support with Betaflight 4.0.0+
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with magnetometer sensor on multirotor or fixed-wing with GPS)
@@ -57,7 +57,7 @@
 ## Requirements
 
 * [OpenTX v2.2.2+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X9 Lite, X-Lite/X-Lite Pro, Horus X10/X10S or X12S (OpenTX v2.2.3+ is suggested)
-* Jumper T16 requires [JumperTX 2.2.3+](https://www.jumper.xyz/jumpertx-t16) (May 23, 2019 or after release)
+* Jumper T12/T16 requires [JumperTX 2.2.3+](https://www.jumper.xyz/) (May 23, 2019 or after release)
 * FrSky X, R9 or D series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1.0+ is suggested for full functionality) - Also compatible with Betaflight (with reduced functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
