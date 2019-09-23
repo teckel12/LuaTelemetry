@@ -82,9 +82,9 @@
 ## Special Thanks
 
 * [Team Black Sheep](https://www.team-blacksheep.com/) - Sponsoring TBS Crossfire telemetry support
-* [FrSky](https://us.banggood.com/custlink/vG3D6Kiprr) - Sponsoring Horus transmitter support
+* [FrSky](https://www.frsky-rc.com/) - Sponsoring [FrSky Horus](https://us.banggood.com/custlink/vG3D6Kiprr) transmitter support
 * [Jumper](https://www.jumper.xyz/) - Sponsoring Jumper T16 transmitter support
-* [FLYSKY](https://us.banggood.com/custlink/GmGm0GZcpt) - Sponsoring FLYSKY Nirvana NV14 transmitter support
+* [FLYSKY](https://www.flysky-cn.com/) - Sponsoring [FLYSKY Nirvana NV14](https://us.banggood.com/custlink/GmGm0GZcpt) transmitter support
 
 ## Setup
 
