@@ -60,7 +60,7 @@
 * Jumper T12/T16 requires [JumperTX 2.2.3+](https://www.jumper.xyz/) (May 23, 2019 or after release)
 * FrSky X, R9 or D series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
 * [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1.0+ is suggested for full functionality) - Also compatible with Betaflight (with reduced functionality)
-* GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://www.banggood.com/UBLOX-NEO-M8N-BN-880-Flight-Control-GPS-Module-Dual-Module-Compass-p-971082.html)
+* GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://us.banggood.com/custlink/vvGD6DZWyg)
 
 ## Suggested Sensors
 
@@ -72,19 +72,19 @@
 
 * INAV v2.1.0+ is required for TBS Crossfire support (some telemetry missing from Crossfire: HDOP, GPS altitude, variometer and heading hold notifications)
 * INAV v2.0.0+ is required for FrSky D-series telemetry and proper GPS accuracy (HDOP) display
-* If using pilot or radar view or a Horus transmitter and INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
+* If using INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
 * INAV v1.9.1+ is required for F.Port compatibility
 * INAV v1.8.0+ is required for `Home reset` voice notification
 * OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter and Crossfire telemetry
-* Betaflight compatibility is mostly complete, except for some GPS and flight mode information missing from Betaflight
-* Use the OSD to control VTx band, frequency and power (Betaflight lua script can't be run at the same time as INAV Lua Telemetry due to limited transmitter memory)
+* Betaflight 4.0.0+ mostly works, except for some GPS and flight mode information which is missing from Betaflight
+* Use the OSD to control VTx band, frequency and power (except for on 2019 series Taranis transmitters, Betaflight's lua script can't run at the same time as INAV Lua Telemetry due to limited transmitter memory)
 
 ## Special Thanks
 
 * [Team Black Sheep](https://www.team-blacksheep.com/) - Sponsoring TBS Crossfire telemetry support
-* [FrSky](https://www.frsky-rc.com/) - Sponsoring Horus transmitter support
+* [FrSky](https://us.banggood.com/custlink/vG3D6Kiprr) - Sponsoring Horus transmitter support
 * [Jumper](https://www.jumper.xyz/) - Sponsoring Jumper T16 transmitter support
-* [FLYSKY](https://www.flysky-cn.com/) - Sponsoring FLYSKY Nirvana NV14 transmitter support
+* [FLYSKY](https://us.banggood.com/custlink/GmGm0GZcpt) - Sponsoring FLYSKY Nirvana NV14 transmitter support
 
 ## Setup
 
