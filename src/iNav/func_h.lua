@@ -61,8 +61,11 @@ local function title()
 	--[[ Show FPS ]]
 	if data.nv then
 		data.frames = data.frames + 1
+		text(data.nv and 75 or 130, 0, getUsage() .. "%", RIGHT)
+		--text(data.nv and 75 or 130, 0, frmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
 		text(data.nv and 115 or 180, 0, frmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-		text(data.nv and 75 or 130, 0, frmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
+	else
+		text(data.nv and 75 or 130, 0, getUsage() .. "%", RIGHT)
 	end
 	
 	-- Reset colors
@@ -107,7 +110,7 @@ icons.fg = Bitmap.open(FILE_PATH .. "pics/fg" .. config[30].v .. ".png")
 data.hcurx_id = getFieldInfo("ail").id
 data.hcury_id = getFieldInfo("ele").id
 data.hctrl_id = getFieldInfo("rud").id
-data.t6_id = not data.nv and getFieldInfo("trim-t6").id or nil
+data.t6_id = getFieldInfo("trim-t6") ~= nil and getFieldInfo("trim-t6").id or nil
 data.lastevt = 0
 data.lastt6 = nil
 

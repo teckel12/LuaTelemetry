@@ -12,6 +12,10 @@
 
 ![sample](assets/iNavHorus.png "View on Horus transmitters")
 
+#### Nirvana NV14 view
+
+![sample](assets/iNavNirvana.jpg "View on Nirvana NV14 transmitter")
+
 #### Pilot (glass cockpit) view for fixed wing pilots
 
 ![sample](assets/iNavQX7pilot.png "Pilot view on Q X7, X-Lite & Jumper T12")&nbsp;&nbsp;

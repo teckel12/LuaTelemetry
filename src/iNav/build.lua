@@ -17,6 +17,10 @@ local data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, text, line, rect
 loadScript(FILE_PATH .. "load", env)(config, data, FILE_PATH)
 if HORUS then
 	local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_h", env)(config, data, modes, dir, SMLCD, FILE_PATH, text, line, rect, fill)
+else
+	Bitmap = {}
+	function Bitmap.open() end
+	loadScript(FILE_PATH .. "func_h", env)(config, data, modes, dir, SMLCD, FILE_PATH, text, line, rect, fill)
 end
 local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_t", env)(config, data, modes, dir, SMLCD, FILE_PATH, text, line, rect, fill)
 

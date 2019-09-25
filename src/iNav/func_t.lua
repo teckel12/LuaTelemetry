@@ -30,6 +30,8 @@ local function title()
 	data.frames = data.frames + 1
 	text(SMLCD and 57 or 80, 1, frmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), SMLSIZE + RIGHT + INVERS)
 	]]
+
+	text(SMLCD and 57 or 80, 1, getUsage() .. "%", SMLSIZE + RIGHT + INVERS)
 end
 
 local function gpsDegMin(c, lat)
