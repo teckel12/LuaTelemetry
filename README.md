@@ -8,12 +8,9 @@
 
 #### [Video of Lua Telemetry running on X9D+](https://youtu.be/YaUgywuT1YM)
 
-#### Horus/Jumper T16 view
+#### Horus/Jumper T16 and Nirvana view
 
-![sample](assets/iNavHorus.png "View on Horus transmitters")
-
-#### Nirvana NV14 view
-
+![sample](assets/iNavHorus.png "View on Horus transmitters")&nbsp;&nbsp;
 ![sample](assets/iNavNirvana.jpg "View on Nirvana NV14 transmitter")
 
 #### Pilot (glass cockpit) view for fixed wing pilots
