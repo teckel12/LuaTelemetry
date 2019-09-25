@@ -437,9 +437,9 @@ local function background()
 end
 
 local function run(event)
-	--[[ Show FPS ]]
+	--[[ Show FPS
 	data.start = getTime()
-	
+	]]
 
 	-- Insure background() has run before rendering screen
 	if not data.bkgd then

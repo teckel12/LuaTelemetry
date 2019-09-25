@@ -61,12 +61,13 @@ local function title()
 	--[[ Show FPS ]]
 	if data.nv then
 		data.frames = data.frames + 1
-		text(data.nv and 75 or 130, 0, getUsage() .. "%", RIGHT)
 		--text(data.nv and 75 or 130, 0, frmt("%.1f", math.min(100 / (getTime() - data.start), 20)), RIGHT)
 		text(data.nv and 115 or 180, 0, frmt("%.1f", data.frames / (getTime() - data.fpsStart) * 100), RIGHT)
-	else
-		text(data.nv and 75 or 130, 0, getUsage() .. "%", RIGHT)
 	end
+
+	--[[ Show usage
+	text(data.nv and 75 or 130, 0, getUsage() .. "%", RIGHT)
+	]]
 	
 	-- Reset colors
 	color(WARNING_COLOR, YELLOW)
