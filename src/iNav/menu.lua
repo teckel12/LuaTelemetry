@@ -150,9 +150,9 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		local i = config2[z].i == nil and 1 or config2[z].i
 		if event == EVT_EXIT_BREAK then
 			data.configSelect = 0
-		elseif event == NEXT or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
+		elseif event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
 			config[z].v = math.min(math.floor(config[z].v * 10 + i * 10) * 0.1, config[z].x == nil and 1 or config[z].x)
-		elseif event == PREV or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then
+		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then
 			config[z].v =math.max(math.floor(config[z].v * 10 - i * 10) * 0.1, config2[z].m == nil and 0 or config2[z].m)
 		end
 
