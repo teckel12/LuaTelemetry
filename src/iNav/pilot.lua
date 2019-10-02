@@ -193,18 +193,55 @@ local function view(data, config, modes, dir, units, labels, gpsDegMin, hdopGrap
 	local x1, y1, x2, y2 = X_CNTR - x - 2.5, 35 + y - p, X_CNTR + x - 2.5, 35 - y - p
 	local a = (y2 - y1) / (x2 - x1 + .001)
 	local y = y1 - ((x1 - LEFT_POS + 1) * a)
+	--[[ Old slower method
 	for x = LEFT_POS + 1, RIGHT_POS - 1 do
 		local yy = y + 0.5
 		if (not upsideDown and yy < 64) or (upsideDown and yy > 7) then
 			line(x, math.min(math.max(yy, 8), 63), x, upsideDown and 8 or 63, SOLID, SMLCD and 0 or GREY_DEFAULT)
-			--[[ Faster?
-			local t = upsideDown and 8 or math.min(math.max(yy, 8), 63)
-			local h = upsideDown and math.min(math.max(yy, 8), 64) - t or 65 - t
-			fill(x, t, 3, h, GREY_DEFAULT)
-			]]
 		end
 		y = y + a
 	end
+	]]
+	-- Faster method
+	local width = math.min(math.max(4 - math.ceil(math.abs(roll - 90) * 0.05), 1), 3)
+	for x = LEFT_POS + 1, RIGHT_POS - 1, width do
+		local yy = y + 0.5
+		if (not upsideDown and yy < 64) or (upsideDown and yy > 7) then
+			local t = upsideDown and 8 or math.min(math.max(yy, 8), 63)
+			local h = upsideDown and math.min(math.max(yy, 8), 64) - t or 65 - t
+			fill(x, t, width, h, GREY_DEFAULT)
+		end
+		y = y + a * width
+	end
+	--[[ Even faster?
+	local width = math.min(math.max(4 - math.ceil(math.abs(roll - 90) * 0.05), 1), 3)
+	local lastx = -1
+	for x = LEFT_POS + 1, RIGHT_POS - 1, width do
+		if upsideDown then
+			if y > 8 then
+				local h = math.min(math.max(y + 0.5, 8), 64) - 8
+				if roll > 90 and h == 56 then
+					lastx = x
+					break
+				end
+				fill(x, 8, width, h, GREY_DEFAULT)
+			end
+		else
+			if y < 64 then
+				local t = math.min(math.max(y + 0.5, 8), 63)
+				if roll < 90 and t == 8 then
+					lastx = x
+					break
+				end
+				fill(x, t, width, 65 - t, GREY_DEFAULT)
+			end
+		end
+		y = y + a * width
+	end
+	if lastx then
+		fill(lastx, 8, RIGHT_POS - lastx, 57, GREY_DEFAULT)
+	end
+	]]
 	local inside = SMLCD and 6 or 13
 	local outside = SMLCD and 14 or 24
 	line(X_CNTR - outside, 35, X_CNTR - inside, 35, SOLID, SMLCD and 0 or FORCE)

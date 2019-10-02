@@ -12,6 +12,7 @@ end
 
 --[[	Replace with EVT_VIRTUAL_XXX at begining of 2020 and require OpenTX 2.3+
 		Currently missing EVT_VIRTUAL_MENU on Jumper T12
+		Can remove PREV, NEXT, MENU constants from code
 		Also, changes in menu.lua, iNav.lua to use the ENV_VIRTUAL_XXX constants
 ]]
 local tx = string.sub(r, 0, 2)
