@@ -35,8 +35,9 @@
 
 ## Features
 
-* Works with all FrSky telemetry receivers (X, R9 and D series), all TBS Crossfire receivers, all FrSky Taranis and Horus transmitters, and the Jumper T12/T16 transmitter
-* Compatible with Betaflight using FrSky X or R9 series receivers (with reduced functionality) and TBS Crossfire support with Betaflight 4.0.0+
+* Supported receivers: All FrSky telemetry receivers (X, R9 and D series) and all TBS Crossfire receivers
+* Supported transmitters: All FrSky Taranis and Horus transmitters, Jumper T12 & T16 and the FLYSKY Nirvana NV14
+* Compatible with Betaflight using FrSky X or R9 series receivers (with reduced functionality) and TBS Crossfire support with Betaflight v4.0.0+
 * Launch/pilot-based model orientation and location indicators (great for lost orientation/losing sight of your model)
 * Compass-based direction indicator (with magnetometer sensor on multirotor or fixed-wing with GPS)
 * Pilot (glass cockpit) view which includes attitude indicator as well as pilot-familiar layout of additional data
@@ -57,10 +58,10 @@
 
 ## Requirements
 
-* [OpenTX v2.2.2+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X9 Lite, X-Lite/X-Lite Pro, Horus X10/X10S or X12S (OpenTX v2.2.3+ is suggested)
+* [INAV v2.1.0+](https://github.com/iNavFlight/inav/releases) running on your flight controller - Also compatible with Betaflight v4.0.0+ (with reduced functionality)
+* [OpenTX v2.2.3+](http://www.open-tx.org/) running on Taranis Q X7/Q X7S, X9D/X9D+, X9E, X9 Lite, X-Lite/X-Lite Pro, Horus X10/X10S or X12S
 * Jumper T12/T16 requires [JumperTX 2.2.3+](https://www.jumper.xyz/) (May 23, 2019 or after release)
 * FrSky X, R9 or D series telemetry receiver: X4RSB, X8R, XSR, R-XSR, XSR-M, XSR-E, RX4R, RX6R, R9, R9 Slim, R9 Slim+, R9 Mini, R9 MM, D8R-II plus, D8R-XP, D4R-II, etc. or any TBS Crossfire receiver: Micro, Nano, Diversity, etc.
-* [INAV v1.7.3+](https://github.com/iNavFlight/inav/releases) running on your flight controller (INAV v2.1.0+ is suggested for full functionality) - Also compatible with Betaflight (with reduced functionality)
 * GPS - If you're looking for a GPS module, I suggest the [Beitian BN-880](https://us.banggood.com/custlink/vvGD6DZWyg)
 
 ## Suggested Sensors
@@ -71,13 +72,8 @@
 
 ## Notes
 
-* INAV v2.1.0+ is required for TBS Crossfire support (some telemetry missing from Crossfire: HDOP, GPS altitude, variometer and heading hold notifications)
-* INAV v2.0.0+ is required for FrSky D-series telemetry and proper GPS accuracy (HDOP) display
-* If using INAV v2.0+, set `frsky_pitch_roll = ON` in CLI settings for more accurate attitude display
-* INAV v1.9.1+ is required for F.Port compatibility
-* INAV v1.8.0+ is required for `Home reset` voice notification
-* OpenTX v2.2.2 (release version) is required for compatibility with Taranis X-Lite transmitter and Crossfire telemetry
-* Betaflight 4.0.0+ mostly works, except for some GPS and flight mode information which is missing from Betaflight
+* Some telemetry is missing from Crossfire: HDOP, GPS altitude and some secondary flight mode notifications like heading hold
+* Betaflight v4.0.0+ mostly works, except for some GPS and flight mode information which is missing from Betaflight
 * Use the OSD to control VTx band, frequency and power (except for on 2019 series Taranis transmitters, Betaflight's lua script can't run at the same time as INAV Lua Telemetry due to limited transmitter memory)
 
 ## Special Thanks
