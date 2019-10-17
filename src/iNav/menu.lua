@@ -124,10 +124,10 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 
 	-- Select config option
 	if data.configSelect == 0 then
-		if event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT then -- Next option
+		if event == NEXT or event == EVT_DOWN_REPT or event == EVT_MINUS_REPT or event == EVT_VIRTUAL_INC then -- Next option
 			data.configStatus = data.configStatus == #config and 1 or data.configStatus + 1
 			data.configTop = data.configStatus > math.min(#config, data.configTop + ROWS) and data.configTop + 1 or (data.configStatus == 1 and 1 or data.configTop)
-		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT then -- Previous option
+		elseif event == PREV or event == EVT_UP_REPT or event == EVT_PLUS_REPT or event == EVT_VIRTUAL_DEC then -- Previous option
 			data.configStatus = data.configStatus == 1 and #config or data.configStatus - 1
 			data.configTop = data.configStatus < data.configTop and data.configTop - 1 or (data.configStatus == #config and #config - ROWS or data.configTop)
 		elseif event == EVT_ENTER_BREAK and data.configStatus == 34 and config2[34].p == nil then -- Log file selected
