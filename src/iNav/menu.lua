@@ -39,7 +39,7 @@ local function view(data, config, units, lang, event, gpsDegMin, getTelemetryId,
 		{ t = "AltHold Center FB",l = 1 }, -- 26
 		{ t = "Battery Capacity", m = 150, i = 50, a = "mAh" }, -- 27
 		{ t = "Altitude Graph",   l = {[0] = "Off", 1, 2, 3, 4, 5, 6}, a = " Min" }, -- 28
-		{ t = "Cell Calculation", m = 4.2, i = 0.1, a = "V" }, -- 29
+		{ t = "Cell Calculation", m = 3.5, i = 0.1, a = "V" }, -- 29
 		{ t = "Aircraft Symbol",  a = "" }, -- 30
 		{ t = "Center Map Home",  l = 1 }, -- 31
 		{ t = "Orientation",      l = {[0] = "Launch", "Compass"} }, -- 32
