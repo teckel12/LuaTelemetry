@@ -4,7 +4,7 @@
 
 local buildMode = ...
 local VERSION = "1.7.3"
-local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
+local FILE_PATH = "/SCRIPTS/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480 or LCD_H >= 480
 local FLASH = HORUS and WARNING_COLOR or 3
@@ -508,7 +508,7 @@ local function run(event)
 		elseif event == EVT_ENTER_BREAK and not HORUS then
 			-- Cycle through views
 			config[25].v = config[25].v >= (config[28].v == 0 and 2 or 3) and 0 or config[25].v + 1
-		elseif event == MENU then
+		elseif event == MENU or event == EVT_DOWN_LONG then
 			-- Config menu
 			data.configStatus = data.configLast
 		elseif event == EVT_EXIT_BREAK and data.doLogs then
