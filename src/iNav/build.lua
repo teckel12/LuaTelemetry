@@ -1,5 +1,5 @@
 local buildMode = ...
-local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
+local FILE_PATH = "/SCRIPTS/iNav/"
 local FLASH = 3
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480
@@ -52,9 +52,9 @@ loadScript(FILE_PATH .. "log_c", env)()
 loadScript(FILE_PATH .. "log_s", env)()
 loadScript(FILE_PATH .. "save", env)(config, data, frmt, FILE_PATH)
 
-if buildMode == nil then
-	loadScript("/WIDGETS/iNav/main", env)(true)
-end
+-- if buildMode == nil then
+--	loadScript("/WIDGETS/iNav/main", env)(true)
+-- end
 
 print("")
 print("--------------------- COMPILE COMPLETE ---------------------")

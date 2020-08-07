@@ -1,7 +1,6 @@
 -- Lua Telemetry Flight Status for INAV/Taranis
 -- Author: https://github.com/teckel12
 -- Docs: https://github.com/iNavFlight/LuaTelemetry
-
 local buildMode = ...
 local VERSION = "1.7.3"
 local FILE_PATH = "/SCRIPTS/iNav/"
@@ -491,27 +490,33 @@ local function run(event)
 			data.menu(tmp)
 		end
 		-- Exit menu or select log for playback, save config settings
-		if data.configSelect == 0 and (event == EVT_EXIT_BREAK or (event == EVT_ENTER_BREAK and data.configStatus == 34 and config[34].x > -1 and not data.armed)) then
+		if data.configSelect == 0 and (event == EVT_VIRTUAL_EXIT or (event == EVT_VIRTUAL_ENTER and data.configStatus == 34 and config[34].x > -1 and not data.armed)) then
 			view = nil
 			collectgarbage()
 			loadScript(FILE_PATH .. "save" .. ext, env)(config, data, frmt, FILE_PATH)
 		end
 	else
 		-- User input
-		if not data.armed and (event == PREV or event == NEXT) then
+		if not data.armed and (event == EVT_VIRTUAL_INC) then
 			-- Toggle showing max/min values
 			data.showMax = not data.showMax
 		end
-		if event == NEXT or event == PREV then
+		if event == EVT_VIRTUAL_INC then
 			-- Toggle launch/compass-based orientation
 			data.showDir = not data.showDir
-		elseif event == EVT_ENTER_BREAK and not HORUS then
+		elseif event == EVT_VIRTUAL_ENTER and not HORUS then
 			-- Cycle through views
 			config[25].v = config[25].v >= (config[28].v == 0 and 2 or 3) and 0 or config[25].v + 1
-		elseif event == MENU or event == EVT_DOWN_LONG then
+		elseif event == EVT_VIRTUAL_MENU and not HORUS then
+			-- Cycle through views forward
+			config[25].v = config[25].v >= (config[28].v == 0 and 2 or 3) and 0 or config[25].v + 1
+		elseif event == EVT_VIRTUAL_NEXT_PAGE and not HORUS then
+			-- Cycle through views backward
+			config[25].v = config[25].v <= 0 and (config[28].v == 0 and 2 or 3) or config[25].v - 1
+		elseif event == EVT_VIRTUAL_PREV_PAGE then
 			-- Config menu
 			data.configStatus = data.configLast
-		elseif event == EVT_EXIT_BREAK and data.doLogs then
+		elseif event == EVT_VIRTUAL_EXIT and data.doLogs then
 			-- Exit playback
 			endLog()
 		end
