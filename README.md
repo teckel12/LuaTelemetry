@@ -4,6 +4,8 @@
 
 [![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
 
+- **New documentation:** https://luatelemetry.readthedocs.io/en/latest/
+
 ## Interface
 
 #### [Video of Lua Telemetry](https://youtu.be/YaUgywuT1YM)
