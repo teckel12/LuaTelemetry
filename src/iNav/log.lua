@@ -99,9 +99,9 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 				if pos == nil then
 					pos = string.len(raw)
 				end
-				local line = string.sub(raw, 0, pos)
+				local ln = string.sub(raw, 0, pos)
 				raw = string.sub(raw, pos + 1)
-				record = parseLine(line)
+				record = parseLine(ln)
 			end
 		end
 
@@ -143,12 +143,14 @@ local function playLog(data, config, distCalc, date, NEXT, PREV)
 			if data.a4_id > -1 then
 				data.cell = toNum(record[label.a4])
 			end
-			pos = string.find(record[label.gps], " ")
-			if pos ~= nil then
-				gpsTemp = {
-					lat = toNum(string.sub(record[label.gps], 0, pos - 1)),
-					lon = toNum(string.sub(record[label.gps], pos + 1))
-				}
+			if record[label.gps] ~= nil then
+				pos = string.find(record[label.gps], " ")
+				if pos ~= nil then
+					gpsTemp = {
+						lat = toNum(string.sub(record[label.gps], 0, pos - 1)),
+						lon = toNum(string.sub(record[label.gps], pos + 1))
+					}
+				end
 			end
 			data.telem = true
 			data.telemFlags = 0

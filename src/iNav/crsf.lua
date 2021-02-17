@@ -54,7 +54,7 @@ local function crsf(data)
 	data.fm = getValue(data.fm_id)
 	data.modePrev = data.mode
 	--Fake HDOP based on satellite lock count and assume GPS fix when there's at least 6 satellites
-	data.satellites = data.satellites + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100) + (data.satellites >= 6 and 1000 or 0)
+	data.satellites = math.min(data.satellites, 99) + (math.floor(math.min(data.satellites + 10, 25) * 0.36 + 0.5) * 100) + (data.satellites >= 6 and 1000 or 0)
 
 	-- In Betaflight 4.0+, flight mode ends with '*' when not armed
 	local bfArmed = true

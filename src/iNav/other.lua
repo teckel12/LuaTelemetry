@@ -7,6 +7,9 @@ data.fm_id = getTelemetryId("FM") > -1 and getTelemetryId("FM") or getTelemetryI
 -- Testing Crossfire
 --if data.simu then data.fm_id = 1 end
 
+-- Testing Nirvana
+--data.nv = true
+
 if data.fm_id > -1 then
 	crsf = loadScript(FILE_PATH .. "crsf.luac", env)(config, data, getTelemetryId, FLASH)
 	collectgarbage()
@@ -42,7 +45,7 @@ end
 if config[6].v == -1 then
 	config[6].v = data.alt_unit == 10 and 400 or 120
 end
-config[19].x = SMLCD and ((config[14].v == 1 or data.crsf) and 1 or 2) or 2
+config[19].x = SMLCD and ((config[14].v == 1 or data.crsf) and 1 or 2) or (data.nv and 1 or 2)
 config[19].v = math.min(config[19].x, config[19].v)
 config[20].v = data.pitot and config[20].v or 0
 if config[28].v == 0 then
