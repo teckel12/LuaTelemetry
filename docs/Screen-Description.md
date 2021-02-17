@@ -14,7 +14,7 @@
 
 ### Classic View
 
-![sample](https://raw.githubusercontent.com/iNavFlight/LuaTelemetrydevelopment/assets/iNavKey.png "Classic view screen description")
+![sample](https://raw.githubusercontent.com/iNavFlight/LuaTelemetry/development/assets/iNavKey.png "Classic view screen description")
 ![sample](https://raw.githubusercontent.com/iNavFlight/LuaTelemetry/development/assets/iNavKeyX9D.png "Classic view screen description for X9D")
 
 * To flip between compass-based direction and launch/pilot-based orientation and location, use the dial or +/- buttons
