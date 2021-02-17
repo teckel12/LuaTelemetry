@@ -1,5 +1,6 @@
-local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH)
+local function view(data, config, modes, dir, units, labels, gpsDegMin, hdopGraph, icons, calcBearing, calcDir, VERSION, SMLCD, FLASH, FILE_PATH, text, line, rect, fill, frmt)
 
+	local rgb = lcd.RGB
 	local SKY = 982 --rgb(0, 121, 180)
 	local GROUND = 25121 --rgb(98, 68, 8)
 	--local SKY2 = 8943 --rgb(32, 92, 122)
@@ -17,22 +18,20 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	local BOTTOM = 146
 	local Y_CNTR = 83 --(TOP + BOTTOM) / 2
 	local DEGV = 160
+	local CENTERED = 4
+	--local TINSIZE = 256
+	--local VERTICAL = 16384
 	local tmp, tmp2, top2, bot2, pitch, roll, roll1, upsideDown
-	local text = lcd.drawText
-	local line = lcd.drawLine
-	local fill = lcd.drawFilledRectangle
 	local bmap = lcd.drawBitmap
-	local rgb = lcd.RGB
 	local color = lcd.setColor
-	local max = math.max
-	local min = math.min
 	local floor = math.floor
+	local min = math.min
+	local max = math.max
 	local abs = math.abs
 	local rad = math.rad
 	local deg = math.deg
 	local sin = math.sin
 	local cos = math.cos
-	local fmt = string.format
 
 	function intersect(s1, e1, s2, e2)
 		local d = (s1.x - e1.x) * (s2.y - e2.y) - (s1.y - e1.y) * (s2.x - e2.x)
@@ -86,8 +85,6 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Setup
 	bmap(icons.bg, 0, TOP)
-	color(TEXT_COLOR, WHITE)
-	color(WARNING_COLOR, data.telem and YELLOW or RED)
 
 	-- Calculate orientation
 	if data.pitchRoll then
@@ -245,7 +242,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			end
 		end
 		if not data.showMax then
-			text(X_CNTR - 65, Y_CNTR - 9, fmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
+			text(X_CNTR - 65, Y_CNTR - 9, frmt("%.0f", upsideDown and -tmp or tmp) .. "\64", SMLSIZE + RIGHT)
 		end
 	end
 
@@ -265,10 +262,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		for i = 0, 348.75, 11.25 do
 			tmp = floor(((i - data.heading + (361 + HEADING_DEG * 0.5)) % 360) * PIXEL_DEG - 2.5)
 			if tmp >= 9 and tmp <= RIGHT_POS - 12 then
-				if i % 90 == 0 then
-					text(tmp - (i < 270 and 3 or 5), bot2, i == 0 and "N" or (i == 90 and "E" or (i == 180 and "S" or "W")), SMLSIZE)
-				elseif i % 45 == 0 then
-					text(tmp - (i < 225 and 7 or 9), bot2, i == 45 and "NE" or (i == 135 and "SE" or (i == 225 and "SW" or "NW")), SMLSIZE)
+				if i % 45 == 0 then
+					text(tmp, bot2, dir[i / 45], CENTERED + SMLSIZE)
 				else
 					line(tmp, BOTTOM - 4, tmp, BOTTOM - 1, SOLID, 0)
 				end
@@ -331,7 +326,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	-- Speed & altitude
 	tmp = data.showMax and data.speedMax or data.speed
-	text(39, Y_CNTR - 9, tmp >= 99.5 and floor(tmp + 0.5) or fmt("%.1f", tmp), SMLSIZE + RIGHT + data.telemFlags)
+	text(39, Y_CNTR - 9, tmp >= 99.5 and floor(tmp + 0.5) or frmt("%.1f", tmp), SMLSIZE + RIGHT + data.telemFlags)
 	tmp = data.showMax and data.altitudeMax or data.altitude
 	text(RIGHT_POS - 2, Y_CNTR - 9, floor(tmp + 0.5), SMLSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	if data.altHold then
@@ -372,7 +367,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 			line(RIGHT_POS, y1, RIGHT_POS + 9, y2, SOLID, CUSTOM_COLOR)
 		end
 		if data.startup == 0 then
-			text(RIGHT_POS + 13, TOP - 1, fmt(abs(data.vspeed) >= 9.95 and "%.0f" or "%.1f", data.vspeed) .. units[data.vspeed_unit], SMLSIZE + data.telemFlags)
+			text(RIGHT_POS + 13, TOP - 1, frmt(abs(data.vspeed) >= 9.95 and "%.0f" or "%.1f", data.vspeed) .. units[data.vspeed_unit], SMLSIZE + data.telemFlags)
 		end
 	end
 
@@ -392,8 +387,8 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if data.startup == 0 then
 		-- Launch/north-based orientation
 		if data.showDir or data.headingRef == -1 then
-			text(LEFT_POS + 2, Y_CNTR - 9, "W", SMLSIZE)
-			text(RIGHT_POS, Y_CNTR - 9, "E", SMLSIZE + RIGHT)
+			text(LEFT_POS + 2, Y_CNTR - 9, dir[6], SMLSIZE)
+			text(RIGHT_POS, Y_CNTR - 9, dir[2], SMLSIZE + RIGHT)
 		end
 		local cx, cy, d
 
@@ -459,7 +454,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 		line(x2, y2, x3, y3, SOLID, CUSTOM_COLOR)
 		line(x1, y1, x2, y2, SOLID, TEXT_COLOR)
 		line(x1, y1, x3, y3, SOLID, TEXT_COLOR)
-		tmp = data.distanceLast < 1000 and floor(data.distanceLast + 0.5) .. units[data.dist_unit] or (fmt("%.1f", data.distanceLast / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
+		tmp = data.distanceLast < 1000 and floor(data.distanceLast + 0.5) .. units[data.dist_unit] or (frmt("%.1f", data.distanceLast / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
 		text(LEFT_POS + 2, BOTTOM - 16, tmp, SMLSIZE + data.telemFlags)
 	end
 
@@ -499,7 +494,7 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	end
 
 	local val = math.floor((data.showMax and data.cellMin or data.cell) * 100 + 0.5) * 0.01
-	text(X1 - 3, TOP + 42, fmt(config[1].v == 0 and "%.2fV" or "%.1fV", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
+	text(X1 - 3, TOP + 42, frmt(config[1].v == 0 and "%.2fV" or "%.1fV", config[1].v == 0 and val or (data.showMax and data.battMin or data.batt)), MIDSIZE + RIGHT + tmp)
 	text(0, TOP + 51, labels[2], SMLSIZE)
 	if data.bl ~= val then
 		local red = val >= config[2].v and max(floor((4.2 - val) / (4.2 - config[2].v) * 255), 0) or 255
@@ -528,17 +523,18 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	text(X1 + 9, TOP + 1, labels[4], SMLSIZE)
 	text(X2, TOP + 12, floor(tmp + 0.5) .. units[data.alt_unit], MIDSIZE + RIGHT + ((not data.telem or tmp + 0.5 >= config[6].v) and FLASH or 0))
 	tmp2 = data.showMax and data.distanceMax or data.distanceLast
-	tmp = tmp2 < 1000 and floor(tmp2 + 0.5) .. units[data.dist_unit] or (fmt("%.1f", tmp2 / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
+	tmp = tmp2 < 1000 and floor(tmp2 + 0.5) .. units[data.dist_unit] or (frmt("%.1f", tmp2 / (data.dist_unit == 9 and 1000 or 5280)) .. (data.dist_unit == 9 and "km" or "mi"))
 	text(X1 + 9, TOP + 44, labels[5], SMLSIZE)
 	text(X2, TOP + 55, tmp, MIDSIZE + RIGHT + data.telemFlags)
 	if data.showCurr then
 		tmp = data.showMax and data.currentMax or data.current
 		text(X1 + 9, TOP + 87, labels[3], SMLSIZE)
-		text(X2, TOP + 98, (tmp >= 99.5 and floor(tmp + 0.5) or fmt("%.1fA", tmp)), MIDSIZE + RIGHT + data.telemFlags)
+		text(X2, TOP + 98, (tmp >= 99.5 and floor(tmp + 0.5) or frmt("%.1fA", tmp)), MIDSIZE + RIGHT + data.telemFlags)
 	end
 
 	-- Box 3 (flight modes, orientation)
-	text(X2 + 20, TOP, modes[data.modeId].t, modes[data.modeId].f == 3 and WARNING_COLOR or 0)
+	tmp = (X2 + X3) * 0.5 + 4
+	text(tmp, TOP, modes[data.modeId].t, CENTERED + (modes[data.modeId].f == 3 and WARNING_COLOR or 0))
 	if data.altHold then
 		bmap(icons.lock, X1 + 63, TOP + 4)
 	end
@@ -548,12 +544,12 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 
 	if data.showHead then
 		if data.showDir or data.headingRef == -1 then
-			text((X2 + X3) * 0.5, TOP + 18, "N", SMLSIZE)
-			text(X3 - 4, 211, "E", SMLSIZE + RIGHT)
-			text(X2 + 10, 211, "W", SMLSIZE)
-			text(X2 + 78, BOTTOM - 15, floor(data.heading + 0.5) % 360 .. "\64", SMLSIZE + RIGHT + data.telemFlags)
+			text(tmp, TOP + 18, dir[0], CENTERED + SMLSIZE)
+			text(X3 - 4, 211, dir[2], SMLSIZE + RIGHT)
+			text(X2 + 10, 211, dir[6], SMLSIZE)
+			text(tmp + 4, BOTTOM - 15, floor(data.heading + 0.5) % 360 .. "\64", CENTERED + SMLSIZE + data.telemFlags)
 		end
-		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, (X2 + X3) * 0.5 + 4, 219, 25)
+		local x1, y1, x2, y2, x3, y3 = calcDir(r1, r2, r3, tmp, 219, 25)
 		if data.headingHold then
 			fill((x2 + x3) * 0.5 - 2, (y2 + y3) * 0.5 - 2, 5, 5, SOLID)
 		else
@@ -581,10 +577,10 @@ local function view(data, config, modes, units, labels, gpsDegMin, hdopGraph, ic
 	if not data.crsf then
 		text(RIGHT_POS, TOP + 28, floor(data.gpsAlt + 0.5) .. (data.gpsAlt_unit == 10 and "'" or units[data.gpsAlt_unit]), MIDSIZE + tmp)
 	end
-	text(RIGHT_POS, TOP + 54, config[16].v == 0 and fmt("%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), tmp)
-	text(RIGHT_POS, TOP + 74, config[16].v == 0 and fmt("%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), tmp)
+	text(RIGHT_POS, TOP + 54, config[16].v == 0 and frmt("%.6f", data.gpsLatLon.lat) or gpsDegMin(data.gpsLatLon.lat, true), tmp)
+	text(RIGHT_POS, TOP + 74, config[16].v == 0 and frmt("%.6f", data.gpsLatLon.lon) or gpsDegMin(data.gpsLatLon.lon, false), tmp)
 	tmp = data.showMax and data.speedMax or data.speed
-	text(RIGHT_POS + 1, TOP + 98, tmp >= 99.5 and floor(tmp + 0.5) .. units[data.speed_unit] or fmt("%.1f", tmp) .. units[data.speed_unit], MIDSIZE + RIGHT + data.telemFlags)
+	text(RIGHT_POS + 1, TOP + 98, tmp >= 99.5 and floor(tmp + 0.5) .. units[data.speed_unit] or frmt("%.1f", tmp) .. units[data.speed_unit], MIDSIZE + RIGHT + data.telemFlags)
 
 	-- Dividers
 	color(CUSTOM_COLOR, DKGREY)

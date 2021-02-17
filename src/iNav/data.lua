@@ -10,15 +10,21 @@ local function getTelemetryUnit(n)
 	return (field and field.unit <= 10) and field.unit or 0
 end
 
+--[[	Replace with EVT_VIRTUAL_XXX at begining of 2020 and require OpenTX 2.3+
+		Currently missing EVT_VIRTUAL_MENU on Jumper T12
+		Can remove PREV, NEXT, MENU constants from code
+		Also, changes in menu.lua, iNav.lua to use the ENV_VIRTUAL_XXX constants
+]]
 local tx = string.sub(r, 0, 2)
-if HORUS or string.sub(r, 0, 3) == "x9e" or string.sub(r, 0, 6) == "x9lite" then
+if HORUS or string.sub(r, 0, 3) == "x9e" or string.sub(r, 0, 4) == "x9li" or string.sub(r, 0, 6) == "x9d+20" then
 	tx = "x7"
 end
-local tmp = tx == "x9" and EVT_PLUS_FIRST or (tx == "xl" and EVT_UP_FIRST)
+local tmp = tx == "x9" and EVT_PLUS_FIRST or EVT_UP_FIRST
 local PREV = tx == "x7" and EVT_ROT_LEFT or tmp
-tmp = tx == "x9" and EVT_MINUS_FIRST or (tx == "xl" and EVT_DOWN_FIRST)
+tmp = tx == "x9" and EVT_MINUS_FIRST or EVT_DOWN_FIRST
 local NEXT = tx == "x7" and EVT_ROT_RIGHT or tmp
-local MENU = tx == "xl" and EVT_SHIFT_BREAK or (HORUS and EVT_SYS_FIRST or EVT_MENU_BREAK)
+local MENU = tx == "xl" and EVT_SHIFT_BREAK or (HORUS and EVT_SYS_FIRST or (string.sub(r, 0, 3) == "t12" and EVT_VIRTUAL_PREVIOUS or EVT_MENU_BREAK))
+
 local general = getGeneralSettings()
 local distSensor = getTelemetryId("Dist") > -1 and "Dist" or (getTelemetryId("0420") > -1 and "0420" or "0007")
 local data = {
@@ -88,9 +94,10 @@ local data = {
 	alt = {},
 	v = -1,
 	simu = string.sub(r, -4) == "simu",
+	nv = r == "NV14",
 	--msg = m + i * 0.1 < 2.2 and "OpenTX v2.2+ Required" or false,
 	lastLock = { lat = 0, lon = 0 },
 	fUnit = {"mAh", "mWh"},
 }
 
-return data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU
+return data, getTelemetryId, getTelemetryUnit, PREV, NEXT, MENU, lcd.drawText, lcd.drawLine, lcd.drawRectangle, lcd.drawFilledRectangle, string.format
