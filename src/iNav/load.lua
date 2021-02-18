@@ -12,6 +12,15 @@ if fh ~= nil then
 	io.close(fh)
 end
 
+-- Look for language override
+fh = io.open(FILE_PATH .. "cfg/lang.dat")
+if fh ~= nil then
+	local tmp = io.read(fh, 2)
+	io.close(fh)
+	data.lang = tmp
+	data.voice = tmp
+end
+
 local log = getDateTime()
 local path = "/LOGS/" .. string.gsub(model.getInfo().name, " ", "_") .. "-20"
 config[34].x = -1
