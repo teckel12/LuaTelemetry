@@ -10,6 +10,7 @@ FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire on Taranis, Horus & Ju
 
 #### View on Horus/Jumper T16 transmitters
 ![sample](https://raw.githubusercontent.com/iNavFlight/LuaTelemetry/master/assets/iNavHorus.png "View on Horus/Jumper T16 transmitters")
+![sample](https://raw.githubusercontent.com/iNavFlight/LuaTelemetry/master/assets/iNavNirvana.jpg "View on Nirvana NV14 transmitter")
 
 #### Views on other radios (Jumper T12, Taranis X9D and more)
 
