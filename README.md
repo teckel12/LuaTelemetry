@@ -1,4 +1,4 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper/Nirvana - v1.7.3
+## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper/Nirvana - v1.7.4
 
 ### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis, Horus, Jumper & Nirvana transmitters
 
