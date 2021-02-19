@@ -27,7 +27,7 @@ local title, gpsDegMin, hdopGraph, icons, rect = loadScript(FILE_PATH .. "func_t
 data.lang = "en"
 data.voice = "en"
 local lang = loadScript(FILE_PATH .. "lang", env)(modes, labels, data, FILE_PATH, env)
-local langs = { "nl", "fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu" }
+local langs = { "nl", "fr", "it", "de", "cz", "sk", "es", "pl", "pt", "ru", "se", "hu", "ro" }
 local config2
 for abv = 1, #langs do
 	local fh = io.open(FILE_PATH .. "lang_" .. langs[abv] .. ".lua")

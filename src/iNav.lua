@@ -34,8 +34,8 @@ loadScript(FILE_PATH .. "load" .. ext, env)(config, data, FILE_PATH)
 collectgarbage()
 
 --[[ Simulator language testing
-data.lang = "es"
-data.voice = "es"
+data.lang = "ro"
+data.voice = "ro"
 ]]
 
 if data.lang ~= "en" or data.voice ~= "en" then
