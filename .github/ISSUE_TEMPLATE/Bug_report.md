@@ -3,7 +3,6 @@ name: "\U0001F41B Possible bug"
 about: Report a possible bug or issue with Lua Telemetry
 title: ''
 labels: 'bug?'
-assignees: teckel12
 ---
 
 ### Describe the bug
