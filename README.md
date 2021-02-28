@@ -1,10 +1,12 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper/Nirvana - v1.7.4
+## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper/Nirvana - v1.7.5
+
+> The new official repo for Lua Telemetry by the original (and only) author:
+> 
+> **https://github.com/teckel12/LuaTelemetry**
 
 ### FrSky SmartPort(S.Port), D-series, F.Port & TBS Crossfire telemetry on Taranis, Horus, Jumper & Nirvana transmitters
 
-[![Build Status](https://travis-ci.com/iNavFlight/LuaTelemetry.svg?branch=master)](https://travis-ci.com/iNavFlight/LuaTelemetry)
-
-- **New documentation:** https://luatelemetry.readthedocs.io/en/latest/
+[![Build Status](https://travis-ci.com/teckel12/LuaTelemetry.svg?branch=master)](https://travis-ci.com/teckel12/LuaTelemetry)
 
 ## Interface
 
@@ -81,34 +83,34 @@
 ## Special Thanks
 
 * [Team Black Sheep](https://www.team-blacksheep.com/) - Sponsoring TBS Crossfire telemetry support
-* [FrSky](https://www.frsky-rc.com/) - Sponsoring [FrSky Horus](https://us.banggood.com/custlink/vG3D6Kiprr) transmitter support
+* [FrSky](https://www.frsky-rc.com/) - Sponsoring FrSky Horus transmitter support
 * [Jumper](https://www.jumper.xyz/) - Sponsoring Jumper T16 transmitter support
-* [FLYSKY](https://www.flysky-cn.com/) - Sponsoring [FLYSKY Nirvana NV14](https://us.banggood.com/custlink/GmGm0GZcpt) transmitter support
+* [FLYSKY](https://www.flysky-cn.com/) - Sponsoring FLYSKY Nirvana NV14 transmitter support
 
 ## Setup
 
-* [Lua Telemetry Wiki](https://github.com/iNavFlight/LuaTelemetry/wiki)
-* [Download latest release](https://github.com/iNavFlight/LuaTelemetry/releases/latest)
-* [Installation Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Installation)
-* [Upgrade Instructions](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade)
-* [Download Options](https://github.com/iNavFlight/LuaTelemetry/wiki/Download-Options)
+* [Lua Telemetry Wiki](https://github.com/teckel12/LuaTelemetry/wiki)
+* [Download latest release](https://github.com/teckel12/LuaTelemetry/releases/latest)
+* [Installation Instructions](https://github.com/teckel12/LuaTelemetry/wiki/Installation)
+* [Upgrade Instructions](https://github.com/teckel12/LuaTelemetry/wiki/Upgrade)
+* [Download Options](https://github.com/teckel12/LuaTelemetry/wiki/Download-Options)
 
 ## Information & Settings
 
-* [Screen Description](https://github.com/iNavFlight/LuaTelemetry/wiki/Screen-Description)
-* [Configuration Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Configuration-Settings)
-* [Suggested Battery Settings](https://github.com/iNavFlight/LuaTelemetry/wiki/Suggested-Battery-Settings)
-* [Playback Telemetry Logs](https://github.com/iNavFlight/LuaTelemetry/wiki/Playback-Telemetry-Log-Files)
+* [Screen Description](https://github.com/teckel12/LuaTelemetry/wiki/Screen-Description)
+* [Configuration Settings](https://github.com/teckel12/LuaTelemetry/wiki/Configuration-Settings)
+* [Suggested Battery Settings](https://github.com/teckel12/LuaTelemetry/wiki/Suggested-Battery-Settings)
+* [Playback Telemetry Logs](https://github.com/teckel12/LuaTelemetry/wiki/Playback-Telemetry-Log-Files)
 
 ## Support
 
-* [Tips & Common Problems](https://github.com/iNavFlight/LuaTelemetry/wiki/Tips-&-Common-Problems)
-* [Support Issues](https://github.com/iNavFlight/LuaTelemetry/issues?q=is%3Aissue)
+* [Tips & Common Problems](https://github.com/teckel12/LuaTelemetry/wiki/Tips-&-Common-Problems)
+* [Support Issues](https://github.com/teckel12/LuaTelemetry/issues?q=is%3Aissue)
 * [Support Chat (Telegram)](https://t.me/luatelemetry)
 
 ## Other
 
-* [Upgrade to Development Build](https://github.com/iNavFlight/LuaTelemetry/wiki/Upgrade-to-Development-Build)
-* [Release History](https://github.com/iNavFlight/LuaTelemetry/wiki/Change-Log)
-* [Multilingual Support](https://github.com/iNavFlight/LuaTelemetry/wiki/Multilingual-Support)
-* [License](https://github.com/iNavFlight/LuaTelemetry/blob/master/LICENSE)
+* [Upgrade to Development Build](https://github.com/teckel12/LuaTelemetry/wiki/Upgrade-to-Development-Build)
+* [Release History](https://github.com/teckel12/LuaTelemetry/wiki/Change-Log)
+* [Multilingual Support](https://github.com/teckel12/LuaTelemetry/wiki/Multilingual-Support)
+* [License](https://github.com/teckel12/LuaTelemetry/blob/master/LICENSE)
