@@ -2,14 +2,16 @@ os: linux
 
 dist: trusty
 
-sudo: false
-
 language: c
+
+branches:
+  except:
+  - master
 
 env:
   global:
     - LUAROCKS=2.3.0
-  matrix:
+  jobs:
     - LUA=lua5.2
 
 before_install:
@@ -30,12 +32,12 @@ script:
 after_success:
   - coveralls -b .. -r .. -i ./src --dump c.report.json
   - luacov-coveralls -j c.report.json -v
-  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then curl -X POST https://api.telegram.org/bot797688679:AAEcKXFJ-0cDfiQLmn_hMg83FDFEtV7x2LQ/sendMessage -d chat_id=@luatelemetry -d "text=Build successful - PR #$TRAVIS_PULL_REQUEST $TRAVIS_PULL_REQUEST_BRANCH > $TRAVIS_BRANCH"; fi'
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then curl -X POST https://api.telegram.org/bot797688679:AAEcKXFJ-0cDfiQLmn_hMg83FDFEtV7x2LQ/sendMessage -d chat_id=@luatelemetry -d "text=Build successful - Branch $TRAVIS_BRANCH: $TRAVIS_COMMIT_MESSAGE"; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then curl -X POST "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage" -d chat_id=@luatelemetry -d "text=Build successful - PR #$TRAVIS_PULL_REQUEST $TRAVIS_PULL_REQUEST_BRANCH > $TRAVIS_BRANCH"; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then curl -X POST "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage" -d chat_id=@luatelemetry -d "text=Build successful - Branch $TRAVIS_BRANCH: $TRAVIS_COMMIT_MESSAGE"; fi'
 
 notifications:
   email:
     recipients:
-      - eckel.tim@gmail.com
+      - "$EMAIL_NOTIFICATION"
     on_success: never
     on_failure: always
