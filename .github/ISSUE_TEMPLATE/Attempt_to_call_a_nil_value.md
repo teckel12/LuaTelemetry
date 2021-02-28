@@ -14,11 +14,11 @@ https://youtu.be/nYeB0IXT-10?t=283
 
 2) When installing Lua Telemetry, be sure to download the latest LuaTelemetry.zip linked here:
 
-https://github.com/iNavFlight/LuaTelemetry/releases/latest
+https://github.com/teckel12/LuaTelemetry/releases/latest
 
 Also, please see the following instructions for correct installation:
 
-https://github.com/iNavFlight/LuaTelemetry/wiki/Installation
+https://github.com/teckel12/LuaTelemetry/wiki/Installation
 
 3) Another possible reason for this error is that you're trying to use other Lua scripts on the same model. While you can have multiple Lua scripts for the same model, there's not much memory to work with on the Taranis transmitters. For example, if you're trying to use the Betaflight Tx lua script as well as Lua Telemetry, you'll probably run out of memory.  If VTx control is desired, try using the OSD menu which allows you to change VTx settings right on the OSD.
 

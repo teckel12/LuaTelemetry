@@ -1,6 +1,6 @@
 -- Lua Telemetry Flight Status for INAV/Taranis
 -- Author: https://github.com/teckel12
--- Docs: https://github.com/iNavFlight/LuaTelemetry
+-- Docs: https://github.com/teckel12/LuaTelemetry
 
 local buildMode = ...
 local VERSION = "1.7.5"
