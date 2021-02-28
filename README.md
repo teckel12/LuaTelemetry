@@ -1,6 +1,6 @@
 ## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper/Nirvana - v1.7.5
 
-> The new official repo for Lua Telemetry by the original (and only) author:
+> The new home for Lua Telemetry:
 > 
 > **https://github.com/teckel12/LuaTelemetry**
 
