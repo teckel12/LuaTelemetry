@@ -78,7 +78,7 @@ local function crsf(data)
 		elseif data.fm == "OK" or bfArmed == false then
 			data.mode = 1
 		-- Armed modes
-		elseif data.fm == "ACRO" then
+		elseif data.fm == "ACRO" or data.fm == "AIR" then
 			data.mode = 5
 		elseif data.fm == "ANGL" or data.fm == "STAB" then
 			data.mode = 15

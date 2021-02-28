@@ -3,6 +3,7 @@ name: "\U0001F4A5 Attempt to call a nil value"
 about: Are you getting the message "Attempt to call a nil value"?
 title: ''
 labels: support
+assignees: teckel12
 ---
 
 If you're getting an `Attempt to call a nil value` error, it either means you don't have the `luac` build option checked for your OpenTX/JumperTX firmware or you're out of memory on your transmitter.  The Taranis series has very little free memory to work with for Lua scripts, so this error is quite common.  There's a few things that typically cause this error which are listed below:

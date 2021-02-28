@@ -3,6 +3,7 @@ name: "\U00002753 Question"
 about: Ask a question about Lua Telemetry
 title: ''
 labels: question
+assignees: teckel12
 ---
 
 ### Describe your question
