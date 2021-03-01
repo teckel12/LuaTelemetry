@@ -3,7 +3,7 @@
 -- Docs: https://github.com/teckel12/LuaTelemetry
 
 local buildMode = ...
-local VERSION = "1.7.5"
+local VERSION = "1.8.0"
 local FILE_PATH = "/SCRIPTS/TELEMETRY/iNav/"
 local SMLCD = LCD_W < 212
 local HORUS = LCD_W >= 480 or LCD_H >= 480

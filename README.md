@@ -1,4 +1,4 @@
-## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper/Nirvana - v1.7.5
+## INAV Lua Telemetry Flight Status for Taranis/Horus/Jumper/Nirvana - v1.8.0
 
 > The new home for Lua Telemetry:
 > 
